@@ -1,0 +1,38 @@
+<% content_for('body') do %>
+
+<% view :workspace do %>
+
+<% # PRIMARY TOOLBAR -%>
+<div class="toolbar">
+  <%= label_view :outlet => true, :tag => 'h1', :bind => {
+    :content => 'Docs.docsController.displayClientName'
+  } %>
+  <div class="buttons">
+  <%= button_view :outlet => true, :label => "Rebuild Docs", :image => static_url('icons/small/reset'), :action => 'Docs.docsController.rebuildDocs' %>
+  </div>
+</div>
+
+<%= collection_view :outlet => :sidebar, :class => :sidebar, :bind => {
+  :content => 'Docs.docsController.arrangedObjects',
+  :selection => 'Docs.docsController.selection',
+}, :example_view => 'Docs.DocLabelView', :properties => {
+  :group_by => '"group"' } %>
+
+<% tab_view :outlet => 'container', :class => "container", :bind => { :now_showing => 'Docs.docsController.nowShowingContainer' } do %>
+
+<%= view :outlet => :runner_tab, :tag => :iframe, :view => 'Docs.DocFrameView', :bind => { 
+  :doc => 'Docs.docsController.selectedDoc' } %>
+
+<% view :outlet => :rebuilding_tab do %>
+<h1><img src="<%= static_url('spinner') %>" /> Rebuilding Documentation...</h1>
+<% end %>
+
+<% end %>
+<% end %>
+
+<script>
+window.urlPrefix = "<%= bundle.url_prefix %>";
+window.indexPrefix = "<%= bundle.index_prefix %>";
+</script>
+
+<% end %>

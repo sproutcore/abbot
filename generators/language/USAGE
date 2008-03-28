@@ -1,0 +1,16 @@
+sc_view - Create a new view class in your SproutCore client.
+
+USAGE:
+
+  ./script/generate view client_name/view_name [CLASS]
+  
+DISCUSSION:
+
+This generator will create a new SproutCore view class in your client.  You should pass as the first parameter your client directory name/the view you want to create.  For example:
+
+./script/generate view todos/task
+
+defines a new class called Todos.TaskView in the file clients/todos/views/task.js.
+
+This generator creates view that inherit from SC.View but you can override this by passing the name of the view class you want as the second argument.
+

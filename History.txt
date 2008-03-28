@@ -1,0 +1,4 @@
+== 0.9.0 2008-03-08
+
+* 1 major enhancement:
+  * Initial release of the new BlueRibbon train build system

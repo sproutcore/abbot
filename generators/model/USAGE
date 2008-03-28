@@ -1,0 +1,24 @@
+model - Create a new model class in your SproutCore client.
+
+USAGE:
+
+  ./script/generate model client_name/model_name [MODEL_CLASS]
+  
+DISCUSSION:
+
+This generator will create a new SproutCore model file in your client or framework.  You should pass as the first parameter your client or framework directory name/the model you want to create.  For example:
+
+./script/generate model todos/task
+
+defines a new class called Todos.Task in the file clients/todos/models/task.js.
+
+Likewise:
+
+./script/generate model frameworks/shared/task
+
+defines a new class called Shared.Task in the file frameworks/shared/models/task.js
+
+This generator creates classes that inherit from SC.Record but you can override this by passing the name of the view class you want as the second argument.
+
+In addition to creating a model class, this will also create a stub for you to add Fixture data.  This is a convenient way to preload your application with data while you develop the client but have not yet connected to your server.
+

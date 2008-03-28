@@ -1,0 +1,63 @@
+#!/usr/bin/env ruby
+
+APP_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+$:.unshift File.join(APP_ROOT,'lib') ;
+
+# Require Merb, SproutCore & SproutCore/Merb support
+require 'rubygems'
+require 'rubigen'
+require 'merb-core'
+require 'sproutcore'
+require 'sproutcore/merb'
+
+# Load BlueRibbon
+#Dir.glob(File.join(APP_ROOT,'blueribbon','**','*.rb')).each { |x| require(x) }
+
+############################################################
+## Setup Default Options
+##
+
+begin
+  require 'thin'
+  server_kind = 'thin'
+rescue LoadError
+  server_kind = 'mongrel'
+end
+
+unless ARGV.index('-a') || ARGV.index('-i')
+  ARGV.push *['-a', server_kind]
+end
+
+# Make BlueRibbon run on a different port by default
+unless ARGV.index('-p')
+  ARGV.push *%w[-p 4020]
+end
+
+############################################################
+## Configure Merb
+##
+
+Merb::Router.prepare { |r| r.connect_clients('/') }
+Merb::Config.use { |c|
+  c[:framework]           = {},
+  c[:session_store]       = 'none',
+  c[:exception_details]   = true
+}
+
+############################################################
+## Register Exception Handler
+##
+
+class Exceptions < Merb::Controller
+  def base
+    params[:exception].to_s
+  end
+end
+
+############################################################
+## Start Merb
+##
+  
+puts "Running SproutCore Build Tools v#{SproutCore::VERSION::STRING}"
+puts "Welcome to SproutCore"
+Merb.start

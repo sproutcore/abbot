@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+# GENERATE SPROUTCORE COMPONENTS
+# Generates components for you in a sproutcore app.
+# Usages
+# sc-gen generator [path] [class]
+#
+
+APP_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+SC_ROOT = APP_ROOT
+
+$:.unshift File.join(SC_ROOT,'lib') ;
+
+# Require SproutCore
+require 'rubygems'
+require 'rubigen'
+require 'rubigen/scripts/generate'
+require 'sproutcore'
+
+ARGV.shift if ['--help', '-h'].include?(ARGV[0])
+
+RubiGen::Base.use_component_sources! [:sproutcore]
+RubiGen::Scripts::Generate.new.run(ARGV, :destination => File.expand_path(Dir.pwd))
+

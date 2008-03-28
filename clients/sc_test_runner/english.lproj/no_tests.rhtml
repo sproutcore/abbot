@@ -1,0 +1,6 @@
+<% view :no_tests_panel, :panel => true, :width => 400 do %>
+  <h1>Client Has No Tests</h1>
+  <p style="font-size: 15px;">This client does not currently have any unit tests.  To add a unit test, open a terminal to the root directly and type:</p>
+  <p style="font-size: 15px; text-align:center;"><code>./script/generate sc_test <%= label_view :outlet => true, :tag => 'span', :bind => { :content => 'TestRunner.runnerController.clientName' } %>/<b>test_name</b></code></p>
+  </div>
+<% end %>

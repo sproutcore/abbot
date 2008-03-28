@@ -1,0 +1,3 @@
+Your new SproutCore client application has been created.  To access your application, just start sc_sever and visit your client name in the web browser.
+
+If you want to change the deployment settings for the application, add a section for your client in your environment.yaml.

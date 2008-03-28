@@ -1,0 +1,21 @@
+{!
+function keys(o) {
+	var keys = [];
+	for (var k in o) { keys.push(k); }
+	return keys;
+}
+
+function groupName(path) {
+  var parts = path.split('/') ;
+  return parts[parts.length - 2] ;
+};
+
+!}
+{
+  records: [
+  	<for each="classname" in="keys(data).sort()">
+  	{ "type": "Doc", "guid": "{+classname+}", title: "{+classname+}", url: "{+data[classname][0].docs+}", group: "{+groupName(data[classname][0].file.path)+}" },
+  	</for>
+    { "type": "Doc", "guid": "_GLOBALS", title: "GLOBALS", url: "globals.html" }
+  ]
+}

@@ -1,0 +1,40 @@
+<% content_for('body') do %>
+
+<% view :workspace do %>
+
+<% # PRIMARY TOOLBAR -%>
+<div class="toolbar">
+  <%= label_view :outlet => true, :tag => 'h1', :bind => {
+    :content => 'TestRunner.runnerController.displayClientName'
+  } %>
+  <div class="buttons">
+  <%= checkbox_view :outlet => true, :label => "Continuous Integration", :bind => { :value => 'TestRunner.runnerController.isContinuousIntegrationEnabled' } %>
+  <%= button_view :outlet => true, :label => "Run Tests", :image => static_url('icons/small/reset'), :bind => {
+    :label_text => 'TestRunner.runnerController.runTestLabel' }, :action => 'TestRunner.runnerController.toggleRunTests' %>
+  </div>
+</div>
+
+<%= collection_view :outlet => :sidebar, :class => :sidebar, :bind => {
+  :content => 'TestRunner.runnerController.arrangedObjects',
+  :selection => 'TestRunner.runnerController.selection'
+}, :example_view => 'TestRunner.TestLabelView' %>
+
+<div class="container">
+<%= view :outlet => :runner_frame, :tag => :iframe, :view => 'TestRunner.RunnerFrameView', :bind => { 
+  :test => 'TestRunner.runnerController.selectedTest',
+  :state => 'TestRunner.runnerController.testState' } %>
+</div>
+
+<% # FOOTER -%>
+<div class="footer">
+  <%= label_view :outlet => :runner_status, :bind => { :content => 'TestRunner.runnerController.testStateLabel' } %>
+</div>
+
+<% end %>
+
+<script>
+window.urlPrefix = "<%= bundle.url_prefix %>";
+window.indexPrefix = "<%= bundle.index_prefix %>";
+</script>
+
+<% end %>

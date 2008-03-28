@@ -1,0 +1,6 @@
+<% view :warning_panel, :panel => true, :width => 400 do %>
+  <h1>Client Name Required</h1>
+  <p style="font-size: 15px;">To access documents for a client, add the client name at the end of the URL preceded by a hash (#).  For example, to access the docs for the "contacts" client  enter:</p>
+  <p style="font-size: 15px; text-align: center;"><%= label_view :outlet => true, :tag => 'span', :bind => { :content => 'Docs.docsController.windowLocation' } %><b>#contacts</b></p>
+  </div>
+<% end %>

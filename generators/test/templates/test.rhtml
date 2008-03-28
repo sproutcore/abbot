@@ -1,0 +1,21 @@
+<%% # ========================================================================
+   # <%= file_name.gsub('_', ' ').titleize %> Unit Test
+   # ========================================================================
+%>
+<%% content_for('final') do %>
+
+<script>
+
+Test.context("<%= file_name.gsub('_', ' ').titleize %>",{
+
+  "TODO: Add your own tests here": function() {
+    true.shouldEqual(true) ;
+  }
+
+}) ;
+
+appMain = main; main = null ; // Cancel main() so app does not start
+
+</script>
+
+<%% end %>

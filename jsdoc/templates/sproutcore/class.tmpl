@@ -1,0 +1,438 @@
+{!
+function byName(a, b) {
+	if (a.name != undefined && b.name != undefined) {
+		a = a.name.toLowerCase();
+		b = b.name.toLowerCase();
+		if (a < b) return -1;
+		if (a > b) return 1;
+		return 0;
+	}
+}
+
+function summarize(desc) {
+	if (typeof desc != "undefined")
+		return desc.match(/([\w\W]+?\.)[^a-z0-9]/i)? RegExp.$1 : desc;
+}
+
+thisClass = data[0];
+if (thisClass.methods) thisClass.methods.sort(byName);
+if (thisClass.properties) thisClass.properties.sort(byName);
+if (thisClass.events) thisClass.events.sort(byName);
+
+function htmlize(desc) {
+  return superTextile(desc) ;
+} ;
+
+
+
+!}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset={+(JsDoc.opt.e||'utf-8')+}">
+	<title>JsDoc: {+thisClass.alias+}</title>
+	<link rel=stylesheet href="default.css" type="text/css" media=screen>
+</head>
+
+<body class="sc-theme">
+
+<table style="width: 100%" class="nav">
+  <tr>
+    <td class="left" valign="top">
+      <div class="summary">SUMMARY:&nbsp;<a href="#field_summary">FIELD</a>&nbsp;|&nbsp;<a href="#constructor_summary">CONSTRUCTOR</a>&nbsp;|&nbsp;<a href="#method_summary">METHOD</a></div>
+    </td>
+    <td class="right" valign="top">
+      <div class="summary">DETAIL:&nbsp;<a href="#field_detail">FIELD</a>&nbsp;|&nbsp;<a href="#constructor_detail">CONSTRUCTOR</a>&nbsp;|&nbsp;<a href="#method_detail">METHOD</a></div>
+    </td>
+  </tr>
+</table>
+
+<div class="intro">
+<h1><if test="thisClass.isStatic">Static </if>Class {+thisClass.alias+}</h1>
+
+<if test="thisClass.augments && thisClass.augments.length">
+<p class="extends">
+  Extends: <for each="augment" in="thisClass.augments"> <a href="{+augment+}.html">{+augment+}</a></for>.
+</p>
+</if>
+
+<if test="thisClass.source">
+<p class="source">
+  Defined in <a href="{+thisClass.source+}">{+thisClass.filename+}</a>
+</p>
+</if>
+
+<if test="thisClass.deprecated">
+<p class="deprecated-class">
+  Deprecated {+htmlize(thisClass.deprecated.desc)+}
+</p>
+</if>
+
+<if test="thisClass.classDesc">
+<div class="description">
+{+htmlize(thisClass.classDesc)+}
+</div>
+</if>
+
+<if test="thisClass.doc">
+<ul class="meta">
+
+<for each="author" in="thisClass.doc.getTag('author')">
+<li class="author"><strong>Author:</strong> {+author+}</li>
+</for>
+
+<for each="version" in="thisClass.doc.getTag('version')">
+<li class="version"><strong>Version:</strong> {+version+}</li>
+</for>
+
+</ul>
+</if>
+
+</div>
+
+<!-- =========== FIELD SUMMARY =========== -->
+<if test="thisClass.properties.length">
+<div class="field-summary summary">
+<a name="field_summary"> </a> 
+
+<h2>Field Summary</h2>
+<table width="100%">
+	<for each="property" in="thisClass.properties">
+		<tr>
+			<td class="meta">
+				<code class="type"><if test="property.isPrivate">&lt;private&gt;&nbsp;</if><if test="property.isStatic||!property.memberof">&lt;static&gt;&nbsp;</if>{+(property.type||"object")+}</code>
+			</td>
+			<td class="detail">
+				<code class="name"><a href="#{+property.name+}">{+property.name+}</a></code> 
+        <div class="description">{+summarize(property.desc)+}</div>
+			</td>
+		</tr>
+	</for>
+</table>
+</div>
+</if>
+<!-- =========== END FIELD SUMMARY =========== -->
+
+<if test="!thisClass.isStatic">
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<div class="constructor-summary summary">
+<a name="constructor_summary"> </a>
+<h2>Constructor Summary</h2>
+<table>
+<for each="cn" in="data">
+	<tr>
+	  <td class="detail">
+	    <code class="name"><a class="method" href="#{+cn.name+}">{+cn.alias+}</a>({+cn.signature()+})</code>
+      <div class="description">{+summarize(cn.desc)+}</div>
+    </td>
+	</tr>
+</for>
+</table>
+
+<!-- ======== END CONSTRUCTOR SUMMARY ======== -->
+</if>
+
+<!-- ========== METHOD SUMMARY =========== -->
+<if test="thisClass.methods.length">
+<div class="method-summary summary">
+<a name="method_summary"> </a> 
+<h2>Method Summary</h2>
+<table>
+	<for each="method" in="thisClass.methods">
+		<tr>
+			<td class="meta">
+				<code class="type"><if test="method.isPrivate">&lt;private&gt;&nbsp;</if><if test="method.isStatic||!method.memberof">&lt;static&gt; </if><if test="method.returns.length"><for each="ret" in="method.returns">&nbsp;{+ret.type+}</for></if></code> 
+			</td>
+			<td class="detail">
+				<code class="name"> 
+				  <a href="#{+method.name+}" class="method">{+method.name+}</a>({+method.signature()+}) 
+				</code> 
+        <div class="description">{+summarize(method.desc)+}</div>
+			</td>
+		</tr>
+	</for>
+</table>
+</div>
+</if>
+
+<!-- ========== EVENT SUMMARY =========== -->
+<if test="thisClass.events">
+<if test="thisClass.events.length">
+<div class="event-summary summary">
+<a name="event_summary"> </a> 
+<h2>Event Summary</h2>
+<table>
+	<for each="event" in="thisClass.events">
+		<tr>
+			<td class="meta">
+				<code class="type"><if test="event.isPrivate">&lt;private&gt;&nbsp;</if><if test="event.returns.length"><for each="ret" in="event.returns">&nbsp;{+ret.type+}</for></if><if test="event.returns.length==0">void</if></code> 
+			</td>
+			<td class="detail">
+				<code class="name"><a class="method" href="#{+event.name+}">{+event.name+}</a></b>({+event.signature()+})</code> 
+        <div class="description">{+summarize(event.desc)+}</div>
+			</td>
+		</tr>
+	</for>
+</table>
+</div>
+</if>
+</if>
+
+<!-- ========== INHERITED METHODS SUMMARY =========== -->
+<if test="thisClass.inherited">
+  <ul class="inherited">
+  {! inheritedCnt =0; !}
+	<for each="className" in="keys(thisClass.inherited)">
+	  {! inheritedCnt++; !}
+	  <li class="class-name">
+		  <h3>Methods inherited from class <a href="{+className+}.html">{+className+}</a> 
+		    <span id='show-link-{+inheritedCnt+}'>
+		      (<a href="javascript:;" onclick="$$('li.inherited-{+inheritedCnt+}').invoke('show'); $('hide-link-{+inheritedCnt+}').show(); $('show-link-{+inheritedCnt+}').hide();">show</a>)
+		    </span>
+		    <span id="hide-link-{+inheritedCnt+}" style="display:none;">
+		      (<a href="javascript:;" onclick="$$('li.inherited-{+inheritedCnt+}').invoke('hide'); $('hide-link-{+inheritedCnt+}').hide(); $('show-link-{+inheritedCnt+}').show();">hide</a>)</span></h3>
+		</li>
+		<for each="method" in="thisClass.inherited[className]">
+			<li class="detail inherited-{+inheritedCnt+}" style="display: none;">
+				<code class="name"><a class="method" href="{+(method.memberof || method.name)+}.html#{+method.name+}">{+method.name+}</a>({+method.signature()+})</code>
+			</li>
+		</for>
+	</for>
+	</ul>
+</if>
+
+<!-- ========== END INHERITED METHODS SUMMARY =========== -->
+
+<!-- ============ FIELD DETAIL START ========= -->
+<if test="thisClass.properties.length">
+  <div class="field-detail detail">
+  <a name="field_detail"> </a> 
+  <h2>Field Details</h2>
+
+  <for each="property" in="thisClass.properties">
+  	<!-- One single method detail entry -->
+    <div class="property">
+      <a name="{+property.name+}"></a> 
+      <h3>{+property.name+}</h3>
+
+      <code class="signature"><span class="type"><if test="property.isPrivate">&lt;private&gt;&nbsp;</if><if test="property.isStatic||!property.memberof">&lt;static&gt;&nbsp;</if>{+(property.type||"object")+}</span> <span class="name">{+property.name+}</span></code> 
+	
+      <if test="property.deprecated">
+        <p class="deprecated">Deprecated {+property.deprecated.desc+}</p>
+      </if>
+      <div class="description">
+        {+htmlize(property.desc)+}
+        <for each="since" in="property.doc.getTag('since')">
+        	<div class="since"><strong>Since:</strong> {+since+}</div>
+        </for>
+      </div>
+    </div>
+  </for>
+</if>
+<!-- ============ FIELD DETAIL END ========== -->
+
+<if test="!thisClass.isStatic">
+<!-- ========= CONSTRUCTOR DETAIL START ======== -->
+  <div class="constructor-detail detail">
+    <a name="constructor_detail"> </a>
+    <h2>Constructor Details</h2>
+
+    <a name="{+thisClass.name+}"> </a>
+    <h3>{+thisClass.alias+}</h3>
+    <for each="cn" in="data">
+	    <code class="signature"><span class="method">{+cn.alias+}</span>({+cn.signature()+})</code>
+  		<if test="cn.deprecated">
+  		  <p class="deprecated">Deprecated {+cn.deprecated.desc+}</p>
+  		</if>
+  		<div class="description">
+  		  {+htmlize(cn.desc)+}
+  		</div>
+  	</for>
+	
+	  <!-- PARAMETERS START -->
+	  <if test="cn.params.length">
+	  <div class="parameters">
+  		<h4>Parameters:</h4>
+  		<ul>
+    		<for each="param" in="cn.params">
+    		  <li>
+    			  <code><if test="param.type"><span class="type">{+param.type+}</span>&nbsp;</if><span class="name">{+param.name+}</span></code>
+    			  <if test="param.desc">
+    			     - <span class="description">{+param.desc+}</span>
+    			  </if> 
+    			</li>
+    		</for>
+  		</ul>
+  	</div>
+  	</if>
+  	<!-- PARAMETERS END -->
+  	
+  </div>
+</if>
+
+<!-- ============ METHOD DETAIL START ======= -->
+<if test="thisClass.methods.length">
+  <div class="method-detail detail">
+    <a name="method_detail"> </a> 
+    <h2>Method Details</h2>
+
+    <for each="method" in="thisClass.methods">
+      <div class="single-method">
+	      <a name="{+method.name+}"> </a> 
+	      <h3>{+method.name+}</h3>
+		
+		    <code class="signature"><span class="type"><if test="method.isPrivate">&lt;private&gt;&nbsp;</if><if test="method.isStatic||!method.memberof">&lt;static&gt;&nbsp;</if><if test="method.returns.length"><for each="ret" in="method.returns">{+ret.type+}&nbsp;</for></if></span><span class="method">{+method.name+}</span><span class="params">({+method.signature()+})</span></code> 
+
+		    <if test="method.deprecated">
+		      <p class="deprecated">
+		        Deprecated {+method.deprecated.desc+}
+		      </p>
+		    </if>
+		    
+		    <div class="description">
+		      {+htmlize(method.desc)+}
+		      <for each="since" in="method.doc.getTag('since')">
+			      <div class="since"><strong>Since:</strong> {+since+}</div>
+			    </for>
+			  </div>
+
+	      <!-- METHOD PARAMETERS START -->
+	      <if test="method.params.length">
+	      <div class="parameters">
+	        <h4>Parameters:</h4>
+	        <ul>
+            <for each="param" in="method.params">
+              <li>
+                <code><if test="param.type"><span class="type">{+param.type+}</span>&nbsp;</if><span class="name">{+param.name+} </span></code>
+                <if test="param.desc">
+                   - <span class="description">{+param.desc+}</span>
+                </if>
+              </li>
+            </for>
+          </ul>
+        </div>
+        </if> 
+	      <!-- METHOD PARAMETERS END -->
+	
+	      <!-- ADDITIONAL ATTRIBUTES START -->
+	      <if test="method.returns.length">
+	        <div class="returns">
+		        <h4>Returns:</h4>
+		        <ul>
+		        <for each="ret" in="method.returns">
+		          <li>
+		            <code><if test="ret.type"><span class="type">{+ret.type+}</span>&nbsp;</if></code>
+		            <span class="description">{+ret.desc+}</span> 
+		          </li>
+		        </for>
+		        </ul>
+		      </div>
+		    </if>
+
+	      <if test="method.exceptions.length">
+	      <div class="exceptions">
+	        <h4>Throws:</h4>
+		      <for each="ex" in="method.exceptions">
+		        <li>
+		          <code class="type">{+ex.type+}</code> 
+		          <span class="description">{+ex.desc+}</span>
+		        </li>
+		      </for>
+		    </div>
+		    </if> 
+	      <!-- ADDITIONAL ATTRIBUTES  END -->
+	    </div>
+	  </for>
+	  
+	</div>
+</if>
+<!-- ============ METHOD DETAIL END ========== -->
+
+<!-- ============ EVENT DETAIL START ======= -->
+<if test="thisClass.events">
+<if test="thisClass.events.length">
+  <div class="method-detail event-detail detail">
+    <a name="method_detail"> </a> 
+    <h2>Event Detail:</h2>
+
+    <for each="event" in="thisClass.events">
+      <div class="single-method">
+	      <a name="{+event.name+}"> </a> 
+	      <h3>{+event.name+}</h3>
+		
+		    <code class="signature"><span class="type"><if test="event.isPrivate">&lt;private&gt;&nbsp;</if><if test="event.isStatic||!event.memberof">&lt;static&gt;&nbsp;</if><if test="event.returns.length"><for each="ret" in="event.returns">{+ret.type+}&nbsp;</for></if></span><span class="name">{+event.name+}</span><span class="params">({+event.signature()+})</span></code> 
+
+        <if test="event.deprecated">
+          <p class="deprecated">
+            Deprecated {+event.deprecated.desc+}
+          </p>
+        </if>
+		
+		    <div class="description">
+		      {+htmlize(event.desc)+}
+		      <for each="since" in="event.doc.getTag('since')">
+			      <div class="since"><strong>Since:</strong> {+since+}</div>
+			    </for>
+			  </div>
+
+	      <!-- EVENT PARAMETERS START -->
+	      <if test="event.params.length">
+	      <div class="parameters">
+	        <h4>Parameters:</h4>
+	        <ul>
+          <for each="param" in="event.params">
+            <li>
+              <code><if test="param.type"><span class="type">{+param.type+}</span>&nbsp;</if><span class="name">{+param.name+}</span></code>
+              <if test="param.desc"> 
+                - <span class="description">{+param.desc+}</span>
+              </if>
+            </li>
+          </for>
+          </ul>
+        </div>
+        </if> 
+	      <!-- EVENT PARAMETERS END -->
+	
+	      <!-- ADDITIONAL ATTRIBUTES START -->
+	      <if test="event.returns.length">
+	      <div class="returns">
+	        <h4>Returns:</h4>
+	        <ul>
+	        <for each="ret" in="event.returns">
+	          <li>
+	            <code><if test="ret.type"><span class="type">{+ret.type+}</span>&nbsp;</if></code>
+	            <span class="description">{+ret.desc+}</span>
+	          </li>
+	        </for>
+	        </ul>
+	      </div>
+	      </if>
+
+	      <if test="event.exceptions.length">
+	      <div class="exceptions">
+	        <h4>Throws:</h4>
+	        <ul>
+	          <for each="ex" in="event.exceptions">
+	            <li>
+	              <code class="type">{+ex.type+}</code> 
+	              <span class="description">{+ex.desc+}</span>
+	            </li>
+	          </for>
+	        </ul>
+	      </div>
+	      </if>
+	      <!-- ADDITIONAL ATTRIBUTES  END -->
+	    </div>
+	  </for>
+	</div>
+</if>
+</if>
+
+<!-- ============ EVENT DETAIL END ========== -->
+<div class="jsdoc_ctime">Documentation generated by <a href="http://jsdoctoolkit.org/" target="_parent">JsDoc Toolkit</a> {+JsDoc.VERSION+} on {+new Date()+}</div>
+
+<script src="prototype.js"></script>
+
+</body>
+</html>

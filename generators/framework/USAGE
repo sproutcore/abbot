@@ -1,0 +1,12 @@
+framework - Generates a new SproutCore framework
+
+USAGE: 
+
+  ./script/generate framework framework_name
+
+DISCUSSION:
+
+This generator will create a new SproutCore-based JavaScript framework for use by other SproutCore clients.  After the generator completes, you will need to add it as a requirement to your configuration.yml.
+
+The code created by this generator will appear in a /frameworks directory.  To add models, views, and controllers, you can use the additional generators model, controller, object_controller, collection_controller, and view.
+

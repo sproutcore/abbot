@@ -1,0 +1,16 @@
+sc_controller - Create a new controller object in your SproutCore client.
+
+USAGE:
+
+  ./script/generate controller client_name/controller_name [CLASS]
+  
+DISCUSSION:
+
+This generator will create a new SproutCore object in your client for us as a controller.  You should pass as the first parameter your client directory name/the controller you want to create.  For example:
+
+./script/generate controller todos/task
+
+defines a new object called Todos.taskController in the file clients/todos/controllers/task.js.
+
+This generator creates objects that inherit from SC.Object. You can override this by passing a classname as the second parameter.  You can also use the specialize sc_object_controller and sc_collection_controller generators to create those specific types of controllers.
+
