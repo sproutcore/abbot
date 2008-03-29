@@ -280,7 +280,7 @@ module SproutCore
           v = [v].flatten
           key = v.first
           label = (v.size > 1) ? v[1] : key.to_s.humanize
-          ViewHelpers::radio_view(:outlet => true, :label => label, :style => @label_styles, :toggle_on_value => key, :toggle_off_value => nil, :client => self.client_builder)
+          render_source.radio_view(:outlet => true, :label => label, :style => @label_styles, :toggle_on_value => key, :toggle_off_value => nil, :client => self.client_builder)
         end
         
         @inner_html = html * "\n"

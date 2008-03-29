@@ -37,7 +37,7 @@ namespace :manifest do
     files.reject! do |x| 
       path_parts = x.split('/')
       
-      File.directory?(x) || IGNORE_DIRS.include?(path_parts.first)
+      (path_parts.last[0..0] == '.') || File.directory?(x) || IGNORE_DIRS.include?(path_parts.first)
     end
     
     f = File.open(File.join(APP_ROOT, 'Manifest.txt'), 'w')
