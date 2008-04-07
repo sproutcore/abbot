@@ -3,28 +3,31 @@ require 'sproutcore/build_tools'
 module SproutCore
     
   # A bundle can map a directory of source files to an output format optimized
-  # for delivery on the web.  It can also return the URLs to use for a particular client.
-  # A Bundle cannot actually build resources for you, but it works in concert with the 
-  # ResourceBuilder to help you with that.
+  # for delivery on the web.  It can also return the URLs to use for a 
+  # particular client. A Bundle cannot actually build resources for you, but 
+  # it works in concert with the ResourceBuilder to help you with that.
   #
-  # When you create a bundle, you must pass the name of the client and the library the bundle
-  # belongs to.  The library is used to generate default paths for most resources and to find
-  # other bundles.
+  # When you create a bundle, you must pass the name of the client and the 
+  # library the bundle belongs to.  The library is used to generate default 
+  # paths for most resources and to find other bundles.
   #
   # You must provide the following properties to every build:
   # 
-  #  bundle_name::       A name used to identify the client for required URLs, etc.
-  #  library::          The root URL of the library holding the client
+  #  bundle_name::  A name used to identify the client for required URLs, etc.
+  #  library::      The root URL of the library holding the client
   #
-  # The following properties are also required, but have defaults you can rely use:
+  # The following properties are also required, but have defaults you can rely 
+  # use:
   #
   #  bundle_type::       :framework|:client (default :client)
   #  required_bundles::  Names of required frameworks. (default: none)
-  #  stylesheet_libs::  URLs to requires CSS not managed by the build system. (default: none)
-  #  javascript_libs::   URLS to requires JavaScript notn managed by the build system (def:non)
+  #  stylesheet_libs::   URLs to requires CSS not managed by the build system. 
+  #      (default: none)
+  #  javascript_libs::   URLS to requires JavaScript notn managed by the build 
+  #      system (def:non)
   #
-  # The following properties are required for the build process but can be generated
-  # automatically using other properties you specify:
+  # The following properties are required for the build process but can be 
+  # generated automatically using other properties you specify:
   #
   #  source_root::       The directory containing the source files
   #    default: :library_root/pluralize(:build_type)/:bundle_name
@@ -33,16 +36,16 @@ module SproutCore
   #    default: :public_root/:url_prefix/:bundle_name
   #
   #  url_root::          The url that can be used to reach the built resources
-  #    default: /:url_prefix/:bundle_name
+  #  default: /:url_prefix/:bundle_name
   #
-  #  index_root::        The root url that can be used to reach retrieve the index.html.
-  #    default: /:index_prefix/:bundle_name
+  #  index_root::        The root url that can be used to reach retrieve the 
+  #  index.html. default: /:index_prefix/:bundle_name
   #
-  # If you do not want to specify all of these options, you can provide the following defaults
-  # and the rest will be inferred:
+  # If you do not want to specify all of these options, you can provide the 
+  # following defaults and the rest will be inferred:
   # 
-  #  library_root::      The root URL for the library.  This is computed from the library if
-  #    you pass one.
+  #  library_root::      The root URL for the library.  This is computed from 
+  #   the library if you pass one.
   #
   #  public_root::       The root directory accessible to the web browser.
   #    default: :library_root/public
@@ -53,13 +56,15 @@ module SproutCore
   #  index_prefix::      The prefix to put in front of all index.html request.
   #    default: ''
   #
-  #  preferred_language::  The default language to use for this bundle.  Defaults to :en
+  #  preferred_language::  The default language to use for this bundle.  
+  #    Defaults to :en
   #
-  #  build_mode::        Determines whether the JS & CSS resources should be combined or 
-  #                       linked directly
+  #  build_mode::        Determines whether the JS & CSS resources should be 
+  #    combined or linked directly
   #
   #  layout:        Path to the layout resource.  This should be of the form
-  #    bundle_name:relative_path/to/client.  Default: sproutcore:lib/index.html 
+  #    bundle_name:relative_path/to/client.  Default: 
+  #    sproutcore:lib/index.html 
   # 
   class Bundle 
 

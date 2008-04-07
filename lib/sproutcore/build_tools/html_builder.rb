@@ -6,9 +6,10 @@ module SproutCore
   
   module BuildTools
 
-    # Whenever you build an HTML file for a SproutCore client, an instance of this class
-    # is created to actually process and build the HTML using Erubus.  If you want to add
-    # more methods to use in your HTML files, just include them in HtmlContext.
+    # Whenever you build an HTML file for a SproutCore client, an instance of 
+    # this class is created to actually process and build the HTML using 
+    # Erubus.  If you want to add more methods to use in your HTML files, just 
+    # include them in HtmlContext.
     #
     class HtmlContext 
 
@@ -26,8 +27,9 @@ module SproutCore
         @bundle = bundle
         @library = bundle.library
 
-        # Find all of the entries that need to be included.  If deep is true, the include
-        # required bundles.  Example composite entries to include their members.
+        # Find all of the entries that need to be included.  If deep is true, 
+        # the include required bundles.  Example composite entries to include 
+        # their members.
         if deep
           @entries = bundle.all_required_bundles.map do |cur_bundle| 
             ret = (cur_bundle == bundle) ? [entry] : cur_bundle.entries_for(:html, :language => language, :hidden => :include)
@@ -40,11 +42,13 @@ module SproutCore
           @entries = entry.composite? ? entry.composite.map { |c| x.entry_for(c) } : [entry]
         end
         
-        # Clean out any composites we might have collected.  They have already been expanded.
+        # Clean out any composites we might have collected.  They have already 
+        # been expanded.
         @entries.reject! { |entry| entry.composite? }
       end
 
-      # Actually builds the HTML file from the entry (actually from any composite entries)
+      # Actually builds the HTML file from the entry (actually from any 
+      # composite entries)
       def build
 
         @layout_path = bundle.layout_path
@@ -75,18 +79,20 @@ module SproutCore
       end
       
       
-      # Returns the current bundle name.  Often useful for generating titles, etc.
+      # Returns the current bundle name.  Often useful for generating titles, 
+      # etc.
       def bundle_name; bundle.bundle_name; end
 
-      #### For Rails Compatibility.  render() does not do anything useful since the
-      # new build system is nice about putting things into the right place for output.
+      #### For Rails Compatibility.  render() does not do anything useful 
+      # since the new build system is nice about putting things into the right 
+      # place for output.
       def render; ''; end
       
     end
     
-    # Builds an html file for the specified entry.  If deep is true, then this will also
-    # find all of the html entries for any required bundles and include them in the built
-    # html file.
+    # Builds an html file for the specified entry.  If deep is true, then this 
+    # will also find all of the html entries for any required bundles and 
+    # include them in the built html file.
     def self.build_html(entry, bundle, deep=true)
       context = HtmlContext.new(entry, bundle, deep)
       output = context.build

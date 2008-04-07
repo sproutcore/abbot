@@ -14,15 +14,12 @@ module SproutCore
     # :panel    if true, view will display as a panel. default: false
     # :visible  (bindable) if false, view will be hidden on page load. 
     #           default: true
-    # :resize   resize option.  hash like this:
-    #           { :left => :flexible, :right => :fixed, :width => :fixed }
     #
     view_helper :view do
       var :inner_html
       var :tag, 'div'
       var :panel, false
       var :animate
-      var :resize
       
       # passing in :field is like passing in :outlet but it also adds a 
       # property called fieldType
@@ -41,6 +38,8 @@ module SproutCore
       property :localize 
       property :validator    
       property :field_label 
+      property :accepts_first_responder
+      
 
       # set panel type
       var :panel
@@ -74,26 +73,7 @@ module SproutCore
           %({ #{ animation_values * ',' } })
         end
       end
-      
-      # autoresize options.
-      if @resize
-        property :resize_options, '', :constant => true do
-          resize_values = []
-          @resize.each do |k,v|
-            case v
-            when :fixed
-              v = 'SC.FIXED'
-            when :flexible
-              v = 'SC.FLEXIBLE'
-            else
-              v = nil
-            end
-            resize_values << %(#{k}: #{v}) unless v.nil?
-          end
-          %({ #{resize_values * ',' } })
-        end
-      end
-      
+            
       view('SC.View') { properties }
   
       # deal with css classnames and styles.
@@ -264,28 +244,9 @@ EOF
         
     end
     
-    
-    # inside the collection view you should do
-    # <%= view :prototype => :example_view %>
-    view_helper :collection_view do
-      property :content
-      property :selection
-      property :toggle, :key => 'useToggleSelection'
-      property :selectable, :key => 'isSelectable'
-      property :enabled, :key => 'isEnabled'
-      property :act_on_select
-      property(:example_view) { |v| v }
-      property(:example_group_view) { |v| v }
-      property :display_property
-      
-      property(:group, :key => 'groupBy') do |v|
-        "['#{Array(v) * "','" }']"
-      end
-      
-      property(:action) { |v| "function(ev) { return #{v}(this, ev); }" }
-      view 'SC.CollectionView'
-      
-      css_class_names << 'sc-collection-view'
+    view_helper :scroll_view do
+      view 'SC.ScrollView'
+      css_class_names << 'sc-scroll-view'
     end
     
   end
