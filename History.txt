@@ -1,6 +1,6 @@
-== SVN Head
+== SVN HEAD
 
-ENHANCEMENTS
+* Moved selection management methods from CollectionController in independent SC.SelectionManagement mixin.  This mixin is now used by both SC.CollectionController and SC.ArrayController so you can use either one to manage a selection state.  You can also apply this mixin to your own controllers to manage selection state if you like (though this is not required to manage selections.)
 
 * Began to separate CSS rules into a core.css and a theme.css.  The core.css styles are generally required by SproutCore and should apply even if you build your own theme.  The theme.css rules apply to the SproutCore theme only and can be overriden by your own CSS.
 
@@ -18,9 +18,7 @@ ENHANCEMENTS
 
 * Added view helpers for list_view, scroll_view, grid_view, source_list_view, and table_view.  Also refactored collection view helpers into their own file.
 
-BUG FIXES
-
-* CollectionView is now able to render items in groups.  
+* [FIX] CollectionView is now able to render items in groups.  
 
 
 == 0.9.0 2008-03-08
