@@ -2,25 +2,44 @@
 
 * [FIX] Selection management would throw exception after a drag and drop.
 
-* [FIX] Optimization in fmt() would through an exception if you passed it a value that did not support toString().
+* [FIX] Optimization in fmt() would through an exception if you passed it a
+value that did not support toString().
 
-* Moved selection management methods from CollectionController in independent SC.SelectionManagement mixin.  This mixin is now used by both SC.CollectionController and SC.ArrayController so you can use either one to manage a selection state.  You can also apply this mixin to your own controllers to manage selection state if you like (though this is not required to manage selections.)
+* Moved selection management methods from CollectionController in independent 
+SC.SelectionManagement mixin.  This mixin is now used by both 
+SC.CollectionController and SC.ArrayController so you can use either one to 
+manage a selection state.  You can also apply this mixin to your own 
+controllers to manage selection state if you like (though this is not required 
+to manage selections.)
 
-* Began to separate CSS rules into a core.css and a theme.css.  The core.css styles are generally required by SproutCore and should apply even if you build your own theme.  The theme.css rules apply to the SproutCore theme only and can be overriden by your own CSS.
+* Began to separate CSS rules into a core.css and a theme.css.  The core.css 
+styles are generally required by SproutCore and should apply even if you build 
+your own theme.  The theme.css rules apply to the SproutCore theme only and 
+can be overriden by your own CSS.
 
-* Added SC.SourceListView and sc-theme styles for source lists.  Source lists support grouping if you enable this feature.  See the new Collections2 tab in the SampleControls app for an example source list.
+* Added SC.SourceListView and sc-theme styles for source lists.  Source lists 
+support grouping if you enable this feature.  See the new Collections2 tab in 
+the SampleControls app for an example source list.
 
-* Added SC.TableView.  This feature is in progress.    See the new Collections2 tab in the SampleControls app for an example table view.
+* Added SC.TableView.  This feature is in progress.    See the new 
+Collections2 tab in the SampleControls app for an example table view.
 
-* Changed asHTML and asText properties to innerHTML and innerText to match their DOM equivalents.
+* Changed asHTML and asText properties to innerHTML and innerText to match 
+their DOM equivalents.
 
-* Renamed SC.CollectionItem mixin to SC.Control mixin.  SC.Control mixin now provides some standard functionality for all interactive controls such as handling selection states, enabled and focus states.
+* Renamed SC.CollectionItem mixin to SC.Control mixin.  SC.Control mixin now 
+provides some standard functionality for all interactive controls such as 
+handling selection states, enabled and focus states.
 
-* Removed support for :resize_options property in view helper, since auto-resizing is no longer supported in SC.View (it never worked right anyway and was not functionally very usable.)
+* Removed support for :resize_options property in view helper, since 
+auto-resizing is no longer supported in SC.View (it never worked right anyway 
+and was not functionally very usable.)
 
-* innerText property now uses TextNodes, making it about 50% faster than innerHTML on FireFox.
+* innerText property now uses TextNodes, making it about 50% faster than 
+innerHTML on FireFox.
 
-* Added view helpers for list_view, scroll_view, grid_view, source_list_view, and table_view.  Also refactored collection view helpers into their own file.
+* Added view helpers for list_view, scroll_view, grid_view, source_list_view, 
+and table_view.  Also refactored collection view helpers into their own file.
 
 * [FIX] CollectionView is now able to render items in groups.  
 
