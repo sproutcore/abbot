@@ -1,5 +1,9 @@
 == SVN HEAD
 
+* [FIX] Selection management would throw exception after a drag and drop.
+
+* [FIX] Optimization in fmt() would through an exception if you passed it a value that did not support toString().
+
 * Moved selection management methods from CollectionController in independent SC.SelectionManagement mixin.  This mixin is now used by both SC.CollectionController and SC.ArrayController so you can use either one to manage a selection state.  You can also apply this mixin to your own controllers to manage selection state if you like (though this is not required to manage selections.)
 
 * Began to separate CSS rules into a core.css and a theme.css.  The core.css styles are generally required by SproutCore and should apply even if you build your own theme.  The theme.css rules apply to the SproutCore theme only and can be overriden by your own CSS.
