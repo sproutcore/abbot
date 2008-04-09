@@ -26,7 +26,7 @@ module SproutCore
       property :act_on_select
       property(:example_view) { |v| v }
       property(:example_group_view) { |v| v }
-      property :display_property
+      property :content_value_property
       property :accepts_first_responder, true
       property :can_reorder_content
       

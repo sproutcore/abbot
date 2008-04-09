@@ -1,12 +1,21 @@
 == SVN HEAD
 
+* Added ListItemView which will be used for rendering content in list views 
+and source list views.  This feature is not yet complete.
+
+* Changed displayProperty in SC.CollectionView to contentValueProperty to match the new SC.Control pattern.
+
+* SC.Control now has built in support for a value and content property.  The value property is typically the value the control displays, while content is an object that you might pull a content value from.  You can determine the proeprty of the content object to use as a value by setting the 'contentValueProperty'.  The contentValueProperty can also be provided by the collectionDelegate.
+
+* Added SC.DelegateSupport mixin that can be used to support the delegate pattern.
+
 * [FIX] Selection management would throw exception after a drag and drop.
 
 * [FIX] Optimization in fmt() would through an exception if you passed it a
 value that did not support toString().
 
 * Moved selection management methods from CollectionController in independent 
-SC.SelectionManagement mixin.  This mixin is now used by both 
+SC.SelectionSupport mixin.  This mixin is now used by both 
 SC.CollectionController and SC.ArrayController so you can use either one to 
 manage a selection state.  You can also apply this mixin to your own 
 controllers to manage selection state if you like (though this is not required 
