@@ -1,11 +1,20 @@
 == SVN HEAD
 
+* Added first import of shared-icons.png and CSS.  This will eventually
+provide a set of common icons bundled with the SproutCore theme.  Still 
+negotiating a license with an artist.
+
+* Generalized SC.Control's observer so that you can now use it to observe
+changes to multiple properties on content.  This should capture a very common pattern requires by collection item views.  Most control-list SC.Views will
+eventually adopt this mixin.
+
 * Added ListItemView which will be used for rendering content in list views 
-and source list views.  This feature is not yet complete.
+and source list views.  ListViewItem can render a name, icon, and optional
+unread count.
 
 * Changed displayProperty in SC.CollectionView to contentValueProperty to match the new SC.Control pattern.
 
-* SC.Control now has built in support for a value and content property.  The value property is typically the value the control displays, while content is an object that you might pull a content value from.  You can determine the proeprty of the content object to use as a value by setting the 'contentValueProperty'.  The contentValueProperty can also be provided by the collectionDelegate.
+* SC.Control now has built in support for a value and content property.  The value property is typically the value the control displays, while content is an object that you might pull a content value from.  You can determine the proeprty of the content object to use as a value by setting the 'contentValueProperty'.  The contentValueProperty can also be provided by the displayDelegate.
 
 * Added SC.DelegateSupport mixin that can be used to support the delegate pattern.
 
