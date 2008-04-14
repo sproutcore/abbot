@@ -61,6 +61,8 @@ and table_view.  Also refactored collection view helpers into their own file.
 
 * [FIX] CollectionView is now able to render items in groups.  
 
+* [FIX] SC.ObjectController: Avoid unwanted commit when oldValue == null && newValue == ''.  
+
 
 == 0.9.0 2008-03-08
 
