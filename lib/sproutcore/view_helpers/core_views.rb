@@ -172,8 +172,10 @@ EOF
     view_helper :image_view do
       view 'SC.ImageView'
       property :content
+      property :value
       
       var :tag, 'img'
+      css_class_names << 'sc-image-view'
     end
     
     view_helper :container_view do

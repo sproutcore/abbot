@@ -1,8 +1,15 @@
 == SVN HEAD
 
-* Added first import of shared-icons.png and CSS.  This will eventually
-provide a set of common icons bundled with the SproutCore theme.  Still 
-negotiating a license with an artist.
+* [FIX] Some doc tags were wrong in SC.ScrollView and others.
+
+* Improved documentations on SC.ImageView.
+
+* SC.ImageView now includes the SC.Control mixin and can accept either a 
+CSS class name or a URL as its value.  This makes it easy to switch an image
+from using a sprite to use a custom-generated image and back again.
+
+* SproutCore now includes some shared standard icons that you can use in your
+own application, courtesy of IconDrawer (http://www.icondrawer.com).
 
 * Generalized SC.Control's observer so that you can now use it to observe
 changes to multiple properties on content.  This should capture a very common pattern requires by collection item views.  Most control-list SC.Views will
