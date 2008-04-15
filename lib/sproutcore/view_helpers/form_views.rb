@@ -160,6 +160,7 @@ module SproutCore
         view nil
       else
         view 'SC.TextareaFieldView'
+        property :hint
         property :field_value
         property :value
       end

@@ -1,5 +1,7 @@
 == SVN HEAD
 
+*Added hint property to text_area_view helper that is required to display ghost text.
+
 * added new SC.CheckboxView and SC.RadioView for creating simulated checkbox
 and radio buttons.  These buttons have more functions than their platform
 native counterparts including mixed style and full styling support.
