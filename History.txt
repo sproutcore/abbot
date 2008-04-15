@@ -1,5 +1,32 @@
 == SVN HEAD
 
+* added new SC.CheckboxView and SC.RadioView for creating simulated checkbox
+and radio buttons.  These buttons have more functions than their platform
+native counterparts including mixed style and full styling support.
+
+* Moved field view subclasses to views/field directory.
+
+* Added SC.Validatable mixin that can be applied to any view to make it work
+with validators.  SC.FieldView now incorporates this mixin.
+
+* Now if you add initMixin() to a mixin, it will be called automatically 
+whenever an object that includes the mixin is instantiated.  You can use this
+to perform any setup necessary for the mixin.
+
+* Renamed SC.Control.contentValueProperty to SC.Control.contentValueKey to
+be consistent with the rest of the API.
+
+* Added updateContentWithValueObserver to SC.Control that will relay changes
+to the value property back to the content object if you use the default 
+implementation.
+
+* Changed SC.Control observers for various states that were once private to 
+public methods.  This way you can override them in your subclasses if you need
+to perform some extra processing and you want to make sure you do them in the 
+right order.  You can also just add more observers as well.
+
+* Added JSDoc info for Validators, SC.FieldView, SC.CheckboxFieldView
+
 * Switched some Sc Theme CSS to use sc-button-view classname instead of more
 generic a.button or a.regular.
 
@@ -30,9 +57,9 @@ eventually adopt this mixin.
 and source list views.  ListViewItem can render a name, icon, and optional
 unread count.
 
-* Changed displayProperty in SC.CollectionView to contentValueProperty to match the new SC.Control pattern.
+* Changed displayProperty in SC.CollectionView to contentValueKey to match the new SC.Control pattern.
 
-* SC.Control now has built in support for a value and content property.  The value property is typically the value the control displays, while content is an object that you might pull a content value from.  You can determine the proeprty of the content object to use as a value by setting the 'contentValueProperty'.  The contentValueProperty can also be provided by the displayDelegate.
+* SC.Control now has built in support for a value and content property.  The value property is typically the value the control displays, while content is an object that you might pull a content value from.  You can determine the proeprty of the content object to use as a value by setting the 'contentValueKey'.  The contentValueKey can also be provided by the displayDelegate.
 
 * Added SC.DelegateSupport mixin that can be used to support the delegate pattern.
 

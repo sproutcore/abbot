@@ -184,10 +184,11 @@ module SproutCore
       parent_helper(opts)
       
       # provide some defaults to the JavaScript.
-      property :behavior, :toggle, :key => 'buttonBehavior'
+      property :behavior, :key => 'buttonBehavior'
+      view 'SC.CheckboxView'
       
       # render checkbox HTML.
-      css_class_names << 'sc-checkbox-button-view'
+      css_class_names << 'sc-checkbox-view'
 
       img_url = self.blank_url
       @inner_html = [%(<img class="button" src="#{img_url}" />)]
@@ -203,8 +204,7 @@ module SproutCore
       opts[:label] = false if options[:label].nil?
       parent_helper(opts)
       
-      # provide some defaults to the JavaScript.
-      property :behavior, :on, :key => 'buttonBehavior'
+      view 'SC.RadioView'
       
       css_class_names << 'sc-radio-button-view'
       
