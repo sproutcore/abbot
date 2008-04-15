@@ -105,7 +105,7 @@ module SproutCore
       attribute(:href) { |x| (x.nil? && (@tag.downcase.to_s == 'a')) ? 'javascript:;' : nil } 
 
       # Add the theme to the CSS class.
-      css_class_names << 'button'
+      css_class_names << 'sc-button-view'
       css_class_names << @theme unless @theme.nil? || @theme == false
       css_class_names << @size unless @size.nil? || @size == false
 
@@ -175,11 +175,6 @@ module SproutCore
     
     
     
-    # Renders a back button
-    view_helper :back_button_view, :wraps => :button_view do
-      parent_helper :theme => :back
-    end
-
     # Renders a checkbox.  If you pass a label this will render the label
     # text next to the checkbox. Unlike button_view, passing no :label is
     # the same as passing :label => false.
@@ -192,6 +187,7 @@ module SproutCore
       property :behavior, :toggle, :key => 'buttonBehavior'
       
       # render checkbox HTML.
+      css_class_names << 'sc-checkbox-button-view'
 
       img_url = self.blank_url
       @inner_html = [%(<img class="button" src="#{img_url}" />)]
@@ -209,6 +205,8 @@ module SproutCore
       
       # provide some defaults to the JavaScript.
       property :behavior, :on, :key => 'buttonBehavior'
+      
+      css_class_names << 'sc-radio-button-view'
       
       # render checkbox HTML.
       img_url = self.blank_url
@@ -253,7 +251,7 @@ module SproutCore
 
       # get the layout mode.
       var :layout, :vertical
-      css_class_names << 'radio' # default class
+      css_class_names << 'sc-radio-group-view'
       css_class_names << @layout if @layout
       
       var :tag, 'span'
@@ -286,17 +284,6 @@ module SproutCore
         @inner_html = html * "\n"
       end
     end
-
-    # def self.blank_url
-    #   cb = SproutCore::ClientBuilder.builder_for(:sproutcore)
-    #   if cb
-    #     img_url = cb.url_for('blank.gif') 
-    #   else
-    #     # if the sproutcore client cannot be found, give it a shot anyway...
-    #     img_url = '/static/sproutcore/en/blank.gif'
-    #   end
-    #   img_url
-    # end
 
   end
 end

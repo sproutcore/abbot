@@ -1,5 +1,16 @@
 == SVN HEAD
 
+* Switched some Sc Theme CSS to use sc-button-view classname instead of more
+generic a.button or a.regular.
+
+* Added new addClassName, removeClassName, setClassName and hasClassName
+methods on SC.View that are 7x faster than prototype's version.
+
+* Integrated SC.Control into SC.ButtonView
+
+* Changed SC.ButtonView.labelText and SC.ButtonView.labelSelector to 
+SC.ButtonView.title and SC.ButtonView.titleSelector to be more consistant with current naming conventions.
+
 * [FIX] Some doc tags were wrong in SC.ScrollView and others.
 
 * Improved documentations on SC.ImageView.
