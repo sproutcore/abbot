@@ -92,7 +92,7 @@ SC.logger.level = (verbose) ? Logger::DEBUG : Logger::INFO
 SC.logger.progname = $0
 
 # Load Library
-library = SC.library_for(library_root, :public_root => build_root, :url_prefix => '', :build_mode => build_mode)
+library = SC.library_for(library_root, :public_root => build_root, :build_mode => build_mode)
 
 ############################################################
 ## FIND BUNDLES TO BUILD
