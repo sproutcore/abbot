@@ -1,5 +1,9 @@
 == SVN HEAD
 
+* SC.LabelView gets a new API!  Now in line with other SC.Control based
+classes.  Set value for the value, content/contentValueKey to display part
+of some content.
+
 * You can add view helpers to your own projects just by dropping them into 
 a lib directory inside your framework or client.  If you need to load your
 view helpers in a certain order, use the view_helper() method.  See the view helpers in SproutCore for an example usage.
