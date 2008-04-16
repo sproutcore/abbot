@@ -132,7 +132,7 @@ module SproutCore
       # Final processing of file.  Remove comments & minify
       def join(lines)
 
-        if BuildTools.minify?
+        if bundle.minify?
           # first suck out any comments that should be retained
           comments = []
           include_line = false 

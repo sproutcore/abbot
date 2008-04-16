@@ -109,6 +109,12 @@ module SproutCore
       return ret
     end
       
+    # ==== Returns 
+    # True if the build_mode is not development to minify the JS.
+    def minify?
+      build_mode != :development
+    end
+    
     # ==== Returns
     # The computed path to the layout rhtml.
     def layout_path
