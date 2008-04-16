@@ -1,5 +1,8 @@
 == SVN HEAD
 
+* SC.WorkspaceView is now removed from the framework.  It was always intended
+for use in Sproutit applications and it is really too specific for such a generic framework.
+
 * SC.LabelView gets a new API!  Now in line with other SC.Control based
 classes.  Set value for the value, content/contentValueKey to display part
 of some content.
