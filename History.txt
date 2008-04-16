@@ -1,5 +1,11 @@
 == SVN HEAD
 
+* Partial support for disclosure triangles in source list.
+
+* SC.DisclosureView - Shows a disclosure triangle button.
+
+* [FIX] Left over calls to SC.TextCellView.  Replaced with SC.LabelView.
+
 * SC.WorkspaceView is now removed from the framework.  It was always intended
 for use in Sproutit applications and it is really too specific for such a generic framework.
 
