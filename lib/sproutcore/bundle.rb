@@ -472,7 +472,7 @@ module SproutCore
     # before any HTML from the bundle can be rendered.
     #
     def helper_paths
-      Dir.glob(File.join(source_root, '**', '*.rb'))
+      File.exists?(File.join(source_root,'lib')) ? Dir.glob(File.join(source_root, 'lib', '**', '*.rb')) : []
     end
 
     # ==== Returns
@@ -492,6 +492,26 @@ module SproutCore
       return ret 
     end
 
+    # ==== Returns
+    # The contents of the helper file at the specified path.  For performance
+    # reasons, the contents are only loaded once and reused unless the file's
+    # mtime has changed.
+    def helper_contents_for(path)
+
+      # Oops...file has been deleted!
+      return '' if !File.exists?(path)
+      
+      @_cached_helper_contents ||= {}
+      cached = @_cached_helper_contents[path] 
+      
+      return cached[:contents] if cached && (cached[:mtime] == File.mtime(path))
+  
+      # Not cached, build it.
+      cached = { :mtime => File.mtime(path), :contents => File.read(path) }
+      @_cached_helper_contents[path] = cached
+      
+      return cached[:contents] 
+    end
     
     ######################################################
     ## MANIFESTS

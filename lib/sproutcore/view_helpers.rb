@@ -627,8 +627,6 @@ module SproutCore
     # and eval it.
     def require_helpers(helper_name, bundle=nil)
       
-      puts "require_helpers(#{helper_name}, #{bundle})"
-      
       # save bundle for future use
       unless bundle.nil?
         old_helper_bundle = @helper_bundle
@@ -651,8 +649,7 @@ module SproutCore
         next if @loaded_helpers.include?(path)
         @loaded_helpers << path
         
-        puts "LOADING HELPER: #{path}"
-        eval(File.read(path))
+        eval(@helper_bundle.helper_contents_for(path))
       end
       
       # restore old bundle helper.

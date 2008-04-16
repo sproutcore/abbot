@@ -1,6 +1,14 @@
 == SVN HEAD
 
-* Partial support for disclosure triangles in source list.
+* SC.ListView now uses SC.ListItemView as its default example view instead of
+SC.LabelView (or the old SC.TextCellView)
+
+* Optimized performance of new build system when reloading ruby helpers on 
+every page load
+
+* The Source List now provides support for the disclosure triangle.  A disclosure is automatically shown if you have grouping enabled and you set the
+groupVisibleKey property to anything other an null.  The disclosure does not 
+yet auto-reveal during a drag.
 
 * SC.DisclosureView - Shows a disclosure triangle button.
 
