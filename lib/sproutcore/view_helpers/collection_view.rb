@@ -30,23 +30,21 @@ module SproutCore
       property :accepts_first_responder, true
       property :can_reorder_content
       
-      property :content_icon_url_property
-      property :content_icon_class_name_property
+      property :content_icon_key
       
       # Unless the developer passes something specific, automatically enable
       # has_content_icon if either icon property is specified.
-      var :content_icon_url_property
-      var :content_icon_class_name_property
-      property :has_content_icon, (@content_icon_url_property || @content_icon_class_name_property)
+      var :content_icon_key
+      property :has_content_icon, !!@content_icon_key
       
       # Unless the developer passes something specific, automatically enable
       # content branc if content_is_branch_property is defined.
-      var :content_is_branch_property
-      property :content_is_branch_property
-      property :has_content_branch, (!!@content_is_branch_property)
+      var :content_is_branch_key
+      property :content_is_branch_key
+      property :has_content_branch, !!@content_is_branch_key
       
-      property :content_unread_count_property
-      property :content_action_property
+      property :content_unread_count_key
+      property :content_action_key
       
       property(:group, :key => 'groupBy') do |v|
         "['#{Array(v) * "','" }']"
