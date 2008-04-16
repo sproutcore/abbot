@@ -30,7 +30,7 @@ module SproutCore
   # generated automatically using other properties you specify:
   #
   #  source_root::       The directory containing the source files
-  #    default: :library_root/pluralize(:build_type)/:bundle_name
+  #    default: :library_root/pluralize(:bundle_type)/:bundle_name
   #
   #  build_root::        The directory that should contain the built files.
   #    default: :public_root/:url_prefix/:bundle_name
@@ -462,6 +462,36 @@ module SproutCore
         FileUtils.cp_r(index_entry.build_path, File.join(build_root,'index.html'))
       end
     end
+    
+    ######################################################
+    ## RUBY HELPERS
+    ##
+
+    # ==== Returns
+    # Array of path to helper files that need to be loaded into memory 
+    # before any HTML from the bundle can be rendered.
+    #
+    def helper_paths
+      Dir.glob(File.join(source_root, '**', '*.rb'))
+    end
+
+    # ==== Returns
+    # The helper path ending in the specified name (sans extension)
+    #
+    def helper_for(helper_name)
+      paths = helper_paths
+
+      ret = nil
+      paths.each do |path|
+        if path =~ /#{helper_name}(\.rb)?$/
+          ret = path
+          break
+        end
+      end
+      
+      return ret 
+    end
+
     
     ######################################################
     ## MANIFESTS

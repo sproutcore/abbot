@@ -600,7 +600,7 @@ module SproutCore
 
   module ViewHelpers
 
-    def self.view_helper(helper_name,opts={},&prepare_block)
+    def view_helper(helper_name,opts={},&prepare_block)
       hs = SproutCore::ViewHelperSupport::HelperState.new(helper_name,opts,&prepare_block)
       SproutCore::ViewHelperSupport.set_helper(helper_name, hs)
 
@@ -623,8 +623,44 @@ module SproutCore
       return ret 
     end
 
+    # Call this method to load a helper.  This will get the file contents
+    # and eval it.
+    def require_helpers(helper_name, bundle=nil)
+      
+      puts "require_helpers(#{helper_name}, #{bundle})"
+      
+      # save bundle for future use
+      unless bundle.nil?
+        old_helper_bundle = @helper_bundle
+        @helper_bundle = bundle
+      end
+
+      # Get all the helper paths we want to load
+      if helper_name.nil?
+        paths = @helper_bundle.helper_paths
+      else
+        paths = [@helper_bundle.helper_for(helper_name)]
+      end
+      paths.compact!
+      
+      # Create list of loaded helper paths
+      @loaded_helpers = [] if @loaded_helpers.nil?
+      
+      # If a helper path was found, load it.  May require other helpers
+      paths.each do |path|
+        next if @loaded_helpers.include?(path)
+        @loaded_helpers << path
+        
+        puts "LOADING HELPER: #{path}"
+        eval(File.read(path))
+      end
+      
+      # restore old bundle helper.
+      unless bundle.nil?
+        @helper_bundler = old_helper_bundle
+      end
+    end
+    
   end
   
 end
-
-Dir.glob(File.join(File.dirname(__FILE__),'view_helpers','**','*.rb')).each { |x| require x }

@@ -1,10 +1,24 @@
 == SVN HEAD
 
+* You can add view helpers to your own projects just by dropping them into 
+a lib directory inside your framework or client.  If you need to load your
+view helpers in a certain order, use the view_helper() method.  See the view helpers in SproutCore for an example usage.
+
+* The build system now reloads view helpers each time you load a page.  This
+means you no longer need to restart the sc-server when you make a change to
+the view helper code.
+
+* SproutCore view helpers are now stored in the framework itself along with
+the JavaScript.  This will make it easier to include the latest version of 
+the SproutCore framework in you app without having to install a new set of
+build tools.  This should basically eliminate the only frequently changing 
+part of the build tools.
+
 * SC.SourceList and SC.ListItemView properties now use "content..Key" 
 convention for naming properties.  If you have built code with the old
 "content..Property" conventions, you will need to update your code.
 
-*Added hint property to text_area_view helper that is required to display ghost text.
+* Added hint property to text_area_view helper that is required to display ghost text.
 
 * added new SC.CheckboxView and SC.RadioView for creating simulated checkbox
 and radio buttons.  These buttons have more functions than their platform

@@ -2,6 +2,8 @@ require 'erubis'
 require 'sproutcore/helpers'
 require 'sproutcore/view_helpers'
 
+puts "LOADED HTML_BUILDER"
+
 module SproutCore
   
   module BuildTools
@@ -45,6 +47,14 @@ module SproutCore
         # Clean out any composites we might have collected.  They have already 
         # been expanded.
         @entries.reject! { |entry| entry.composite? }
+        
+        # Load any helpers before we continue
+        puts "*************REQUIRE"
+        bundle.all_required_bundles.each do |cur_bundle|
+          puts "requiring: #{cur_bundle.bundle_name}"
+          require_helpers(nil, cur_bundle)
+        end
+          
       end
 
       # Actually builds the HTML file from the entry (actually from any 
