@@ -1,5 +1,14 @@
 == SVN HEAD
 
+* Renamed buttons-sprite.png to sc-theme-sprite.png. Added 
+sc-theme-ysprite.png.  One is now used to hold all repeat-x and non-repeating 
+sprites while the other is used for repeat-y sprites only.
+
+* SC.SplitView & SC.SplitDividerView provide support for draggable and 
+collapsable split views.
+
+==
+
 * SC.ListView now uses SC.ListItemView as its default example view instead of
 SC.LabelView (or the old SC.TextCellView)
 
