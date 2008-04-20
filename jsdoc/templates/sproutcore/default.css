@@ -82,6 +82,7 @@ table.summary {
 	border: 1px #999 solid;
 	border-bottom: none ;
 	border-spacing: 0;
+	margin-bottom: 2em;
 }
 
 table.summary td {

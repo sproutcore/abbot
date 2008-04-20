@@ -1,8 +1,18 @@
 == SVN HEAD
 
+* SC.SliderView provides a horizontal slider.  No vertical slider is currently
+planned since those controls are so rare.  If someone really needs one, please
+enhance SC.SliderView to support it!
+
+* slider_view helper creates a slider view + html
+
+* Add example to sample_controls
+
 * SourceListGroupViews now automatically collapse their group title if the
 group value is null.  Items will still be shown; they will just appear to be 
 "top level"
+
+* JSDocs template was cutting the first sentance from a class description. This is now fixed.
  
 * Added sc-build -d option to generate docs along with the build of your code.
 
