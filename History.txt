@@ -1,13 +1,26 @@
 == SVN HEAD
 
+* Added sc-build -d option to generate docs along with the build of your code.
+
+* Updated sc_docs to work with updated SproutCore.  Also adopts new look and feel and includes support for live search on all symbols defined in the 
+library (try it; it's cool - visit: http://localhost:4020/sproutcore/-docs)
+
+* JSDoc template no longer generated highlighted JS source along with ref
+docs.  This was slowing things down and the output wasn't really that great
+anyway.
+
+* Tweaked JSdoc's Textile support to accept '-' as a bullet characters.  Since
+jsdoc strips all * at the beginning of lines you could not do bulletted lists
+before.  Now you can using -.
+
+* Updated design of jsdoc documentation to make it easier to read.
+
 * Renamed buttons-sprite.png to sc-theme-sprite.png. Added 
 sc-theme-ysprite.png.  One is now used to hold all repeat-x and non-repeating 
 sprites while the other is used for repeat-y sprites only.
 
 * SC.SplitView & SC.SplitDividerView provide support for draggable and 
 collapsable split views.
-
-==
 
 * SC.ListView now uses SC.ListItemView as its default example view instead of
 SC.LabelView (or the old SC.TextCellView)

@@ -1,0 +1,16 @@
+<%= view :runner_tab, 
+  :tag => :iframe, 
+  :visible => false,
+  :view => 'Docs.DocFrameView', 
+  :bind => { :doc => 'Docs.docsController.selectedDoc' } %>
+
+<% view :rebuilding_tab, :visible => false do %>
+  <div class="dialog">
+    <h1>
+      <img src="<%= static_url('indicator') %>" /> Rebuilding Reference Documentation...<br />(This may take awhile)
+    </h1>
+  </div>
+<% end %>
+
+<% view :empty_tab do %>      
+<% end %>

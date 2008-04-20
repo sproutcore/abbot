@@ -5,5 +5,5 @@
 require('core');
 
 Docs.Doc = SC.Record.extend({
-    
+  icon: 'sc-icon-document-16'
 }) ;

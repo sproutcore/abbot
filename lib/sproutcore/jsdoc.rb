@@ -32,6 +32,8 @@ module SproutCore
       jar_path = File.join(jsdoc_root, 'app', 'js.jar')
       runjs_path = File.join(jsdoc_root, 'app', 'run.js')
       template_path = File.join(jsdoc_root, 'templates', 'sproutcore')
+
+      puts "GENERATING: java -Djsdoc.dir=#{jsdoc_root} -jar #{jar_path} #{runjs_path} -t=#{template_path} -d=#{build_path} #{files * ' '} -v"
       
       SC.logger.debug `java -Djsdoc.dir=#{jsdoc_root} -jar #{jar_path} #{runjs_path} -t=#{template_path} -d=#{build_path} #{files * ' '} -v`
     

@@ -1,159 +1,112 @@
+/* @override 
+	http://localhost:4020/static/sc_docs/en/_cache/body-1208633994.css
+	http://localhost:4020/static/sc_docs/en/_cache/body-1208635640.css
+*/
 
-/* @group Workspace */
+/* @group Core */
 
-#workspace {
-	background-color: #8db69a;
+body {
 	position: absolute ;
-	top: 0;
 	left: 0;
-	right:  0;
-	bottom: 0; 
+	right: 0;
+	top: 0;
+	bottom: 0;
+	padding: 0;
+	margin: 0;
+	overflow: hidden ;
 }
 
-#workspace .container {
-	position: absolute ;
-	top:  49px;
-	left: 171px;
-	right: 0px;
-	bottom: 0px;
-	background-color: white ;
-	overflow: auto;
-}
-
-#workspace .container iframe {
-	border: none ;
-	width: 100%;
-	height: 100%;
-	outline: hidden ;	
-}
-
-/* @end */
-
-/* @group Toolbar */
-
-#workspace .toolbar {
-	position: absolute ;
+.workspace .sidebar {
+	position: absolute;
+	left:  0;
 	top:  0;
-	left:  0px;
-	right: 0px;
-	height: 48px;
-	border-bottom: 1px solid #62806d;
-	background: static_url('images/gradients') repeat-x center top;
-}
- 
-#workspace .toolbar .buttons {
-	text-align: right ;
-	position: absolute ;
-	top:  13px ;
-	right: 10px ;
+	width: 200px;
+	bottom: 0;
 }
 
-#workspace .toolbar h1 {
-  border: none ;
-  padding: 0;
-  margin : 0;
-	position: absolute ;
-	left: 8px;
-	top:  4px;
-	font-size: 28px;
-	font-weight: normal ;
+.sc-theme .workspace.horizontal .sc-split-divider-view {
+  position: absolute;
+  left: 200px;
+  top: 0;
+  bottom: 0;
+}
+
+.workspace .document_view {
+	position: absolute;	
+	left: 205px;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	border: none ;
+	background-color: #aaa ;
+}
+
+.left.app-label {
+ 	padding-top: 5px;
+}
+
+.sc-theme .app-label .sc-label-view {
+	text-shadow: white 0px 1px 0px;
+	font-weight: bold ;
+	font-size: 15px;
+}
+
+.app-label img {
+	width: 27px;
+	height: 27px;
+	vertical-align: middle;
+	position: relative ;
+	top: -3px;
+	margin-right: 2px;
 }
 
 /* @end */
 
 /* @group Sidebar */
 
-#workspace .sidebar {
+.sidebar .source_list {
 	position: absolute ;
-	top: 49px;
-	left: 0px;
-	width: 170px;
-	bottom: 0px;
-	background-color: #e0efed;
-	border-right: 1px #62806d solid;
-	overflow: auto ;
-}
-
-.sidebar {
-	list-style-type: none ;
-	padding: 0;
-	margin: 0;
-}
-
-.sidebar h1 {
-	border:  none ;
-	text-align: left ;
-	font-size: 11px;
-	margin:  0;
-	padding:  0;
-	margin-top: 8px;
-	padding-top: 2px;
-	padding-left: 4px;
-	padding-bottom: 2px;
-	margin-left: 2px;
-	margin-right: 2px ;
-	margin-bottom: 2px;
-	text-transform: uppercase ;
-	color: #454b4a;
-	border-bottom: 1px solid #b5c6c4;
-}
-
-.sidebar div:first-child h1 {
-	display: none ;
-}
-
-.sidebar div:first-child a {
-	font-weight: bold ;
-}
-
-.sidebar a {
-	display: block ;
-	text-decoration: none ;
-	color: black ;
-	border: 1px solid #e0efed;
-	padding-bottom: 4px;
-	padding-top: 7px ;
-	padding-left: 8px ;
-	border-left-style: none;
-	border-right-style: none;
-	-moz-user-select: none;
-	-khtml-user-select: none;
-	user-select: none;
-}
-
-.sidebar a.sel {
-	border: 1px solid #1e504a;
-	color: white ;
-	font-weight: bold;
-	padding-top: 6px;
-	background: static_url('images/gradients') repeat-x center -144px;
-	border-top-color: #188b7d;
-	border-right-style: none;
-	border-left-style: none;
-}
-
-.sidebar a.sel:active {
-	border: 1px solid #1e504a;
-	color: white ;
-	font-weight: bold;
-	padding-top: 6px;
-	background: static_url('images/gradients') repeat-x center -144px;
-	border-top-color: #188b7d;
-	border-right-style: none;
-	border-left-style: none;
-}
-
-.sidebar a:active {
-	background-color: #cedfdf;
-	border: 1px solid #cedfdf;
-	border-right-style: none;
-	border-left-style: none;
-}
-
-.sidebar hr {
-	border:  none ;
-	border-top: #ccc solid 1px;
-	margin: 4px 8px;
+	top: 0;
+	left:  0;
+	right: 0;
+	bottom: 0;
+	border: none ;
 }
 
 /* @end */
+
+/* @group Content */
+
+.document_view iframe {
+	position: absolute ;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	border: none ;
+	padding: 0;
+	margin: 0;
+	background: white;
+}
+
+.document_view .rebuilding_tab .dialog {
+	position: absolute ;
+	background: #f0f0f0;
+	padding: 20px;
+	border: 8px #888 solid ;
+	width: 400px;
+	top: 100px;
+	left: 50%;
+	margin: 0;
+	margin-left: -240px;
+	text-align: center ;
+}
+
+.document_view .rebuilding_tab .dialog h1 {
+	font-size: 20px ;
+	margin: 0;
+	padding: 0;
+}
+
+/* @end */
+

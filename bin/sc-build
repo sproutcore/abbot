@@ -42,6 +42,7 @@ include_dependencies = false
 verbose = false # show debug level
 languages = nil
 clean = false
+docs = false
 
 opts = OptionParser.new do |opts|
   opts.version = SproutCore::VERSION::STRING
@@ -78,6 +79,10 @@ opts = OptionParser.new do |opts|
   
   opts.on("-c", "--[no-]clean", "If set, then the build tool will delete a bundle's output before it builds it, so you get a clean build") do |opt_clean|
     clean = !!opt_clean
+  end
+
+  opts.on('-d', '--[no-]docs', "Include documentation") do |opt_docs|
+    docs = !!opt_docs
   end
   
 end
@@ -139,6 +144,12 @@ bundles.each do |bundle|
   end
   
   bundle.build(*languages)
+  
+  if docs
+    SC.logger.debug('~ Building docs')
+    SC::JSDoc.generate(:bundle => bundle) 
+  end
+  
 end
 
 SC.logger.debug("")

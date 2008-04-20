@@ -1,43 +1,59 @@
+/* @override http://localhost:4020/static/sproutcore/-docs/data/default.css */
 
+/* @group Core */
 
-/* @group Root Form */
-
-input.show-hint {
-	color: #888;
+body {
+	font: 64.5% Helvetica, Arial, Verdana, sans-serif;
+	background-color: white  ;
+	padding: 20px;
 }
 
-.radio.vertical,
-.radio.vertical .button.radio {
-	display: block ;	
+/* Set standard size on some things. */
+p, dd, dt, li, table {
+	line-height: 1.3em;
+	font-size: 1.3em ;
 }
 
-.radio.horizontal,
-.radio.horizontal .button.radio {
-	display: inline ;
+h1 {
+	font-size: 3em;
+	margin: 0 0 1em 0;
+	text-transform: capitalize;
 }
 
-.radio.vertical {
-  text-align: left ;
+h2 {
+	padding: 0;
+	border-bottom: 1px #555 solid;
+	text-transform: capitalize;
+	margin: 1.5em 0 0;
+	font-size: 2.2em;
 }
 
-/* @end */
-
-/* @group sc-theme */
-
-body.sc-theme {
-	font: 12px "Helvetica Neue", Helvetica, Verdana, sans-serif;
-	background-color: #f0f0f0 ;
-	padding: 10px;
+h3 {
+	font-size: 2em;
+	padding: 0;
+	margin: 3em 0 0 0;	
 }
 
-.sc-theme h1 {
-	margin: 0 10%;
-	padding: 0 ;
-	margin-bottom: 10px;
-	border-bottom: 1px #888 dotted ;
+h4 {
+	font-weight: normal ;
+	font-size: 1.4em;
+	margin: 0.5em 0 0 0;
+	padding: 0;
 }
 
-.sc-theme label {
+h5 {
+	font-size: 1.3em;
+	padding: 0;
+	margin: 1.3em 0 0.5em 0;
+}
+
+p { margin: 0.5em 0; }
+ 
+a {
+	text-decoration: none ;
+}
+
+label {
 	font-weight: bold ;
 }
 
@@ -49,171 +65,95 @@ body.sc-theme {
 	-moz-opacity: .45 ;
 }
 
-/* @end */
-
-/* @group sc-theme Form */
-
-.sc-theme .invalid {
-	border: 2px red solid ;
+dt {
+	font-style: italic;
 }
 
-.sc-theme ul.errors {
-	color:  red ;
-	list-style-type: none ;
-	font-size: 11px;
-}
-
-.sc-theme form ul.errors {
-	margin:  0;
-	padding: 0; 
-	color: red ;
-}
-
-.sc-theme input {
-	font-size: 12px; 
+dd {
+ margin: 0 0 1em 1em;
 }
 
 /* @end */
 
-/* @group jsdoc */
+/* @group Summary Table */
 
-body.sc-theme {
-	font-family: Helvetica, "Helvetica Neue", Verdana, sans-serif;
-	font-size: 12px;
-	background-color: white ;
+table.summary {
+	min-width: 450px;
+	border: 1px #999 solid;
+	border-bottom: none ;
+	border-spacing: 0;
 }
 
-table.nav {
-	font-size: .8em;
-	width: 100%;
-	border-bottom: 1px solid #ccc;
+table.summary td {
+	border-bottom: 1px #999 solid;
+	border-collapse: collapse;
+	padding: 0.5em;
+	text-align: left ;
 }
 
-table.nav .right {
-	text-align: right;
+table.summary .even td {
+	background-color: #eef;
 }
 
-.summary h2,
-.detail h2 {
-	border-top: 1px none #ccc;
-	border-bottom: 1px solid #666;
-	margin: 1.0em 0 0;
-	font-size: 1.8em;
-}
-
-.method {
+table.summary td.label {
 	font-weight: bold ;
+	width: 100px;
+	text-align: right ;
+	padding-right: 4px;
 }
 
-.type {
-	font-style: italic ;
-	color: #666;
-}
-
-
-/* @end */
-
-/* @group Intro */
-
-.intro h1 {
-	border: none ;
-	padding: 0;
-	margin:  0;
-	font-size: 2.5em;
-	padding-top: 1em;
-	line-height: 1;
-}
-
-.intro p.source {
-	margin: 0;
-	font-size: .9em;
-	color: #aaa;
-	font-weight: bold;
-	padding: 0 0 0 1px;
-}
-
-.intro p.source a {
-	color: #555;
-}
-
-.intro .description {
-	border-bottom: 1px none #ccc;
-	border-top: 1px none #ccc;
-	padding-top: 0;
-	margin-top: 20px;
-	margin-bottom: 30px;
+table.summary td.value {
+	min-width: 300px;
+	width: 300px;
 }
 
 /* @end */
 
-/* @group Summary */
+/* @group Field & Method Summary */
 
-.summary table {
-	width: 100%;
-	background-color: #fafafa ;
-	margin-top: 4px;
-	border-spacing: 0 ;
-	border-collapse: collapse ;
-}
-
-.summary table td {
-	border-top: 1px #ccc solid ;
-	border-bottom: 1px #ccc solid ;
-	padding: 4px;
-}
-
-.summary table td .description {
-	font-size: .9em;
-	font-weight: bold ;
-}
-
-.summary ul.inherited {
+.summary li {
 	list-style-type: none ;
-	margin: 0;
-	padding:  0;
+	position: relative;
 }
 
-.summary ul.inherited h3 {
-	border-bottom: 1px dotted #ccc;
+.summary li code {
+	font-size: 1.1em;
+}
+
+.summary li .description {
+	display: none ;
+}
+
+.summary li:hover .description {
+	display: block ;
+	font-size: 0.86em;
+	position: absolute ;
+	left: 80px;
+	bottom: 2em;
+	padding: 0.3em 1em ;
+	background-color: #fff898;
+	border: 1px solid #bbae2f;
+	-webkit-box-shadow: rgba(0,0,0,0.3) 0px 2px 5px;
+	color: #4b4000;
+	z-index: 100;
 }
 
 /* @end */
 
 /* @group Detail */
 
-.constructor-detail  {
-	display: none;
+.detail p.signature {
+	padding: 0;
+	margin: 1em 0;
+	font-family: Courier, mono;
 }
 
-.detail .single-method,
-.detail .property {
-	margin-top: 30px;
+.detail p.signature .type {
+	font-style: italic;
 }
 
-.detail h3 {
-	margin: 4px 0;
-	padding: 4px;
-	border-top: 1px #ccc solid ;
-	border-bottom: 1px #ccc solid ;
-	background-color: #fafafa ;
-}
-
-.signature {
-	margin: 8px 0;
-	display: block ;
-}
-
-.parameters .name {
+.detail p.signature .name {
 	font-weight: bold ;
-}
-
-h4 {
-	margin-bottom: 0;	
-}
-
-.single-method .parameters ul {
-	margin-top: 0;
-	padding-left: 20px
 }
 
 /* @end */
@@ -223,7 +163,7 @@ h4 {
 	padding: 4px 0;
 	margin-top: 20px;
 	margin-bottom: 0px;
-	font-size: .8em;
+	font-size: 1.0em;
 	text-align: center ;
 	color: #888 ;
 }

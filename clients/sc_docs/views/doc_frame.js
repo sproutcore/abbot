@@ -28,6 +28,6 @@ Docs.DocFrameView = SC.View.extend({
       this.rootElement.src = url ;
     }
     
-  }.observes('doc')
+  }.observes('doc', 'isVisibleInWindow')
     
 }) ;

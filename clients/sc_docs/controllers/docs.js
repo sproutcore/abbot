@@ -7,7 +7,7 @@ require('core');
 Docs.docsController = SC.Object.create({
   
   // This is used in the client warning dialog.
-  windowLocation: window.location.href,
+  windowLocation: window.location.href.toString(),
   
   // This is the current client name.
   clientName: '',
@@ -16,14 +16,24 @@ Docs.docsController = SC.Object.create({
   
   isRebuilding: false,
   
+  canRebuild: NO,
+  
   nowShowingContainer: function() {
-    return (this.get('isRebuilding')) ? 'rebuilding' : 'runner';
-  }.property('isRebuilding'),
+    return (this.get('isRebuilding')) ? 'rebuilding' : (this.get('selectedDoc')) ? 'runner' : 'empty' ;
+  }.property('isRebuilding', 'selectedDoc'),
   
   // This is displayed as the main UI label.
   displayClientName: function() {
-    return "%@ Docs".fmt((this.get('clientName') || '').humanize().capitalize()) ;
+    var clientName = (this.get('clientName') || '').humanize().capitalize() ;
+    if (clientName.toLowerCase() == 'sproutcore') clientName = 'SproutCore';
+    return "%@ Reference".fmt(clientName) ;
   }.property('clientName'),
+  
+  nowShowingLabel: function() {
+    var sel = this.get('selection') ;  
+    var rec = (sel && sel.get('length') > 0) ? sel.objectAt(0) : null ;
+    return (rec) ? rec.get('title') : '' ;
+  }.property('selection'),
   
   arrangedObjects: [],
   selection: [],
@@ -70,6 +80,27 @@ Docs.docsController = SC.Object.create({
       SC.page.get('noDocsPanel').set('isVisible',false) ;
     }
     
+    this.set('allRecords', recs) ;
+  },
+
+  rebuildArrangedDocs: function() {
+    
+    var search = this.get('search') ;
+    var recs = this.get('allRecords') ;
+
+    // filter out search
+    if (search && search.length > 0) {
+      search = search.toLowerCase() ;
+      var filtered =[];
+      var idx = recs.get('length') ;
+      while(--idx >= 0) {
+        var rec = recs.objectAt(idx) ;
+        var symbols = (rec.get('symbols') || '') ;
+        if (symbols.indexOf(search) >= 0) filtered.push(rec) ;
+      }
+      recs = filtered ;
+    }
+    
     // sort the records by name and set as the new arrangedObjects.
     recs = recs.sort(function(a,b) {
       
@@ -89,9 +120,8 @@ Docs.docsController = SC.Object.create({
     
     // if the current selection is not in the list, clear the selection.
     var doc = this.get('selectedDoc') ;
-    if (doc && !(recs.include(test))) this.set('selection', []) ;
-    
-  },
+    if (doc && !(recs.include(doc))) this.set('selection', []) ;
+  }.observes('allRecords', 'search'),
   
   _reloadFailure: function(status, transport) {
     console.log('TEST RELOAD FAILED!') ;

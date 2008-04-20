@@ -92,6 +92,11 @@ function superTextile(s) {
         line = line.replace(/^\s*h([1|2|3|4|5|6])\.(.+)/, '<h$1>$2</h$1>');
         changed = 1; 
         
+      // convert - to bulletted list.  liu tag will be fixed later.
+      } else if (line.search(/^\s*-\s+/) != -1) { 
+        line = line.replace(/^\s*-\s+/,'\t<liu>') + '</liu>'; changed = 1;
+        changed = 1;
+
       // convert * to bulletted list.  liu tag will be fixed later.
       } else if (line.search(/^\s*\*\s+/) != -1) { 
         line = line.replace(/^\s*\*\s+/,'\t<liu>') + '</liu>'; changed = 1;
@@ -209,10 +214,10 @@ function publish(fileGroup, context) {
       }
     }
     
-    if (!allFiles[fileGroup.files[i].path]) {
-      var hiliter = new JsHilite(IO.readFile(fileGroup.files[i].path), JsDoc.opt.e);
-      IO.saveFile(context.d, file_srcname, hiliter.hilite());
-    }
+    // if (!allFiles[fileGroup.files[i].path]) {
+    //   var hiliter = new JsHilite(IO.readFile(fileGroup.files[i].path), JsDoc.opt.e);
+    //   IO.saveFile(context.d, file_srcname, hiliter.hilite());
+    // }
     fileGroup.files[i].source = file_srcname;
     allFiles[fileGroup.files[i].path] = true;
   }

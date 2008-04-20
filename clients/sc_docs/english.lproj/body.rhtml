@@ -1,33 +1,53 @@
 <% content_for('body') do %>
 
-<% view :workspace do %>
-
-<% # PRIMARY TOOLBAR -%>
-<div class="toolbar">
-  <%= label_view :outlet => true, :tag => 'h1', :bind => {
-    :content => 'Docs.docsController.displayClientName'
-  } %>
-  <div class="buttons">
-  <%= button_view :outlet => true, :label => "Rebuild Docs", :image => static_url('icons/small/reset'), :action => 'Docs.docsController.rebuildDocs' %>
+<% view :header, :class => 'sc-header sc-square-theme' do %>
+  <div class="left app-label">
+    <img src="<%= static_url('images/sproutcore-logo.png') %>" /><%= label_view :outlet => true, :tag => :span, 
+    :bind => { :value => 'Docs.docsController.displayClientName' } %>
   </div>
-</div>
-
-<%= collection_view :outlet => :sidebar, :class => :sidebar, :bind => {
-  :content => 'Docs.docsController.arrangedObjects',
-  :selection => 'Docs.docsController.selection',
-}, :example_view => 'Docs.DocLabelView', :properties => {
-  :group_by => '"group"' } %>
-
-<% tab_view :outlet => 'container', :class => "container", :bind => { :now_showing => 'Docs.docsController.nowShowingContainer' } do %>
-
-<%= view :outlet => :runner_tab, :tag => :iframe, :view => 'Docs.DocFrameView', :bind => { 
-  :doc => 'Docs.docsController.selectedDoc' } %>
-
-<% view :outlet => :rebuilding_tab do %>
-<h1><img src="<%= static_url('spinner') %>" /> Rebuilding Documentation...</h1>
+  <div class="center">
+  </div>
+  <div class="right">
+    <%= text_field_view :outlet => true, :hint => 'Search Symbols', 
+      :bind => { :value => 'Docs.docsController.search' } %>
+  </div>
 <% end %>
 
+
+<% split_view :workspace, :class => 'sc-app-workspace header footer', :direction => :horizontal do %>  
+  <% view :sidebar, :outlet => true do %>
+    <% scroll_view :source_list, :outlet => true do %>
+      <%= source_list_view :outlet => true, 
+        :content_value_key => :title,
+        :group_visible_key => true,
+        :content_icon_key => :icon,
+        :group => :group,
+        
+        :bind => {
+          :content => 'Docs.docsController.arrangedObjects',
+          :selection => 'Docs.docsController.selection'
+        } %>
+        
+    <% end %>
+  <% end %>
+  
+  <%= split_divider_view :outlet => true, :width => 5 %>
+  
+  <%= tab_view :document_view, :outlet => true, 
+    :bind => { :now_showing => 'Docs.docsController.nowShowingContainer' }, 
+    :lazy_tabs => :true %>
+    
 <% end %>
+
+<% view :footer, :class => 'sc-footer sc-square-theme' do %>
+  <div class="left">
+    <%= button_view :outlet => true, :title => "Rebuild Docs", :action => 'Docs.docsController.rebuildDocs', :bind => { :enabled => 'Docs.docsController.canRebuild' } %>
+  </div>
+  <div class="center"><%= label_view :outlet => true, 
+    :bind => { :value => 'Docs.docsController.nowShowingLabel' } %></div>
+  <div class="right">
+    
+  </div>
 <% end %>
 
 <script>
