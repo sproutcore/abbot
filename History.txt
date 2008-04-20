@@ -1,5 +1,9 @@
 == SVN HEAD
 
+* SourceListGroupViews now automatically collapse their group title if the
+group value is null.  Items will still be shown; they will just appear to be 
+"top level"
+ 
 * Added sc-build -d option to generate docs along with the build of your code.
 
 * Updated sc_docs to work with updated SproutCore.  Also adopts new look and feel and includes support for live search on all symbols defined in the 
