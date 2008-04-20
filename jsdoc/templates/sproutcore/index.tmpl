@@ -7,7 +7,16 @@ function keys(o) {
 
 function groupName(path) {
   var parts = path.split('/') ;
-  return parts[parts.length - 2] ;
+  
+  var rootIndex = parts.indexOf('frameworks') ;
+  if (rootIndex < 0) rootIndex = parts.indexOf('clients') ;
+  
+  if (rootIndex < 0) {
+    return parts[parts.length - 2] ;
+    
+  } else {
+    return parts.slice(rootIndex+2, parts.length-1).join('/') ;
+  }
 };
 
 function getSymbols(className, thisClass) {
@@ -36,7 +45,8 @@ function getSymbols(className, thisClass) {
     "title": "{+classname+}", 
     "url": "{+data[classname][0].docs+}", 
     "group": "{+groupName(data[classname][0].file.path)+}", 
-    "symbols": "{+getSymbols(classname, data[classname][0])+}" 
+    "symbols": "{+getSymbols(classname, data[classname][0])+}",
+    "path": "{+data[classname][0].file.path+}"
   },</for>
   { "type": "Doc", 
     "guid": "_GLOBALS", 

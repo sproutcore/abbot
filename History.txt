@@ -1,5 +1,13 @@
 == SVN HEAD
 
+* [FIX] The JSDoc template will now try to group items based on their full path, rather than just the top-most directory.  This means views stored under views/buttons, for example, now appear in the group VIEWS/BUTTONS in the UI.
+
+* Moved the base class for collections, buttons, and fields into their respective folders.  This will appear them to appear under the correct location in the Doc viewer.
+
+* [FIX] Grouped views in the source list without a visible header will 
+overlapping the following group, absorbing their clicks.  Now they render
+the proper size.
+
 * SC.SliderView provides a horizontal slider.  No vertical slider is currently
 planned since those controls are so rare.  If someone really needs one, please
 enhance SC.SliderView to support it!
@@ -7,6 +15,8 @@ enhance SC.SliderView to support it!
 * slider_view helper creates a slider view + html
 
 * Add example to sample_controls
+
+* Converted docs for drag modules to JSDoc format.
 
 * SourceListGroupViews now automatically collapse their group title if the
 group value is null.  Items will still be shown; they will just appear to be 
