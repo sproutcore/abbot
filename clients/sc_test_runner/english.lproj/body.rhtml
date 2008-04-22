@@ -1,35 +1,71 @@
 <% content_for('body') do %>
 
-<% view :workspace do %>
-
-<% # PRIMARY TOOLBAR -%>
-<div class="toolbar">
-  <%= label_view :outlet => true, :tag => 'h1', :bind => {
-    :content => 'TestRunner.runnerController.displayClientName'
-  } %>
-  <div class="buttons">
-  <%= checkbox_view :outlet => true, :label => "Continuous Integration", :bind => { :value => 'TestRunner.runnerController.isContinuousIntegrationEnabled' } %>
-  <%= button_view :outlet => true, :label => "Run Tests", :image => static_url('icons/small/reset'), :bind => {
-    :label_text => 'TestRunner.runnerController.runTestLabel' }, :action => 'TestRunner.runnerController.toggleRunTests' %>
+<% view :header, :class => 'sc-header sc-square-theme' do %>
+  <div class="left app-label">
+    <img src="<%= static_url('images/sproutcore-logo.png') %>" /><%= label_view :outlet => true, :tag => :span, 
+    :bind => { :value => 'TestRunner.runnerController.displayClientName' } %>
   </div>
-</div>
+  <div class="center">
+  </div>
+  <div class="right">
+    <%= checkbox_view :outlet => true, :label => "Continuous Integration", :bind => { :value => 'TestRunner.runnerController.isContinuousIntegrationEnabled' } %>
+    <%= button_view :outlet => true, :title => "Run All Tests", :bind => {
+      :title => 'TestRunner.runnerController.runTestLabel' }, :action => 'TestRunner.runnerController.toggleRunTests' %>
+  </div>
+<% end %>
 
-<%= collection_view :outlet => :sidebar, :class => :sidebar, :bind => {
-  :content => 'TestRunner.runnerController.arrangedObjects',
-  :selection => 'TestRunner.runnerController.selection'
-}, :example_view => 'TestRunner.TestLabelView' %>
 
-<div class="container">
-<%= view :outlet => :runner_frame, :tag => :iframe, :view => 'TestRunner.RunnerFrameView', :bind => { 
-  :test => 'TestRunner.runnerController.selectedTest',
-  :state => 'TestRunner.runnerController.testState' } %>
-</div>
+<% split_view :workspace, :class => 'sc-app-workspace header footer', :direction => :horizontal do %>  
+  <% view :sidebar, :outlet => true do %>
+    <% scroll_view :source_list, :outlet => true do %>
+      <%= source_list_view :outlet => true, 
+        :group => :group,
+        :group_visible_key => true,
+        :content_value_key => :title,
+        :content_icon_key => :icon,
+        :bind => {
+          :content => 'TestRunner.runnerController.arrangedObjects',
+          :selection => 'TestRunner.runnerController.selection'
+        } %>
+        
+    <% end %>
+  <% end %>
+  
+  <%= split_divider_view :outlet => true, :width => 5 %>
 
-<% # FOOTER -%>
-<div class="footer">
-  <%= label_view :outlet => :runner_status, :bind => { :content => 'TestRunner.runnerController.testStateLabel' } %>
-</div>
+  <% view :document_view, :outlet => true do %>
+    <%= view :outlet => :runner_frame, :tag => :iframe, 
+      :view => 'TestRunner.RunnerFrameView', 
+      :bind => { 
+        :test => 'TestRunner.runnerController.selectedTest',
+        :state => 'TestRunner.runnerController.testState' 
+      } %>
+  <% end %>
+    
+<% end %>
 
+<% view :footer, :class => 'sc-footer sc-square-theme' do %>
+  <div class="left">
+  </div>
+  <div class="center">
+    <%= image_view :outlet => true, 
+        :value => static_url('indicator'), 
+        :style => 'vertical-align: middle; position: relative; top: -1px;',
+        :bind => { 
+          :visible => 'TestRunner.runnerController.testStateIsRunning'
+        } %>
+    <%= label_view :outlet => :runner_status, :tag => 'span',
+        :bind => {
+          :value => 'TestRunner.runnerController.testStateLabel' 
+        } %>
+  </div>
+  <div class="right">
+    <%= button_view :outlet => true, :title => 'Rerun Current Test', 
+      :action => 'TestRunner.runnerController.rerunCurrentTest',
+      :bind => { 
+        :enabled => 'TestRunner.runnerController.canRerunCurrentTest' 
+      } %>
+  </div>
 <% end %>
 
 <script>

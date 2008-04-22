@@ -14,7 +14,9 @@ TestRunner.runnerController = SC.Object.create({
   
   // This is displayed as the main UI label.
   displayClientName: function() {
-    return "%@ Tests".fmt((this.get('clientName') || '').humanize().capitalize()) ;
+    var clientName = (this.get('clientName') || '').humanize().capitalize();
+    if (clientName == 'Sproutcore') clientName = 'SproutCore' ; 
+    return "%@ Tests".fmt(clientName) ;
   }.property('clientName'),
   
   arrangedObjects: [],
@@ -45,17 +47,36 @@ TestRunner.runnerController = SC.Object.create({
         return '' ;
     }
   }.property('testState'),
+
+  testStateIsRunning: function() {
+    return (this.get('testState') === TestRunner.TEST_RUNNING) ;
+  }.property('testState'),
   
   isRunning: NO,
   isContinuousIntegrationEnabled: NO,
   
   runTestLabel: function() {
-    return (this.get('isRunning')) ? "Stop Tests" : "Run Tests" ;
+    return (this.get('isRunning')) ? "Stop All Tests" : "Run All Tests" ;
   }.property('isRunning'),
   
   toggleRunTests: function() {
     this.toggleProperty('isRunning') ;
   },
+  
+  rerunCurrentTest: function() {
+    var test = this.get('selectedTest') ;
+    if (test) {
+      this.set('selection', []) ;
+      this.set('selection', [test]) ;
+    }
+  },
+  
+  canRerunCurrentTest: function() {
+    if (this.get('isRunning')) return NO ;
+    var state = this.get('testState') ;
+    var ret = (state === TestRunner.TEST_FAILED || state === TestRunner.TEST_PASSED) ? YES : NO ;
+    return ret; 
+  }.property('isRunning', 'testState'),
   
   reloadTests: function() {
     
@@ -92,9 +113,11 @@ TestRunner.runnerController = SC.Object.create({
     
     // sort the records by name and set as the new arrangedObjects.
     recs = recs.sort(function(a,b) {
-      a = a.get('name') || '';
-      b = b.get('name') || '';
-      return a.localeCompare(b) ;
+      var a_g = a.get('group') || '';
+      var b_g = b.get('group') || '';
+      
+      var ret = a_g.localeCompare(b_g) ;
+      return (ret != 0) ? ret : (a.get('title') || '').localeCompare(b.get('title') || '') ;
     }) ;
     
     var hadArrangedObjects = this.get('arrangedObjects').length > 0 ;

@@ -1,5 +1,26 @@
 == SVN HEAD
 
+* [FIX] offsetParent, frame, clippingFrame, and innerFrame would all sometimes
+return the wrong values in Firefox because of a bug that returns the wrong
+offsetLeft and offsetTop when a parent element has a border.
+
+* Fixed all SC unit tests that were failing (now that I can run them again).
+
+* Test Runner now has a "Rerun Current Test" button that will rerun the 
+current test.
+
+* Added convenience method $I() (or SC.inspect()) - converts an object to a 
+hash and then displays its key/value pairs.  Useful for debugging.
+
+* Fixed up test templates in generators so that they check for the presence
+of main() before trying to fix it up.  This was causing errors on new tests when added to frameworks.
+
+* [FIX] invokeWhile() was implemented on real Array objects but not on 
+SC.Array mixin.  This caused the controllers/controller test to fail.  Now 
+fixed.
+
+* Updated test runner to use new SproutCore.
+
 * [FIX] The JSDoc template will now try to group items based on their full path, rather than just the top-most directory.  This means views stored under views/buttons, for example, now appear in the group VIEWS/BUTTONS in the UI.
 
 * Moved the base class for collections, buttons, and fields into their respective folders.  This will appear them to appear under the correct location in the Doc viewer.

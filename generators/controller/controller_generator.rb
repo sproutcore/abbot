@@ -33,7 +33,7 @@ class ControllerGenerator < RubiGen::Base
       <<-EOS
 Creates a SproutCore controller objects
 
-USAGE: #{$0} #{spec.name} client_name/controller_name [ClassName]
+USAGE: #{$0} #{spec.name} client_name controller_name [ClassName]
 EOS
     end
 

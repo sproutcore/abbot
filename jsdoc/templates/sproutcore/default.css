@@ -2,25 +2,33 @@
 
 /* @group Core */
 
-body {
-	font: 64.5% Helvetica, Arial, Verdana, sans-serif;
+body.sc-doc {
 	background-color: white  ;
 	padding: 20px;
 }
 
+.sc-doc {
+	font: 64.5% Helvetica, Arial, Verdana, sans-serif;
+	line-height: 1em ;
+}
+
 /* Set standard size on some things. */
-p, dd, dt, li, table {
+.sc-doc p, 
+.sc-doc dd, 
+.sc-doc dt, 
+.sc-doc li, 
+.sc-doc table {
 	line-height: 1.3em;
 	font-size: 1.3em ;
 }
 
-h1 {
+.sc-doc h1 {
 	font-size: 3em;
 	margin: 0 0 1em 0;
 	text-transform: capitalize;
 }
 
-h2 {
+.sc-doc h2 {
 	padding: 0;
 	border-bottom: 1px #555 solid;
 	text-transform: capitalize;
@@ -28,36 +36,36 @@ h2 {
 	font-size: 2.2em;
 }
 
-h3 {
+.sc-doc h3 {
 	font-size: 2em;
 	padding: 0;
 	margin: 3em 0 0 0;	
 }
 
-h4 {
+.sc-doc h4 {
 	font-weight: normal ;
 	font-size: 1.4em;
 	margin: 0.5em 0 0 0;
 	padding: 0;
 }
 
-h5 {
+.sc-doc h5 {
 	font-size: 1.3em;
 	padding: 0;
 	margin: 1.3em 0 0.5em 0;
 }
 
-p { margin: 0.5em 0; }
+.sc-doc p { margin: 0.5em 0; }
  
-a {
+.sc-doc a {
 	text-decoration: none ;
 }
 
-label {
+.sc-doc label {
 	font-weight: bold ;
 }
 
-.sc-theme .ghost {
+.sc-doc .sc-theme .ghost {
 	-moz-user-select: none;
 	-khtml-user-select: none;
 	user-select: none;
@@ -65,11 +73,11 @@ label {
 	-moz-opacity: .45 ;
 }
 
-dt {
+.sc-doc dt {
 	font-style: italic;
 }
 
-dd {
+.sc-doc dd {
  margin: 0 0 1em 1em;
 }
 
@@ -77,7 +85,7 @@ dd {
 
 /* @group Summary Table */
 
-table.summary {
+.sc-doc table.summary {
 	min-width: 450px;
 	border: 1px #999 solid;
 	border-bottom: none ;
@@ -85,25 +93,25 @@ table.summary {
 	margin-bottom: 2em;
 }
 
-table.summary td {
+.sc-doc table.summary td {
 	border-bottom: 1px #999 solid;
 	border-collapse: collapse;
 	padding: 0.5em;
 	text-align: left ;
 }
 
-table.summary .even td {
+.sc-doc table.summary .even td {
 	background-color: #eef;
 }
 
-table.summary td.label {
+.sc-doc table.summary td.label {
 	font-weight: bold ;
 	width: 100px;
 	text-align: right ;
 	padding-right: 4px;
 }
 
-table.summary td.value {
+.sc-doc table.summary td.value {
 	min-width: 300px;
 	width: 300px;
 }
@@ -112,20 +120,20 @@ table.summary td.value {
 
 /* @group Field & Method Summary */
 
-.summary li {
+.sc-doc .summary li {
 	list-style-type: none ;
 	position: relative;
 }
 
-.summary li code {
+.sc-doc .summary li code {
 	font-size: 1.1em;
 }
 
-.summary li .description {
+.sc-doc .summary li .description {
 	display: none ;
 }
 
-.summary li:hover .description {
+.sc-doc .summary li:hover .description {
 	display: block ;
 	font-size: 0.86em;
 	position: absolute ;
@@ -143,23 +151,23 @@ table.summary td.value {
 
 /* @group Detail */
 
-.detail p.signature {
+.sc-doc .detail p.signature {
 	padding: 0;
 	margin: 1em 0;
 	font-family: Courier, mono;
 }
 
-.detail p.signature .type {
+.sc-doc .detail p.signature .type {
 	font-style: italic;
 }
 
-.detail p.signature .name {
+.sc-doc .detail p.signature .name {
 	font-weight: bold ;
 }
 
 /* @end */
 
-.jsdoc_ctime {
+.sc-doc .jsdoc_ctime {
 	border-top: 1px #ccc solid ;
 	padding: 4px 0;
 	margin-top: 20px;
@@ -171,8 +179,8 @@ table.summary td.value {
 
 /* @group Description */
 
-.description blockquote,
-.description p.code {
+.sc-doc .description blockquote,
+.sc-doc .description p.code {
 	padding:  10px ;
 	margin: 10px 20px;
 	background-color: #f5f5f5 ;

@@ -3,7 +3,7 @@
 # GENERATE SPROUTCORE COMPONENTS
 # Generates components for you in a sproutcore app.
 # Usages
-# sc-gen generator [path] [class]
+# sc-gen generator [client_name|framework_name] [class]
 #
 
 APP_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))

@@ -1,151 +1,91 @@
+/* @override 
+	http://localhost:4020/static/sc_docs/en/_cache/body-1208633994.css
+	http://localhost:4020/static/sc_docs/en/_cache/body-1208635640.css
+*/
 
+/* @group Core */
 
-/* @group Workspace */
-
-#workspace {
-	background-color: #8db69a;
+body {
 	position: absolute ;
-	top: 0;
 	left: 0;
-	right:  0;
-	bottom: 0; 
+	right: 0;
+	top: 0;
+	bottom: 0;
+	padding: 0;
+	margin: 0;
+	overflow: hidden ;
 }
 
-#workspace .container {
-	position: absolute ;
-	top:  49px;
-	left: 171px;
-	right: 0px;
-	bottom: 26px;
-	background-color: white ;
-	overflow: auto;
+.workspace .sidebar {
+	position: absolute;
+	left:  0;
+	top:  0;
+	width: 200px;
+	bottom: 0;
 }
 
-#workspace .container iframe {
+.sc-theme .workspace.horizontal .sc-split-divider-view {
+  position: absolute;
+  left: 200px;
+  top: 0;
+  bottom: 0;
+}
+
+.workspace .document_view {
+	position: absolute;	
+	left: 205px;
+	right: 0;
+	top: 0;
+	bottom: 0;
 	border: none ;
+	background-color: #aaa ;
+}
+
+.document_view iframe {
+	position: absolute ;
+	left: 0;
+	top: 0;
 	width: 100%;
 	height: 100%;
-	outline: hidden ;	
-}
-
-#workspace .footer {
-	position: absolute ;
-	bottom: 0px;
-	left: 0px;
-	height: 26px;
-	right:  0px;
-	background: static_url('images/gradients') repeat-x left -72px;
-	border-top: 1px solid #62806d;
-	text-align: center ;
-	font-weight:  bold ;
-}
-
-#workspace .footer div {
-	margin-top: 5px;
+	border: none ;
+	padding: 0;
+	margin: 0;
+	background: white;
 }
 
 
-/* @end */
-
-/* @group Toolbar */
-
-#workspace .toolbar {
-	position: absolute ;
-	top:  0;
-	left:  0px;
-	right: 0px;
-	height: 48px;
-	border-bottom: 1px solid #62806d;
-	background: static_url('images/gradients') repeat-x center top;
-}
- 
-#workspace .toolbar .buttons {
-	text-align: right ;
-	position: absolute ;
-	top:  13px ;
-	right: 10px ;
+.left.app-label {
+ 	padding-top: 5px;
 }
 
-#workspace .toolbar h1 {
-  border: none ;
-  padding: 0;
-  margin : 0;
-	position: absolute ;
-	left: 8px;
-	top:  4px;
-	font-size: 28px;
-	font-weight: normal ;
+.sc-theme .app-label .sc-label-view {
+	text-shadow: white 0px 1px 0px;
+	font-weight: bold ;
+	font-size: 15px;
+}
+
+.app-label img {
+	width: 27px;
+	height: 27px;
+	vertical-align: middle;
+	position: relative ;
+	top: -3px;
+	margin-right: 2px;
 }
 
 /* @end */
 
 /* @group Sidebar */
 
-#workspace .sidebar {
+.sidebar .source_list {
 	position: absolute ;
-	top: 49px;
-	left: 0px;
-	width: 170px;
-	bottom: 26px;
-	background-color: #e0efed;
-	border-right: 1px #62806d solid;
-	overflow: auto ;
-}
-
-.sidebar {
-	list-style-type: none ;
-	padding: 0;
-	margin: 0;
-}
-
-.sidebar a {
-	display: block ;
-	text-decoration: none ;
-	color: black ;
-	border: 1px solid #e0efed;
-	padding-bottom: 4px;
-	padding-top: 7px ;
-	padding-left: 8px ;
-	border-left-style: none;
-	border-right-style: none;
-	-moz-user-select: none;
-	-khtml-user-select: none;
-	user-select: none;
-}
-
-.sidebar a.sel {
-	border: 1px solid #1e504a;
-	color: white ;
-	font-weight: bold;
-	padding-top: 6px;
-	background: static_url('images/gradients') repeat-x center -144px;
-	border-top-color: #188b7d;
-	border-right-style: none;
-	border-left-style: none;
-}
-
-.sidebar a.sel:active {
-	border: 1px solid #1e504a;
-	color: white ;
-	font-weight: bold;
-	padding-top: 6px;
-	background: static_url('images/gradients') repeat-x center -144px;
-	border-top-color: #188b7d;
-	border-right-style: none;
-	border-left-style: none;
-}
-
-.sidebar a:active {
-	background-color: #cedfdf;
-	border: 1px solid #cedfdf;
-	border-right-style: none;
-	border-left-style: none;
-}
-
-.sidebar hr {
-	border:  none ;
-	border-top: #ccc solid 1px;
-	margin: 4px 8px;
+	top: 0;
+	left:  0;
+	right: 0;
+	bottom: 0;
+	border: none ;
 }
 
 /* @end */
+
+

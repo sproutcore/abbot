@@ -29,7 +29,9 @@ TestRunner.RunnerFrameView = SC.View.extend({
     
     // if the document URL is already loaded, then reload it...
     if (url == this.rootElement.src) {
-      if (doc && doc.location) doc.location.reload() ;
+      this.rootElement.src = 'javascript:;' ;
+      this.rootElement.src = url ;
+      // if (doc && doc.location) doc.location.reload() ;
       
     // otherwise set to the new URL.
     } else {
