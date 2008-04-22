@@ -30,6 +30,7 @@ body.sc-doc {
 
 .sc-doc h2 {
 	padding: 0;
+	padding-bottom: 4px;
 	border-bottom: 1px #555 solid;
 	text-transform: capitalize;
 	margin: 1.5em 0 0;

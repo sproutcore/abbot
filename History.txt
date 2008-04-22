@@ -1,5 +1,9 @@
 == SVN HEAD
 
+* New SC.Timer class provides more efficient triggers for timeouts, etc.  The
+rest of the framework will be moving to this class one it is fully tested.
+Also, it has really awesome docs.
+
 * [FIX] offsetParent, frame, clippingFrame, and innerFrame would all sometimes
 return the wrong values in Firefox because of a bug that returns the wrong
 offsetLeft and offsetTop when a parent element has a border.
