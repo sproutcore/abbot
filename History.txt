@@ -1,5 +1,11 @@
 == SVN HEAD
 
+* Added hello world sample app.
+
+* Updated contacts sample app.  It is much nicer now.
+
+* Add sproutcore freeze:gems command to freeze latest SproutCore in your local project.
+
 * Updated copyright to 2008.
 
 * Converted all uses of setTimeout() in the framework to use run loop instead.
