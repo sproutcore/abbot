@@ -13,6 +13,20 @@ if %w(-v --version).include? ARGV.first
   exit(0)
 end
 
+if ARGV.first == 'freeze:edge'
+  puts "Freezing SproutCore edge..."
+  FileUtils.mkdir_p('frameworks')
+  ['sproutcore'].each do |framework|
+    if File.exists?(File.join('frameworks', framework, '.svn'))
+      puts `svn up #{File.join('frameworks',framework)}`
+    else
+      puts `svn co http://sproutcore.googlecode.com/svn/trunk/frameworks/#{framework} #{File.join('frameworks', framework)}`
+    end
+  end
+    
+  exit(0)
+end
+    
 require 'rubigen/scripts/generate'
 source = RubiGen::PathSource.new(:application, 
   File.join(File.dirname(__FILE__), "../app_generators"))
