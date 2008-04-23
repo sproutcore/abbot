@@ -67,7 +67,7 @@ TestRunner.RunnerFrameView = SC.View.extend({
     }
     
     if (this.get('state') != status) this.set('state', status) ;
-    if (reschedule) setTimeout(this.checkState.bind(this),100) ;
+    if (reschedule) this.invokeLater(this.checkState,100) ;
     
   }
   

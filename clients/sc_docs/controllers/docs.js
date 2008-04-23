@@ -75,7 +75,7 @@ Docs.docsController = SC.Object.create({
     // working away immediately.
     if (recs.length == 0) {
       SC.page.get('noDocsPanel').set('isVisible',true) ;
-      setTimeout(this.reloadDocs.bind(this),2000) ; 
+      this.invokeLater(this.reloadDocs,2000) ; 
     } else {
       SC.page.get('noDocsPanel').set('isVisible',false) ;
     }

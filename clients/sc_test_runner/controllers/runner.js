@@ -106,7 +106,7 @@ TestRunner.runnerController = SC.Object.create({
     // working away immediately.
     if (recs.length == 0) {
       SC.page.get('noTestsPanel').set('isVisible',true) ;
-      setTimeout(this.reloadTests.bind(this),2000) ; 
+      this.invokeLater(this.reloadTests,2000) ; 
     } else {
       SC.page.get('noTestsPanel').set('isVisible',false) ;
     }
@@ -145,9 +145,9 @@ TestRunner.runnerController = SC.Object.create({
         var tests = this.get('arrangedObjects') ;
         var firstTest = (tests && tests.length > 0) ? [tests[0]] : [] ;
         this.set('selection', []) ; // clear selection.
-        setTimeout(function() {
+        var t = function() {
           this.set('selection', firstTest) ;
-        }.bind(this),1) ;
+        }.invokeLater(this,1) ;
       }
     }
   }.observes('isRunning'),

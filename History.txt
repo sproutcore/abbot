@@ -1,8 +1,14 @@
 == SVN HEAD
 
+* Converted all uses of setTimeout() in the framework to use run loop instead.
+
+* Added invokeLater() methods to both SC.Object and Function.  These 
+convenience methods will create a timer to execute a method or function at a 
+later time.  If you need to execute code later, instead of setTimeout, 
+consider using myObject.invokeLater(0, 'methodName') ;
+
 * New SC.Timer class provides more efficient triggers for timeouts, etc.  The
-rest of the framework will be moving to this class one it is fully tested.
-Also, it has really awesome docs.
+timer class now also has unit tests and really awesome docs.
 
 * [FIX] offsetParent, frame, clippingFrame, and innerFrame would all sometimes
 return the wrong values in Firefox because of a bug that returns the wrong
