@@ -1,5 +1,7 @@
 == SVN HEAD
 
+* Updated copyright to 2008.
+
 * Converted all uses of setTimeout() in the framework to use run loop instead.
 
 * Added invokeLater() methods to both SC.Object and Function.  These 
