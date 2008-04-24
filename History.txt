@@ -1,5 +1,30 @@
 == SVN HEAD
 
+* beginInlineEdit() and endInlineEdit() on SC.LabelView were renamed to comply
+with the SC.Editable protocol.  Use beginEditing() and commitEditing() or
+discardEditing() instead.
+
+* Added SC.Editable mixin.  This provides a standard protocol for begining 
+and ending keyboard editing sessions on views.  SC.Editable is now used 
+by SC.LabelView, SC.ListItemView, SC.TextFieldView, and SC.TextareaFieldView.
+
+* Collection view now supports the default behavior to begin editing when you
+click on a selected item for a second time.  If you hit return it will also
+begin editing.  To support this, you must set contentValueIsEditable to YES 
+and implement beginEditing() on your item view. 
+
+* Inline editor is now supported in both SC.ListItemView and SC.LabelView.
+
+* Improved inline editor (now renamed SC.InlineTextFieldView for consistancy).
+The new editor can be used with basically any view now in addition to just the
+label view.  It also automatically inherits the font size and style of any
+underlying DOM element that you hand it.  To work with an inline editor you
+will need to implement the InlineEditorDelegate (see documentation).
+
+* Inline editor now displays with a fixed width and grows downward as you type instead of stretching out to the end.
+
+--
+
 * Added hello world sample app.
 
 * Updated contacts sample app.  It is much nicer now.
