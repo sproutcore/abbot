@@ -10,7 +10,7 @@
   //
   // You will use this most often when running unit tests in dev mode.
   //
-  FIXTURES: [],
+  FIXTURES: []
   
   // Add any global constants or other properties used by the entire
   // framework:

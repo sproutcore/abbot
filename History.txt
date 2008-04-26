@@ -1,5 +1,9 @@
 == SVN HEAD
 
+* Basic changes to get IE working.  All non-view tests now pass and the doc app and test runner both load and run in IE7.  Lots of visual fixes are still required for the sc-theme as well as IE-specific perf optimization and bug fixes.
+
+* [BUG] Default template for both client and template included a stray comma in their core.js file that breaks IE and Safari 2.  This is fixed in the templates and in the clients included with the framework, though you will need to make this change manually in your own apps.
+
 * beginInlineEdit() and endInlineEdit() on SC.LabelView were renamed to comply
 with the SC.Editable protocol.  Use beginEditing() and commitEditing() or
 discardEditing() instead.

@@ -131,6 +131,7 @@ Docs.docsController = SC.Object.create({
     var clientName = this.get('clientName') ;
     var clientRoot = this.get('clientRoot') ;
     Docs.server.request(clientRoot, null, null, {
+      nonce: Date.now().toString(),
       onSuccess: this._rebuildSuccess.bind(this),
       onFailure: this._rebuildFailure.bind(this)
     }, 'post') ;

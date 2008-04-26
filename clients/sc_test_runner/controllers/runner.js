@@ -84,6 +84,7 @@ TestRunner.runnerController = SC.Object.create({
     // current client.
     var urlRoot = this.get('urlRoot') ;
     TestRunner.server.request(urlRoot, 'index.js', null, {
+      nonce: Date.now().toString(),
       onSuccess: this._reloadSuccess.bind(this),
       onFailure: this._reloadFailure.bind(this)
     }) ;
@@ -92,6 +93,9 @@ TestRunner.runnerController = SC.Object.create({
   _reloadSuccess: function(status, transport) {
     var json = transport.responseText ;
     var records = eval(json) ;
+    
+    console.log('JSON: %@'.fmt(json)) ;
+    
     if ($type(records) != T_ARRAY) {
       return this._reloadFailure(status, transport) ;
     }
@@ -100,6 +104,7 @@ TestRunner.runnerController = SC.Object.create({
     // the records included in the list.  This is what will become our new
     // list.
     var recs = SC.Store.updateRecords(records, this, TestRunner.Test, true);
+    console.log('retrieved records: %@'.fmt(recs.join(','))) ;
     
     // show warning panel if the records are empty.  Also reload tests
     // periodically so that when the user resolves the problem, we can start
