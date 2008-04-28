@@ -148,7 +148,7 @@ module SproutCore
         if current_lproj = src_path.match(/^([^\/]+\.lproj)\//).to_a[1]
           next if (current_lproj != default_lproj) && (current_lproj != target_lproj)
         end
-
+ 
         # OK, pass all of our validations.  Go ahead and build an entry for this
         # Add entry to list of entries for appropriate lproj if localized
         entry = build_entry_for(src_path, src_type)
@@ -158,6 +158,8 @@ module SproutCore
         when target_lproj
           target_lproj_entries[entry.filename] = entry
         else
+          
+          # Be sure to mark any 
           entries[entry.filename] = entry
         end
       end
@@ -198,17 +200,17 @@ module SproutCore
       case src_path
       when /^tests\/.+/
         :test
-      when /^fixtures\/.+/
+      when /^fixtures\/.+\.js$/
         :fixture
-      when /.html$/
+      when /\.html$/
         :html
-      when /.rhtml$/
+      when /\.rhtml$/
         :html
-      when /.html.erb$/
+      when /\.html.erb$/
         :html
-      when /.css$/
+      when /\.css$/
         :stylesheet
-      when /.js$/
+      when /\.js$/
         :javascript
       when /\.lproj\/.+/
         :resource
@@ -295,8 +297,7 @@ module SproutCore
   # hidden::       if true, this entry is needed internally, but otherwise should not be used
   # use_symlink::  if true, then this entry should be handled via the build symlink 
   # language::     the language in use when this entry was created
-  # composite::    If set, this will contain the filenames of other resources that should be
-  #                 combined to form this resource.  
+  # composite::    If set, this will contain the filenames of other resources that should be combined to form this resource.  
   #
   class ManifestEntry < Struct.new(:filename, :ext, :source_path, :url, :build_path, :type, :original_path, :hidden, :use_symlink, :language, :composite)
     def to_hash
@@ -309,7 +310,9 @@ module SproutCore
     def use_symlink?; !!use_symlink; end
     def composite?; !!composite; end
     
-    # Returns true if this entry can be cached even in development mode.  Composite resources
+    def localized?; !!source_path.match(/\.lproj/); end
+      
+      # Returns true if this entry can be cached even in development mode.  Composite resources
     # and tests need to be regenerated whenever you get this.
     def cacheable?
       !composite? && (type != :test)

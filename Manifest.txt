@@ -39,18 +39,6 @@ clients/sc_test_runner/main.js
 clients/sc_test_runner/models/test.js
 clients/sc_test_runner/views/runner_frame.js
 clients/sc_test_runner/views/test_label.js
-clients/view_builder/builders/builder.js
-clients/view_builder/builders/button.js
-clients/view_builder/controllers/document.js
-clients/view_builder/core.js
-clients/view_builder/english.lproj/body.css
-clients/view_builder/english.lproj/body.rhtml
-clients/view_builder/english.lproj/controls.css
-clients/view_builder/english.lproj/strings.js
-clients/view_builder/main.js
-clients/view_builder/tests/controllers/document.rhtml
-clients/view_builder/tests/views/builder.rhtml
-clients/view_builder/views/builder.js
 config/hoe.rb
 config/requirements.rb
 frameworks/prototype/prototype.js
@@ -74,7 +62,6 @@ frameworks/sproutcore/english.lproj/images/sc-theme-ysprite.png
 frameworks/sproutcore/english.lproj/images/shared-icons.png
 frameworks/sproutcore/english.lproj/images/sproutcore-logo.png
 frameworks/sproutcore/english.lproj/images/sticky-note.png
-frameworks/sproutcore/english.lproj/inline_text_editor.css
 frameworks/sproutcore/english.lproj/menu.css
 frameworks/sproutcore/english.lproj/panels/background-fat.jpg
 frameworks/sproutcore/english.lproj/panels/background-thin.jpg
@@ -128,6 +115,8 @@ frameworks/sproutcore/lib/menu_views.rb
 frameworks/sproutcore/mixins/array.js
 frameworks/sproutcore/mixins/control.js
 frameworks/sproutcore/mixins/delegate_support.js
+frameworks/sproutcore/mixins/editable.js
+frameworks/sproutcore/mixins/inline_editor_delegate.js
 frameworks/sproutcore/mixins/observable.js
 frameworks/sproutcore/mixins/scrollable.js
 frameworks/sproutcore/mixins/selection_support.js
@@ -199,7 +188,7 @@ frameworks/sproutcore/views/field/textarea_field.js
 frameworks/sproutcore/views/filter_button.js
 frameworks/sproutcore/views/form.js
 frameworks/sproutcore/views/image.js
-frameworks/sproutcore/views/inline_text_editor.js
+frameworks/sproutcore/views/inline_text_field.js
 frameworks/sproutcore/views/label.js
 frameworks/sproutcore/views/list_item.js
 frameworks/sproutcore/views/menu_item.js
