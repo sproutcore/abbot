@@ -46,7 +46,7 @@ module SproutCore
         
         # Clean out any composites we might have collected.  They have already 
         # been expanded.  Also clean out any non-localized rhtml files.
-        @entries.reject! { |entry| entry.composite? || !entry.localized? }
+        @entries.reject! { |entry| entry.composite? || (entry.type == :html && !entry.localized?) }
         
         # Load any helpers before we continue
         puts "*************REQUIRE"
