@@ -1,5 +1,9 @@
 == SVN HEAD
 
+* Added automaticOutletFor() that will cause a view to be configured 
+automatically instead of forcing you to use an outlets array.  Useful for when
+you are manually constructing your views.
+
 * Initial changes required to eventually implement improved observer 
 notification system.
 
