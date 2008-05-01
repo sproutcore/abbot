@@ -1,5 +1,7 @@
 == SVN HEAD
 
+* Fixed some typos in the readme docs for the client generator.
+
 * Added automaticOutletFor() that will cause a view to be configured 
 automatically instead of forcing you to use an outlets array.  Useful for when
 you are manually constructing your views.

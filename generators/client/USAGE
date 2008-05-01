@@ -2,11 +2,11 @@ client - Generates a new SproutCore client
 
 USAGE: 
 
-  ./script/generate sc_client client_name
+  sc-gen client client_name
 
 DISCUSSION:
 
 This generator will create a new SproutCore-based JavaScript application.  After the generator completes, you will be able to begin work immediately.
 
-The code created by this generator will appear in a /clients directory.  To add models, views, and controllers, you can use the additional generators sc_model, sc_controller, sc_object_controller, sc_collection_controller, and sc_view.
+The code created by this generator will appear in a /clients directory.  To add models, views, and controllers, you can use the additional generators model, controller, and view.
 
