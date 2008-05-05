@@ -51,17 +51,19 @@ module SproutCore
     # Builds a manifest for the bundle and the specified language
     def build!
       
-      # STEP 1: Catalog all of the files in the project, including the target language
-      # and the default language.  This will filter out resources not used in this language.
+      # STEP 1: Catalog all of the files in the project, including the target 
+      # language and the default language.  This will filter out resources not 
+      # used in this language.
       entries = catalog_entries
       
-      # STEP 2: Combine the HTML file paths into a single entry, unless this is a framework
-      if (working = entries[:html]) && working.size > 0
-        if bundle.can_have_html?
-          working << build_entry_for('index.html', :html, working)
-        else
-          working.each { |x| x.hidden = true }
-        end
+      # STEP 2: Combine the HTML file paths into a single entry, unless this 
+      # is a framework
+      working = entries[:html] ||= []
+        
+      if bundle.can_have_html?
+        working << build_entry_for('index.html', :html, working)
+      else
+        working.each { |x| x.hidden = true }
       end
       
       # STEP 3: If in development build mode:
@@ -236,9 +238,10 @@ module SproutCore
       # the source path is just the combine source root + the path
       ret.source_path = (composite.nil?) ? File.join(bundle.source_root, src_path) : nil
       
-      # set the composite property.  The passed in array should contain other entries
-      # if hide_composite is true, then hide the composite items as well
-      unless composite.nil? || composite.size == 0
+      # set the composite property.  The passed in array should contain other 
+      # entries if hide_composite is true, then hide the composite items as 
+      # well
+      unless composite.nil?
         composite.each { |x| x.hidden = true } if hide_composite
         ret.composite = composite.map { |x| x.filename }
       end

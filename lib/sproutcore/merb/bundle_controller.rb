@@ -21,9 +21,10 @@ module SproutCore
       # the request path to determine which bundle should handle the request.
       def main
 
-        # Before we do anything, set the build_mode for the bundles.  This shouldn't change
-        # during execution, but if we set this during the router call, the Merb.environment
-        # is sometimes not ready yet.
+        # Before we do anything, set the build_mode for the bundles.  This 
+        # shouldn't change during execution, but if we set this during the 
+        # router call, the Merb.environment is sometimes not ready yet.
+        #
         if ::Merb.environment.to_sym == :production
           Bundle.build_mode = :production
         else
