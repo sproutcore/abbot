@@ -1,5 +1,8 @@
 == SVN HEAD
 
+
+== SproutCore 0.9.4
+
 * [FIX] Build system now generates index.html files for client bundles, even 
 if they do not include .rhtml resources.
 
@@ -18,6 +21,8 @@ notification system.
 
 * [FIX] The build system now ignored any rhtml files that does not appear in
 an lproj directory since this is where templates are stored.
+
+== SproutCore 0.9.3
 
 * Basic changes to get IE working.  All non-view tests now pass and the doc app and test runner both load and run in IE7.  Lots of visual fixes are still required for the sc-theme as well as IE-specific perf optimization and bug fixes.
 
@@ -45,8 +50,6 @@ underlying DOM element that you hand it.  To work with an inline editor you
 will need to implement the InlineEditorDelegate (see documentation).
 
 * Inline editor now displays with a fixed width and grows downward as you type instead of stretching out to the end.
-
---
 
 * Added hello world sample app.
 
