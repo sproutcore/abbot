@@ -1,5 +1,27 @@
 == SVN HEAD
 
+* Improved some documentation here and there.
+
+* [FIX] SC.View will recache its frames when isVisibleInWindow changes.  This will help to ensure we always have the correct dimensions when bringing views on and offscreen. -- All unit tests now pass again.
+
+* Improves Photos sample to include support for adding/deleting albums and drag and drop into albums.
+
+* Collection View now supports dropping items ON item views as well as between
+them. 
+
+* Collection Views now support a delegate object that can be used to control 
+drag and drop and selection behavior.  See mixins/collection_view_delegate.js 
+for a complete description of the new methods.
+
+* SC.ArrayController now supports the useControllersForContent property.  If
+set to YES, then getting an objectAt() will return a controller for the value
+instead of the value itself.  This is useful for those times you are using an
+array controller to manage a set of objects you want to control.  Previously 
+this feature was always used by array controllers and could not be disabled.  
+This is now off by default.
+
+* [FIX] SC.ArrayController and SC.ObjectController now will properly observe
+their own content, even when the content is set on init.
 
 == SproutCore 0.9.4
 
