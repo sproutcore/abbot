@@ -1,5 +1,8 @@
 == SVN HEAD
 
+* [FIX] SC.InlineTextFieldView was using the _frame property even though that
+is used by a parent class.  Changed to _optframe
+
 * Improved some documentation here and there.
 
 * [FIX] SC.View will recache its frames when isVisibleInWindow changes.  This will help to ensure we always have the correct dimensions when bringing views on and offscreen. -- All unit tests now pass again.
