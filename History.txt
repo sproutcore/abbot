@@ -1,5 +1,9 @@
 == SVN HEAD
 
+* Lots of Safari-specific features for Photos just to demo some of its capabilities.  Client-side storage support is also provided but currently does not save changes you make.
+
+* SC.CollectionView now supports selectAll (Ctrl+A)
+
 * SC.CollectionView now supports the delete key to remove items.  Also added delegate methods to the collection view delegate to give you control over how deletions happen.
 
 * SC.window can now properly capture the backspace key in Firefox.  To 
