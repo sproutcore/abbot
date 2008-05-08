@@ -1,5 +1,7 @@
 == SVN HEAD
 
+* Initial changes to SampleControls to add a form-view demo.  None of the controls are wired up yet.
+
 * Added mongrel as a required dependency of SproutCore.  If you have something
 like thin installed this is technically not required, but several people were
 experiencing trouble installing the gem.
