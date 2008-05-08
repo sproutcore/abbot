@@ -248,14 +248,14 @@ module SproutCore
       
       # The build path is the build_root + the filename
       # The URL is the url root + the language code + filename
-      # also add in _cache or _sym in certain cases.  This is just more efficient than doing
-      # it later.
+      # also add in _cache or _sym in certain cases.  This is just more 
+      # efficient than doing it later.
       url_root = (src_path == 'index.html') ? bundle.index_root : bundle.url_root
       cache_link = nil
       use_symlink =false
       
-      # Note: you can only access real resources via the cache.  If the entry is a composite
-      # then do not go through cache.
+      # Note: you can only access real resources via the cache.  If the entry 
+      # is a composite then do not go through cache.
       if (bundle.build_mode == :development) && composite.nil?
         cache_link = '_cache' if CACHED_TYPES.include?(src_type)
         use_symlink = true if SYMLINKED_TYPES.include?(src_type)

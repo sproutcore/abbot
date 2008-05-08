@@ -75,8 +75,9 @@ module SproutCore
         
         build_path = entry.build_path
 
-        # Found an entry, build the resource.  If the resource has already been built, this
-        # will not do much.  If this the resource is an index.html file, force the build.
+        # Found an entry, build the resource.  If the resource has already 
+        # been built, this will not do much.  If this the resource is an 
+        # index.html file, force the build.
         is_index = /\/index\.html$/ =~ url
         
         current_bundle.build_entry(entry, :force => is_index, :hidden => :include)

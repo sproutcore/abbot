@@ -1,5 +1,17 @@
 == SVN HEAD
 
+* SC.CollectionView now supports the delete key to remove items.  Also added delegate methods to the collection view delegate to give you control over how deletions happen.
+
+* SC.window can now properly capture the backspace key in Firefox.  To 
+activate this feature you must declare SC.CAPTURE_BACKSPACE_KEY = YES in your
+core.js file.  Capturing the backspace key will prevent the browser from going to previous page when the user hits backspace, which can lead to data loss. To capture this key, SC.window will directly set the document.onkeypress handler.  
+
+* SC.GridView now supports dropping ON items.
+ 
+* SC.ListView now supports dropping ON items.
+
+* Removed the try/catch() that was placed around property notifiers.  This is not only faster but it will make it easier to debug these exceptions in Firebug and IE.
+
 * [FIX] SC.InlineTextFieldView was using the _frame property even though that
 is used by a parent class.  Changed to _optframe
 
