@@ -1,5 +1,9 @@
 == SVN HEAD
 
+* Added mongrel as a required dependency of SproutCore.  If you have something
+like thin installed this is technically not required, but several people were
+experiencing trouble installing the gem.
+
 * Lots of Safari-specific features for Photos just to demo some of its capabilities.  Client-side storage support is also provided but currently does not save changes you make.
 
 * SC.CollectionView now supports selectAll (Ctrl+A)
