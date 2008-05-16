@@ -1,5 +1,33 @@
 == SVN HEAD
 
+* [IE] innerFrame now returns the correct value for elements without hasLayout.
+
+* [IE] get styleWidth & styleHeight on a view will now return the same value
+on all platforms.  The IE version would previously include padding and borders
+even though it should include only the core width.
+
+* [FIX] Unit tests could fail to execute in IE if they ended in a comment, fixed unittest.js to avoid this problem.
+
+* [FIX] TextFieldView could blank out content when you tabbed out of in.
+
+== SproutCore 0.9.5
+
+* Build Tools will now remove any loc strings from the strings.js file beginning with "@@" for the key name when building the JS file to send to the client.  This allows you to include strings in the strings.js file that you only want to use for server-side localization.
+
+* Build Tools now support the "loc()" ruby helper, which will include a server-side loc string pulled from the strings.js file for the current bundle.
+
+* Collection View now supports selectOnMouseDown which can be turned off to provide better drag and drop behavior on SourceList.  SC.SourceListView now turns this off by default.
+
+* Requesting a resource that should be available in production mode while 
+running your server in dev mode will now work.  Bundles now build one manifest per language/build_mode combination. 
+
+* Build tools now automatically set String.preferredLanguage to the current 
+build language.  This will ensure we start using the current strings when you
+load the loc'd interface.
+
+* Build tools no longer automatically merge .html files into the bundle.
+Instead they are treated like static resources.  If you want to have your html merged into the index, name it .rhtml or .html.erb
+
 * Initial changes to SampleControls to add a form-view demo.  None of the controls are wired up yet.
 
 * Added mongrel as a required dependency of SproutCore.  If you have something

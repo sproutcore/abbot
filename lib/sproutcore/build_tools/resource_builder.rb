@@ -53,12 +53,23 @@ module SproutCore
         return join(lines)
       end
       
-      # Join the lines together.  This is one last chance to do some prep of the data
-      # (such as minifcation and comment stripping)
+      # Join the lines together.  This is one last chance to do some prep of 
+      # the data (such as minifcation and comment stripping)
       def join(lines); lines.join; end
       
-      # Tries to build a single resource.  This may call itself recursively to handle
-      # requires.
+      # Rewrites any inline content such as static urls.  Subclasseses can
+      # override this to rewrite any other inline content.
+      #
+      # The default will rewrite calls to static_url().
+      def rewrite_inline_code(line, filename)
+        line.gsub(/static_url\([\'\"](.+)[\'\"]\)/) do | rsrc |
+          entry = bundle.find_resource_entry($1, :language => language)
+          static_url(entry.nil? ? '' : entry.url)
+        end
+      end
+      
+      # Tries to build a single resource.  This may call itself recursively to 
+      # handle requires.
       #
       # ==== Returns
       # [lines, required] to be passed into the next call
@@ -77,19 +88,19 @@ module SproutCore
         io = (entry.source_path.nil? || !File.exists?(entry.source_path)) ? [] : File.new(entry.source_path)
         io.each do | line |
           
-          # check for requires.  Only follow a require if the require is in the list
-          # of filenames.
+          # check for requires.  Only follow a require if the require is in 
+          # the list of filenames.
           required_file = _require_for(filename, line) 
           unless required_file.nil? || !filenames.include?(required_file)
             lines, required = _build_one(required_file, lines, required, link_only)
           end
           
-          file_lines << _rewrite_static_urls(line) unless link_only 
+          file_lines << rewrite_inline_code(line, filename) unless link_only 
         end
 
-        # The list of already required filenames is slightly out of order from the actual
-        # load order.  Instead, we use the lines array to hold the list of filenames as they
-        # are processed.
+        # The list of already required filenames is slightly out of order from 
+        # the actual load order.  Instead, we use the lines array to hold the 
+        # list of filenames as they are processed.
         if link_only
           lines << filename
           
@@ -104,16 +115,8 @@ module SproutCore
       # Overridden by subclasses to choose first filename.
       def next_filename; filenames.delete(filenames.first); end
 
-      # This will look for calls to static_url() and rewrite them with an actual
-      # string to the URL. Assumes the input text is JavaScript or CSS.
-      def _rewrite_static_urls(line)
-        line.gsub(/static_url\([\'\"](.+)[\'\"]\)/) do | rsrc |
-          entry = bundle.find_resource_entry($1, :language => language)
-          static_url(entry.nil? ? '' : entry.url)
-        end
-      end
-
-      # Overridden by subclass to handle static_url() in a language specific way.
+      # Overridden by subclass to handle static_url() in a language specific 
+      # way.
       def static_url(url); "url('#{url}')"; end
       
       # check line for required() pattern.  understands JS and CSS.
@@ -154,6 +157,15 @@ module SproutCore
         end
         
         lines.join
+      end
+      
+      # If the file is a strings.js file, then remove server-side strings...
+      def rewrite_inline_code(line, filename)
+        if filename == 'strings.js'
+          line = line.gsub(/["']@@.*["']\s*?:\s*?["'].*["'],\s*$/,'')
+        end
+        
+        super(line, filename)
       end
       
       def static_url(url); "'#{url}'"; end

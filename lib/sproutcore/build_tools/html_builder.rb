@@ -2,8 +2,6 @@ require 'erubis'
 require 'sproutcore/helpers'
 require 'sproutcore/view_helpers'
 
-puts "LOADED HTML_BUILDER"
-
 module SproutCore
   
   module BuildTools
@@ -49,9 +47,7 @@ module SproutCore
         @entries.reject! { |entry| entry.composite? || (entry.type == :html && !entry.localized?) }
         
         # Load any helpers before we continue
-        puts "*************REQUIRE"
         bundle.all_required_bundles.each do |cur_bundle|
-          puts "requiring: #{cur_bundle.bundle_name}"
           require_helpers(nil, cur_bundle)
         end
           
@@ -63,11 +59,13 @@ module SproutCore
 
         @layout_path = bundle.layout_path
         
-        # Render each filename.  By default, the output goes to the resources string
+        # Render each filename.  By default, the output goes to the resources 
+        # string
         @content_for_resources = ''
         entries.each { |fn| _render_one(fn) }
         
-        # Finally, render the layout.  This should produce the final output to return
+        # Finally, render the layout.  This should produce the final output to 
+        # return
         input = File.read(@layout_path)
         return eval(Erubis::Eruby.new.convert(input))
       end

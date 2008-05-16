@@ -70,7 +70,7 @@ module SproutCore
         
         # Get the entry for the resource.  
         entry = current_bundle.entry_for_url(url, :hidden => :include)
-        raise(NotFound, "No matching entry in #{current_bundle.bundle_name}") if entry.nil?
+        raise(NotFound, "No matching entry in #{current_bundle.bundle_name} for #{url}") if entry.nil?
 
         
         build_path = entry.build_path

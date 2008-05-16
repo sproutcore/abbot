@@ -7,12 +7,13 @@ module SproutCore
     
     module StaticHelper
 
-      # This method will return the HTML to link to all the stylesheets required
-      # by the named bundle.  If you pass no options, the current client will be 
-      # used.
+      # This method will return the HTML to link to all the stylesheets 
+      # required by the named bundle.  If you pass no options, the current 
+      # client will be used.
       # 
-      # bundle_name = the name of the bundle to render or nil to use the current
-      # :language => the language to render. defaults to current language
+      # bundle_name = the name of the bundle to render or nil to use the 
+      # current :language => the language to render. defaults to current 
+      # language
       #
       def stylesheets_for_client(bundle_name = nil, opts = {})
 
@@ -38,11 +39,12 @@ module SproutCore
         urls.join("\n")
       end
     
-      # This method will return the HTML to link to all the javascripts required
-      # by the client.  If you pass no options, the current client will be used.
+      # This method will return the HTML to link to all the javascripts 
+      # required by the client.  If you pass no options, the current client 
+      # will be used.
       # 
-      # client_name = the name of the client to render or nil to use the current
-      # :language => the language to render. defaults to @language.
+      # client_name = the name of the client to render or nil to use the 
+      # current :language => the language to render. defaults to @language.
       #
       def javascripts_for_client(bundle_name = nil, opts = {})
 
@@ -65,6 +67,10 @@ module SproutCore
         urls = urls.map do |url|
           %(  <script type="text/javascript" src="#{url}"></script>)
         end
+      
+        # Add preferred language definition...
+        urls << %(<script type="text/javascript">String.preferredLanguage = "#{language}";</script>)
+        
         urls.join("\n")
       end
 
@@ -74,6 +80,13 @@ module SproutCore
         entry = bundle.find_resource_entry(resource_name, opts)
         entry.nil? ? '' : entry.url
       end
+            
+      # Localizes the passed string, using the optional passed options.
+      def loc(string, opts = {})
+        opts[:language] ||= language
+        bundle.strings_hash(opts)[string] || string
+      end
+      
     end
   
   end

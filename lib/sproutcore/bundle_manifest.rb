@@ -2,22 +2,24 @@ require 'yaml'
 
 module SproutCore
   
-  # A Bundle Manifest describes all of the resources in a bundle, including mapping their
-  # source paths, destination paths, and urls.
+  # A Bundle Manifest describes all of the resources in a bundle, including 
+  # mapping their source paths, destination paths, and urls.
   #
-  # A Bundle will create a manifest for every language you request from it.  If you invoke
-  # reload! on the bundle, it will dispose of its manifests and rebuild them.
+  # A Bundle will create a manifest for every language you request from it.  
+  # If you invoke reload! on the bundle, it will dispose of its manifests and 
+  # rebuild them.
   #
   class BundleManifest
     
     CACHED_TYPES = [:javascript, :stylesheet, :fixture, :test]
     SYMLINKED_TYPES = [:resource]
     
-    attr_reader :bundle, :language
+    attr_reader :bundle, :language, :build_mode
     
-    def initialize(bundle, language)
+    def initialize(bundle, language, build_mode)
       @bundle = bundle
       @language = language
+      @build_mode = build_mode
       @entries_by_type = {} # entries by type
       @entries_by_filename = {} # entries by files
       build!
@@ -67,15 +69,16 @@ module SproutCore
       end
       
       # STEP 3: If in development build mode:
-      if bundle.build_mode == :development
+      if self.build_mode == :development
         
         #  a. Merge fixture types into JS types & tests
         unless entries[:fixture].nil?
           entries[:javascript] = (entries[:javascript] || []) + entries[:fixture]  
         end
       
-        #  b. Rewrite all of the JS & CSS file paths and URLs to point to cached versions
-        #     (Cached versions are written to _cache/filename-ctime.ext)
+        #  b. Rewrite all of the JS & CSS file paths and URLs to point to 
+        # cached versions 
+        # (Cached versions are written to _cache/filename-ctime.ext)
         (entries[:javascript] ||= []).each do | entry |
           setup_timestamp_token(entry)
         end
@@ -99,7 +102,7 @@ module SproutCore
       # STEP 5: Add entry for javascript.js & stylesheet.js.  If in production mode, set
       # these to visible and hide the composite.  If in dev mode, do the opposite.
       
-      hide_composite = (bundle.build_mode != :development)
+      hide_composite = (self.build_mode != :development)
   
       #  a. Combine the JS file paths into a single entry for the javascript.js
       if (working = entries[:javascript]) && working.size>0
@@ -204,8 +207,6 @@ module SproutCore
         :test
       when /^fixtures\/.+\.js$/
         :fixture
-      when /\.html$/
-        :html
       when /\.rhtml$/
         :html
       when /\.html.erb$/
@@ -221,9 +222,10 @@ module SproutCore
       end
     end
     
-    # Build an entry for the resource at the named src_path (relative to the source_root)
-    # This should assume we are in going to simply build each resource into the build root
-    # without combining files, but not using our _src symlink magic.
+    # Build an entry for the resource at the named src_path (relative to the 
+    # source_root) This should assume we are in going to simply build each 
+    # resource into the build root without combining files, but not using our 
+    # _src symlink magic.
     def build_entry_for(src_path, src_type, composite=nil, hide_composite = true)
       ret = ManifestEntry.new
       ret.ext = File.extname(src_path)[1..-1] || '' # easy stuff
@@ -256,7 +258,7 @@ module SproutCore
       
       # Note: you can only access real resources via the cache.  If the entry 
       # is a composite then do not go through cache.
-      if (bundle.build_mode == :development) && composite.nil?
+      if (self.build_mode == :development) && composite.nil?
         cache_link = '_cache' if CACHED_TYPES.include?(src_type)
         use_symlink = true if SYMLINKED_TYPES.include?(src_type)
       end
@@ -293,7 +295,8 @@ module SproutCore
   # filename::     path relative to the built language (e.g. sproutcore/en) less file extension
   # ext::          the file extension
   # source_path:: absolute paths into source that will comprise this resource
-  # url::          the url that should be used to reference this resource
+  # url::          the url that should be used to reference this resource in the current mode.
+  # build_url::    the url that will be used to referene this resource in production.  
   # build_path::   absolute path to the compiled resource
   # type::         the top-level category
   # original_path:: save the original path used to build this entry

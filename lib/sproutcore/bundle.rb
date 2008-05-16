@@ -234,7 +234,11 @@ module SproutCore
     #
     def entries_for(resource_type, opts={})
       with_hidden = opts[:hidden] || :none
-      manifest = manifest_for(opts[:language] || preferred_language)
+      
+      language = opts[:language] || preferred_language
+      mode = opts[:build_mode] || build_mode
+      manifest = manifest_for(language, mode)
+
       ret = manifest.entries_for(resource_type)
       
       case with_hidden
@@ -257,7 +261,11 @@ module SproutCore
     #
     def entry_for(resource_name, opts={})
       with_hidden = opts[:hidden] || :none
-      manifest = manifest_for(opts[:language] || preferred_language)
+      
+      language = opts[:language] || preferred_language
+      mode = opts[:build_mode] || build_mode
+      manifest = manifest_for(language, mode)
+
       ret = manifest.entry_for(resource_name)
 
       case with_hidden
@@ -269,26 +277,43 @@ module SproutCore
       return ret
     end
 
-    # Returns the entry for the specified URL.  This will extract the language from the URL.
+    # Returns the entry for the specified URL.  This will extract the language 
+    # from the URL and try to get the entry from both the manifest in the
+    # current build mode and in the production build mode (if one is
+    # provided)
     #
     # ==== Params 
     # url<String>:: The url
     #
     # ==== Options
     # hidden::     Use :include,:none,:only to control hidden options
-    # language::   Explicitly include the language.  Leave this out to autodetect from URL.
+    # language::   Explicitly include the language.  Leave this out to 
+    #   autodetect from URL.
     #
     def entry_for_url(url, opts={})
       # get the language
-      opts[:language] ||= url.match(/^#{url_root}\/([^\/]+)\//).to_a[1] || preferred_language
+      opts[:language] ||= url.match(/^#{url_root}\/([^\/]+)\//).to_a[1] || url.match(/^#{index_root}\/([^\/]+)\//).to_a[1] || preferred_language
+
+      # use the current build mode
+      opts[:build_mode] = build_mode
       entries(opts).each do |entry|
         return entry if entry.url == url
       end
+      
+      # try production is necessary...
+      if (build_mode != :production) 
+        opts[:build_mode] = :production
+        entries(opts).each do |entry|
+          return entry if entry.url == url
+        end
+      end
+        
       return nil # not found!
     end
     
-    # Helper method.  This will normalize a URL into one that can map directly to an
-    # entry in the bundle.  If the URL is of a format that cannot be converted, returns nil.
+    # Helper method.  This will normalize a URL into one that can map directly 
+    # to an entry in the bundle.  If the URL is of a format that cannot be 
+    # converted, returns nil.
     # 
     # ==== Params
     # url<String>:: The URL
@@ -299,7 +324,7 @@ module SproutCore
       if (url == index_root)
         url = [index_root, preferred_language.to_s, 'index.html'].join('/')
 
-      # Requests to url_root/lang should have index.html appended to them
+      # Requests to index_root/lang should have index.html appended to them
       elsif /^#{index_root}\/[^\/\.]+$/ =~ url
         url << '/index.html'
       end
@@ -315,7 +340,11 @@ module SproutCore
     #
     def entries(opts ={})
       with_hidden = opts[:hidden] || :none
-      manifest = manifest_for(opts[:language] || preferred_language)
+
+      language = opts[:language] || preferred_language
+      mode = opts[:build_mode] || build_mode
+      manifest = manifest_for(language, mode)
+
       ret = manifest.entries
 
       case with_hidden
@@ -327,9 +356,9 @@ module SproutCore
       return ret
     end
 
-    # Does a deep search of the entries, looking for a resource that is a close
-    # match of the specified resource.  This does not need to match the filename
-    # exactly and it can omit the extension
+    # Does a deep search of the entries, looking for a resource that is a 
+    # close match of the specified resource.  This does not need to match the 
+    # filename exactly and it can omit the extension
     def find_resource_entry(filename, opts={}, seen=nil)
       extname = File.extname(filename)
       rootname = filename.gsub(/#{extname}$/,'')
@@ -420,14 +449,15 @@ module SproutCore
       @seen = nil if created_seen
     end
     
-    # Easy singular form of build_entries().  Take same parameters except for a single entry
-    # instead of an array.
+    # Easy singular form of build_entries().  Take same parameters except for 
+    # a single entry instead of an array.
     def build_entry(entry, opts={})
       build_entries([entry], opts)
     end
 
-    # Invoked by build tools when they build a dependent entry. This will add the entry
-    # to the list of seen entries during a build so that it will not be rebuilt.
+    # Invoked by build tools when they build a dependent entry. This will add 
+    # the entry to the list of seen entries during a build so that it will not 
+    # be rebuilt.
     def did_build_entry(entry)
       @seen << entry unless @seen.nil?
     end
@@ -439,8 +469,9 @@ module SproutCore
       SC.logger.debug("~ Done.\n")
     end
     
-    # This will perform a complete build for all languages that have a matching lproj.
-    # You can also pass in an array of languages you would like to build
+    # This will perform a complete build for all languages that have a 
+    # matching lproj. You can also pass in an array of languages you would 
+    # like to build
     def build(*languages)
       
       # Get the installed languages (and the preferred language, just in case)
@@ -512,22 +543,87 @@ module SproutCore
       
       return cached[:contents] 
     end
+
+    ######################################################
+    ## LOCALIZATION
+    ##
+    
+    # Returns all of the strings.js entries for this bundle and any required
+    # bundles.  The return array is in the order the entries should be 
+    # processed to build the strings hash.
+    #
+    # ==== Options
+    # language: optional language.  otherwise preferred language is used.
+    #
+    def strings_entries(opts = {})
+      opts[:hidden] = true # include hidden files for prod mode.
+      all_required_bundles.map { |q| q.entry_for('strings.js', opts) }.compact
+    end
+    
+    # This will load a strings resource and convert it into a hash of key
+    # value pairs.
+    def strings_for_entry(strings_entry)
+      source_path = strings_entry.source_path
+      return {} if !File.exists?(source_path)
+      
+      # read the file in and strip out comments...
+      str = File.read(source_path)
+      str = str.gsub(/\/\/.*$/,'').gsub(/\/\*.*\*\//m,'')
+      
+      # Now build the hash
+      ret = {}
+      str.scan(/['"](.+)['"]\s*:\s*['"](.+)['"],?\s*$/) do |x,y| 
+        # x & y are JS strings that must be evaled as such..
+        #x = eval(%("#{x}"))
+        y = eval(%("#{y}"))
+        ret[x] = y 
+      end
+      
+      return ret
+    end
+    
+    # Strings the string hash for the current bundle.  If this strings hash
+    # has not been loaded yet, it will be loaded now.
+    #
+    # ==== Options
+    # language: optional language.  otherwise preferred language is used.
+    #
+    def strings_hash(opts={})
+      
+      build_mode = opts[:build_mode] ||= build_mode
+      language = opts[:language] ||= preferred_language
+      key = [build_mode.to_s, language.to_s].join(':').to_sym
+      
+      @strings_hash ||= {}
+      if @strings_hash[key].nil?
+        ret = {} 
+        strings_entries(opts).each do |entry|
+          ret.merge! strings_for_entry(entry)
+        end
+        @strings_hash[key] = ret 
+      end
+      
+      return @strings_hash[key]
+    end
     
     ######################################################
     ## MANIFESTS
     ##
 
-    # Invoke this method whenever you think the bundle's contents on disk might have changed
-    # this will throw away any cached information in bundle.  This is generally a cheap
-    # operation so it is OK to call it often, though it will be less performant overall.
+    # Invoke this method whenever you think the bundle's contents on disk 
+    # might have changed this will throw away any cached information in 
+    # bundle.  This is generally a cheap operation so it is OK to call it 
+    # often, though it will be less performant overall.
     def reload!
       @manifests = {}
+      @strings_hash = {}
     end
     
-    # Returns the bundle manifest for the specified language.  The manifest will be created
-    # if it does not yet exist.
-    def manifest_for(language)
-      @manifests[language.to_sym] ||= BundleManifest.new(self, language.to_sym)
+    # Returns the bundle manifest for the specified language and build mode.  
+    # The manifest will be created if it does not yet exist.
+    def manifest_for(language, build_mode)
+      manifest_key = [build_mode.to_s, language.to_s].join(':').to_sym
+      @manifests[manifest_key] ||= BundleManifest.new(self, language.to_sym, build_mode.to_sym)
     end
     
     # ==== Returns
@@ -541,8 +637,9 @@ module SproutCore
       ret.compact.map { |x| LONG_LANGUAGE_MAP[x.to_sym] || x.to_sym }.uniq
     end
     
-    # Finds the actual lproj directory (in the source) for the language code.  If the named
-    # language does not exist, returns the lproj for the preferred language.
+    # Finds the actual lproj directory (in the source) for the language code.  
+    # If the named language does not exist, returns the lproj for the 
+    # preferred language.
     def lproj_for(language)
       
       # try language as passed in.
@@ -561,12 +658,13 @@ module SproutCore
         return ret if File.exists?(File.join(source_root,ret))
       end
       
-      # failed, return using preferred_language unless this is the preferred language
+      # failed, return using preferred_language unless this is the preferred 
+      # language
       ret = (language != preferred_language) ? lproj_for(preferred_language) : nil
       return ret unless ret.nil?
       
-      # Super-ultra massive fail.  Possible that no localized resources exist at all.
-      # Return english.lproj and hope for the best
+      # Super-ultra massive fail.  Possible that no localized resources exist 
+      # at all. Return english.lproj and hope for the best
       return 'english.lproj' 
     end
     
@@ -577,8 +675,8 @@ module SproutCore
     
     protected
     
-    # Converts the named path to a fully qualified path name using the library root, if it
-    # does not begin with a slash
+    # Converts the named path to a fully qualified path name using the library 
+    # root, if it does not begin with a slash
     def normalize_path(path)
       (path[0] == '/'[0]) ? path : File.join(library_root, path)
     end
