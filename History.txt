@@ -1,5 +1,7 @@
 == SVN HEAD
 
+* [FIX] build tools could puke on strings files that contains quotes.  This should fix it.
+
 * [IE] innerFrame now returns the correct value for elements without hasLayout.
 
 * [IE] get styleWidth & styleHeight on a view will now return the same value
