@@ -42,7 +42,6 @@ clients/sc_test_runner/views/test_label.js
 config/hoe.rb
 config/requirements.rb
 frameworks/prototype/prototype.js
-frameworks/sproutcore/animation/animation.js
 frameworks/sproutcore/controllers/array.js
 frameworks/sproutcore/controllers/collection.js
 frameworks/sproutcore/controllers/controller.js
@@ -98,7 +97,6 @@ frameworks/sproutcore/foundation/routes.js
 frameworks/sproutcore/foundation/run_loop.js
 frameworks/sproutcore/foundation/server.js
 frameworks/sproutcore/foundation/set.js
-frameworks/sproutcore/foundation/sorted_set.js
 frameworks/sproutcore/foundation/string.js
 frameworks/sproutcore/foundation/timer.js
 frameworks/sproutcore/foundation/undo_manager.js
