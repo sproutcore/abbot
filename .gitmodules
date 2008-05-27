@@ -13,3 +13,6 @@
 [submodule "samples"]
 	path = samples
 	url = git@github.com:sproutit/sproutcore-samples.git
+[submodule "clients/view_builder"]
+	path = clients/view_builder
+	url = git@github.com:sproutit/sproutcore-viewbuilder.git
