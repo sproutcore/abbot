@@ -11,6 +11,9 @@ SC_ROOT = APP_ROOT
 
 $:.unshift File.join(SC_ROOT,'lib') ;
 
+# Set String encoding to Unicode
+$KCODE = 'u'
+
 # Require SproutCore
 require 'rubygems'
 require 'rubigen'

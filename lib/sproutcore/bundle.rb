@@ -575,7 +575,7 @@ module SproutCore
       str.scan(/['"](.+)['"]\s*:\s*['"](.+)['"],?\s*$/) do |x,y| 
         # x & y are JS strings that must be evaled as such..
         #x = eval(%("#{x}"))
-        y = eval(%[%(#{y})])
+        y = eval(%[<<__EOF__\n#{y}\n__EOF__]).chop
         ret[x] = y 
       end
       

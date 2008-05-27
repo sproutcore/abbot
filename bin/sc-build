@@ -14,6 +14,9 @@ APP_ROOT = File.expand_path(Dir.pwd)
 SC_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 $:.unshift File.join(SC_ROOT,'lib') ;
 
+# Set String encoding to Unicode
+$KCODE = 'u'
+
 # Require SproutCore
 require 'rubygems'
 require 'rubigen'

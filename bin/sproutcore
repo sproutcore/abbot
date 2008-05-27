@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
 
+# Set String encoding to Unicode
+$KCODE = 'u'
+
 require 'rubygems'
 require 'rubigen'
 
