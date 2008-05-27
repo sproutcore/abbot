@@ -1,5 +1,3 @@
---test
-
 SproutCore JavaScript Framework
 
 SproutCore is a full MVC framework written in JavaScript for building desktop-like applications on the web.  It makes building sophisticated applications for the web easier and more fun.
