@@ -1,18 +1,18 @@
 [submodule "frameworks/sproutcore"]
 	path = frameworks/sproutcore
-	url = git@github.com:sproutit/sproutcore.git
+	url = git://github.com/sproutit/sproutcore.git
 [submodule "frameworks/prototype"]
 	path = frameworks/prototype
-	url = git@github.com:sproutit/sproutcore-prototype.git
+	url = git://github.com/sproutit/sproutcore-prototype.git
 [submodule "clients/sc_docs"]
 	path = clients/sc_docs
-	url = git@github.com:sproutit/sproutcore-doctool.git
+	url = git://github.com/sproutit/sproutcore-doctool.git
 [submodule "clients/sc_test_runner"]
 	path = clients/sc_test_runner
-	url = git@github.com:sproutit/sproutcore-testrunner.git
+	url = git://github.com/sproutit/sproutcore-testrunner.git
 [submodule "samples"]
 	path = samples
-	url = git@github.com:sproutit/sproutcore-samples.git
+	url = git://github.com/sproutit/sproutcore-samples.git
 [submodule "clients/view_builder"]
 	path = clients/view_builder
-	url = git@github.com:sproutit/sproutcore-viewbuilder.git
+	url = git://github.com/sproutit/sproutcore-viewbuilder.git
