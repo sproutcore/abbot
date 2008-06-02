@@ -605,15 +605,10 @@ module SproutCore
       SproutCore::ViewHelperSupport.set_helper(helper_name, hs)
 
       ## install the helper method
-      SproutCore::ViewHelpers.class_eval %{
+      eval %{
         def #{helper_name}(item_id=nil, opts={}, &block)
           SproutCore::ViewHelperSupport.render_view(:#{helper_name}, item_id, opts, bundle, self, &block)
         end }
-
-      SproutCore::ViewHelpers.class_eval %{
-          def self.#{helper_name}(item_id=nil, opts={}, &block)
-            SproutCore::ViewHelperSupport.render_view(:#{helper_name}, item_id, opts, bundle, self, &block)
-          end }
 
     end
     
@@ -654,7 +649,7 @@ module SproutCore
       
       # restore old bundle helper.
       unless bundle.nil?
-        @helper_bundler = old_helper_bundle
+        @helper_bundle = old_helper_bundle
       end
     end
     

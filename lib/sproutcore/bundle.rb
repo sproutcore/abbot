@@ -543,7 +543,7 @@ module SproutCore
       
       return cached[:contents] 
     end
-
+    
     ######################################################
     ## LOCALIZATION
     ##
