@@ -1,4 +1,8 @@
-== SVN HEAD
+== SproutCore 0.9.8
+
+* [FIX] Plugged memory leak in view_helper that would cause sc-server to slow down after repeated use.
+
+== SproutCore 0.9.7
 
 * [FIX] build tools could puke on strings files that contains quotes.  This should fix it.
 
