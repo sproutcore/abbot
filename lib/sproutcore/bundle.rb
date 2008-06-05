@@ -68,8 +68,8 @@ module SproutCore
   # 
   class Bundle 
 
-    LONG_LANGUAGE_MAP = { :english => :en, :french => :fr, :german => :de, :japanese => :jp, :spanish => :es, :italian => :it }
-    SHORT_LANGUAGE_MAP = { :en => :english, :fr => :french, :de => :german, :jp => :japanese, :es => :spanish, :it => :italian }
+    LONG_LANGUAGE_MAP = { :english => :en, :french => :fr, :german => :de, :japanese => :ja, :spanish => :es, :italian => :it }
+    SHORT_LANGUAGE_MAP = { :en => :english, :fr => :french, :de => :german, :ja => :japanese, :es => :spanish, :it => :italian }
 
     # The default build mode for bundles.  This should be set once before you 
     # start using bundles.  You can override this when you create a specific 
