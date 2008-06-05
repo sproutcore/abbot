@@ -2,13 +2,14 @@ require 'yaml'
 
 module SproutCore
   
-  # Describes a single library that can contain one or more clients and frameworks. 
-  # This class is used to automatically locate all installed libraries and to register the
-  # clients within them.
+  # Describes a single library that can contain one or more clients and 
+  # frameworks. This class is used to automatically locate all installed 
+  # libraries and to register the clients within them.
   # 
-  # Libraries are chained, with the child library replacing the parent library's settings.
-  # In general, the root library is always the current app while its parent libraries are 
-  # those found in the load path or explicitly stated in the configs.
+  # Libraries are chained, with the child library replacing the parent 
+  # library's settings. In general, the root library is always the current app 
+  # while its parent libraries are those found in the load path or explicitly 
+  # stated in the configs.
   class Library
 
     # Creates a chained set of libraries from the passed location and the load path

@@ -71,9 +71,9 @@ module SproutCore
     LONG_LANGUAGE_MAP = { :english => :en, :french => :fr, :german => :de, :japanese => :jp, :spanish => :es, :italian => :it }
     SHORT_LANGUAGE_MAP = { :en => :english, :fr => :french, :de => :german, :jp => :japanese, :es => :spanish, :it => :italian }
 
-    # The default build mode for bundles.  This should be set once before you start using
-    # bundles.  You can override this when you create a specific bundle, but that should not
-    # be the typical behavior
+    # The default build mode for bundles.  This should be set once before you 
+    # start using bundles.  You can override this when you create a specific 
+    # bundle, but that should not be the typical behavior
     def self.build_mode; @build_mode || :development; end
     
     def self.build_mode=(new_mode); @build_mode = new_mode; end
@@ -90,8 +90,8 @@ module SproutCore
     end
     
     # ==== Returns 
-    # All bundles required directly or indirectly by this bundles.  These are returned in
-    # their proper load order.
+    # All bundles required directly or indirectly by this bundles.  These are 
+    # returned in their proper load order.
     #
     def all_required_bundles(seen=nil)
       seen ||= Set.new
@@ -143,19 +143,21 @@ module SproutCore
     def initialize(bundle_name, opts ={})
       
       # You must provide the following properties to every build:
-      # bundle_name::       A name used to identify the client for required URLs, etc.
+      # bundle_name::       A name used to identify the client for required 
+      #  URLs, etc.
       @bundle_name = bundle_name.to_sym
 
-      # The following are not required by the build system, but they can be used to
-      # automatically construct the key paths listed below.  Often times defaults will
-      # do the right thing
+      # The following are not required by the build system, but they can be 
+      # used to automatically construct the key paths listed below.  Often 
+      # times defaults will do the right thing
       #
       # library::      The root URL of the library holding the client
       @library = opts[:library]
       @library_root = opts[:library_root]
       raise "Bundles must belong to a library or have a library_root" if library_root.nil?
 
-      # The following properties are also required, but have defaults you can rely use:
+      # The following properties are also required, but have defaults you can 
+      # rely use:
       #  bundle_type::       :framework|:client (default :client)
       @bundle_type = (opts[:bundle_type] || opts[:type] || :client).to_sym
 
@@ -223,10 +225,12 @@ module SproutCore
       BuildTools::JavaScriptResourceBuilder.sort_entries_by_load_order(entries, opts[:language], self)
     end
     
-    # This method returns the manifest entries for resources of the specified type.
+    # This method returns the manifest entries for resources of the specified 
+    # type.
     # 
     # ==== Params
-    # type::  must be one of :javascript, :stylesheet, :resource, :html, :fixture, :test
+    # type::  must be one of :javascript, :stylesheet, :resource, :html, 3
+    #  :fixture, :test
     # 
     # ==== Options
     # language::  The language to use.  Defaults to preferred language.
@@ -250,7 +254,7 @@ module SproutCore
       return ret
     end
     
-    # This method returns the manifest entry for a resource with the specified name.
+    # Returns the manifest entry for a resource with the specified name.
     #
     # ==== Params
     # name: The name of the entry.
