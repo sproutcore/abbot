@@ -1,3 +1,5 @@
+* [FIX] Changed default language mapping for Japanese from jp to ja.
+
 == SproutCore 0.9.8
 
 * [FIX] Plugged memory leak in view_helper that would cause sc-server to slow down after repeated use.
