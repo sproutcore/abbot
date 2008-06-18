@@ -167,9 +167,9 @@ module SproutCore
     end
     
     # Returns the computed environment for a particular client or framework.
-    # This will go up the chain of parent libraries, retrieving and merging any known
-    # environment settings.  The returned options are suitable for passing to the ClientBuilder
-    # for registration.
+    # This will go up the chain of parent libraries, retrieving and merging 
+    # any known environment settings.  The returned options are suitable for 
+    # passing to the ClientBuilder for registration.
     def environment_for(bundle_name)
 
       is_local_client = client_directories.include?(bundle_name.to_s)
@@ -204,8 +204,8 @@ module SproutCore
           ret[key] = all[key] if all.include?(key)
         end
       
-        # Either way, if we have local settings for this specific client, they override whatever
-        # we cooked up just now.
+        # Either way, if we have local settings for this specific client, they 
+        # override whatever we cooked up just now.
         local_settings = environment[bundle_name.to_sym] 
         ret = ret.merge(local_settings) unless local_settings.nil?
 

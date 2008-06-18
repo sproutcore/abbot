@@ -93,10 +93,14 @@ module SproutCore
         ret = File.open(build_path)
         
         
-        # In development mode only, immediately delete built composite resources.  We want 
-        # each request to come directly to us.
+        # In development mode only, immediately delete built composite 
+        # resources.  We want each request to come directly to us.
         if (current_bundle.build_mode == :development) && (!entry.cacheable?)
-          FileUtils.rm(build_path)
+          
+          # Deleting composite resources will not work in windows because it
+          # does not like to have files you just open deleted. (Its OK on
+          # windows)
+          FileUtils.rm(build_path) if (RUBY_PLATFORM !~ /mswin32/)
         end
         
         return ret

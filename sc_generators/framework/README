@@ -3,5 +3,5 @@ Your new framework has been created.  To include it in your clients, be sure to 
 all:
   requires: [<%= name %>]
 
-Then restart your sc_server and you should be ready to go.
+Then restart your sc-server and you should be ready to go.
 

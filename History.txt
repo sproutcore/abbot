@@ -1,3 +1,12 @@
+
+* The build tools can now generate bundles with relative paths. Fixes #19
+
+* Fixed minor typos in the generated template files closed #17
+
+* Renamed generators to sc_generators.  This avoids a conflict with Rails 2.1.
+
+* [FIX] Applied bug fixes suggested by typo_pl to make the build tool run on windows.
+
 * [FIX] Changed default language mapping for Japanese from jp to ja.
 
 == SproutCore 0.9.8

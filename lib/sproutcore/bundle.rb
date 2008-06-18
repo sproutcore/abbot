@@ -81,9 +81,10 @@ module SproutCore
     
     attr_reader :bundle_name, :bundle_type, :required_bundles, :preferred_language
     attr_reader :javascript_libs, :stylesheet_libs
-    attr_reader :library, :public_root, :url_prefix, :index_prefix
+    attr_reader :library, :public_root, :url_prefix, :index_prefix, :build_prefix
     attr_reader :source_root, :build_root, :url_root, :index_root
     attr_reader :build_mode, :layout
+    attr_reader :make_resources_relative
 
     def library_root
       @library_root ||= library.nil? ? nil : library.root_path
@@ -175,10 +176,15 @@ module SproutCore
       
       #  public_root::       The root directory accessible to the web browser.
       @public_root = normalize_path(opts[:public_root] || 'public')
-      #
+      
+      @make_resources_relative = opts[:resources_relative] || false
+      
       #  url_prefix::        The prefix to put in front of all resource requests. 
-      @url_prefix = opts[:url_prefix] || opts[:resources_at] || opts[:at] || 'static'
-      # 
+      @url_prefix = opts[:url_prefix] || opts[:resources_at] || opts[:at] || (make_resources_relative ? '../..' : 'static')
+      
+      #  build_prefix::      The prefix to put in front of the built files directory.  Generally if you are using absolute paths you want your build_prefix to match the url_prefix.  If you are using relative paths, you don't want a build prefix.
+      @build_prefix = opts[:build_prefix] || (make_resources_relative ? '' : url_prefix)
+      
       #  index_prefix::      The prefix to put in front of all index.html request.
       @index_prefix = opts[:index_prefix] || opts[:index_at] || ''
 
@@ -188,10 +194,17 @@ module SproutCore
       @source_root = normalize_path(opts[:source_root] || File.join(bundle_type.to_s.pluralize, bundle_name.to_s))
 
       #  build_root::        The directory that should contain the built files.
-      @build_root = normalize_path(opts[:build_root] || File.join(public_root, url_prefix.to_s, bundle_name.to_s))
+      @build_root = normalize_path(opts[:build_root] || File.join(public_root, build_prefix.to_s, bundle_name.to_s))
       
       #  url_root::          The url that can be used to reach the built resources
-      @url_root = opts[:url_root] || ['', (url_prefix.nil? || url_prefix.size==0) ? nil : url_prefix, bundle_name.to_s].compact.join('/')
+      
+      # Note that if the resources are relative, we don't want to include a
+      # '/' at the front.  Using nil will cause it to be removed during
+      # compact.
+      @url_root = opts[:url_root] || [
+        (make_resources_relative ? nil : ''), 
+        (url_prefix.nil? || url_prefix.size==0) ? nil : url_prefix, 
+        bundle_name.to_s].compact.join('/')
 
       #  index_root::        The root url that can be used to reach retrieve the index.html.
       @index_root = opts[:index_root] || ['',(index_prefix.nil? || index_prefix.size==0) ? nil : index_prefix, bundle_name.to_s].compact.join('/')
@@ -489,12 +502,32 @@ module SproutCore
 
       languages.uniq.each { |lang| build_language(lang) }
       
-      # After build is complete, try to copy the index.html file of the preferred language
-      # to the build_root
+      # After build is complete, try to copy the index.html file of the 
+      # preferred language to the build_root
       index_entry = entry_for('index.html', :language => preferred_language)
       if index_entry && File.exists?(index_entry.build_path)
-        FileUtils.mkdir_p(build_root)
-        FileUtils.cp_r(index_entry.build_path, File.join(build_root,'index.html'))
+        
+        # If we are publishing relative resources, then the default
+        # index.html needs to just redirect to the default language.
+        if make_resources_relative
+          index_url = index_entry.url.gsub("#{self.index_root}/",'')
+          file = %(<html><head>
+           <meta http-equiv="refresh" content="0;url=#{index_url}" />
+           <script type="text/javascript">
+            window.location.href='#{index_url}';
+           </script>
+           </head>
+           <body><a href="#{index_url}">Click here</a> if you are not redirected.</body></html>)
+          f = File.open(File.join(build_root, 'index.html'), 'w+')
+          f.write(file)
+          f.close
+          
+        # Otherwise, just copy the contents of the index.html for the 
+        # preferred language.
+        else
+          FileUtils.mkdir_p(build_root)
+          FileUtils.cp_r(index_entry.build_path, File.join(build_root,'index.html'))
+        end
       end
     end
     
@@ -682,7 +715,7 @@ module SproutCore
     # Converts the named path to a fully qualified path name using the library 
     # root, if it does not begin with a slash
     def normalize_path(path)
-      (path[0] == '/'[0]) ? path : File.join(library_root, path)
+      File.expand_path(path, library_root)
     end
 
   end
