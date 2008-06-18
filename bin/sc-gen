@@ -22,6 +22,6 @@ require 'sproutcore'
 
 ARGV.shift if ['--help', '-h'].include?(ARGV[0])
 
-RubiGen::Base.use_component_sources! [:sproutcore]
+RubiGen::Base.use_component_sources! [:sc]
 RubiGen::Scripts::Generate.new.run(ARGV, :destination => File.expand_path(Dir.pwd))
 

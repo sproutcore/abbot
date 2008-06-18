@@ -1,3 +1,5 @@
+require 'sproutcore/generator_helper'
+
 class SproutcoreGenerator < RubiGen::Base
   
   DEFAULT_SHEBANG = File.join(Config::CONFIG['bindir'],
