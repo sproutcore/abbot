@@ -1,5 +1,9 @@
 == SproutCore 0.9.11
 
+* sc-server now supports the new proxy option in sc-config.  You can use this 
+  to proxy your backend services through to your front-end SproutCore clients
+  without having to setup a separate service.
+
 * Changed some launch options for sc-server that will improve performance.
 
 * JSDoc can now handle paths spaces in them.
