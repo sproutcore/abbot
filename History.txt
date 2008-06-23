@@ -1,5 +1,7 @@
 == SproutCore 0.9.11
 
+* Changed some launch options for sc-server that will improve performance.
+
 * JSDoc can now handle paths spaces in them.
 
 * Build tools no longer rely on symlink in dev mode.  This should improve compatibility with Windows systems.

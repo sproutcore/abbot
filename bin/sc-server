@@ -44,7 +44,10 @@ Merb::Router.prepare { |r| r.connect_clients('/') }
 Merb::Config.use { |c|
   c[:framework]           = {},
   c[:session_store]       = 'none',
-  c[:exception_details]   = true
+  c[:exception_details]   = true,
+  c[:reload_classes]      = false,
+  c[:use_mutex]           = false,
+  c[:log_auto_flush]      = true
 }
 
 ############################################################
