@@ -1,4 +1,6 @@
 require 'sproutcore/jsdoc'
+require 'net/http'
+require 'uri'
 
 module SproutCore
   module Merb
@@ -32,7 +34,17 @@ module SproutCore
         end
         
         # Make sure we can service this with a bundle
-        raise(NotFound, "No SproutCore Bundle registered at this location.") if current_bundle.nil?
+        # If no bundle is found, try to proxy...
+        if current_bundle.nil?
+          # if proxy url, return proxy...
+          url = request.path
+          proxy_url, proxy_opts = library.proxy_url_for(url) 
+          if proxy_url 
+            return handle_proxy(url, proxy_url, proxy_opts)
+          else
+            raise(NotFound, "No SproutCore Bundle registered at this location.") 
+          end
+        end
 
         # Check for a few special urls that need to be rewritten
         url = request.path
@@ -71,7 +83,6 @@ module SproutCore
         # Get the entry for the resource.  
         entry = current_bundle.entry_for_url(url, :hidden => :include)
         raise(NotFound, "No matching entry in #{current_bundle.bundle_name} for #{url}") if entry.nil?
-
         
         build_path = entry.build_path
 
@@ -79,8 +90,17 @@ module SproutCore
         # been built, this will not do much.  If this the resource is an 
         # index.html file, force the build.
         is_index = /\/index\.html$/ =~ url
-        
-        current_bundle.build_entry(entry, :force => is_index, :hidden => :include)
+
+        # If we need to serve the source directly, then just set the 
+        # build path to the source_path.
+        if entry.use_source_directly?
+          build_path = entry.source_path
+          
+        # Otherwise, run the build command on the entry to make sure the 
+        # file is up to date.
+        else
+          current_bundle.build_entry(entry, :force => is_index, :hidden => :include)
+        end
 
         # Move to final build path if necessary
         if (build_path != entry.build_path) && File.exists?(entry.build_path)
@@ -106,6 +126,59 @@ module SproutCore
         return ret
       end
 
+      # Proxy the request and return the result...
+      def handle_proxy(url, proxy_url, opts ={}) 
+        
+        # collect the method
+        http_method = request.method
+
+        # capture the origin host for cookies.  strip away any port.
+        origin_host = request.host.gsub(/:[0-9]+$/,'')
+        
+        # collect the headers...
+        headers = {} 
+        request.env.each do |key, value|
+          next unless key =~ /^HTTP_/
+          key = key.gsub(/^HTTP_/,'').titleize.gsub(' ','-')
+          headers[key] = value
+        end
+
+        uri = URI.parse(proxy_url)
+        http_host = uri.host
+        http_port = uri.port
+        http_path = [uri.path, uri.query].compact.join('?')
+        http_path = '/' if http_path.nil? || http_path.size <= 0
+
+        # now make the request...
+        response = nil
+        ::Net::HTTP.start(http_host, http_port) do |http|
+          response = http.send(http_method, http_path, headers)
+        end
+
+        # Now set the status, headers, and body.
+        @status = response.code
+        
+        # Transfer response headers into reponse
+        ignore = ['transfer-encoding', 'keep-alive', 'connection']
+        response.each do | key, value |
+          next if ignore.include?(key.downcase)
+
+          # If this is a cookie, strip out the domain.  This technically may
+          # break certain scenarios where services try to set cross-domain
+          # cookies, but those services should not be doing that anyway...
+          if key.downcase == 'set-cookie'
+            value.gsub!(/domain=[^\;]+\;? ?/,'')
+          end
+            
+          # Prep key and set header.
+          key = key.split('-').map { |x| x.downcase.capitalize }.join('-')
+          @headers[key] = value
+        end
+        
+        # Transfer response body
+        return response.body
+      end
+      
       # Returns JSON containing all of the tests
       def handle_test(url)
         test_entries = current_bundle.entries_for(:test, :hidden => :include)

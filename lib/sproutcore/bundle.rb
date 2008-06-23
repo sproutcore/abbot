@@ -453,9 +453,9 @@ module SproutCore
           
 
         # OK, looks like this is ready to be built.  
-        if entry.use_symlink?
-          SC.logger.debug("~ Creating Symlink: #{entry.filename}")
-          BuildTools.build_symlink(entry, self) 
+        # if the entry is served directly from source
+        if entry.use_source_directly?
+          SC.logger.debug("~ No Build Required: #{entry.filename} (will be served directly)")
         else
           SC.logger.debug("~ Building #{entry.type.to_s.capitalize}: #{entry.filename}")
           BuildTools.send("build_#{entry.type}".to_sym, entry, self)

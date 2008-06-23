@@ -254,17 +254,17 @@ module SproutCore
       # efficient than doing it later.
       url_root = (src_path == 'index.html') ? bundle.index_root : bundle.url_root
       cache_link = nil
-      use_symlink =false
+      use_source_directly =false
       
       # Note: you can only access real resources via the cache.  If the entry 
       # is a composite then do not go through cache.
       if (self.build_mode == :development) && composite.nil?
         cache_link = '_cache' if CACHED_TYPES.include?(src_type)
-        use_symlink = true if SYMLINKED_TYPES.include?(src_type)
+        use_source_directly = true if SYMLINKED_TYPES.include?(src_type)
       end
 
-      ret.use_symlink = use_symlink
-      if use_symlink
+      ret.use_source_directly = use_source_directly
+      if use_source_directly
         ret.build_path = File.join(bundle.build_root, '_src', src_path)
         ret.url = [url_root, '_src', src_path].join('/')
       else
@@ -301,11 +301,11 @@ module SproutCore
   # type::         the top-level category
   # original_path:: save the original path used to build this entry
   # hidden::       if true, this entry is needed internally, but otherwise should not be used
-  # use_symlink::  if true, then this entry should be handled via the build symlink 
+  # use_source_directly::  if true, then this entry should be handled via the build symlink 
   # language::     the language in use when this entry was created
   # composite::    If set, this will contain the filenames of other resources that should be combined to form this resource.  
   #
-  class ManifestEntry < Struct.new(:filename, :ext, :source_path, :url, :build_path, :type, :original_path, :hidden, :use_symlink, :language, :composite)
+  class ManifestEntry < Struct.new(:filename, :ext, :source_path, :url, :build_path, :type, :original_path, :hidden, :use_source_directly, :language, :composite)
     def to_hash
       ret = {}
       self.members.zip(self.values).each { |p| ret[p[0]] = p[1] }
@@ -313,7 +313,7 @@ module SproutCore
     end
     
     def hidden?; !!hidden; end
-    def use_symlink?; !!use_symlink; end
+    def use_source_directly?; !!use_source_directly; end
     def composite?; !!composite; end
     
     def localized?; !!source_path.match(/\.lproj/); end

@@ -64,6 +64,9 @@ module SproutCore
     # The parent library, used for load order dependency
     attr_accessor :next_library
     
+    # Any proxy info stored for development
+    attr_accessor :proxies
+    
     # The client directories found in this library.  This usually maps directly to a 
     # client name but it may not if you have set up some other options.
     def client_directories
@@ -161,7 +164,6 @@ module SproutCore
     # way to get all of your code onto disk in a deployable state
     def build(*languages)
       (client_bundles + framework_bundles).each do |bundle|
-        puts "building: #{bundle.bundle_name}"
         bundle.build(*languages)
       end
     end
@@ -221,6 +223,44 @@ module SproutCore
       return ret 
     end
 
+    # Returns a re-written proxy URL for the passed URL or nil if no proxy
+    # is registered.  The URL should NOT include a hostname.
+    # 
+    # === Returns
+    # the converted proxy_url and the proxy options or nil if no match
+    #
+    def proxy_url_for(url) 
+      
+      # look for a matching proxy.
+      matched = nil
+      matched_url = nil
+      
+      @proxies.each do |proxy_url, opts|
+        matched_url = proxy_url
+        matched = opts if url =~ /^#{proxy_url}/
+        break if matched
+      end
+      
+      # If matched, rewrite the URL
+      if matched
+        
+        # rewrite the matched_url if needed...
+        if matched[:url]
+          url = url.gsub(/^#{matched_url}/, matched[:url])
+        end
+        
+        # prepend the hostname and protocol 
+        url = [(matched[:protocol] || 'http'), '://', matched[:to], url].join('')
+        
+      # otherwise nil
+      else 
+        url = nil
+      end
+      
+      return [url, matched]
+      
+    end
+      
     protected
     
     # Load the library at the specified path.  Loads the sc-config.rb if it 
@@ -235,6 +275,7 @@ module SproutCore
       @root_path = rp
       @next_library = next_lib
       @load_opts = opts
+      @proxies = {}
       load_environment!(opts)
     end
     
@@ -268,6 +309,21 @@ module SproutCore
       env = @environment[bundle_name.to_sym] ||= {}
       env.merge!(opts) unless opts.nil?
       yield(env) if block_given?
+    end
+    
+    # Adds a proxy to the local library.  This does NOT inherit from parent
+    # libraries.
+    #
+    # ==== Params
+    # url: the root URL to match
+    # opts: options.
+    #
+    # ==== Options
+    # :to: the new hostname
+    # :url: an optional rewriting of the URL path as well.
+    #
+    def proxy(url, opts={})
+      @proxies[url] = opts
     end
       
   end
