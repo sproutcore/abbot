@@ -1,5 +1,15 @@
 == SproutCore 0.9.11
 
+* Build tools are now much smarter about how the they process environment 
+  configs.  Before if you imported a framework (such as sproutcore) locally 
+  into your project you would need to import any dependent frameworks as well 
+  AND create configs for all of them.  Now you do not need to do that.  The 
+  build tools will load the most recent base environment (defined in config 
+  :all), along with the most recent bundle-specific config (defined in config 
+  :bundle_name) and the bundle-location details from whatever library holds 
+  the bundle.  This will avoid a whole class of head-scratching config probs
+  that people encountered when trying to setup their system.
+
 * Removed unused controllers array from core.js template in client generator
 
 * sc-server now supports the new proxy option in sc-config.  You can use this 

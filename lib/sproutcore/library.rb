@@ -172,54 +172,34 @@ module SproutCore
     # This will go up the chain of parent libraries, retrieving and merging 
     # any known environment settings.  The returned options are suitable for 
     # passing to the ClientBuilder for registration.
+    #
+    # The process here is:
+    # 
+    # 1. merge together the :all configs.
+    # 2. Find the deepest config for the bundle specifically and merge that.
+    #
     def environment_for(bundle_name)
 
-      is_local_client = client_directories.include?(bundle_name.to_s)
-      is_local_framework = framework_directories.include?(bundle_name.to_s)
-      ret = nil
-      
-      # CASE 1: If named client or framework is local, then use our local settings
-      if (is_local_client || is_local_framework)
-        
-        # start with local environment
-        ret = (environment[:all] || {}).dup
-        
-        # Now fill in some default values based on what we know
-        # This should be enough to make the bundle load
-        ret[:bundle_name] = bundle_name.to_sym
-        ret[:bundle_type] = is_local_framework ? :framework : :client
-        ret[:requires] = [:prototype, :sproutcore] if ret[:requires].nil?
-        
-        # Fill in the source_root since we know where this came from
-        ret[:source_root] = File.join(root_path, ret[:bundle_type].to_s.pluralize, bundle_name.to_s)
-          
-      # CASE 2: Otherwise, if we have a next library, see if the next library has something
-      else 
-        ret = next_library.nil? ? nil : next_library.environment_for(bundle_name)
-      end
+      # Get the bundle location info.  This will return nil if the bundle
+      # is not found anywhere.  In that case, return nil to indicate bundle
+      # does not exist.
+      bundle_location = bundle_location_for(bundle_name)
+      return nil if bundle_location.nil?
 
-      # Final fixup
-      unless ret.nil?
-        # Always url_prefix & index_prefix are always used.
-        all = environment[:all] || {}
-        [:url_prefix, :all_prefix, :preferred_language].each do |key|
-          ret[key] = all[key] if all.include?(key)
-        end
-      
-        # Either way, if we have local settings for this specific client, they 
-        # override whatever we cooked up just now.
-        local_settings = environment[bundle_name.to_sym] 
-        ret = ret.merge(local_settings) unless local_settings.nil?
+      # A bundle was found, so collect the base environment and any bundle-
+      # specific configs provided by the developer.
+      base_env = base_environment
+      config_env = bundle_environment_for(bundle_name)
 
-        # Always replace the library with self so that we get the correct root location for
-        # public paths, etc. 
-        ret[:library] = self
-      end
+      # Now we have the relevant pieces. Join them together.  Start with the
+      # base environment and fill in some useful defaults...
+      ret = base_env.dup.merge(config_env).merge(bundle_location)
+      ret[:required] = [:sproutcore] if ret[:required].nil?
       
+      # Add local library so we get proper deployment paths, etc.
+      ret[:library] = self
       
-      # CASE 3: Next library doesn't know about this client.  Neither do we.  Even if the
-      # user has provided some environmental options, there is no source content, so just 
-      # return nil
+      # Done!  return...
       return ret 
     end
 
@@ -325,9 +305,42 @@ module SproutCore
     def proxy(url, opts={})
       @proxies[url] = opts
     end
+    
+    # ==== Returns 
+    # the first :all environment config...
+    def base_environment
+      environment[:all] || (next_library.nil? ? {} : next_library.base_environment)
+    end
+    
+    # ==== Returns
+    # the first config found for the specified bundle
+    def bundle_environment_for(bundle_name)
+      bundle_name = bundle_name.to_sym
+      return environment[bundle_name] || (next_library.nil? ? {} : next_library.bundle_environment_for(bundle_name))
+    end
+    
+    # ==== Returns
+    # path info for the bundle.  Used by bundle object.
+    def bundle_location_for(bundle_name)
+      bundle_name = bundle_name.to_sym
+      is_local_client = client_directories.include?(bundle_name.to_s)
+      is_local_framework = framework_directories.include?(bundle_name.to_s)
       
+      ret = nil
+      if is_local_client || is_local_framework
+        bundle_type = is_local_framework ? :framework : :client
+        ret = {
+          :bundle_name => bundle_name,
+          :bundle_type => bundle_type,
+          :source_root => File.join(root_path, bundle_type.to_s.pluralize, bundle_name.to_s)
+        }
+      else
+        ret = next_library.nil? ? nil : next_library.bundle_location_for(bundle_name)
+      end
+      
+      return ret
+    end
+    
   end
   
 end
-
-  
