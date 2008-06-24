@@ -57,7 +57,7 @@ frameworks/sproutcore/controllers/array.js
 frameworks/sproutcore/controllers/collection.js
 frameworks/sproutcore/controllers/controller.js
 frameworks/sproutcore/controllers/object.js
-frameworks/sproutcore/Core.js
+frameworks/sproutcore/core.js
 frameworks/sproutcore/drag/drag.js
 frameworks/sproutcore/drag/drag_data_source.js
 frameworks/sproutcore/drag/drag_source.js
@@ -65,6 +65,7 @@ frameworks/sproutcore/drag/drop_target.js
 frameworks/sproutcore/english.lproj/blank.gif
 frameworks/sproutcore/english.lproj/buttons.css
 frameworks/sproutcore/english.lproj/core.css
+frameworks/sproutcore/english.lproj/detect-browser
 frameworks/sproutcore/english.lproj/icons.css
 frameworks/sproutcore/english.lproj/images/indicator.gif
 frameworks/sproutcore/english.lproj/images/sc-theme-sprite.png
