@@ -1,5 +1,7 @@
 == SproutCore 0.9.11
 
+* Removed unused controllers array from core.js template in client generator
+
 * sc-server now supports the new proxy option in sc-config.  You can use this 
   to proxy your backend services through to your front-end SproutCore clients
   without having to setup a separate service.
