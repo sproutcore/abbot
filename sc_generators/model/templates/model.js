@@ -9,7 +9,7 @@ require('core');
   (Document your class here)
 
   @extends <%= base_class_name 'SC.Record' %>
-  @author    AuthorName
+  @author AuthorName
   @version 0.1
 */
 <%= client_class_name %> = <%= base_class_name 'SC.Record' %>.extend(
