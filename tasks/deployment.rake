@@ -34,12 +34,12 @@ namespace :manifest do
     Dir.chdir(APP_ROOT)
     files = Dir.glob(File.join('**','*'))
     puts "IGNORE_DIRS = #{IGNORE_DIRS.join(',')}"
-    files.reject! do |x| 
+    files.reject! do |x|
       path_parts = x.split('/')
-      
+
       (path_parts.last[0..0] == '.') || File.directory?(x) || IGNORE_DIRS.include?(path_parts.first)
     end
-    
+
     f = File.open(File.join(APP_ROOT, 'Manifest.txt'), 'w')
     f.write(files.join("\n"))
     f.close
