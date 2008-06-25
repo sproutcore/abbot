@@ -5,3 +5,4 @@
 config :all, :required => [:sproutcore, :prototype]
 config :sproutcore, :required => [:prototype]
 config :prototype, :required => []
+
