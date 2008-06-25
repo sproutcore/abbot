@@ -3,7 +3,7 @@ test - Create a new unit test in your SproutCore client.
 USAGE:
 
   ./script/generate test client_name/test_name [CLASS]
-  
+
 DISCUSSION:
 
 This generator will create a new SproutCore unit test in your client.  You should pass as the first parameter your client directory name/the test you want to create.  For example:
@@ -13,4 +13,3 @@ This generator will create a new SproutCore unit test in your client.  You shoul
 defines a new test called called "Task" in the file clients/todos/tests/task.rhtml.
 
 The default test simply returns true.  Add your own tests to do something useful.
-

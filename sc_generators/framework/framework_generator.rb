@@ -3,11 +3,11 @@ require 'sproutcore/generator_helper'
 class FrameworkGenerator < RubiGen::Base
 
   include SproutCore::GeneratorHelper
-  
+
   default_options :author => nil
-  
+
   attr_reader :name
-  
+
   def initialize(runtime_args, runtime_options = {})
     super
     usage if args.empty?
@@ -43,7 +43,7 @@ EOS
       #         "Default: none") { |options[:author]| }
       # opts.on("-v", "--version", "Show the #{File.basename($0)} version number and quit.")
     end
-    
+
     def extract_options
       # for each option, extract it into a local variable (and create an "attr_reader :author" at the top)
       # Templates can access these value via the attr_reader-generated methods, but not the
