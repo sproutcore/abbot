@@ -30,21 +30,21 @@ Run 'rubyforge setup' to prepare your env for access to Rubyforge
 end
 
 
-REV = nil 
-# UNCOMMENT IF REQUIRED: 
+REV = nil
+# UNCOMMENT IF REQUIRED:
 #REV = `svn info`.each {|line| if line =~ /^Revision:/ then k,v = line.split(': '); break v.chomp; else next; end} rescue nil
 VERS = SproutCore::VERSION::STRING + (REV ? ".#{REV}" : "")
 RDOC_OPTS = ['--quiet', '--title', 'sproutcore documentation',
     "--opname", "index.html",
-    "--line-numbers", 
+    "--line-numbers",
     "--main", "README",
     "--inline-source"]
 
 class Hoe
-  def extra_deps 
-    @extra_deps.reject! { |x| Array(x).first == 'hoe' } 
+  def extra_deps
+    @extra_deps.reject! { |x| Array(x).first == 'hoe' }
     @extra_deps
-  end 
+  end
 end
 
 # Generate all the Rake tasks
@@ -57,13 +57,13 @@ hoe = Hoe.new(GEM_NAME, VERS) do |p|
   p.rubyforge_name = RUBYFORGE_PROJECT if RUBYFORGE_PROJECT
   p.test_globs = ["spec/**/*_spec.rb"]
   p.clean_globs |= ['**/.*.sw?', '*.gem', '.config', '**/.DS_Store']  #An array of file patterns to delete on clean.
-  
+
   # == Optional
   p.changes = p.paragraphs_of("History.txt", 0..1).join("\n\n")
   p.extra_deps = [['activesupport', '>= 2.0.2'], ['merb-core', '>= 0.9.1'], ['erubis'], ['rubigen'], ['mongrel']]
-  
+
   #p.spec_extras = {}    # A hash of extra values to set in the gemspec.
-  
+
 end
 
 CHANGES = hoe.paragraphs_of('History.txt', 0..1).join("\\n\\n")
