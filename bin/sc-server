@@ -63,7 +63,7 @@ end
 ############################################################
 ## Start Merb
 ##
-  
+
 puts "Running SproutCore Build Tools v#{SproutCore::VERSION::STRING}"
 puts "Welcome to SproutCore"
 Merb.start

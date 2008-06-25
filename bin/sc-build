@@ -59,27 +59,27 @@ opts = OptionParser.new do |opts|
   opts.on("-e", "--enviroment=MODE", "Set the build mode for the system.  Normally you want to build in production mode (which is the default if you do not include this option), but you can use this switch to build in development mode for testing.") do |opt_build_mode|
     build_mode = opt_build_mode.to_s.downcase.to_sym
   end
-  
+
   opts.on("-t", "--target=PATH", "Set the target path for your build.  Normally this will be set to tmp/build in the working directory") do |opt_target|
     build_root = File.expand_path(opt_target)
   end
-  
+
   opts.on("-l", "--library=PATH", "The library root you want to use.  Normally sc-build will use the working directory.  If you want to point to another project on disk to build from, use this option.") do |opt_library|
     library_root = File.expand_path(opt_library)
   end
-  
+
   opts.on("-r", "--[no-]include-required", "If passed when building a single client, then the build tool will also find any required bundles and build them as well.") do |opt_req|
     include_dependencies = !!opt_req
   end
-  
+
   opts.on("-v", "--[no-]verbose", "If set, extra debug output will be displayed during the build") do |opt_verbose|
     verbose = !!opt_verbose
   end
-  
+
   opts.on("-L", "--languages=LANGUAGE", "Pass a comma separated list of the specific languages you want to build.  If you do not pass this option, the build tool will build all languages required by the bundles to function") do |opt_lang|
     languages = opt_lang.split(',').map { |x| x.to_sym }
   end
-  
+
   opts.on("-c", "--[no-]clean", "If set, then the build tool will delete a bundle's output before it builds it, so you get a clean build") do |opt_clean|
     clean = !!opt_clean
   end
@@ -87,14 +87,14 @@ opts = OptionParser.new do |opts|
   opts.on('-d', '--[no-]docs', "Include documentation") do |opt_docs|
     docs = !!opt_docs
   end
-  
+
 end
 opts.parse!
 
 ############################################################
 ## SETUP ENVIRONMENT
 ##
-  
+
 # Configure logger
 SC.logger.level = (verbose) ? Logger::DEBUG : Logger::INFO
 SC.logger.progname = $0
@@ -120,15 +120,15 @@ if bundle_name
   else
     bundles = [bundle]
   end
-  
+
   SC.logger.info("Building: #{bundles.map { |x| x.bundle_name } * ', ' }...")
-  
+
 # No bundle provided, get all bundles for library
 else
   bundles = library.bundles
   SC.logger.info("Building ALL bundles:\n #{bundles.map { |x| x.bundle_name } * ', '}...")
-end  
- 
+end
+
 ############################################################
 ## BUILD EACH BUNDLE
 ##
@@ -140,19 +140,19 @@ SC.logger.info("Selected Languages: #{languages.join(', ')}")
 SC.logger.info('')
 bundles.each do |bundle|
   SC.logger.info("Building #{bundle.bundle_name} > #{bundle.build_root}...")
-  
+
   if clean
     SC.logger.debug("~ Cleaning #{bundle.build_root}")
     FileUtils.rm_rf(bundle.build_root)
   end
-  
+
   bundle.build(*languages)
-  
+
   if docs
     SC.logger.debug('~ Building docs')
-    SC::JSDoc.generate(:bundle => bundle) 
+    SC::JSDoc.generate(:bundle => bundle)
   end
-  
+
 end
 
 SC.logger.debug("")
