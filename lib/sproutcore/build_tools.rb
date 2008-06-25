@@ -7,8 +7,8 @@ module SproutCore
   # You can add your own build tools to the system here .
   #
   module BuildTools
-    
-    # Resources are sometimes accessed through a symlink while running in devmode.  This 
+
+    # Resources are sometimes accessed through a symlink while running in devmode.  This
     # method should simply ensure that symlink exists.
     #
     def self.build_symlink(entry, bundle)
@@ -19,25 +19,25 @@ module SproutCore
         FileUtils.ln_sf(source_path, symlink_path)
       end
     end
-    
+
     # Regular resources and tests are simply copied.  Note that normally in development mode,
     # these resources will be accessed via a symlink
     def self.copy_resource(entry, bundle)
       FileUtils.mkdir_p(File.dirname(entry.build_path))
-      
+
       # Make the source file exists
       unless File.exists?(entry.source_path)
         raise "Could not copy resource #{entry.filename} because source: #{entry.source_path} does not exist!"
       end
-      
+
       # Now do the copy
       FileUtils.cp_r(entry.source_path, entry.build_path)
     end
-    
+
     def self.build_resource(entry, bundle); copy_resource(entry, bundle); end
-    
+
   end
-  
+
 end
 
 # Load other build tools.  The above are the simple ones.

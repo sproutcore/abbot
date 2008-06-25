@@ -7,7 +7,7 @@
 #
 # The first parameter you pass is the URL you want SproutCore apps to be served from.  Anything
 # URL beginning with this root will be automatically directed to the SproutCore build tools.
-# 
+#
 # The second parameter is an optional root path to the Library that you want hosted at that
 # location.  If you do not pass this parameter then Merb.root will be used (which is what you
 # usually want anyway.)
