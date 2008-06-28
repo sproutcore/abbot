@@ -4,4 +4,3 @@ all:
   requires: [<%= name %>]
 
 Then restart your sc-server and you should be ready to go.
-

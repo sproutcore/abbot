@@ -78,4 +78,3 @@ sc-build all
 
 This will place a directory in tmp/build that contains all of your resources
 pre-compiled and ready for static serving.
-

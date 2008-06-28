@@ -36,15 +36,15 @@ module SproutCore
 
   class JSMin
     EOF = -1
-    
-    # this will minify a single line 
+
+    # this will minify a single line
     def self.run(str)
       minifier = SproutCore::JSMin.new(str)
       minifier.jsmin
       minifier.stdout
     end
-    
-    def initialize(str) 
+
+    def initialize(str)
       @theA = ""
       @theB = ""
       @str = str || ''
@@ -55,29 +55,29 @@ module SproutCore
     def stdin_getc
       ret = @str.nil? || (@loc >= @str.size) ? nil : @str[@loc]
       @loc += 1
-      return ret 
+      return ret
     end
-    
+
     def stdin_ungetc(str)
       @loc -= 1
       @loc = 0 if @loc < 0
     end
-    
+
     def stdout_write(chr)
       @stdout << chr
     end
-    
+
     def stdout
       return @stdout
     end
-    
+
 #### JSMIN
 ## To update, replace the text below with the latest jsmin.rb. Then replace:
-## $theA => @theA, $theB => @theB, 
-## $stdin.getc => stdin_getc, $stdin.ungetc => stding_ungetc, 
+## $theA => @theA, $theB => @theB,
+## $stdin.getc => stdin_getc, $stdin.ungetc => stding_ungetc,
 ## $stdout.write => stdout_write
 
-    # isAlphanum -- return true if the character is a letter, digit, 
+    # isAlphanum -- return true if the character is a letter, digit,
     # underscore, dollar sign, or non-ASCII character
     def isAlphanum(c)
       return false if !c || c == EOF
@@ -86,8 +86,8 @@ module SproutCore
       c == '\\' || c[0] > 126)
     end
 
-    # get -- return the next character from stdin. Watch out for lookahead. 
-    # If the character is a control character, translate it to a space or 
+    # get -- return the next character from stdin. Watch out for lookahead.
+    # If the character is a control character, translate it to a space or
     # linefeed.
     def get()
       c = stdin_getc

@@ -17,7 +17,7 @@ SproutCore comes loaded with a lot of features you would normally find in a full
 5. Efficient controls for rendering lists of items.
 
 6. Efficient page loading optimized for handling large numbers of JavaScript controls.
- 
+
 ==== Quick Start
 
 1. To install the SproutCore build tools, just install the ruby gem:

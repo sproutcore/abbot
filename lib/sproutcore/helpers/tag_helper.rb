@@ -10,10 +10,10 @@ module SproutCore
     module TagHelper
       include ERB::Util
 
-      # Returns an empty HTML tag of type +name+ which by default is XHTML 
-      # compliant. Setting +open+ to true will create an open tag compatible 
-      # with HTML 4.0 and below. Add HTML attributes by passing an attributes 
-      # hash to +options+. For attributes with no value like (disabled and 
+      # Returns an empty HTML tag of type +name+ which by default is XHTML
+      # compliant. Setting +open+ to true will create an open tag compatible
+      # with HTML 4.0 and below. Add HTML attributes by passing an attributes
+      # hash to +options+. For attributes with no value like (disabled and
       # readonly), give it a value of true in the +options+ hash. You can use
       # symbols or strings for the attribute names.
       #
@@ -21,15 +21,15 @@ module SproutCore
       #    # => <br />
       #   tag("br", nil, true)
       #    # => <br>
-      #   tag("input", { :type => 'text', :disabled => true }) 
+      #   tag("input", { :type => 'text', :disabled => true })
       #    # => <input type="text" disabled="disabled" />
       def tag(name, options = nil, open = false)
         "<#{name}#{tag_options(options) if options}" + (open ? ">" : " />")
       end
 
       # Returns an HTML block tag of type +name+ surrounding the +content+. Add
-      # HTML attributes by passing an attributes hash to +options+. For attributes 
-      # with no value like (disabled and readonly), give it a value of true in 
+      # HTML attributes by passing an attributes hash to +options+. For attributes
+      # with no value like (disabled and readonly), give it a value of true in
       # the +options+ hash. You can use symbols or strings for the attribute names.
       #
       #   content_tag(:p, "Hello world!")
@@ -82,7 +82,7 @@ module SproutCore
           tag_options = options ? tag_options(options) : ""
           "<#{name}#{tag_options}>#{content}</#{name}>"
         end
-      
+
         def tag_options(options)
           cleaned_options = convert_booleans(options.stringify_keys.reject {|key, value| value.nil?})
           ' ' + cleaned_options.map {|key, value| %(#{key}="#{escape_once(value)}")}.sort * ' ' unless cleaned_options.empty?
@@ -96,12 +96,12 @@ module SproutCore
         def boolean_attribute(options, attribute)
           options[attribute] ? options[attribute] = attribute : options.delete(attribute)
         end
-        
+
         # Fix double-escaped entities, such as &amp;amp;, &amp;#123;, etc.
         def fix_double_escape(escaped)
           escaped.gsub(/&amp;([a-z]+|(#\d+));/i) { "&#{$1};" }
         end
-        
+
         def block_is_within_action_view?(block)
           eval("defined? _erbout", block.binding)
         end

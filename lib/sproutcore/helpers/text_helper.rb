@@ -5,9 +5,9 @@ require 'sproutcore/helpers/tag_helper'
 
 module SproutCore
   module Helpers #:nodoc:
-    # The TextHelper Module provides a set of methods for filtering, formatting 
-    # and transforming strings that can reduce the amount of inline Ruby code in 
-    # your views. These helper methods extend ActionView making them callable 
+    # The TextHelper Module provides a set of methods for filtering, formatting
+    # and transforming strings that can reduce the amount of inline Ruby code in
+    # your views. These helper methods extend ActionView making them callable
     # within your template files as shown in the following example which truncates
     # the title of each post to 10 characters.
     #
@@ -16,10 +16,10 @@ module SproutCore
     #     Title: <%= truncate(post.title, 10) %>
     #   <% end %>
     #    => Title: This is my...
-    module TextHelper      
-      # The preferred method of outputting text in your views is to use the 
-      # <%= "text" %> eRuby syntax. The regular _puts_ and _print_ methods 
-      # do not operate as expected in an eRuby code block. If you absolutely must 
+    module TextHelper
+      # The preferred method of outputting text in your views is to use the
+      # <%= "text" %> eRuby syntax. The regular _puts_ and _print_ methods
+      # do not operate as expected in an eRuby code block. If you absolutely must
       # output text within a code block, you can use the concat method.
       #
       #   <% concat "hello", binding %>
@@ -29,10 +29,10 @@ module SproutCore
         eval('_buf', binding) << string
       end
 
-      # If +text+ is longer than +length+, +text+ will be truncated to the length of 
+      # If +text+ is longer than +length+, +text+ will be truncated to the length of
       # +length+ and the last three characters will be replaced with the +truncate_string+.
       #
-      #   truncate("Once upon a time in a world far far away", 14)  
+      #   truncate("Once upon a time in a world far far away", 14)
       #    => Once upon a...
       def truncate(text, length = 30, truncate_string = "...")
         if text.nil? then return end
@@ -41,13 +41,13 @@ module SproutCore
       end
 
       # Highlights one or more +phrases+ everywhere in +text+ by inserting it into
-      # a +highlighter+ string. The highlighter can be specialized by passing +highlighter+ 
+      # a +highlighter+ string. The highlighter can be specialized by passing +highlighter+
       # as a single-quoted string with \1 where the phrase is to be inserted.
       #
-      #   highlight('You searched for: rails', 'rails')  
+      #   highlight('You searched for: rails', 'rails')
       #   # => You searched for: <strong class="highlight">rails</strong>
       #
-      #   highlight('You searched for: rails', ['for', 'rails'], '<em>\1</em>')  
+      #   highlight('You searched for: rails', ['for', 'rails'], '<em>\1</em>')
       #   # => You searched <em>for</em>: <em>rails</em>
       def highlight(text, phrases, highlighter = '<strong class="highlight">\1</strong>')
         if text.blank? || phrases.blank?
@@ -58,16 +58,16 @@ module SproutCore
         end
       end
 
-      # Extracts an excerpt from +text+ that matches the first instance of +phrase+. 
+      # Extracts an excerpt from +text+ that matches the first instance of +phrase+.
       # The +radius+ expands the excerpt on each side of +phrase+ by the number of characters
       # defined in +radius+. If the excerpt radius overflows the beginning or end of the +text+,
-      # then the +excerpt_string+ will be prepended/appended accordingly. If the +phrase+ 
+      # then the +excerpt_string+ will be prepended/appended accordingly. If the +phrase+
       # isn't found, nil is returned.
       #
-      #   excerpt('This is an example', 'an', 5) 
+      #   excerpt('This is an example', 'an', 5)
       #    => "...s is an examp..."
       #
-      #   excerpt('This is an example', 'is', 5) 
+      #   excerpt('This is an example', 'is', 5)
       #    => "This is an..."
       def excerpt(text, phrase, radius = 100, excerpt_string = "...")
         if text.nil? || phrase.nil? then return end
@@ -87,8 +87,8 @@ module SproutCore
       end
 
       # Attempts to pluralize the +singular+ word unless +count+ is 1. If +plural+
-      # is supplied, it will use that when count is > 1, if the ActiveSupport Inflector 
-      # is loaded, it will use the Inflector to determine the plural form, otherwise 
+      # is supplied, it will use that when count is > 1, if the ActiveSupport Inflector
+      # is loaded, it will use the Inflector to determine the plural form, otherwise
       # it will just add an 's' to the +singular+ word.
       #
       #   pluralize(1, 'person')  => 1 person
@@ -131,7 +131,7 @@ module SproutCore
           end
         end
 
-        # Returns the text with all the Textile codes turned into HTML tags, 
+        # Returns the text with all the Textile codes turned into HTML tags,
         # but without the bounding <p> tag that RedCloth adds.
         # <i>This method is only available if RedCloth[http://whytheluckystiff.net/ruby/redcloth/]
         # is available</i>.
@@ -157,12 +157,12 @@ module SproutCore
       rescue LoadError
         # We can't really help what's not there
       end
-      
+
       # Returns +text+ transformed into HTML using simple formatting rules.
-      # Two or more consecutive newlines(<tt>\n\n</tt>) are considered as a 
+      # Two or more consecutive newlines(<tt>\n\n</tt>) are considered as a
       # paragraph and wrapped in <tt><p></tt> tags. One newline (<tt>\n</tt>) is
       # considered as a linebreak and a <tt><br /></tt> tag is appended. This
-      # method does not remove the newlines from the +text+. 
+      # method does not remove the newlines from the +text+.
       def simple_format(text)
         content_tag 'p', text.to_s.
           gsub(/\r\n?/, "\n").                    # \r\n and \r -> \n
@@ -170,9 +170,9 @@ module SproutCore
           gsub(/([^\n]\n)(?=[^\n])/, '\1<br />')  # 1 newline   -> br
       end
 
-      # Turns all urls and email addresses into clickable links. The +link+ parameter 
+      # Turns all urls and email addresses into clickable links. The +link+ parameter
       # will limit what should be linked. You can add html attributes to the links using
-      # +href_options+. Options for +link+ are <tt>:all</tt> (default), 
+      # +href_options+. Options for +link+ are <tt>:all</tt> (default),
       # <tt>:email_addresses</tt>, and <tt>:urls</tt>.
       #
       #   auto_link("Go to http://www.rubyonrails.org and say hello to david@loudthinking.com") =>
@@ -201,9 +201,9 @@ module SproutCore
       def strip_links(text)
         text.gsub(/<a\b.*?>(.*?)<\/a>/mi, '\1')
       end
-      
+
       # Creates a Cycle object whose _to_s_ method cycles through elements of an
-      # array every time it is called. This can be used for example, to alternate 
+      # array every time it is called. This can be used for example, to alternate
       # classes for table rows:
       #
       #   <% @items.each do |item| %>
@@ -212,9 +212,9 @@ module SproutCore
       #     </tr>
       #   <% end %>
       #
-      # You can use named cycles to allow nesting in loops.  Passing a Hash as 
+      # You can use named cycles to allow nesting in loops.  Passing a Hash as
       # the last parameter with a <tt>:name</tt> key will create a named cycle.
-      # You can manually reset a cycle by calling reset_cycle and passing the 
+      # You can manually reset a cycle by calling reset_cycle and passing the
       # name of the cycle.
       #
       #   <% @items.each do |item| %>
@@ -244,8 +244,8 @@ module SproutCore
         end
         return cycle.to_s
       end
-      
-      # Resets a cycle so that it starts from the first element the next time 
+
+      # Resets a cycle so that it starts from the first element the next time
       # it is called. Pass in +name+ to reset a named cycle.
       def reset_cycle(name = "default")
         cycle = get_cycle(name)
@@ -254,12 +254,12 @@ module SproutCore
 
       class Cycle #:nodoc:
         attr_reader :values
-        
+
         def initialize(first_value, *values)
           @values = values.unshift(first_value)
           reset
         end
-        
+
         def reset
           @index = 0
         end
@@ -270,7 +270,7 @@ module SproutCore
           return value
         end
       end
-      
+
       private
         # The cycle helpers need to store the cycles in a place that is
         # guaranteed to be reset every time a page is rendered, so it
@@ -279,7 +279,7 @@ module SproutCore
           @_cycles = Hash.new unless defined?(@_cycles)
           return @_cycles[name]
         end
-        
+
         def set_cycle(name, cycle_object)
           @_cycles = Hash.new unless defined?(@_cycles)
           @_cycles[name] = cycle_object
@@ -288,13 +288,13 @@ module SproutCore
         AUTO_LINK_RE = %r{
                         (                          # leading text
                           <\w+.*?>|                # leading HTML tag, or
-                          [^=!:'"/]|               # leading punctuation, or 
+                          [^=!:'"/]|               # leading punctuation, or
                           ^                        # beginning of line
                         )
                         (
                           (?:https?://)|           # protocol spec, or
                           (?:www\.)                # www.*
-                        ) 
+                        )
                         (
                           [-\w]+                   # subdomain or domain
                           (?:\.[-\w]+)*            # remaining subdomains or domain
