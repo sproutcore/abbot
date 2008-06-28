@@ -163,6 +163,9 @@ module SproutCore
       def rewrite_inline_code(line, filename)
         if filename == 'strings.js'
           line = line.gsub(/["']@@.*["']\s*?:\s*?["'].*["'],\s*$/,'')
+          
+        else
+          line = line.gsub(/sc_super\((.*)\)/, 'arguments.callee.base.apply(this, \1)')
         end
 
         super(line, filename)
