@@ -113,8 +113,8 @@ module SproutCore
 
       #  b. Combine the CSS file paths into a single entry for the stylesheet.css
       if (working = entries[:stylesheet]) && working.size>0
-        entry = build_entry_for('stylesheet.css', :stylesheet, working, hide_composite)
-        entry.hidden = true unless hide_composite
+        entry = build_entry_for('stylesheet.css', :stylesheet, working, true)
+        entry.hidden = true unless true
         working << entry
       end
 

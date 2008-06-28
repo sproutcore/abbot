@@ -105,8 +105,9 @@ module SproutCore
           lines << filename
 
         elsif file_lines.size > 0
-          lines += file_lines
-          lines << "\n"
+          lines << "/* Start ----------------------------------------------------- " << filename << "*/\n\n" 
+          lines +=  file_lines
+          lines << "\n\n/* End ------------------------------------------------------- "  << filename << "*/\n\n"
         end
 
         return [lines, required]
