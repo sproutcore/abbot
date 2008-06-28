@@ -8,8 +8,8 @@ module SproutCore
   #
   module BuildTools
 
-    # Resources are sometimes accessed through a symlink while running in devmode.  This
-    # method should simply ensure that symlink exists.
+    # Resources are sometimes accessed through a symlink while running in 
+    # devmode.  This method should simply ensure that symlink exists.
     #
     def self.build_symlink(entry, bundle)
       symlink_path = File.join(bundle.build_root, '_src')
@@ -20,8 +20,8 @@ module SproutCore
       end
     end
 
-    # Regular resources and tests are simply copied.  Note that normally in development mode,
-    # these resources will be accessed via a symlink
+    # Regular resources and tests are simply copied.  Note that normally in 
+    # development mode, these resources will be accessed via a symlink
     def self.copy_resource(entry, bundle)
       FileUtils.mkdir_p(File.dirname(entry.build_path))
 

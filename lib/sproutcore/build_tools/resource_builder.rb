@@ -2,13 +2,10 @@ module SproutCore
 
   module BuildTools
 
-    # Set to override the default behavior (which will follow the build mode)
-    def self.minify?; @minify.nil? ? (Bundle.build_mode != :development) : @minify; end
-    def self.minify=(setting); @minify = setting; end
-
-    # The ResourceBuilder can combine all of the source files listed in the passed entry
-    # including some basic pre-processing.  The JavaScriptBuilder extends this to do some
-    # JavaScript specific rewriting of URLs, etc. as well.
+    # The ResourceBuilder can combine all of the source files listed in the 
+    # passed entry including some basic pre-processing.  The JavaScriptBuilder 
+    # extends this to do some JavaScript specific rewriting of URLs, etc. as 
+    # well.
     #
     # The ResourceBuilder knows how
     class ResourceBuilder
@@ -179,7 +176,7 @@ module SproutCore
     end
 
     def self.build_stylesheet(entry, bundle)
-      filenames = entry.composite.nil? ? [entry.filename] : entry.composite
+      filenames = entry.composite? ? entry.composite_filenames : [entry.filename]
       builder = ResourceBuilder.new(filenames, entry.language, bundle)
       if output = builder.build
         FileUtils.mkdir_p(File.dirname(entry.build_path))
@@ -190,7 +187,7 @@ module SproutCore
     end
 
     def self.build_javascript(entry, bundle)
-      filenames = entry.composite.nil? ? [entry.filename] : entry.composite
+      filenames = entry.composite? ? entry.composite_filenames : [entry.filename]
       builder = JavaScriptResourceBuilder.new(filenames, entry.language, bundle)
       if output = builder.build
         FileUtils.mkdir_p(File.dirname(entry.build_path))

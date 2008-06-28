@@ -28,7 +28,7 @@ module SproutCore
         # For each bundle, get the ordered list of stylsheet urls
         urls = []
         all_bundles.each do |b|
-          urls += b.sorted_stylesheet_entries(opts).map { |x| x.url }
+          urls += b.sorted_stylesheet_entries(opts).map { |x| x.cacheable_url }
           urls += (b.stylesheet_libs || [])
         end
 
@@ -59,7 +59,7 @@ module SproutCore
         # For each bundle, get the ordered list of stylsheet urls
         urls = []
         all_bundles.each do |b|
-          urls += b.sorted_javascript_entries(opts).map { |x| x.url }
+          urls += b.sorted_javascript_entries(opts).map { |x| x.cacheable_url }
           urls += (b.javascript_libs || [])
         end
 
@@ -78,7 +78,7 @@ module SproutCore
       def static_url(resource_name, opts = {})
         opts[:language] ||= language
         entry = bundle.find_resource_entry(resource_name, opts)
-        entry.nil? ? '' : entry.url
+        entry.nil? ? '' : entry.cacheable_url
       end
 
       # Localizes the passed string, using the optional passed options.

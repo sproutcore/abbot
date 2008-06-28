@@ -113,7 +113,7 @@ module SproutCore
     # ==== Returns
     # True if the build_mode is not development to minify the JS.
     def minify?
-      build_mode != :development
+      library.minify_build_modes.include?(build_mode)
     end
 
     # ==== Returns
@@ -425,7 +425,7 @@ module SproutCore
 
       # First, start an "already seen" set.
       created_seen = @seen.nil?
-      @seen ||= Set.new
+      @seen ||= []
 
       # Now, process the entries, adding them to the seen set.
       entries.each do |entry|

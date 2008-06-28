@@ -241,6 +241,35 @@ module SproutCore
 
     end
 
+    # ==== Returns 
+    # The current minification settings.
+    #
+    def minify_build_modes
+      env = base_environment || {}
+      [(env[:minify_javascript] || :production)].flatten
+    end
+    
+    # ==== Returns
+    # The build modes wherein javascript should be combined.
+    def combine_javascript_build_modes
+      env = base_environment || {}
+      [(env[:combine_javascript] || :production)].flatten
+    end
+
+    # ==== Returns
+    # The build modes wherein javascript should be combined.
+    def combine_stylesheets_build_modes
+      env = base_environment || {}
+      [(env[:combine_stylesheets] || [:development, :production])].flatten
+    end
+
+    # ==== Returns
+    # The build modes where fixtures should be included.
+    def include_fixtures_build_modes
+      env = base_environment || {}
+      [(env[:include_fixtures] || :development)].flatten
+    end
+
     protected
 
     # Load the library at the specified path.  Loads the sc-config.rb if it
@@ -311,6 +340,7 @@ module SproutCore
     def base_environment
       environment[:all] || (next_library.nil? ? {} : next_library.base_environment)
     end
+
 
     # ==== Returns
     # the first config found for the specified bundle

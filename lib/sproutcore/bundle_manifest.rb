@@ -48,6 +48,24 @@ module SproutCore
     def to_hash; @entries_by_type; end
     def to_s; @entries_by_filename.to_yaml; end
 
+    # ==== Returns
+    # true if javascripts should be combined
+    def combine_javascript?
+      bundle.library.combine_javascript_build_modes.include?(build_mode)
+    end
+
+    # ==== Returns
+    # true if stylesheets should be combined
+    def combine_stylesheets?
+      bundle.library.combine_stylesheets_build_modes.include?(build_mode)
+    end
+
+    # ==== Returns
+    # true if stylesheets should be combined
+    def include_fixtures?
+      bundle.library.include_fixtures_build_modes.include?(build_mode)
+    end
+    
     protected
 
     # Builds a manifest for the bundle and the specified language
@@ -68,64 +86,73 @@ module SproutCore
         working.each { |x| x.hidden = true }
       end
 
-      # STEP 3: If in development build mode:
-      if self.build_mode == :development
+      # STEP 5: Add entry for javascript.js & stylesheet.js.  If in production 
+      # mode, set these to visible and hide the composite.  If in dev mode, do 
+      # the opposite.
+
+      # STEP 3: Handle special build modes...
 
         #  a. Merge fixture types into JS types & tests
-        unless entries[:fixture].nil?
+        if self.include_fixtures? && !entries[:fixture].nil?
           entries[:javascript] = (entries[:javascript] || []) + entries[:fixture]
+        else
+          entries.delete(:fixture)
         end
 
         #  b. Rewrite all of the JS & CSS file paths and URLs to point to
         # cached versions
         # (Cached versions are written to _cache/filename-ctime.ext)
-        (entries[:javascript] ||= []).each do | entry |
-          setup_timestamp_token(entry)
+        if self.build_mode == :development
+          (entries[:javascript] ||= []).each do | entry |
+            setup_timestamp_token(entry)
+          end
+
+          (entries[:stylesheet] ||= []).each do | entry |
+            setup_timestamp_token(entry)
+          end
+
+        #  c. Rewrite the URLs for all other resources to go through the _src 
+        #     symlink 
+        ## -----> Already done build_entry_for()
+        #  a. Combine the JS file paths into a single entry for the 
+        #  javascript.js
+        hide_composite = self.combine_javascript?
+        if (working = entries[:javascript]) && working.size>0
+          entry = build_entry_for('javascript.js', :javascript, working, hide_composite)
+          setup_timestamp_token(entry) if self.build_mode == :development
+          entry.hidden = true unless hide_composite
+          working << entry
         end
 
-        (entries[:stylesheet] ||= []).each do | entry |
-          setup_timestamp_token(entry)
+        #  b. Combine the CSS file paths into a single entry for the 
+        #  stylesheet.css
+        hide_composite = self.combine_stylesheets?
+        if (working = entries[:stylesheet]) && working.size>0
+          entry = build_entry_for('stylesheet.css', :stylesheet, working, hide_composite)
+          setup_timestamp_token(entry) if self.build_mode == :development
+          entry.hidden = true unless hide_composite
+          working << entry
         end
 
-        #  c. Rewrite the URLs for all other resources to go through the _src symlink
-        ##-----> Already done build_entry_for()
 
 
-      # STEP 4: If in production mode, remove extra assets that should never be built
+      #  c. Remove the entries for anything that is not JS, CSS, HTML or 
+      #     Resource
       else
-
-        #  c. Remove the entries for anything that is not JS, CSS, HTML or Resource
-        entries.delete(:fixture)
         entries.delete(:test)
       end
 
-      # STEP 5: Add entry for javascript.js & stylesheet.js.  If in production mode, set
-      # these to visible and hide the composite.  If in dev mode, do the opposite.
-
-      hide_composite = (self.build_mode != :development)
-
-      #  a. Combine the JS file paths into a single entry for the javascript.js
-      if (working = entries[:javascript]) && working.size>0
-        entry = build_entry_for('javascript.js', :javascript, working, hide_composite)
-        entry.hidden = true unless hide_composite
-        working << entry
-      end
-
-      #  b. Combine the CSS file paths into a single entry for the stylesheet.css
-      if (working = entries[:stylesheet]) && working.size>0
-        entry = build_entry_for('stylesheet.css', :stylesheet, working, true)
-        entry.hidden = true unless true
-        working << entry
-      end
 
       # Save entries into hashes
       @entries_by_type = entries
       @entries_by_filenames = {}
-      entries.values.flatten.each { |entry| @entries_by_filename[entry.filename] = entry }
+      entries.values.flatten.each do |entry| 
+        @entries_by_filename[entry.filename] = entry
+      end
     end
 
-    # Build a catalog of entries for this manifest.  This will simply filter out the files
-    # that don't actually belong in the current language
+    # Build a catalog of entries for this manifest.  This will simply filter 
+    # out the files that don't actually belong in the current language
     def catalog_entries
 
       # Entries arranged by resource filename
@@ -245,7 +272,7 @@ module SproutCore
       # well
       unless composite.nil?
         composite.each { |x| x.hidden = true } if hide_composite
-        ret.composite = composite.map { |x| x.filename }
+        ret.composite = composite
       end
 
       # The build path is the build_root + the filename
@@ -258,7 +285,7 @@ module SproutCore
 
       # Note: you can only access real resources via the cache.  If the entry
       # is a composite then do not go through cache.
-      if (self.build_mode == :development) && composite.nil?
+      if (self.build_mode == :development) #&& composite.nil?
         cache_link = '_cache' if CACHED_TYPES.include?(src_type)
         use_source_directly = true if SYMLINKED_TYPES.include?(src_type)
       end
@@ -285,8 +312,6 @@ module SproutCore
 
       extname = File.extname(entry.build_path)
       entry.build_path = entry.build_path.gsub(/#{extname}$/,"-#{timestamp}#{extname}") # add timestamp
-
-      puts "\n\n*setup_timestamp_token(#{entry.url} - #{entry.timestamp})" if /docs-/ =~ entry.url
     end
   end
 
@@ -305,29 +330,46 @@ module SproutCore
   # language::     the language in use when this entry was created
   # composite::    If set, this will contain the filenames of other resources that should be combined to form this resource.
   #
-  class ManifestEntry < Struct.new(:filename, :ext, :source_path, :url, :build_path, :type, :original_path, :hidden, :use_source_directly, :language, :composite)
+  class ManifestEntry < Struct.new(:filename, :ext, :source_path, :url, :build_path, :type, :original_path, :hidden, :use_source_directly, :language)
     def to_hash
       ret = {}
       self.members.zip(self.values).each { |p| ret[p[0]] = p[1] }
       ret.symbolize_keys
     end
 
+    def composite; @composite; end
+    def composite=(ary); @composite=ary; end
+    
     def hidden?; !!hidden; end
     def use_source_directly?; !!use_source_directly; end
     def composite?; !!composite; end
 
     def localized?; !!source_path.match(/\.lproj/); end
 
-      # Returns true if this entry can be cached even in development mode.  Composite resources
-    # and tests need to be regenerated whenever you get this.
+    # Returns true if this entry can be cached even in development mode.  
+    # Composite resources and tests need to be regenerated whenever you get 
+    # this.
     def cacheable?
       !composite? && (type != :test)
     end
 
-    # Returns the mtime of the source_path.  If this entry is a composite or if the source
-    # file does not exist, returns nil
+    def composite_filenames
+      @composite_filenames ||= (composite || []).map { |x| x.filename }
+    end
+    
+    # Returns the mtime of the source_path.  If this entry is a composite 
+    # return the latest mtime of the items or if the source file does not 
+    # exist, returns nil
     def source_path_mtime
-      (composite? || !File.exists?(source_path)) ? nil : File.mtime(source_path)
+      return @source_path_mtime unless @source_path_mtime.nil?
+      
+      if composite?
+        mtimes = (composite || []).map { |x| x.source_path_mtime }
+        ret = mtimes.compact.sort.last
+      else
+        ret = (!File.exists?(source_path)) ? nil : File.mtime(source_path)
+      end
+      return @source_path_mtime = ret 
     end
 
     # Returns a timestamp based on the source_path_mtime.  If source_path_mtime is nil, always
@@ -339,6 +381,11 @@ module SproutCore
     # Returns the content type for this entry.  Based on a set of MIME_TYPES borrowed from Rack
     def content_type
       MIME_TYPES[File.extname(build_path)[1..-1]] || 'text/plain'
+    end
+
+    # Returns a URL that takes into account caching requirements.
+    def cacheable_url
+      [url, timestamp].compact.join('?')
     end
 
     # :stopdoc:

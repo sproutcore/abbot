@@ -59,6 +59,22 @@ config :all do |c|
   # using this config as well.
   #c[:build_mode] = :production
 
+  # Name the build modes that you want JavaScript to be minified in.  Normally
+  # JavaScript is only minified in production.  This only has effect if you
+  # are also building composite javascript in the same mode.
+  #c[:minify_javascript] = :production
+  
+  # Name the build modes that you want your JavaScript to appear as a 
+  # composite file instead of the individual parts.  This can be an array.
+  #c[:combine_javascript] = :production
+  
+  # Name the builds modes that you want you CSS to appear as compite files
+  # instead of individual parts.  This can be an array.
+  #c[:combine_stylesheets] = :production
+  
+  # Name the build modes that should include fixture data.
+  #c[:include_fixtures] = :development
+
 end
 
 # Add configurations for specific bundles here as well.  Any options you

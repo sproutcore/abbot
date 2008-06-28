@@ -1,3 +1,14 @@
+
+* sc-config now supports three extra options in the all config:
+
+ :minify_javascript :: name one or more modes that you want the JavaScript to be minified in.  Normally JS is minified in production mode, but you can use this to turn that behavior off if necessary for debugging.
+ 
+ :combine_javascript :: name one or more modes that you want JavaScripts to be combined in.  Normally JS is combined in production mode, but you can turn this on or off for mode as needed for debugging.
+ 
+ :combine_stylesheets :: name one or more modes that you want stylesheets to be combined in.  Normally CSS is combined in both production and development modes, but you can turn this on or off as needed.
+ 
+* [FIX] Build tools were not appending a timestamp to resource URLs like they should in order to gaurantee clean caching. 
+
 == SproutCore 0.9.11
 
 * Build tools are now much smarter about how the they process environment

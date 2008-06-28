@@ -212,7 +212,7 @@ module SproutCore
       def static_url(resource_name, opts = {})
         opts[:language] ||= @language
         entry = @client_builder.find_resource_entry(resource_name, opts)
-        entry.nil? ? '' : entry.url
+        entry.nil? ? '' : entry.cacheable_url
       end
 
       def blank_url

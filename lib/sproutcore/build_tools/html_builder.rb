@@ -34,12 +34,12 @@ module SproutCore
           @entries = bundle.all_required_bundles.map do |cur_bundle|
             ret = (cur_bundle == bundle) ? [entry] : cur_bundle.entries_for(:html, :language => language, :hidden => :include)
             ret.map do |e|
-              e.composite? ? e.composite.map { |c| cur_bundle.entry_for(c, :hidden => :include) } : [e]
+              e.composite? ? e.composite : [e]
             end
           end
           @entries = @entries.flatten.compact.uniq
         else
-          @entries = entry.composite? ? entry.composite.map { |c| x.entry_for(c) } : [entry]
+          @entries = entry.composite? ? entry.composite : [entry]
         end
 
         # Clean out any composites we might have collected.  They have already
