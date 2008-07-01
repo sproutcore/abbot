@@ -18,6 +18,9 @@ module SproutCore
       def stylesheets_for_client(bundle_name = nil, opts = {})
 
         opts[:language] ||= language
+        
+        # Set the import method to use the standard <link> tag, if not set
+        include_method = opts[:include_method] ||= :link
 
         # Get bundle
         cur_bundle = bundle_name.nil? ? bundle : library.bundle_for(bundle_name)
@@ -34,9 +37,19 @@ module SproutCore
 
         # Convert to HTML and return
         urls = urls.map do |url|
-          %(  <link href="#{url}" rel="stylesheet" type="text/css" />)
+          if include_method == :import
+            %(  @import url('#{url}');)
+          else
+            %(  <link href="#{url}" rel="stylesheet" type="text/css" />)
+          end
         end
-        urls.join("\n")
+        
+        # if include style is @import, surround with style tags
+        if include_method == :import
+          %(<style type="text/css">\n#{urls * "\n"}</style>)
+        else
+          urls.join("\n")
+        end
       end
 
       # This method will return the HTML to link to all the javascripts

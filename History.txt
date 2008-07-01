@@ -1,4 +1,6 @@
 
+* Added :include_method = :link|:import option to the stylesheets_for_client helper.  This allows you to select between inclusion using link tags vs @import (which is required for OpenSocial apps) - Thanks Johannes Fahrenkrug!
+ 
 * Proxy now handles posts and rewrites Location headers so they stay in the same domain.  Should make this feature far more robust.
 
 * Proxy now handles query parameters. 
