@@ -64,7 +64,10 @@ module SproutCore
     # true if path appears to be a library
     #
     def self.is_library?(path)
-      File.exists? File.join(path, 'sc-config.rb')
+      ['sc-config.rb', 'sc-config'].each do |filename|
+        return true if File.exists?(File.join(path, filename))
+      end
+      return false
     end
 
     # The root path for this library
@@ -304,7 +307,9 @@ module SproutCore
     # Internal method loads the actual environment.  Get the ruby file and
     # eval it in the context of the library object.
     def load_environment!(opts=nil)
-      env_path = File.join(root_path, 'sc-config.rb')
+      env_path = File.join(root_path, 'sc-config')
+      env_path = File.join(root_path, 'sc-config.rb') if !File.exists?(env_path)
+      
       @environment = {}
       if File.exists?(env_path)
         f = File.read(env_path)

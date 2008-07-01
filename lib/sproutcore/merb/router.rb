@@ -23,7 +23,7 @@ module SproutCore
         library_root = opts.delete(:library) || opts.delete(:library_root) || ::Merb.root
         library = Library.library_for(library_root, opts)
         if library.nil?
-          raise "ERROR: No sc-config.rb found at #{library_root}.  Make sure you start sc-server in a directory with an sc-config.rb file."
+          raise "ERROR: No sc-config found at #{library_root}.  Make sure you start sc-server in a directory with an sc-config file."
         else
           SC.logger.debug "Loading SproutCore bundles in #{library.root_path}"
         end
