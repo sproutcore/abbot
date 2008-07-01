@@ -110,7 +110,7 @@ module SproutCore
         # And return the file.  Set the content type using a mime-map borroed from Rack.
         headers['Content-Type'] = entry.content_type
         headers['Content-Length'] = File.size(build_path).to_s
-        ret = File.open(build_path)
+        ret = File.open(build_path, 'rb')
 
 
         # In development mode only, immediately delete built composite
