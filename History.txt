@@ -1,4 +1,16 @@
 
+* Proxy now handles posts and rewrites Location headers so they stay in the same domain.  Should make this feature far more robust.
+
+* Proxy now handles query parameters. 
+
+* Build tools now replace all occurrences of "sc_super()" with a call to arguments.callee.base.apply().  This way you don't have to remember the crazy-ass string to call super. (Thanks onitunes)
+
+* you can now start sc-server down inside of a project and it will find the proper level to work at.
+
+* Finally fixed all remaining known issues with using tools in Windows.  Works for me in my install.
+
+* sc-config.rb is now named sc-config.  The old name will still work.
+
 * sc-config now supports three extra options in the all config:
 
  :minify_javascript :: name one or more modes that you want the JavaScript to be minified in.  Normally JS is minified in production mode, but you can use this to turn that behavior off if necessary for debugging.
