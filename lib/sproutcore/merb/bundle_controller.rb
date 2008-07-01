@@ -3,6 +3,9 @@ require 'net/http'
 require 'uri'
 
 module SproutCore
+  
+  NO_BODY_METHOD = [:delete, :get, :copy, :head, :move, :options, :trace]
+  
   module Merb
 
     # A subclass of this controller handles all incoming requests for the 
@@ -153,13 +156,23 @@ module SproutCore
 
         # now make the request...
         response = nil
+        
+        # Handle those that require a body.
+        
         ::Net::HTTP.start(http_host, http_port) do |http|
-          response = http.send(http_method, http_path, headers)
+          if NO_BODY_METHOD.include?(http_method.to_sym)
+            response = http.send(http_method, http_path, headers)
+          else
+            http_body = request.raw_post
+            response = http.send(http_method, http_path, http_body, headers)
+          end
         end
 
         # Now set the status, headers, and body.
         @status = response.code
 
+        SC.logger.debug " ~ PROXY: #{@status} #{request.uri} -> http://#{http_host}:#{http_port}#{http_path}"
+        
         # Transfer response headers into reponse
         ignore = ['transfer-encoding', 'keep-alive', 'connection']
         response.each do | key, value |
@@ -172,10 +185,18 @@ module SproutCore
             value.gsub!(/domain=[^\;]+\;? ?/,'')
           end
 
+          # Location headers should rewrite the hostname if it is included.
+          if key.downcase == 'location'
+            value.gsub!(/^http:\/\/#{http_host}(:[0-9]+)?\//, "http://#{request.host}/")
+          end
+          
           # Prep key and set header.
           key = key.split('-').map { |x| x.downcase.capitalize }.join('-')
+          SC.logger.debug "   #{key}: #{value}"
           @headers[key] = value
         end
+
+        SC.logger.debug ''
 
         # Transfer response body
         return response.body
