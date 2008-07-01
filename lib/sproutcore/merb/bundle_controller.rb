@@ -5,10 +5,11 @@ require 'uri'
 module SproutCore
   module Merb
 
-    # A subclass of this controller handles all incoming requests for the location it is
-    # mounted at.  For index.html requests, it will rebuild the html file everytime it is
-    # requested if you are in development mode.  For all other requests, it will build the
-    # resource one time and then return the file if it already exists.
+    # A subclass of this controller handles all incoming requests for the 
+    # location it is mounted at.  For index.html requests, it will rebuild the 
+    # html file everytime it is requested if you are in development mode.  For 
+    # all other requests, it will build the resource one time and then return 
+    # the file if it already exists.
     class BundleController < ::Merb::Controller
 
       def self.library_for_class(klass)
@@ -19,8 +20,9 @@ module SproutCore
         (@registered_libraries ||= {})[klass] = library
       end
 
-      # Entry point for all requests routed through the SproutCore controller.  Example
-      # the request path to determine which bundle should handle the request.
+      # Entry point for all requests routed through the SproutCore controller.  
+      # Example the request path to determine which bundle should handle the 
+      # request.
       def main
 
         # Before we do anything, set the build_mode for the bundles.  This

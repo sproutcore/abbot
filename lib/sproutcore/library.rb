@@ -12,11 +12,21 @@ module SproutCore
   # stated in the configs.
   class Library
 
-    # Creates a chained set of libraries from the passed location and the load path
+    # Creates a chained set of libraries from the passed location and the load 
+    # path
     def self.library_for(root_path, opts = {})
 
       # Find libraries in the search paths, build chain
       root_path = File.expand_path(root_path)
+      
+      # Walk up the root_path until we find a library
+      # If no library is found and we reach the top, then return nil.
+      while !is_library?(root_path)
+        new_root_path, removed_filename = File.split(root_path)
+        return nil if new_root_path == root_path
+        root_path = new_root_path
+      end
+      
       paths = libraries_in($:).reject { |x| x == root_path }
       paths.unshift(root_path)
       ret = nil
@@ -31,7 +41,8 @@ module SproutCore
       return ret
     end
 
-    # Searches the array of paths, returning the array of paths that are actually libraries.
+    # Searches the array of paths, returning the array of paths that are 
+    # actually libraries.
     #
     # ==== Params
     # paths<Array>:: Array of libraries.
@@ -44,14 +55,16 @@ module SproutCore
       ret.flatten.compact.uniq
     end
 
-    # Heuristically determine if a particular location is a library.
+    # Heuristically determines if the library is a path or not.
+    #
+    # ==== Params
+    # path:: the path to check
+    #
+    # ==== Returns
+    # true if path appears to be a library
+    #
     def self.is_library?(path)
-      has_it = %w(clients frameworks sc-config.rb).map do |x|
-        File.exists?(File.join(path, x))
-      end
-      return false unless has_it.pop
-      has_it.each { |x| return true if x }
-      return false
+      File.exists? File.join(path, 'sc-config.rb')
     end
 
     # The root path for this library
