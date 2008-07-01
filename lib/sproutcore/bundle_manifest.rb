@@ -92,56 +92,53 @@ module SproutCore
 
       # STEP 3: Handle special build modes...
 
-        #  a. Merge fixture types into JS types & tests
-        if self.include_fixtures? && !entries[:fixture].nil?
-          entries[:javascript] = (entries[:javascript] || []) + entries[:fixture]
-        else
-          entries.delete(:fixture)
+      #  a. Merge fixture types into JS types & tests
+      if self.include_fixtures? && !entries[:fixture].nil?
+        entries[:javascript] = (entries[:javascript] || []) + entries[:fixture]
+      else
+        entries.delete(:fixture)
+      end
+
+      #  b. Rewrite all of the JS & CSS file paths and URLs to point to
+      # cached versions
+      # (Cached versions are written to _cache/filename-ctime.ext)
+      if self.build_mode == :development
+        (entries[:javascript] ||= []).each do | entry |
+          setup_timestamp_token(entry)
         end
 
-        #  b. Rewrite all of the JS & CSS file paths and URLs to point to
-        # cached versions
-        # (Cached versions are written to _cache/filename-ctime.ext)
-        if self.build_mode == :development
-          (entries[:javascript] ||= []).each do | entry |
-            setup_timestamp_token(entry)
-          end
-
-          (entries[:stylesheet] ||= []).each do | entry |
-            setup_timestamp_token(entry)
-          end
-
-        #  c. Rewrite the URLs for all other resources to go through the _src 
-        #     symlink 
-        ## -----> Already done build_entry_for()
-        #  a. Combine the JS file paths into a single entry for the 
-        #  javascript.js
-        hide_composite = self.combine_javascript?
-        if (working = entries[:javascript]) && working.size>0
-          entry = build_entry_for('javascript.js', :javascript, working, hide_composite)
-          setup_timestamp_token(entry) if self.build_mode == :development
-          entry.hidden = true unless hide_composite
-          working << entry
+        (entries[:stylesheet] ||= []).each do | entry |
+          setup_timestamp_token(entry)
         end
-
-        #  b. Combine the CSS file paths into a single entry for the 
-        #  stylesheet.css
-        hide_composite = self.combine_stylesheets?
-        if (working = entries[:stylesheet]) && working.size>0
-          entry = build_entry_for('stylesheet.css', :stylesheet, working, hide_composite)
-          setup_timestamp_token(entry) if self.build_mode == :development
-          entry.hidden = true unless hide_composite
-          working << entry
-        end
-
-
-
+        
       #  c. Remove the entries for anything that is not JS, CSS, HTML or 
-      #     Resource
+      #     Resource in non-development modes
       else
         entries.delete(:test)
       end
 
+      #  c. Rewrite the URLs for all other resources to go through the _src 
+      #     symlink 
+      ## -----> Already done build_entry_for()
+      #  a. Combine the JS file paths into a single entry for the 
+      #  javascript.js
+      hide_composite = self.combine_javascript?      
+      if (working = entries[:javascript]) && working.size>0
+        entry = build_entry_for('javascript.js', :javascript, working, hide_composite)
+        setup_timestamp_token(entry) if self.build_mode == :development
+        entry.hidden = true unless hide_composite
+        working << entry
+      end
+
+      #  b. Combine the CSS file paths into a single entry for the 
+      #  stylesheet.css
+      hide_composite = self.combine_stylesheets?
+      if (working = entries[:stylesheet]) && working.size>0
+        entry = build_entry_for('stylesheet.css', :stylesheet, working, hide_composite)
+        setup_timestamp_token(entry) if self.build_mode == :development
+        entry.hidden = true unless hide_composite
+        working << entry
+      end
 
       # Save entries into hashes
       @entries_by_type = entries
@@ -272,7 +269,12 @@ module SproutCore
       # well
       unless composite.nil?
         composite.each { |x| x.hidden = true } if hide_composite
-        ret.composite = composite
+        
+        # IMPORTANT:  The array of composite entries passed in here can come
+        # directly from the entries hash, which will later be updated to 
+        # include the composite entry (ret) itself.  Dup the array here to 
+        # make sure the list of composites maintained here does not change.
+        ret.composite = composite.dup 
       end
 
       # The build path is the build_root + the filename

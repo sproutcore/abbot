@@ -276,7 +276,7 @@ module SproutCore
     # The build modes wherein javascript should be combined.
     def combine_stylesheets_build_modes
       env = base_environment || {}
-      [(env[:combine_stylesheets] || [:development, :production])].flatten
+      [(env[:combine_stylesheets] || :production)].flatten
     end
 
     # ==== Returns

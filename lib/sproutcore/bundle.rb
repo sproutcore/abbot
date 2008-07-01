@@ -74,7 +74,7 @@ module SproutCore
     # The default build mode for bundles.  This should be set once before you
     # start using bundles.  You can override this when you create a specific
     # bundle, but that should not be the typical behavior
-    def self.build_mode; @build_mode || :development; end
+    def self.build_mode; (@build_mode || :development).to_sym; end
 
     def self.build_mode=(new_mode); @build_mode = new_mode; end
 
@@ -210,7 +210,7 @@ module SproutCore
       @index_root = opts[:index_root] || ['',(index_prefix.nil? || index_prefix.size==0) ? nil : index_prefix, bundle_name.to_s].compact.join('/')
 
       #  build_mode::        The build mode to use when combining resources.
-      @build_mode = opts[:build_mode] || SproutCore::Bundle.build_mode
+      @build_mode = (opts[:build_mode] || SproutCore::Bundle.build_mode || :development).to_sym
 
       #  layout:        Path to the layout resource.  This should be of the form
       @layout = opts[:layout] || 'sproutcore:lib/index.rhtml'
@@ -253,7 +253,7 @@ module SproutCore
       with_hidden = opts[:hidden] || :none
 
       language = opts[:language] || preferred_language
-      mode = opts[:build_mode] || build_mode
+      mode = (opts[:build_mode] || build_mode).to_sym
       manifest = manifest_for(language, mode)
 
       ret = manifest.entries_for(resource_type)
@@ -280,7 +280,7 @@ module SproutCore
       with_hidden = opts[:hidden] || :none
 
       language = opts[:language] || preferred_language
-      mode = opts[:build_mode] || build_mode
+      mode = (opts[:build_mode] || build_mode).to_sym
       manifest = manifest_for(language, mode)
 
       ret = manifest.entry_for(resource_name)
@@ -359,7 +359,7 @@ module SproutCore
       with_hidden = opts[:hidden] || :none
 
       language = opts[:language] || preferred_language
-      mode = opts[:build_mode] || build_mode
+      mode = (opts[:build_mode] || build_mode).to_sym
       manifest = manifest_for(language, mode)
 
       ret = manifest.entries
@@ -627,7 +627,7 @@ module SproutCore
     #
     def strings_hash(opts={})
 
-      build_mode = opts[:build_mode] ||= build_mode
+      build_mode = (opts[:build_mode] ||= self.build_mode).to_sym
       language = opts[:language] ||= preferred_language
       key = [build_mode.to_s, language.to_s].join(':').to_sym
 

@@ -96,6 +96,7 @@ module SproutCore
 
       # Localizes the passed string, using the optional passed options.
       def loc(string, opts = {})
+        string = string.nil? ? '' : string.to_s
         opts[:language] ||= language
         bundle.strings_hash(opts)[string] || string
       end
