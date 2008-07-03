@@ -140,7 +140,7 @@ SC.logger.info("Selected Languages: #{languages.join(', ')}")
 SC.logger.info('')
 bundles.each do |bundle|
   SC.logger.info("Building #{bundle.bundle_name} > #{bundle.build_root}...")
-
+  
   if clean
     SC.logger.debug("~ Cleaning #{bundle.build_root}")
     FileUtils.rm_rf(bundle.build_root)

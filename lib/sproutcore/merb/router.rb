@@ -4,12 +4,14 @@ module SproutCore
   module Merb
     module RouterMethods
 
-      # Connect a BundleController to the specified location.  All requests matching
-      # this path root will by default be handled by this new controller.
+      # Connect a BundleController to the specified location.  All requests 
+      # matching this path root will by default be handled by this new 
+      # controller.
       #
       # ==== Params
-      # path<String>:: The root path or other matcher to use for the matcher.  This
-      #  will be passed through to the router, so you can use anything you like.
+      # path<String>:: The root path or other matcher to use for the matcher.  
+      #  This will be passed through to the router, so you can use anything 
+      #  you like.
       #
       # === Options
       # library:: Optional path to the library that should be hosted
@@ -20,6 +22,11 @@ module SproutCore
         # Create library
         library_root = opts.delete(:library) || opts.delete(:library_root) || ::Merb.root
         library = Library.library_for(library_root, opts)
+        if library.nil?
+          raise "ERROR: No sc-config found at #{library_root}.  Make sure you start sc-server in a directory with an sc-config file."
+        else
+          SC.logger.debug "Loading SproutCore bundles in #{library.root_path}"
+        end
 
         # Define new subclass of bundle controller
         cnt = 0

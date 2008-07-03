@@ -1,3 +1,3 @@
 Your new SproutCore client application has been created.  To access your application, just start sc-server and visit your client name in the web browser.
 
-If you want to change the deployment settings for your application edit the sc-config.rb file to get started.
+If you want to change the deployment settings for your application edit the sc-config file to get started.

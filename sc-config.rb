@@ -6,3 +6,8 @@ config :all, :required => [:sproutcore, :prototype]
 config :sproutcore, :required => [:prototype]
 config :prototype, :required => []
 
+config :sc_test_runner do |c|
+  c[:layout] = "sproutcore:lib/index.rhtml"
+end
+
+

@@ -24,7 +24,7 @@ class SproutcoreGenerator < RubiGen::Base
       BASEDIRS.each { |path| m.directory path }
 
       # Create stubs
-      m.template_copy_each %w(README sc-config.rb)
+      m.template_copy_each %w(README sc-config)
       # m.dependency "install_rubigen_scripts", [destination_root, 'sproutcore'],
       #   :shebang => options[:shebang], :collision => :force
 
