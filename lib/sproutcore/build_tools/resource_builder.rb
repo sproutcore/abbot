@@ -163,7 +163,7 @@ module SproutCore
           line = line.gsub(/["']@@.*["']\s*?:\s*?["'].*["'],\s*$/,'')
           
         else
-          line = line.gsub(/sc_super\(\)/, 'arguments.callee.base.apply(this, arguments)')
+          line = line.gsub(/sc_super\(\s*\)/, 'arguments.callee.base.apply(this,arguments)')
         end
 
         super(line, filename)
