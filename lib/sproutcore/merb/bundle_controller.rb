@@ -148,6 +148,12 @@ module SproutCore
           headers[key] = value
         end
 
+        # add the Content-Type header
+        if(request.content_type)
+          headers['Content-Type'] = request.content_type;
+          SC.logger.debug "Content-Type: #{headers['Content-Type']}"
+        end
+
         uri = URI.parse(proxy_url)
         http_host = uri.host
         http_port = uri.port
