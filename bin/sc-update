@@ -1,0 +1,94 @@
+#!/usr/bin/env ruby
+
+# UPDATES A SPROUTCORE BUNDLE
+# This script will attempt to update installed framework and application
+# bundles from github.  If the framework or application is not already
+# installed, it will attempt to install it.
+#
+# Usage:
+# sc-update owner-projectname
+# 
+# You can also pass the standard install options for sc-install:
+# sc-update owner-projectname --source=sproutit/sproutcore-samples
+# sc-update owner-projectname --method=zip
+
+
+APP_ROOT = File.expand_path(Dir.pwd)
+SC_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+$:.unshift File.join(SC_ROOT,'lib') ;
+
+# Set String encoding to Unicode
+$KCODE = 'u'
+
+# Require SproutCore
+require 'rubygems'
+require 'rubigen'
+require 'sproutcore'
+require 'optparse'
+
+############################################################
+## Define Helper Methods
+##
+
+
+############################################################
+## Process Options
+##
+
+# Process options
+bundle_name = ARGV.shift if (ARGV.size > 0 && ARGV[0][0..0] != '-')
+options = { :verbose => false, :library_root => APP_ROOT }
+
+opts = OptionParser.new do |opts|
+  opts.version = SproutCore::VERSION::STRING
+
+  opts.banner = "Usage: sc-update {bundle-name} {options}"
+  opts.define_head "Remotely update JavaScript bundles from Github and other sources"
+  opts.separator ''
+  opts.separator '*'*80
+  opts.separator 'If no flags are given, sc-update will attempt to update the named bundle from'
+  opts.separator 'github into the local project.'
+  opts.separator '*'*80
+
+  SC::BundleInstaller.configure_tool_options(opts, options)
+end
+
+begin
+  opts.parse!
+rescue Exception => e
+  puts opts
+  puts e
+  exit(1)
+end
+
+############################################################
+## SETUP ENVIRONMENT
+##
+
+# Configure logger
+SC.logger.level = (options[:verbose]) ? Logger::DEBUG : Logger::INFO
+SC.logger.progname = $0
+SC.logger.info("sc-update v#{SproutCore::VERSION::STRING}")
+
+# Confirm various safety settings
+SC.logger.info(" ~ Verbose logging enabled") if options[:verbose]
+SC.logger.info(" ~ Dry run mode - no change will be made") if options[:dry_run] 
+
+# Load Library
+library = SC.library_for(options[:library_root])
+
+############################################################
+## PERFORM THE INSTALL
+##
+
+if bundle_name.nil?
+  puts opts
+  SC.logger.fatal("A bundle name is required.")
+  exit(1)
+end
+
+library.update_bundle(bundle_name, options)
+SC.logger.debug("")
+
+
+

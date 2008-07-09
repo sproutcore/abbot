@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+
+# Creates a new SproutCore Project/Library
+# You can use this command in one of two ways:
+#
+# sc-init 
+#  - This will create a new project library within the current working dir
+#
+# sc-init project-name
+#  - This will create a new directory and create the project library there.
+
+# Set String encoding to Unicode
+$KCODE = 'u'
+
+APP_ROOT = File.expand_path(Dir.pwd)
+SC_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+$:.unshift File.join(SC_ROOT,'lib') ;
+
+require 'rubygems'
+require 'rubigen'
+require 'sproutcore'
+
+if %w(-v --version).include? ARGV.first
+  require 'sproutcore/version'
+  puts "#{File.basename($0)} #{SproutCore::VERSION::STRING}"
+  exit(0)
+end
+
+# Handle default case...
+ARGV.unshift('.') if ARGV.size == 0
+ 
+require 'rubigen/scripts/generate'
+source = RubiGen::PathSource.new(:application,
+  File.join(File.dirname(__FILE__), "../app_generators"))
+RubiGen::Base.reset_sources
+RubiGen::Base.append_sources source
+RubiGen::Base.use_component_sources! [:sc, :app]
+RubiGen::Scripts::Generate.new.run(ARGV, :generator => 'sproutcore')
