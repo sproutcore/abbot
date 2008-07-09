@@ -286,6 +286,44 @@ module SproutCore
       [(env[:include_fixtures] || :development)].flatten
     end
 
+    # ==== Returns
+    # A BundleInstaller configured for the receiver library.
+    #
+    def bundle_installer
+      @bundle_installer ||= BundleInstaller.new(:library => self)  
+    end
+    
+    # Install a named bundle from github.  This feature requires
+    # git to be installed unless you are on a system that supports
+    # tar, in which case it can install using tar.
+    #
+    # ==== Params
+    # bundle_name :: the bundle name
+    #
+    # ==== Options
+    # :github_path :: the root path on github for the project.  By default 
+    #  this is calculated from the bundle name.
+    # :install_path :: optional path to install 
+    # :method :: optional preferred method.  May be :git, :zip, :tar
+    # :force :: If a directory already exists at the install path, deletes
+    #   and replaces it.
+    #
+    def install_bundle(bundle_name, opts = {})
+      self.bundle_installer.install(bundle_name, opts)
+    end
+
+    # Update a named bundle.  This feature required git to be installed
+    #
+    def update_bundle(bundle_name, opts = {})
+      self.bundle_installer.update(bundle_name, opts)
+    end
+
+    # Removed a named bundle.
+    #
+    def remove_bundle(bundle_name, opts = {})
+      self.bundle_installer.remove(bundle_name, opts)
+    end
+    
     protected
 
     # Load the library at the specified path.  Loads the sc-config.rb if it

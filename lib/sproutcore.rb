@@ -21,7 +21,7 @@ module SproutCore
 end
 
 # Force load the code files.  Others may be loaded only as required
-%w(library bundle bundle_manifest jsdoc jsmin version).each do |fname|
+%w(library bundle bundle_manifest bundle_installer jsdoc jsmin version).each do |fname|
   require "sproutcore/#{fname}"
 end
 
