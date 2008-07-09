@@ -1,3 +1,7 @@
+== 0.9.14
+
+* [FIX] Removed warning about NO_BODY_METHOD
+
 == 0.9.13
 
 * Fixed critical bug that prevented sc-build from correctly compiling stylesheets and javascript.

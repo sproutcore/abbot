@@ -4,8 +4,6 @@ require 'uri'
 
 module SproutCore
   
-  NO_BODY_METHOD = [:delete, :get, :copy, :head, :move, :options, :trace]
-  
   module Merb
 
     # A subclass of this controller handles all incoming requests for the 
@@ -164,9 +162,9 @@ module SproutCore
         response = nil
         
         # Handle those that require a body.
-        
+        no_body_method = %w(delete get copy head move options trace)
         ::Net::HTTP.start(http_host, http_port) do |http|
-          if NO_BODY_METHOD.include?(http_method.to_sym)
+          if no_body_method.include?(http_method.to_s.downcase)
             response = http.send(http_method, http_path, headers)
           else
             http_body = request.raw_post
