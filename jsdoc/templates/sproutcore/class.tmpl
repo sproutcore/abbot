@@ -187,7 +187,7 @@
     </if>
     <if test="ownProperties.length">
       <div class="field-summary summary">
-        <h2>Field Summary</h2>
+        <h2>Property Summary</h2>
         <ul>
         <for each="member" in="ownProperties">
           <if test="!(member.isConstant)">
@@ -213,7 +213,7 @@
       borrowedMembers.map(function($) {if (contributers.indexOf($.memberOf) < 0) contributers.push($.memberOf)});
       for (var i = 0, l = contributers.length; i < l; i++) {
         output +=
-          "<dt>Fields borrowed from class "+new Link().toSymbol(contributers[i])+": </dt>"
+          "<dt>Properties borrowed from class "+new Link().toSymbol(contributers[i])+": </dt>"
           +
           "<dd>" +
           borrowedMembers
@@ -295,7 +295,7 @@
 <!-- ============================== field details ========================== -->    
   <if test="defined(ownProperties) && ownProperties.length">
     <div class="field-detail detail">
-      <a name="field_detail"><h2>Field Details</h2></a> 
+      <a name="field_detail"><h2>Property Details</h2></a> 
       <for each="property" in="ownProperties">
         <if test="!(property.isConstant)">
           <!-- One single method detail entry -->
