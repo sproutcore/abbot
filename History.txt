@@ -1,3 +1,11 @@
+== 0.9.14
+
+* Added sc-install, sc-update, and sc-remove.  These utilities work with 
+  github to automatically install and update plugin JavaScript libraries.
+  
+* [FIX] Removed warning about NO_BODY_METHOD
+
+== 0.9.13
 
 * Fixed critical bug that prevented sc-build from correctly compiling stylesheets and javascript.
 

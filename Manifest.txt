@@ -4,7 +4,11 @@ app_generators/sproutcore/templates/sc-config
 app_generators/sproutcore/USAGE
 bin/sc-build
 bin/sc-gen
+bin/sc-init
+bin/sc-install
+bin/sc-remove
 bin/sc-server
+bin/sc-update
 bin/sproutcore
 clients/sc_docs/controllers/docs.js
 clients/sc_docs/core.js
@@ -252,6 +256,7 @@ lib/sproutcore/build_tools/html_builder.rb
 lib/sproutcore/build_tools/resource_builder.rb
 lib/sproutcore/build_tools.rb
 lib/sproutcore/bundle.rb
+lib/sproutcore/bundle_installer.rb
 lib/sproutcore/bundle_manifest.rb
 lib/sproutcore/generator_helper.rb
 lib/sproutcore/helpers/capture_helper.rb
