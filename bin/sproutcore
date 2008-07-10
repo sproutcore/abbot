@@ -23,3 +23,6 @@ RubiGen::Base.reset_sources
 RubiGen::Base.append_sources source
 RubiGen::Base.use_component_sources! [:sc, :app]
 RubiGen::Scripts::Generate.new.run(ARGV, :generator => 'sproutcore')
+
+puts "\n\nWARNING:  This command will change in the near future.\nPlease use 'sc-init' instead of 'sproutcore' to create new project libraries.\n\n"
+
