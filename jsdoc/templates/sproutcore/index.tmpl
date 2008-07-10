@@ -21,7 +21,7 @@ function groupName(path) {
 
 function getSymbols(thisClass) {
   var ret = [thisClass.alias.toLowerCase()] ;
-  var len = thisClass.properties ;
+  var len = thisClass.properties.length ;
   
   while (--len>=0) {
     ret.push(thisClass.properties[len].alias.toLowerCase()) ;
