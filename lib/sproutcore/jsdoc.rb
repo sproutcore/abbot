@@ -20,7 +20,7 @@ module SproutCore
       files = opts[:files]
       if files.nil?
         raise "MISSING OPTION: :bundle => bundle or :files => list of files required for JSDoc" if bundle.nil?
-        entries = bundle.entries_for(:javascript, :hidden => :include)
+        entries = bundle.sorted_javascript_entries(:hidden => :include)
         files = entries.map { |x| x.composite? ? nil : x.source_path }.compact.uniq
       end
 
