@@ -1,8 +1,8 @@
 {!
 function keys(o) {
-	var keys = [];
-	for (var k in o) { keys.push(k); }
-	return keys;
+  var keys = [];
+  for (var k in o) { keys.push(k); }
+  return keys;
 }
 
 function groupName(path) {
@@ -39,18 +39,25 @@ function getSymbols(className, thisClass) {
 };
 
 !}
-{ records: [<for each="classname" in="keys(data).sort()">
-  { "type": "Doc", 
-    "guid": "{+classname+}", 
-    "title": "{+classname+}", 
-    "url": "{+data[classname][0].docs+}", 
-    "group": "{+groupName(data[classname][0].file.path)+}", 
-    "symbols": "{+getSymbols(classname, data[classname][0])+}",
-    "path": "{+data[classname][0].file.path+}"
-  },</for>
-  { "type": "Doc", 
-    "guid": "_GLOBALS", 
-    "title": "GLOBALS", 
-    "url": "globals.html" 
-  }]
+{ records: [
+  <for each="thisClass" in="data">
+    <if test="groupName(thisClass.srcFile) !== undefined">
+      { "type": "Doc", 
+        "guid": "{+(thisClass.alias)+}", 
+        <if test="!(thisClass.alias == 'SC')">
+          "title": "{+(thisClass.alias)+}",
+        </if>
+        <if test="(thisClass.alias == 'SC')">
+          "title": "SproutCore (SC)",
+        </if>
+        "url": "{+(thisClass.alias)+}.html",
+        <if test="!(thisClass.alias == 'SC')">
+          "group": "{+groupName(thisClass.srcFile)+}",
+        </if>
+        "symbols": "",
+        "path": "{+thisClass.srcFile+}"
+      },
+    </if>
+  </for>
+  ]
 }

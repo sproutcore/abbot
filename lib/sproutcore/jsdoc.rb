@@ -20,7 +20,7 @@ module SproutCore
       files = opts[:files]
       if files.nil?
         raise "MISSING OPTION: :bundle => bundle or :files => list of files required for JSDoc" if bundle.nil?
-        entries = bundle.entries_for(:javascript, :hidden => :include)
+        entries = bundle.sorted_javascript_entries(:hidden => :include)
         files = entries.map { |x| x.composite? ? nil : x.source_path }.compact.uniq
       end
 
@@ -29,16 +29,17 @@ module SproutCore
 
       # Now run jsdoc
       jsdoc_root = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'jsdoc'))
-      jar_path = File.join(jsdoc_root, 'app', 'js.jar')
+      jar_path = File.join(jsdoc_root, 'jsrun.jar')
       runjs_path = File.join(jsdoc_root, 'app', 'run.js')
       template_path = File.join(jsdoc_root, 'templates', 'sproutcore')
-
-      puts %(GENERATING: java -Djsdoc.dir="#{jsdoc_root}" -jar "#{jar_path}" "#{runjs_path}" -t="#{template_path}" -d="#{build_path}" "#{ files * '" "' }" -v)
-
+      
       # wrap files in quotes...
+      # Note: using -server gives an approx. 25% speed boost over -client (the default)
+      js_doc_cmd = %(java -server -Djsdoc.dir="#{jsdoc_root}" -jar "#{jar_path}" "#{runjs_path}" -t="#{template_path}" -d="#{build_path}" "#{ files * '" "' }" -v)
 
-      SC.logger.debug `java -Djsdoc.dir="#{jsdoc_root}" -jar "#{jar_path}" "#{runjs_path}" -t="#{template_path}" -d="#{build_path}" "#{ files * '" "' }" -v`
+      puts "GENERATING: #{js_doc_cmd}"
 
+      SC.logger.debug `#{js_doc_cmd}`
     end
   end
 end
