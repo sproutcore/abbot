@@ -47,7 +47,8 @@ Merb::Config.use { |c|
   c[:exception_details]   = true,
   c[:reload_classes]      = false,
   c[:use_mutex]           = false,
-  c[:log_auto_flush]      = true
+  c[:log_auto_flush]      = true,
+  c[:merb_root]           = SC.library.root_path # make sure we find the lib.
 }
 
 ############################################################
