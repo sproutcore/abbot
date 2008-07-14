@@ -8,7 +8,7 @@
 # sc-ide update           update RedBull to the latest version
 # sc-ide update --tag=45  update RedBull to tagged release 'r45'
 # sc-ide update --edge    update RedBull to the current HEAD of the master repository (might be unstable)
-# sc-ide run --port=5000  run RedBull on port 5000, it will be accissble in your browser
+# sc-ide run --port=5000  run RedBull on port 5000, it will be accessible in your browser
 # sc-ide version          list the versions of the various RedBull components
 # sc-ide license          display RedBull's licensing info
 #
@@ -61,15 +61,17 @@ RedBull Helper Script (RedBull is the experimental SproutCore IDE)
 Usage: sc-ide {verb} {options}
 
 Verbs:
-  init    - uses git to set up a full sc-ide environment pulled from --edge or the value of --tag
-  install - synonym for init
-  update  - uses git to update your sc-ide repositories to --edge or the value of --tag
-  run     - (DEFAULT) starts RedBull on port 4040 or --port
-  server  - synonym for run
-  version - list the installed versions of the various RedBull components
-  license - show the RedBull license and copyright notice
-  help    - show this text
-  remove  - remove RedBull from the working directory
+  init      - uses git to set up a full sc-ide environment pulled from --edge or the value of --tag
+  install   - synonym for init
+  update    - uses git to update your sc-ide repositories to --edge or the value of --tag
+  run       - (DEFAULT) starts RedBull on port 4040 or --port
+  server    - synonym for run
+  version   - list the installed versions of the various RedBull components
+  status    - synonym for version
+  license   - show the RedBull license and copyright notice
+  help      - show this text
+  remove    - remove RedBull from the working directory
+  uninstall - synonym for remove
 ==================================================================
 EOT
 
@@ -222,7 +224,7 @@ elsif verb_name == 'run' or verb_name == 'server'
   SC.logger.info "Use ^C to quit."
   Dir.chdir(File.join(APP_ROOT, 'ide'))
   exec "bin/sc-server -p #{port}"
-elsif verb_name == 'version'
+elsif verb_name == 'version' or verb_name == 'status'
   unless File.exist?(File.join(APP_ROOT, 'ide'))
     SC.logger.fatal "RedBull does not appear to be installed. Use `sc-ide init` to install. Exiting..."
     exit(1)
@@ -258,7 +260,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ==============================================================================
 EOL
-elsif verb_name == 'remove'
+elsif verb_name == 'remove' or verb_name == 'uninstall'
   unless File.exist?(File.join(APP_ROOT, 'ide'))
     SC.logger.fatal "RedBull does not appear to be installed. Exiting..."
     exit(1)
