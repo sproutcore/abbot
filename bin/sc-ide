@@ -205,9 +205,9 @@ elsif verb_name == 'update'
     SC.logger.info "Updating the current directory with the latest tagged RedBull release."
   end
   SC.logger.info ''
-  SC.logger.debug `cd ide/frameworks; git fetch`.chomp!
-  SC.logger.debug `cd ide/frameworks; git fetch`.chomp!
-  SC.logger.debug `cd ide/clients; git fetch`.chomp!
+  SC.logger.debug `cd ide/; git fetch`.chomp!
+  SC.logger.debug `cd ide/frameworks/sproutcore; git fetch`.chomp!
+  SC.logger.debug `cd ide/clients/red_bull; git fetch`.chomp!
 
   unless edge
     update_to_tag(git_tag, true)
