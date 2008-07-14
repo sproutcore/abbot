@@ -163,11 +163,11 @@ module SproutCore
           line = line.gsub(/["']@@.*["']\s*?:\s*?["'].*["'],\s*$/,'')
           
         else
-          if line.match(/sc_super\(.+\)/)
-            puts "\nWARNING: Calling sc_super() with arguments is DEPRECATED. Please use sc_super() only.\n\n"
-            line = line.gsub(/sc_super\((.+)\)/, 'arguments.callee.base.apply(this, \1)')
-          else
+          if line.match(/sc_super\(\s*\)/)
             line = line.gsub(/sc_super\(\s*\)/, 'arguments.callee.base.apply(this,arguments)')
+          elsif line.match(/sc_super\(.+?\)/)
+            puts "\nWARNING: Calling sc_super() with arguments is DEPRECATED. Please use sc_super() only.\n\n"
+            line = line.gsub(/sc_super\((.+?)\)/, 'arguments.callee.base.apply(this, \1)')
           end
         end
 
