@@ -36,6 +36,10 @@ unless ARGV.index('-p')
   ARGV.push *%w[-p 4020]
 end
 
+unless ARGV.index('--merb-root')
+  ARGV.push "--merb-root=#{SC.library.root_path}"
+end
+
 ############################################################
 ## Configure Merb
 ##
@@ -47,8 +51,7 @@ Merb::Config.use { |c|
   c[:exception_details]   = true,
   c[:reload_classes]      = false,
   c[:use_mutex]           = false,
-  c[:log_auto_flush]      = true,
-  c[:merb_root]           = SC.library.root_path # make sure we find the lib.
+  c[:log_auto_flush]      = true
 }
 
 ############################################################
