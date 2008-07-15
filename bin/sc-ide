@@ -1,0 +1,278 @@
+#!/usr/bin/env ruby
+
+# USE THE REDBULL IDE
+# This script will set up, update, and run RedBull for you.  Usage:
+#
+# sc-ide                  run RedBull on port 4040
+# sc-ide init             set up RedBull in the current directory
+# sc-ide update           update RedBull to the latest version
+# sc-ide update --tag=45  update RedBull to tagged release 'r45'
+# sc-ide update --edge    update RedBull to the current HEAD of the master repository (might be unstable)
+# sc-ide run --port=5000  run RedBull on port 5000, it will be accessible in your browser
+# sc-ide version          list the versions of the various RedBull components
+# sc-ide license          display RedBull's licensing info
+#
+# Note: sc-ide update can also be invoked from inside RedBull, so you should be able to do everything using
+# sc-ide init, followed by sc-ide run (and then be done with the command line).
+
+APP_ROOT = File.expand_path(Dir.pwd)
+
+# Set String encoding to Unicode
+$KCODE = 'u'
+
+# Require SproutCore
+require 'rubygems'
+require 'rubigen'
+require 'sproutcore'
+require 'optparse'
+
+############################################################
+## Define Helper Methods
+##
+
+def check_git
+  git_version =  `git --version`.chomp!
+  SC.logger.debug git_version
+  unless git_version
+    SC.logger.fatal "You must have git installed to use the SproutCore IDE (aka RedBull)."
+    exit(1)
+  end
+end
+
+############################################################
+## Process Options
+##
+
+# Setup defaults
+verb_name = ARGV.shift if (ARGV.size > 0 && ARGV[0][0..0] != '-')
+verb_name ||= "run"
+git_tag = -1
+port = '4040'
+verbose = false
+clean = false
+edge = false
+
+opts = OptionParser.new do |opts|
+  opts.version = SproutCore::VERSION::STRING
+
+  opts.banner = <<-EOT
+RedBull Helper Script (RedBull is the experimental SproutCore IDE)
+==================================================================
+Usage: sc-ide {verb} {options}
+
+Verbs:
+  init      - uses git to set up a full sc-ide environment pulled from --edge or the value of --tag
+  install   - synonym for init
+  update    - uses git to update your sc-ide repositories to --edge or the value of --tag
+  run       - (DEFAULT) starts RedBull on port 4040 or --port
+  server    - synonym for run
+  version   - list the installed versions of the various RedBull components
+  status    - synonym for version
+  license   - show the RedBull license and copyright notice
+  help      - show this text
+  remove    - remove RedBull from the working directory
+  uninstall - synonym for remove
+==================================================================
+EOT
+
+  opts.on("-t", "--tag=TAG", "Specify a particular tagged release of RedBull to check out. Example: --tag=r71.") do |opt_tag|
+    git_tag = opt_tag
+    if git_tag.match(/r?(\d\d?\d?)/)
+      git_tag = $1.to_i
+    else
+      SC.logger.fatal "Invalid tag: #{git_tag}. Should match /r?\\d\\d?\\d?/."
+      exit(1)
+    end
+  end
+
+  opts.on("-e", "--edge", "If set, sc-ide init and update will use HEAD. Note: HEAD is not guaranteed to be stable. Use a tagged release if you're unsure (the default).") do |opt_edge|
+    edge = !!opt_edge
+  end
+
+  opts.on("-v", "--[no-]verbose", "If set, extra debug output will be displayed.") do |opt_verbose|
+    verbose = !!opt_verbose
+  end
+
+  opts.on("-c", "--[no-]clean", "If set, sc-ide will flush the contents of ./ide/public prior to running.") do |opt_clean|
+    clean = !!opt_clean
+  end
+
+  opts.on("-p", "--port=PORT", "If set, sc-ide will run on this port. Otherwise, it will run on port 4040.") do |opt_port|
+    port = opt_port
+  end
+
+end
+opts.parse!
+
+############################################################
+## SETUP ENVIRONMENT
+##
+
+# Configure logger
+SC.logger.level = (verbose) ? Logger::DEBUG : Logger::INFO
+SC.logger.progname = $0
+
+check_git
+
+SC.logger.debug "verb_name = #{verb_name}"
+SC.logger.debug "git_tag = #{git_tag}"
+SC.logger.debug "port = #{port}"
+SC.logger.debug "verbose = #{verbose}"
+SC.logger.debug "clean = #{clean}"
+SC.logger.debug "edge = #{edge}"
+
+############################################################
+## CLEAN IF NECESSARY
+##
+
+if clean
+  SC.logger.info("~ Cleaning ./ide/public")
+  FileUtils.rm_rf(File.join(APP_ROOT,'ide/public'))
+end
+
+############################################################
+## EXECUTE THE VERB
+##
+
+def update_to_tag( git_tag, show_current = false, use_edge = false )
+  # get the latest tagged release and make that the "active" branch for all repositories
+  ['ide', 'ide/frameworks/sproutcore', 'ide/clients/red_bull'].each do |rep|
+    revision = -1
+    for tag in `cd #{rep}; git tag`.split(/\n/)
+      if tag.match(/r(\d\d?\d?)/)
+        if $1.to_i > revision
+          revision = $1.to_i
+        end
+      end
+    end
+    
+    if git_tag >= 0
+      if revision < git_tag
+        SC.logger.info "WARNING: Tag r#{git_tag} is greater than the latest revision of #{rep} (r#{revision})." unless use_edge
+      else
+        revision = git_tag
+      end
+    end
+    
+    # SC.logger.info "#{rep} is currently at #{`cd #{rep}; git describe --tags`.chomp!}" if show_current
+    unless use_edge
+      SC.logger.info "Setting #{rep} to r#{revision}."
+      `cd #{rep}; git checkout -q r#{revision}`
+    else
+      SC.logger.info "Setting #{rep} to HEAD."
+      if rep != "ide/clients/red_bull"
+        `cd #{rep}; git checkout -q remotes/origin/redbull`
+      else
+        `cd #{rep}; git checkout -q master`
+      end
+    end
+  end
+end
+
+if verb_name == 'init' or verb_name == 'install'
+  if File.exist?(File.join(APP_ROOT, 'ide'))
+    SC.logger.fatal "RedBull appears to have already been initialized. Exiting..."
+    exit(1)
+  else
+    SC.logger.info "Initializing the current directory with a full RedBull installation. (This may take some time.)\n"
+    
+    # clone the get repositories and run sc-init if necessary
+    SC.logger.info `git clone git://github.com/onitunes/sproutcore-buildtools.git ide`.chomp!
+    SC.logger.info `cd ide/frameworks; rm -R prototype; git clone git://github.com/onitunes/sproutcore-prototype.git prototype`.chomp!
+    SC.logger.info `cd ide/frameworks; rm -R sproutcore; git clone git://github.com/onitunes/sproutcore.git sproutcore`.chomp!
+    SC.logger.info `cd ide/clients; git clone git://github.com/onitunes/sproutcore-ide.git red_bull`.chomp!
+    unless File.exists?(File.join(APP_ROOT, 'sc-config')) or File.exists?(File.join(APP_ROOT, 'sc-config.rb'))
+      SC.logger.info "Initializing default SproutCore workspace with sc-init."
+      SC.logger.debug `sc-init`.chomp!
+      # `cd clients; rm -R *` # remove the "default" client sc-init created
+    end
+    
+    update_to_tag(git_tag)
+    
+    SC.logger.info "\nPlease run sc-ide to start using RedBull."
+  end
+elsif verb_name == 'update'
+  unless File.exist?(File.join(APP_ROOT, 'ide'))
+    SC.logger.fatal "RedBull does not appear to be installed. Use `sc-ide init` to install. Exiting..."
+    exit(1)
+  end
+
+  if git_tag >= 0
+    SC.logger.info "Updating the current directory to the r#{git_tag} RedBull release."
+  elsif edge
+    SC.logger.info "Updating the current directory with the edge RedBull release."
+  else
+    SC.logger.info "Updating the current directory with the latest tagged RedBull release."
+  end
+  SC.logger.info ''
+  SC.logger.debug `cd ide/; git fetch`.chomp!
+  SC.logger.debug `cd ide/frameworks/sproutcore; git fetch`.chomp!
+  SC.logger.debug `cd ide/clients/red_bull; git fetch`.chomp!
+
+  unless edge
+    update_to_tag(git_tag, true)
+  else
+    update_to_tag(git_tag, true, true)
+  end
+elsif verb_name == 'run' or verb_name == 'server'
+  unless File.exist?(File.join(APP_ROOT, 'ide'))
+    SC.logger.fatal "RedBull does not appear to be installed. Use `sc-ide init` to install. Exiting..."
+    exit(1)
+  end
+  SC.logger.info "Starting up RedBull on port #{port}."
+  SC.logger.info "To begin using RedBull, open your browser and load: http://localhost:#{port}"
+  SC.logger.info "Use ^C to quit."
+  Dir.chdir(File.join(APP_ROOT, 'ide'))
+  exec "bin/sc-server -p #{port}"
+elsif verb_name == 'version' or verb_name == 'status'
+  unless File.exist?(File.join(APP_ROOT, 'ide'))
+    SC.logger.fatal "RedBull does not appear to be installed. Use `sc-ide init` to install. Exiting..."
+    exit(1)
+  end
+
+  ['ide', 'ide/frameworks/sproutcore', 'ide/clients/red_bull'].each do |rep|
+    SC.logger.info "#{rep}: #{`cd #{rep}; git describe --tags`.chomp!}"
+  end
+elsif verb_name == 'license'
+  SC.logger.info <<-EOL
+==============================================================================
+The SproutCore IDE (code name: RedBull)
+
+Copyright (c) 2008 by Erich Atlas Ocean.
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+==============================================================================
+EOL
+elsif verb_name == 'remove' or verb_name == 'uninstall'
+  unless File.exist?(File.join(APP_ROOT, 'ide'))
+    SC.logger.fatal "RedBull does not appear to be installed. Exiting..."
+    exit(1)
+  else
+    SC.logger.info("Removing RedBull...")
+    FileUtils.rm_rf(File.join(APP_ROOT,'ide'))
+    SC.logger.info("Done.")
+  end
+elsif verb_name == 'help'
+  SC.logger.info opts.help
+else
+  SC.logger.fatal "Unknown verb: #{verb_name}.\n"
+  SC.logger.info opts.help
+  exit(1)
+end
