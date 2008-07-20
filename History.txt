@@ -10,6 +10,12 @@
   
 * [FIX] Removed warning about NO_BODY_METHOD
 
+* Upgraded to a newer version of JSDoc that can provide a much more accurate description of the inline documentation for SproutCore.
+
+* sc_super() now works automatically and does not require you to pass this.
+
+* sc-server now autodetects Merb.root.  This means that you can start sc-server from any directory inside of your project and it will do the right thing.
+
 == 0.9.13
 
 * Fixed critical bug that prevented sc-build from correctly compiling stylesheets and javascript.

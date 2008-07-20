@@ -48,11 +48,6 @@ clients/sc_test_runner/models/test.js
 clients/sc_test_runner/README
 clients/sc_test_runner/views/runner_frame.js
 clients/sc_test_runner/views/test_label.js
-clients/view_builder/core.js
-clients/view_builder/english.lproj/body.css
-clients/view_builder/english.lproj/body.rhtml
-clients/view_builder/english.lproj/strings.js
-clients/view_builder/main.js
 config/hoe.rb
 config/requirements.rb
 frameworks/prototype/HISTORY
