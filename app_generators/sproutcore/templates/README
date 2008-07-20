@@ -74,7 +74,7 @@ that is optimized for serving static content.
 If you want real speed, do a static build of your content and serve it through
 lighttpd or apache.  Do the static build, just run:
 
-sc-build all
+sc-build
 
 This will place a directory in tmp/build that contains all of your resources
 pre-compiled and ready for static serving.
