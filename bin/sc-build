@@ -56,7 +56,7 @@ opts = OptionParser.new do |opts|
   opts.separator 'If no flags are given, sc-build will try to build all of the bundles in the current directory'
   opts.separator '*'*80
 
-  opts.on("-e", "--enviroment=MODE", "Set the build mode for the system.  Normally you want to build in production mode (which is the default if you do not include this option), but you can use this switch to build in development mode for testing.") do |opt_build_mode|
+  opts.on("-e", "--environment=MODE", "Set the build mode for the system.  Normally you want to build in production mode (which is the default if you do not include this option), but you can use this switch to build in development mode for testing.") do |opt_build_mode|
     build_mode = opt_build_mode.to_s.downcase.to_sym
   end
 

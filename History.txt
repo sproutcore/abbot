@@ -1,4 +1,9 @@
+
 == 0.9.14
+
+* The long form of sc-build -e is not --environment. It was misspelled.  (Thanks zoowar)
+
+* Fixed README for new apps to use the correct sc-build command.  (Thanks Spencer Ho!) 
 
 * Added sc-install, sc-update, and sc-remove.  These utilities work with 
   github to automatically install and update plugin JavaScript libraries.

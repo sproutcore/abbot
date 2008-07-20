@@ -238,7 +238,7 @@ module SproutCore
         end
         
         # Add hostname
-        github_path = "http://github.com#{github_path}"
+        github_path = "git://github.com#{github_path}"
       end
       
       return github_path
