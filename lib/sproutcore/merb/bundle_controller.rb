@@ -26,6 +26,9 @@ module SproutCore
       # request.
       def main
 
+        self.reset_current_bundle
+        puts current_bundle
+        
         # Before we do anything, set the build_mode for the bundles.  This
         # shouldn't change during execution, but if we set this during the
         # router call, the Merb.environment is sometimes not ready yet.
@@ -110,7 +113,8 @@ module SproutCore
           FileUtils.mv(entry.build_path, build_path)
         end
 
-        # And return the file.  Set the content type using a mime-map borroed from Rack.
+        # And return the file.  Set the content type using a mime-map borroed 
+        # from Rack.
         headers['Content-Type'] = entry.content_type
         headers['Content-Length'] = File.size(build_path).to_s
         ret = File.open(build_path, 'rb')
@@ -247,11 +251,18 @@ module SproutCore
 
         # Try root path if nothing found
         ret = bundle_map['/'] if ret.nil?
-
+          
         # Return
         return (@current_bundle = ret)
       end
 
+      # This method is called at the beginning of each request just in case
+      # there as a build error last time around.
+      def reset_current_bundle
+        library.invalidate_bundle_caches
+        @current_bundle = nil
+      end
+      
       # This method is used to redirect certain urls to an alternate bundle.  If the
       # match phrase matches the url, then both the url we use to fetch resources and the
       # current_bundle will be swapped out.

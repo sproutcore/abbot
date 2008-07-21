@@ -176,6 +176,14 @@ module SproutCore
       bundles.each { |b| b.reload! }
     end
 
+    def invalidate_bundle_caches
+      @cached_all_bundles = 
+      @cached_framework_bundles = 
+      @cached_client_bundles = 
+      @bundles = 
+      @cached_bundles_by_url = nil
+    end
+    
     # Build all of the bundles in the library.  This can take awhile but it is the simple
     # way to get all of your code onto disk in a deployable state
     def build(*languages)
