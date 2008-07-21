@@ -1,4 +1,6 @@
 
+* Eliminated need for :outlet option.  And there was much rejoicing.
+
 == 0.9.14
 
 * The long form of sc-build -e is not --environment. It was misspelled.  (Thanks zoowar)

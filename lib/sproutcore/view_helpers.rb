@@ -570,7 +570,7 @@ module SproutCore
         view_settings = { :id => item_id, :class => view_class, :properties => rc.render_view, :lazy => opts[:lazy], :outlet_path => opts[:outlet_path] }
 
         # if an outlet item is passed, then register this as an outlet.
-        outlet = opts[:outlet] || rc.outlet
+        outlet = opts[:outlet] || !cur_rc.nil?
         define = opts[:define]
         if outlet && cur_rc
           outlet = item_id if outlet == true
