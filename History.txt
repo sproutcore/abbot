@@ -1,3 +1,4 @@
+== 0.9.15
 
 * Bundles are now reloaded on each request to the development server.  This 
   both allows the server to recover from exceptions when building a file and
