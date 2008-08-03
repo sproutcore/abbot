@@ -1,5 +1,28 @@
 == 0.9.15
 
+* Added support for the autobuild config option.  If specified, then the named
+  bundle will be skipped when you run sc-build by itself.  It will still be 
+  built if you name the bundle explictly (i.e. sc-build mybundle) or if you
+  pass the -r option and the bundle is required by another bundle that is also
+  being built.  
+  
+* Along those lines, the default config was also changes so that the doc tool
+  and the test runner will no longer autobuild.
+  
+* Added support for the build_languages config option.  If specified, then
+  simply runnig sc-build will automatically build all of the languages named
+  here, even if there are no specific locatizations for said language in your
+  project.
+  
+* Added support for the debug directory.  Any JS files in the debug directory
+  will now be loaded in development mode but excluded from production builds.
+  You can use this to include added instrumentation and benchmarks for use 
+  in dev mode.
+
+* Following with the debug enhancement, the SproutCore JavaScript now includes
+  the unittest.js in its own debug directory so that this library will no
+  longer be included in production builds.
+  
 * Bundles are now reloaded on each request to the development server.  This 
   both allows the server to recover from exceptions when building a file and
   eliminates a memory leak that caused an eventual slow-down.

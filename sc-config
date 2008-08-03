@@ -6,8 +6,11 @@ config :all, :required => [:sproutcore, :prototype]
 config :sproutcore, :required => [:prototype]
 config :prototype, :required => []
 
-config :sc_test_runner do |c|
-  c[:layout] = "sproutcore:lib/index.rhtml"
+[:sc_test_runner, :sc_docs].each do |bundle_name|
+  config bundle_name, 
+    :layout     => "sproutcore:lib/index.rhtml",
+    :required   => [:sproutcore, :prototype],
+    :autobuild  => false
 end
 
 

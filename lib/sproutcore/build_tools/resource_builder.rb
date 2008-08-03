@@ -205,7 +205,13 @@ module SproutCore
       end
     end
 
-    def self.build_fixture(entry, bundle); build_javascript(entry, bundle); end
+    def self.build_fixture(entry, bundle)
+      build_javascript(entry, bundle)
+    end
+    
+    def self.build_debug(entry, bundle)
+      build_javascript(entry, bundle)
+    end
 
   end
 

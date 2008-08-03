@@ -170,6 +170,12 @@ module SproutCore
     def bundles
       @cached_all_bundles ||= (client_bundles + framework_bundles)
     end
+    
+    # ==== Returns
+    # All known bundles, except those whose autobuild setting is off.
+    def default_bundles_for_build
+      bundles.reject { |x| !x.autobuild? }
+    end
 
     # Reloads the manifest for all bundles.
     def reload_bundles!
@@ -202,8 +208,11 @@ module SproutCore
     # 1. merge together the :all configs.
     # 2. Find the deepest config for the bundle specifically and merge that.
     #
-    def environment_for(bundle_name)
+    def environment_for(bundle_name=nil)
 
+      # If no bundle name is provided, then just return the base environment.
+      return base_environment if bundle_name.nil?
+      
       # Get the bundle location info.  This will return nil if the bundle
       # is not found anywhere.  In that case, return nil to indicate bundle
       # does not exist.
@@ -268,32 +277,39 @@ module SproutCore
     # ==== Returns 
     # The current minification settings.
     #
-    def minify_build_modes
-      env = base_environment || {}
+    def minify_build_modes(bundle_name=nil)
+      env = environment_for(bundle_name) || {}
       [(env[:minify_javascript] || :production)].flatten
     end
     
     # ==== Returns
     # The build modes wherein javascript should be combined.
-    def combine_javascript_build_modes
-      env = base_environment || {}
+    def combine_javascript_build_modes(bundle_name=nil)
+      env = environment_for(bundle_name) || {}
       [(env[:combine_javascript] || :production)].flatten
     end
 
     # ==== Returns
     # The build modes wherein javascript should be combined.
-    def combine_stylesheets_build_modes
-      env = base_environment || {}
+    def combine_stylesheets_build_modes(bundle_name=nil)
+      env = environment_for(bundle_name) || {}
       [(env[:combine_stylesheets] || :production)].flatten
     end
 
     # ==== Returns
     # The build modes where fixtures should be included.
-    def include_fixtures_build_modes
-      env = base_environment || {}
+    def include_fixtures_build_modes(bundle_name=nil)
+      env = environment_for(bundle_name) || {}
       [(env[:include_fixtures] || :development)].flatten
     end
 
+    # ==== Returns
+    # The build modes where debug code should be included.
+    def include_debug_build_modes(bundle_name=nil)
+      env = environment_for(bundle_name) || {}
+      [(env[:include_debug] || :development)].flatten
+    end
+    
     # ==== Returns
     # A BundleInstaller configured for the receiver library.
     #

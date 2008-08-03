@@ -66,6 +66,10 @@ module SproutCore
   #    bundle_name:relative_path/to/client.  Default:
   #    sproutcore:lib/index.html
   #
+  # autobuild?:    True if the bundle should be included in default builds.
+  #    If set to false, then you must ASK for the bundle specifically to be
+  #    built.
+  #
   class Bundle
 
     LONG_LANGUAGE_MAP = { :english => :en, :french => :fr, :german => :de, :japanese => :ja, :spanish => :es, :italian => :it }
@@ -116,6 +120,12 @@ module SproutCore
       library.minify_build_modes.include?(build_mode)
     end
 
+    # ==== Returns
+    # true if this bundle should be auto-built.
+    def autobuild?
+      @autobuild.nil? ? true : @autobuild
+    end
+    
     # ==== Returns
     # The computed path to the layout rhtml.
     def layout_path
@@ -215,6 +225,10 @@ module SproutCore
       #  layout:        Path to the layout resource.  This should be of the form
       @layout = opts[:layout] || 'sproutcore:lib/index.rhtml'
 
+      # autobuild?:     Determines if you should autobuild...
+      @autobuild = opts[:autobuild]
+      @autobuild = true if @autobuild.nil?
+      
       reload!
     end
 

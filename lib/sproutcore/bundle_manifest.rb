@@ -25,6 +25,8 @@ module SproutCore
       build!
     end
 
+    def bundle_name; bundle.nil? ? nil : bundle.bundle_name; end
+    
     # ==== Returns
     # All entries as an array
     #
@@ -51,19 +53,29 @@ module SproutCore
     # ==== Returns
     # true if javascripts should be combined
     def combine_javascript?
-      bundle.library.combine_javascript_build_modes.include?(build_mode)
+     modes = bundle.library.combine_javascript_build_modes(bundle_name)
+     modes.include?(build_mode)
     end
 
     # ==== Returns
     # true if stylesheets should be combined
     def combine_stylesheets?
-      bundle.library.combine_stylesheets_build_modes.include?(build_mode)
+      modes = bundle.library.combine_stylesheets_build_modes(bundle_name)
+      modes.include?(build_mode)
     end
 
     # ==== Returns
     # true if stylesheets should be combined
     def include_fixtures?
-      bundle.library.include_fixtures_build_modes.include?(build_mode)
+      modes = bundle.library.include_fixtures_build_modes(bundle_name)
+      modes.include?(build_mode)
+    end
+    
+    # ==== Returns
+    # true if debug code should be included in the build
+    def include_debug?
+      modes = bundle.library.include_debug_build_modes(bundle_name)
+      modes.include?(build_mode)
     end
     
     protected
@@ -86,21 +98,24 @@ module SproutCore
         working.each { |x| x.hidden = true }
       end
 
-      # STEP 5: Add entry for javascript.js & stylesheet.js.  If in production 
-      # mode, set these to visible and hide the composite.  If in dev mode, do 
-      # the opposite.
-
       # STEP 3: Handle special build modes...
 
-      #  a. Merge fixture types into JS types & tests
+      #  a. Merge fixture types into JS types if fixtures should be included
       if self.include_fixtures? && !entries[:fixture].nil?
         entries[:javascript] = (entries[:javascript] || []) + entries[:fixture]
       else
         entries.delete(:fixture)
       end
 
-      #  b. Rewrite all of the JS & CSS file paths and URLs to point to
-      # cached versions
+      #  b. Merge debug types into JS types if debug should be included
+      if self.include_debug? && !entries[:debug].nil?
+        entries[:javascript] = (entries[:javascript] || []) + entries[:debug]
+      else
+        entries.delete(:debug)
+      end
+
+      #  c. Rewrite all of the JS & CSS file paths and URLs to point to
+      # cached versions in development mode only.
       # (Cached versions are written to _cache/filename-ctime.ext)
       if self.build_mode == :development
         (entries[:javascript] ||= []).each do | entry |
@@ -117,11 +132,14 @@ module SproutCore
         entries.delete(:test)
       end
 
-      #  c. Rewrite the URLs for all other resources to go through the _src 
+      #  d. Rewrite the URLs for all other resources to go through the _src 
       #     symlink 
       ## -----> Already done build_entry_for()
+      
+      #  STEP 4: Generate entry for combined Javascript and CSS if needed
+      
       #  a. Combine the JS file paths into a single entry for the 
-      #  javascript.js
+      #  javascript.js if required for this build mode
       hide_composite = self.combine_javascript?      
       if (working = entries[:javascript]) && working.size>0
         entry = build_entry_for('javascript.js', :javascript, working, hide_composite)
@@ -131,7 +149,7 @@ module SproutCore
       end
 
       #  b. Combine the CSS file paths into a single entry for the 
-      #  stylesheet.css
+      #  stylesheet.css if required for this build mode
       hide_composite = self.combine_stylesheets?
       if (working = entries[:stylesheet]) && working.size>0
         entry = build_entry_for('stylesheet.css', :stylesheet, working, hide_composite)
@@ -231,6 +249,8 @@ module SproutCore
         :test
       when /^fixtures\/.+\.js$/
         :fixture
+      when /^debug\/.+\.js$/
+        :debug
       when /\.rhtml$/
         :html
       when /\.html.erb$/

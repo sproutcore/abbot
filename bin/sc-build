@@ -46,6 +46,7 @@ verbose = false # show debug level
 languages = nil
 clean = false
 docs = false
+build_all = false 
 
 opts = OptionParser.new do |opts|
   opts.version = SproutCore::VERSION::STRING
@@ -87,6 +88,10 @@ opts = OptionParser.new do |opts|
   opts.on('-d', '--[no-]docs', "Include documentation") do |opt_docs|
     docs = !!opt_docs
   end
+  
+  opts.on('-a', '--all', "Build all bundles, including those with autobuild disabled.") do |opt_all|
+    build_all = !!opt_all
+  end
 
 end
 opts.parse!
@@ -125,7 +130,7 @@ if bundle_name
 
 # No bundle provided, get all bundles for library
 else
-  bundles = library.bundles
+  bundles = (build_all) ? library.bundles : library.default_bundles_for_build
   SC.logger.info("Building ALL bundles:\n #{bundles.map { |x| x.bundle_name } * ', '}...")
 end
 
@@ -134,8 +139,14 @@ end
 ##
 
 # Detect required languages to build
-languages = bundles.map { |b| b.installed_languages }.flatten.uniq if languages.nil?
-SC.logger.info("Selected Languages: #{languages.join(', ')}")
+# Unless languages are specified on the command line, we build any languages
+# specified in the build_languages config or try to detect any languages with
+# matching code.
+languages ||= library.environment_for(nil)[:build_languages]
+languages = nil unless languages.nil? || languages.size > 0
+languages ||= bundles.map { |b| b.installed_languages }.flatten.uniq 
+
+SC.logger.info("Building Languages: #{languages.join(', ')}")
 
 SC.logger.info('')
 bundles.each do |bundle|
