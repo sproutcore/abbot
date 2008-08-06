@@ -58,6 +58,7 @@ frameworks/sproutcore/controllers/collection.js
 frameworks/sproutcore/controllers/controller.js
 frameworks/sproutcore/controllers/object.js
 frameworks/sproutcore/core.js
+frameworks/sproutcore/debug/unittest.js
 frameworks/sproutcore/drag/drag.js
 frameworks/sproutcore/drag/drag_data_source.js
 frameworks/sproutcore/drag/drag_source.js
@@ -111,7 +112,6 @@ frameworks/sproutcore/foundation/set.js
 frameworks/sproutcore/foundation/string.js
 frameworks/sproutcore/foundation/timer.js
 frameworks/sproutcore/foundation/undo_manager.js
-frameworks/sproutcore/foundation/unittest.js
 frameworks/sproutcore/foundation/utils.js
 frameworks/sproutcore/globals/panels.js
 frameworks/sproutcore/globals/popups.js
@@ -157,6 +157,7 @@ frameworks/sproutcore/tests/foundation/timer/invokeLater.rhtml
 frameworks/sproutcore/tests/foundation/timer/isPaused.rhtml
 frameworks/sproutcore/tests/foundation/timer/schedule.rhtml
 frameworks/sproutcore/tests/globals/window.rhtml
+frameworks/sproutcore/tests/mixins/observable.rhtml
 frameworks/sproutcore/tests/models/model.rhtml
 frameworks/sproutcore/tests/panes/pane.rhtml
 frameworks/sproutcore/tests/views/checkbox.rhtml
