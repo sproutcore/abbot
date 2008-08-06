@@ -107,7 +107,6 @@ frameworks/sproutcore/foundation/path_module.js
 frameworks/sproutcore/foundation/responder.js
 frameworks/sproutcore/foundation/routes.js
 frameworks/sproutcore/foundation/run_loop.js
-frameworks/sproutcore/foundation/server.js
 frameworks/sproutcore/foundation/set.js
 frameworks/sproutcore/foundation/string.js
 frameworks/sproutcore/foundation/timer.js
@@ -145,6 +144,8 @@ frameworks/sproutcore/panes/pane.js
 frameworks/sproutcore/panes/panel.js
 frameworks/sproutcore/panes/picker.js
 frameworks/sproutcore/README
+frameworks/sproutcore/server/rest_server.js
+frameworks/sproutcore/server/server.js
 frameworks/sproutcore/tests/controllers/array.rhtml
 frameworks/sproutcore/tests/controllers/controller.rhtml
 frameworks/sproutcore/tests/controllers/object.rhtml
@@ -349,7 +350,7 @@ License.txt
 Manifest.txt
 Rakefile
 README.txt
-sc-config.rb
+sc-config
 sc_generators/client/client_generator.rb
 sc_generators/client/README
 sc_generators/client/templates/core.js
