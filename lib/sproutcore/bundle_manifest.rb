@@ -1,4 +1,5 @@
 require 'yaml'
+require 'digest/md5'
 
 module SproutCore
 
@@ -277,6 +278,7 @@ module SproutCore
       ret.original_path = src_path
       ret.hidden = false
       ret.language = language
+      ret.use_digest_tokens = bundle.use_digest_tokens
 
       # the filename is the src_path less any lproj in the front
       ret.filename = src_path.gsub(/^[^\/]+.lproj\//,'')
@@ -328,7 +330,7 @@ module SproutCore
     # Lookup the timestamp on the source path and interpolate that into the filename URL.
     # also insert the _cache element.
     def setup_timestamp_token(entry)
-      timestamp = entry.timestamp
+      timestamp = bundle.use_digest_tokens ? entry.digest : entry.timestamp
       extname = File.extname(entry.url)
       entry.url = entry.url.gsub(/#{extname}$/,"-#{timestamp}#{extname}") # add timestamp
 
@@ -351,8 +353,9 @@ module SproutCore
   # use_source_directly::  if true, then this entry should be handled via the build symlink
   # language::     the language in use when this entry was created
   # composite::    If set, this will contain the filenames of other resources that should be combined to form this resource.
+  # bundle:: the owner bundle for this entry
   #
-  class ManifestEntry < Struct.new(:filename, :ext, :source_path, :url, :build_path, :type, :original_path, :hidden, :use_source_directly, :language)
+  class ManifestEntry < Struct.new(:filename, :ext, :source_path, :url, :build_path, :type, :original_path, :hidden, :use_source_directly, :language, :use_digest_tokens)
     def to_hash
       ret = {}
       self.members.zip(self.values).each { |p| ret[p[0]] = p[1] }
@@ -389,25 +392,42 @@ module SproutCore
         mtimes = (composite || []).map { |x| x.source_path_mtime }
         ret = mtimes.compact.sort.last
       else
-        ret = (!File.exists?(source_path)) ? nil : File.mtime(source_path)
+        ret = (File.exists?(source_path)) ? File.mtime(source_path) : nil
       end
       return @source_path_mtime = ret 
     end
 
-    # Returns a timestamp based on the source_path_mtime.  If source_path_mtime is nil, always
-    # returns a new timestamp
+    # Returns a timestamp based on the source_path_mtime.  If 
+    # source_path_mtime is nil, always returns a new timestamp
     def timestamp
       (source_path_mtime || Time.now).to_i.to_s
     end
 
-    # Returns the content type for this entry.  Based on a set of MIME_TYPES borrowed from Rack
+    # Returns an MD5::digest of the file.  If the file is composite, returns
+    # the MD5 digest of all the composite files.
+    def digest
+      return @digest unless @digest.nil?
+      
+      if composite?
+        digests = (composite || []).map { |x| x.digest }
+        ret = Digest::SHA1.hexdigest(digests.join)
+      else
+        ret = (File.exists?(source_path)) ? Digest::SHA1.hexdigest(File.read(source_path)) : '0000' 
+      end
+      @digest = ret
+    end
+      
+      
+    # Returns the content type for this entry.  Based on a set of MIME_TYPES 
+    # borrowed from Rack
     def content_type
       MIME_TYPES[File.extname(build_path)[1..-1]] || 'text/plain'
     end
 
     # Returns a URL that takes into account caching requirements.
     def cacheable_url
-      [url, timestamp].compact.join('?')
+      token = (use_digest_tokens) ? digest : timestamp
+      [url, token].compact.join('?')
     end
 
     # :stopdoc:

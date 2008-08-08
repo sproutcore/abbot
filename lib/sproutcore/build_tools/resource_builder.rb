@@ -61,7 +61,7 @@ module SproutCore
       def rewrite_inline_code(line, filename)
         line.gsub(/static_url\([\'\"](.+)[\'\"]\)/) do | rsrc |
           entry = bundle.find_resource_entry($1, :language => language)
-          static_url(entry.nil? ? '' : entry.url)
+          static_url(entry.nil? ? '' : entry.cacheable_url)
         end
       end
 

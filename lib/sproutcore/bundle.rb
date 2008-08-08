@@ -70,6 +70,10 @@ module SproutCore
   #    If set to false, then you must ASK for the bundle specifically to be
   #    built.
   #
+  # use_digest_token: If true, the unique tokens adds to files will be 
+  #   MD5 digests instead of timestamps.  This will ensure uniqueness when
+  #   building on multiple machines.
+  #
   class Bundle
 
     LONG_LANGUAGE_MAP = { :english => :en, :french => :fr, :german => :de, :japanese => :ja, :spanish => :es, :italian => :it }
@@ -89,6 +93,7 @@ module SproutCore
     attr_reader :source_root, :build_root, :url_root, :index_root
     attr_reader :build_mode, :layout
     attr_reader :make_resources_relative
+    attr_reader :use_digest_tokens
 
     def library_root
       @library_root ||= library.nil? ? nil : library.root_path
@@ -228,6 +233,8 @@ module SproutCore
       # autobuild?:     Determines if you should autobuild...
       @autobuild = opts[:autobuild]
       @autobuild = true if @autobuild.nil?
+      
+      @use_digest_tokens = opts[:use_digest_tokens] || (@build_mode || :production)
       
       reload!
     end
