@@ -234,7 +234,7 @@ module SproutCore
       @autobuild = opts[:autobuild]
       @autobuild = true if @autobuild.nil?
       
-      @use_digest_tokens = opts[:use_digest_tokens] || (@build_mode || :production)
+      @use_digest_tokens = opts[:use_digest_tokens] || (@build_mode == :production)
       
       reload!
     end

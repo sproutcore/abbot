@@ -1,5 +1,13 @@
 == 0.9.15
 
+* During sc-build, by default the build tools will now calculate a digest
+  key to append to the end of URLs instead of simply using a timestamp.  This
+  will ensure that the URLs generated are properly cacheable even when 
+  building on different machines. [CAJ]
+  
+* regex for replacing occurrences of static_url() are no longer greedy. 
+  (Closes #87) [nciagra]
+
 * Added support for the autobuild config option.  If specified, then the named
   bundle will be skipped when you run sc-build by itself.  It will still be 
   built if you name the bundle explictly (i.e. sc-build mybundle) or if you
