@@ -107,6 +107,11 @@ SC.logger.progname = $0
 # Load Library
 library = SC.library_for(library_root, :public_root => build_root, :build_mode => build_mode)
 
+if library.nil?
+  SC.logger.fatal("No SproutCore library could be found.  Make sure you are inside of your project directory (the one with an sc-config file in it).")
+  exit(1)
+end
+
 ############################################################
 ## FIND BUNDLES TO BUILD
 ##

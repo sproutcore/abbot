@@ -89,6 +89,11 @@ if bundle_name.nil?
   exit(1)
 end
 
+if library.nil?
+  SC.logger.fatal("No SproutCore library could be found.  Make sure you are inside of your project directory (the one with an sc-config file in it).")
+  exit(1)
+end
+
 library.install_bundle(bundle_name, options)
 SC.logger.debug("")
 
