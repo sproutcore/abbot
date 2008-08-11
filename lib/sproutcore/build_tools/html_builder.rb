@@ -1,4 +1,3 @@
-require 'erubis'
 require 'sproutcore/helpers'
 require 'sproutcore/view_helpers'
 
@@ -71,10 +70,9 @@ module SproutCore
         # render using either erb or haml
         case File.extname(@layout_path)
         when /\.rhtml$/, /\.html.erb$/
-          return eval(Erubis::Eruby.new.convert(input))
-        when /\.haml$/, /\.html.haml$/
-          require 'haml'
-          return Haml::Engine.new(input).to_html(self)
+          return render_erb(input)
+        when /\.haml$/
+          return render_haml(input)
         end
       end
 
@@ -84,7 +82,7 @@ module SproutCore
         @filename = @entry.filename
 
         # avoid double render of layout path
-         return if @entry.source_path == @layout_path
+        return if @entry.source_path == @layout_path
 
         # render. Result goes into @content_for_resources
         input = File.read(@entry.source_path)
@@ -92,10 +90,9 @@ module SproutCore
         # render using either erb or haml
         case File.extname(@entry.source_path)
         when /\.rhtml$/, /\.html.erb$/
-          @content_for_resources += eval(Erubis::Eruby.new.convert(input))
-        when /\.haml$/, /\.html.haml$/
-          require 'haml'
-          @content_for_resources += Haml::Engine.new(input).to_html(self)
+          @content_for_resources += render_erb(input)
+        when /\.haml$/
+          @content_for_resources += render_haml(input)
         end
 
         @filename =nil
@@ -111,6 +108,26 @@ module SproutCore
       # since the new build system is nice about putting things into the right
       # place for output.
       def render; ''; end
+      
+      private 
+      
+        def render_erb(input)
+          require 'erubis'
+          self.instance_eval "def __render_erb(); #{Erubis::Eruby.new.convert(input)}; end"
+          __render(:erb)
+        end
+        
+        def render_haml(input)
+          require 'haml'
+          Haml::Engine.new(input).def_method(self, :__render_haml)
+          __render(:haml)
+        end
+
+        def __render(engine)
+          self.send("__render_#{engine}".to_sym) do |*names|
+            self.instance_variable_get("@content_for_#{names.first}")
+          end
+        end
 
     end
 

@@ -258,8 +258,6 @@ module SproutCore
         :html
       when /\.haml$/
         :html
-      when /\.html.haml$/
-        :html
       when /\.css$/
         :stylesheet
       when /\.js$/
