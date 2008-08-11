@@ -8,7 +8,7 @@ module SproutCore
 
     # Whenever you build an HTML file for a SproutCore client, an instance of
     # this class is created to actually process and build the HTML using
-    # Erubus.  If you want to add more methods to use in your HTML files, just
+    # Erubus or Haml.  If you want to add more methods to use in your HTML files, just
     # include them in HtmlContext.
     #
     class HtmlContext
@@ -67,7 +67,15 @@ module SproutCore
         # Finally, render the layout.  This should produce the final output to
         # return
         input = File.read(@layout_path)
-        return eval(Erubis::Eruby.new.convert(input))
+        
+        # render using either erb or haml
+        case File.extname(@layout_path)
+        when /\.rhtml$/, /\.html.erb$/
+          return eval(Erubis::Eruby.new.convert(input))
+        when /\.haml$/, /\.html.haml$/
+          require 'haml'
+          return Haml::Engine.new(input).to_html(self)
+        end
       end
 
       # render a single entry
@@ -80,7 +88,15 @@ module SproutCore
 
         # render. Result goes into @content_for_resources
         input = File.read(@entry.source_path)
-        @content_for_resources += eval(Erubis::Eruby.new.convert(input))
+        
+        # render using either erb or haml
+        case File.extname(@entry.source_path)
+        when /\.rhtml$/, /\.html.erb$/
+          @content_for_resources += eval(Erubis::Eruby.new.convert(input))
+        when /\.haml$/, /\.html.haml$/
+          require 'haml'
+          @content_for_resources += Haml::Engine.new(input).to_html(self)
+        end
 
         @filename =nil
         @entry = nil

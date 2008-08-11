@@ -256,6 +256,10 @@ module SproutCore
         :html
       when /\.html.erb$/
         :html
+      when /\.haml$/
+        :html
+      when /\.html.haml$/
+        :html
       when /\.css$/
         :stylesheet
       when /\.js$/

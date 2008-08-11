@@ -11,9 +11,9 @@ module SproutCore
         rescue
           buffer = nil
         end
-
+        
         if buffer.nil?
-          block.call(*args).to_s
+          capture_haml(&block)
         else
           pos = buffer.length
           block.call(*args)

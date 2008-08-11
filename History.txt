@@ -1,5 +1,7 @@
 == 0.9.15
 
+* Experimental support for rendering templates using HAML (Ticket #114) [Trek, Lawrence Pit]
+
 * During sc-build, by default the build tools will now calculate a digest
   key to append to the end of URLs instead of simply using a timestamp.  This
   will ensure that the URLs generated are properly cacheable even when 
