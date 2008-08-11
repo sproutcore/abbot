@@ -1,5 +1,8 @@
 == 0.9.15
 
+* Fixed bug that would sometimes convert "faked" HTTP methods sent for Rails
+  apps into real HTTP methods, breaking Rails. (Ticket #115) [Lawrence Pit]
+  
 * Experimental support for rendering templates using HAML (Ticket #114) [Trek, Lawrence Pit]
 
 * During sc-build, by default the build tools will now calculate a digest

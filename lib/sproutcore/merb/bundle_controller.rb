@@ -136,8 +136,8 @@ module SproutCore
       # Proxy the request and return the result...
       def handle_proxy(url, proxy_url, opts ={})
 
-        # collect the method
-        http_method = request.method
+        # collect the method (don't use request.method as that might unmasquerade delete and put requests)
+        http_method = request.env['REQUEST_METHOD'].to_s.downcase
 
         # capture the origin host for cookies.  strip away any port.
         origin_host = request.host.gsub(/:[0-9]+$/,'')
@@ -168,7 +168,7 @@ module SproutCore
         # Handle those that require a body.
         no_body_method = %w(delete get copy head move options trace)
         ::Net::HTTP.start(http_host, http_port) do |http|
-          if no_body_method.include?(http_method.to_s.downcase)
+          if no_body_method.include?(http_method)
             response = http.send(http_method, http_path, headers)
           else
             http_body = request.raw_post
