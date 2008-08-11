@@ -260,6 +260,8 @@ module SproutCore
         :html
       when /\.css$/
         :stylesheet
+      when /\.sass$/
+        :stylesheet
       when /\.js$/
         :javascript
       when /\.lproj\/.+/
@@ -324,6 +326,8 @@ module SproutCore
         ret.build_path = File.join(*[bundle.build_root, language.to_s, cache_link, ret.filename].compact)
         ret.url = [url_root, language.to_s, cache_link, ret.filename].compact.join('/')
       end
+      ret.build_path.sub!(/\.sass$/, '.css')
+      ret.url.sub!(/.sass$/, '.css')
 
       # Done.
       return ret
@@ -347,7 +351,6 @@ module SproutCore
   # ext::          the file extension
   # source_path:: absolute paths into source that will comprise this resource
   # url::          the url that should be used to reference this resource in the current mode.
-  # build_url::    the url that will be used to referene this resource in production.
   # build_path::   absolute path to the compiled resource
   # type::         the top-level category
   # original_path:: save the original path used to build this entry
