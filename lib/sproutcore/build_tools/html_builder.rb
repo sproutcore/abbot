@@ -109,23 +109,28 @@ module SproutCore
       # place for output.
       def render; ''; end
       
-      private 
-      
+      private
+
         def render_erb(input)
           require 'erubis'
-          self.instance_eval "def __render_erb(); #{Erubis::Eruby.new.convert(input)}; end"
-          __render(:erb)
+          _render(Erubis::Eruby.new.convert(input))
         end
         
         def render_haml(input)
           require 'haml'
-          Haml::Engine.new(input).def_method(self, :__render_haml)
-          __render(:haml)
+          _render(Haml::Engine.new(input).send(:precompiled_with_ambles, []))
         end
-
-        def __render(engine)
-          self.send("__render_#{engine}".to_sym) do |*names|
-            self.instance_variable_get("@content_for_#{names.first}")
+        
+        def _render(compiled_template)
+          n = 0
+          n += 1 while respond_to?(method_name = "__render#{n}".to_sym)
+          self.instance_eval "def #{method_name}(); #{compiled_template}; end"
+          begin
+            self.send(method_name) do |*names|
+              self.instance_variable_get("@content_for_#{names.first}")
+            end
+          ensure
+            class << self; self end.class_eval{ remove_method(method_name) } rescue nil
           end
         end
 
