@@ -541,9 +541,6 @@ module SproutCore
       return "#{type}_#{(Time.now.to_i + @@tick)}"
     end
 
-    extend SproutCore::Helpers::CaptureHelper
-    extend SproutCore::Helpers::TextHelper
-
     # :outlet => define if you want this to be used as an outlet.
     # :prototype => define if you want this to be used as a prototype.
     def self.render_view(view_helper_id, item_id, opts={}, client_builder=nil, render_source=nil, &block)
@@ -562,7 +559,7 @@ module SproutCore
 
       # render the inner_html using the block, if one is given.
       SproutCore::PageHelper.push_render_context(rc)
-      rc.options[:inner_html] = capture(&block) if block_given?
+      rc.options[:inner_html] = render_source.capture(&block) if block_given?
 
       # now, use the helper state to prepare the render context.  This will
       # extract the properties from the options and setup the render procs.
@@ -607,7 +604,7 @@ module SproutCore
       SproutCore::PageHelper.add_styles(styles) if styles && styles.size > 0
 
       # done. return the generated HTML
-      concat(ret,block) if block_given?
+      render_source.concat(ret,block) if block_given?
       return ret
     end
 
