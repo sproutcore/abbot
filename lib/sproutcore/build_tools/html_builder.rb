@@ -55,52 +55,18 @@ module SproutCore
       # Actually builds the HTML file from the entry (actually from any
       # composite entries)
       def build
-
         @layout_path = bundle.layout_path
 
         # Render each filename.  By default, the output goes to the resources
         # string
         content_for :resources do
-          entries.each { |fn| _render_one(fn) }
+          entries.each { |entry| _build_one(entry) }
         end
 
         # Finally, render the layout.  This should produce the final output to
         # return
-        input = File.read(@layout_path)
-        
-        # render using either erb or haml
-        case File.extname(@layout_path)
-        when /\.rhtml$/, /\.html.erb$/
-          render_erb(input)
-        when /\.haml$/
-          render_haml(input)
-        end
+        _render(@layout_path)
       end
-
-      # render a single entry
-      def _render_one(entry)
-        @entry = entry
-        @filename = @entry.filename
-        begin
-          # avoid double render of layout path
-          return if @entry.source_path == @layout_path
-
-          # render. Result goes into @content_for_resources
-          input = File.read(@entry.source_path)
-        
-          # render using either erb or haml
-          case File.extname(@entry.source_path)
-          when /\.rhtml$/, /\.html.erb$/
-            render_erb(input)
-          when /\.haml$/
-            render_haml(input)
-          end
-        ensure
-          @filename = nil
-          @entry = nil
-        end
-      end
-
 
       # Returns the current bundle name.  Often useful for generating titles,
       # etc.
@@ -113,17 +79,41 @@ module SproutCore
       
       private
 
+        # Builds a single entry
+        def _build_one(entry)
+          # avoid double render of layout path
+          return if entry.source_path == @layout_path
+
+          @entry = entry
+          @filename = @entry.filename
+
+          _render(@entry.source_path)
+
+          @filename = nil
+          @entry = nil
+        end
+
+        def _render(file_path)
+          input = File.read(file_path)
+          case File.extname(file_path)
+          when /\.rhtml$/, /\.html.erb$/
+            render_erb(input)
+          when /\.haml$/
+            render_haml(input)
+          end
+        end
+
         def render_erb(input)
           require 'erubis'
-          _render(Erubis::Eruby.new.convert(input))
+          _render_compiled_template(Erubis::Eruby.new.convert(input))
         end
         
         def render_haml(input)
           require 'haml'
-          _render(Haml::Engine.new(input).send(:precompiled_with_ambles, []))
+          _render_compiled_template(Haml::Engine.new(input).send(:precompiled_with_ambles, []))
         end
         
-        def _render(compiled_template)
+        def _render_compiled_template(compiled_template)
           self.instance_eval "def __render(); #{compiled_template}; end"
           begin
             self.send(:__render) do |*names|
