@@ -60,8 +60,9 @@ module SproutCore
 
         # Render each filename.  By default, the output goes to the resources
         # string
-        @content_for_resources = ''
-        entries.each { |fn| _render_one(fn) }
+        content_for :resources do
+          entries.each { |fn| _render_one(fn) }
+        end
 
         # Finally, render the layout.  This should produce the final output to
         # return
@@ -70,9 +71,9 @@ module SproutCore
         # render using either erb or haml
         case File.extname(@layout_path)
         when /\.rhtml$/, /\.html.erb$/
-          return render_erb(input)
+          render_erb(input)
         when /\.haml$/
-          return render_haml(input)
+          render_haml(input)
         end
       end
 
@@ -80,23 +81,24 @@ module SproutCore
       def _render_one(entry)
         @entry = entry
         @filename = @entry.filename
+        begin
+          # avoid double render of layout path
+          return if @entry.source_path == @layout_path
 
-        # avoid double render of layout path
-        return if @entry.source_path == @layout_path
-
-        # render. Result goes into @content_for_resources
-        input = File.read(@entry.source_path)
+          # render. Result goes into @content_for_resources
+          input = File.read(@entry.source_path)
         
-        # render using either erb or haml
-        case File.extname(@entry.source_path)
-        when /\.rhtml$/, /\.html.erb$/
-          @content_for_resources += render_erb(input)
-        when /\.haml$/
-          @content_for_resources += render_haml(input)
+          # render using either erb or haml
+          case File.extname(@entry.source_path)
+          when /\.rhtml$/, /\.html.erb$/
+            render_erb(input)
+          when /\.haml$/
+            render_haml(input)
+          end
+        ensure
+          @filename = nil
+          @entry = nil
         end
-
-        @filename =nil
-        @entry = nil
       end
 
 
@@ -122,15 +124,13 @@ module SproutCore
         end
         
         def _render(compiled_template)
-          n = 0
-          n += 1 while respond_to?(method_name = "__render#{n}".to_sym)
-          self.instance_eval "def #{method_name}(); #{compiled_template}; end"
+          self.instance_eval "def __render(); #{compiled_template}; end"
           begin
-            self.send(method_name) do |*names|
+            self.send(:__render) do |*names|
               self.instance_variable_get("@content_for_#{names.first}")
             end
           ensure
-            class << self; self end.class_eval{ remove_method(method_name) } rescue nil
+            class << self; self end.class_eval{ remove_method(:__render) } rescue nil
           end
         end
 
