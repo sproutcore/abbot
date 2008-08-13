@@ -566,11 +566,16 @@ module SproutCore
       # get the JS.  Save as an outlet or in the page.
       cur_rc = SproutCore::PageHelper.current_render_context
       view_class = opts[:view] || rc.view_class
+
+      puts "item_id = #{item_id} view_class = #{view_class} field = #{opts[:field]} opts = #{opts.map { |x,y| [x,y].join('=') } * ","}" 
       unless view_class.nil?
         view_settings = { :id => item_id, :class => view_class, :properties => rc.render_view, :lazy => opts[:lazy], :outlet_path => opts[:outlet_path] }
 
         # if an outlet item is passed, then register this as an outlet.
-        outlet = opts[:outlet] || !cur_rc.nil?
+        outlet = opts[:outlet] 
+        if outlet.nil?
+          outlet = opts[:field].nil? ? !cur_rc.nil? : [opts[:field].to_s, 'field'].join('_').to_sym
+        end
         define = opts[:define]
         if outlet && cur_rc
           outlet = item_id if outlet == true

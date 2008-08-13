@@ -1,3 +1,10 @@
+== 0.9.16
+
+* Added requirement for hoe when installing.
+
+* Fixed regression in build tools that would break the use of :field in view
+  helpers.
+  
 == 0.9.15
 
 * Fixed bug that would sometimes convert "faked" HTTP methods sent for Rails
