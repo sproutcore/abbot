@@ -567,7 +567,6 @@ module SproutCore
       cur_rc = SproutCore::PageHelper.current_render_context
       view_class = opts[:view] || rc.view_class
 
-      puts "item_id = #{item_id} view_class = #{view_class} field = #{opts[:field]} opts = #{opts.map { |x,y| [x,y].join('=') } * ","}" 
       unless view_class.nil?
         view_settings = { :id => item_id, :class => view_class, :properties => rc.render_view, :lazy => opts[:lazy], :outlet_path => opts[:outlet_path] }
 
