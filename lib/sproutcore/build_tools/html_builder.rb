@@ -95,7 +95,7 @@ module SproutCore
 
         def _render(file_path)
           input = File.read(file_path)
-          case File.extname(file_path)
+          case file_path
           when /\.rhtml$/, /\.html.erb$/
             render_erb(input)
           when /\.haml$/
