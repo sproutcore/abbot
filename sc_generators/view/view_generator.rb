@@ -10,7 +10,7 @@ class ViewGenerator < RubiGen::Base
 
   def initialize(runtime_args, runtime_options = {})
     super
-    usage if args.empty?
+    usage if args.empty? || !file_structure_exists? 
     @name = args.shift
     extract_options
     assign_names!(@name)

@@ -126,6 +126,21 @@ module SproutCore
       @args.first || default_base_class_name
     end
 
+    # Checks whether the proper file structure exists to generate files
+    def file_structure_exists?
+      has_path_and_filename? && target_directory_exists?
+    end
+    
+    # Checks whether the target directory for a generated file exists
+    def target_directory_exists?
+      File.exists?("#{Dir.pwd}/clients/#{File.dirname(args[0])}")
+    end
+    
+    # Checks that file generation was in the format client_name/file_name
+    def has_path_and_filename?
+      !(File.dirname(args[0]) == '.')
+    end
+        
     ###################
     # Borrowed from Rails NamedBase
 
