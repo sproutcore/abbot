@@ -36,7 +36,7 @@ module SproutCore
         end
 
         # Convert to HTML and return
-        urls = urls.map do |url|
+        urls = urls.uniq.map do |url|
           if include_method == :import
             %(  @import url('#{url}');)
           else
@@ -77,7 +77,7 @@ module SproutCore
         end
 
         # Convert to HTML and return
-        urls = urls.map do |url|
+        urls = urls.uniq.map do |url|
           %(  <script type="text/javascript" src="#{url}"></script>)
         end
 
