@@ -32,11 +32,13 @@ module SproutCore
         urls = []
         all_bundles.each do |b|
           urls += b.sorted_stylesheet_entries(opts).map { |x| x.cacheable_url }
-          urls += (b.stylesheet_libs || [])
+        end
+        all_bundles.each do |b|
+          urls += b.stylesheet_libs.reject { |lib| urls.include? lib } if b.stylesheet_libs
         end
 
         # Convert to HTML and return
-        urls = urls.uniq.map do |url|
+        urls = urls.map do |url|
           if include_method == :import
             %(  @import url('#{url}');)
           else
@@ -73,11 +75,13 @@ module SproutCore
         urls = []
         all_bundles.each do |b|
           urls += b.sorted_javascript_entries(opts).map { |x| x.cacheable_url }
-          urls += (b.javascript_libs || [])
+        end
+        all_bundles.each do |b|
+          urls += b.javascript_libs.reject { |lib| urls.include? lib } if b.javascript_libs
         end
 
         # Convert to HTML and return
-        urls = urls.uniq.map do |url|
+        urls = urls.map do |url|
           %(  <script type="text/javascript" src="#{url}"></script>)
         end
 
