@@ -57,10 +57,12 @@ module SproutCore
       def build
         @layout_path = bundle.layout_path
 
-        # Render each filename.  By default, the output goes to the resources
-        # string
-        content_for :resources do
-          entries.each { |entry| _build_one(entry) }
+        # Render each filename. By default, the output goes to the :resources
+        # content section
+        entries.each do |entry|
+          content_for :resources do
+            _build_one(entry)
+          end
         end
 
         # Finally, render the layout.  This should produce the final output to
@@ -86,11 +88,12 @@ module SproutCore
 
           @entry = entry
           @filename = @entry.filename
-
-          _render(@entry.source_path)
-
-          @filename = nil
-          @entry = nil
+          begin
+            _render(@entry.source_path)
+          ensure
+            @filename = nil
+            @entry = nil
+          end
         end
 
         def _render(file_path)

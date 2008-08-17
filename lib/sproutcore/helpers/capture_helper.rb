@@ -14,7 +14,7 @@ module SproutCore
       # variable or by calling yield(:area_name)
       #
       def content_for(name, &block)
-        eval "@content_for_#{name} = (@content_for_#{name} || '') + capture(&block)"
+        eval "@content_for_#{name} = (@content_for_#{name} || '') + (capture(&block) || '')"
       end
 
       private 
