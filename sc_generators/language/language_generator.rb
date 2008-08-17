@@ -18,7 +18,7 @@ class LanguageGenerator < RubiGen::Base
 
   def manifest
     record do |m|
-      fp = client_file_path("#{file_path}.lproj",'js', nil, "#{file_path}/strings")
+      fp = client_file_path(nil,'js', nil, "#{file_path}.lproj/strings")
       build_client_directories(m, fp)
       m.template 'strings.js', fp
     end

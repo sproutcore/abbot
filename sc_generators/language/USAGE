@@ -1,15 +1,13 @@
-sc_view - Create a new view class in your SproutCore client.
+sc_language - Create a new langauge.lproj bundle
 
 USAGE:
 
-  ./script/generate view client_name/view_name [CLASS]
+  ./script/generate language client_name/languge_name [CLASS]
 
 DISCUSSION:
 
-This generator will create a new SproutCore view class in your client.  You should pass as the first parameter your client directory name/the view you want to create.  For example:
+This generator will create a new SproutCore language bundle.  You should pass as the first parameter your client directory name/the view you want to create.  For example:
 
-./script/generate view todos/task
+./script/generate language todos/esperanto
 
-defines a new class called Todos.TaskView in the file clients/todos/views/task.js.
-
-This generator creates view that inherit from SC.View but you can override this by passing the name of the view class you want as the second argument.
+creates a new lproj bundle esperanto.lproj in the client clients/todos.  This bundle will contain a strings.js that extends String. You should place your localized language translations here.
