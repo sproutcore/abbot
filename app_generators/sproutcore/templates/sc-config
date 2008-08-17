@@ -44,9 +44,13 @@ config :all do |c|
   # c[:preferred_language] = :fr
 
   # If you want to use a default root layout template other than the default
-  # provided by SproutCore, you can specifiy the path name to the index.html
+  # provided by SproutCore, you can specifiy the path name to the index.rhtml
   # here.  If you provide a relative path, SproutCore will assume the file
   # is relative to the root of this project.
+  #
+  # If you're using Haml specify: c[:layout] = :haml
+  # This will then use the default index haml template from sproutcore.
+  #
   # c[:layout] = 'lib/index.rhtml'
 
   # This is the fully qualified path to the directory you want all of your
