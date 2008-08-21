@@ -36,7 +36,9 @@ module SproutCore
       ### Install Only Options
       
       if can_install
-        opts.on("-s", "--source=URL", "Specify a URL to install from.  You can provide either a full URL or just the path on github to your project.  The tool assumes that the url you provide plus '.git' can be used to clone the project.")
+        opts.on("-s", "--source=URL", "Specify a URL to install from.  You can provide either a full URL or just the path on github to your project.  The tool assumes that the url you provide plus '.git' can be used to clone the project.") do |opt_source|
+          options[:source] = opt_source
+        end
 
         opts.on("-f", "--[no-]force", "Normally SproutCore will not install a bundle if a directory already exists at the install location.  If you include this option, it will forceably install bundles even if it has to delete an existing directory.") do |opt_force|
           options[:force] = !!opt_force
