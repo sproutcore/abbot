@@ -549,7 +549,7 @@ module SproutCore
       if item_id.instance_of?(Hash)
         opts = item_id; item_id = nil
       end
-      item_id = dom_id if item_id.nil?
+      item_id = render_source.dom_id if item_id.nil?
 
       # create the new render context and set it.
       client_builder = opts[:client] if opts[:client]

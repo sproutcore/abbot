@@ -4,7 +4,7 @@ module SproutCore
     module DomIdHelper
       @@tick = 0
 
-      def self.dom_id(type="id")
+      def dom_id(type="id")
         @@tick += 1
         return "#{type}_#{(Time.now.to_i + @@tick)}"
       end
