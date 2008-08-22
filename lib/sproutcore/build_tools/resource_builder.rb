@@ -124,7 +124,7 @@ module SproutCore
 
       # check line for required() pattern.  understands JS and CSS.
       def _require_for(filename,line)
-        new_file = line.scan(/require\(['"](.*)['"]\)/)
+        new_file = line.scan(/^require\s*\(\s*['"](.*)(\.(js|css))?['"]\s*\)\s*$/)
         ret = (new_file.size > 0) ? new_file.first.first : nil
         ret.nil? ? nil : filename_for_require(ret)
       end
