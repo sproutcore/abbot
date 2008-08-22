@@ -50,11 +50,11 @@ module SproutCore
 
     # renders the page object for the current page.  If you include a prefix
     # that will be used to create a separate page object.  Otherwise, the
-    # object will live in the SC namespace.
+    # object will live in the SC namespace. If you provide a bundle that
+    # is configured to minify sources the output will be compressed.
     #
     # returns the text to insert into the HTML.
-    def self.render_js(prefix = 'SC')
-
+    def self.render_js(prefix = 'SC', bundle = nil)
       outlets = []
       @@outlet_names.each do | key |
         opts = @@outlets[key]
@@ -67,8 +67,7 @@ module SproutCore
         %{#{key} = #{opts[:class] || 'SC.View'}.extend({\n  #{ opts[:properties] }\n});}
       end
       ret << %{#{prefix}.page = SC.Page.create({\n#{ outlets * ",\n\n" }\n}); }
-      return ret * "\n"
-
+      bundle ? SproutCore::BuildTools::JavaScriptResourceBuilder.new(nil, nil, bundle).join(ret) : ret*"\n"
     end
 
     def self.render_css
@@ -623,8 +622,8 @@ module SproutCore
 
     end
 
-    def render_page_views
-      ret = %(<script type="text/javascript">\n#{SproutCore::PageHelper.render_js}\n</script>)
+    def render_page_views(prefix = 'SC')
+      ret = %(<script type="text/javascript">\n#{SproutCore::PageHelper.render_js(prefix, self.bundle)}\n</script>)
       SproutCore::PageHelper.reset!
       return ret
     end
