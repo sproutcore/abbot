@@ -517,7 +517,9 @@ module SproutCore
       def initialize(helper_name, opts={}, &block)
         @name = helper_name
         @prepare_block = block
-        @parent_helper = SproutCore::ViewHelperSupport.find_helper(opts[:wraps] || opts[:extends] || :view)
+        unless helper_name == :view
+          @parent_helper = SproutCore::ViewHelperSupport.find_helper(opts[:wraps] || opts[:extends] || :view)
+        end
         @extends = opts[:wraps].nil?
       end
 
