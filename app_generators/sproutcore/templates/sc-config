@@ -48,9 +48,6 @@ config :all do |c|
   # here.  If you provide a relative path, SproutCore will assume the file
   # is relative to the root of this project.
   #
-  # If you're using Haml specify: c[:layout] = :haml
-  # This will then use the default index haml template from sproutcore.
-  #
   # c[:layout] = 'lib/index.rhtml'
 
   # This is the fully qualified path to the directory you want all of your

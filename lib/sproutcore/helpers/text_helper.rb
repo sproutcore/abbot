@@ -26,11 +26,7 @@ module SproutCore
       # is equivalent to using:
       #   <%= "hello" %>
       def concat(string, binding)
-        if self.respond_to?(:is_haml?) && self.is_haml?
-          eval("_hamlout", binding).push_text string
-        else
-          eval('_buf', binding) << string
-        end
+        renderer.concat(string, binding)
       end
 
       # If +text+ is longer than +length+, +text+ will be truncated to the length of

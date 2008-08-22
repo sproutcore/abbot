@@ -6,7 +6,7 @@ module SproutCore
 
       # Captures the resulting value of the block and returns it
       def capture(*args, &block)
-        self.respond_to?(:is_haml?) && self.is_haml? ? capture_haml(nil, &block) : capture_erb(args, &block)
+        self.renderer ? self.renderer.capture(args, &block) : block.call(*args).to_s
       end
 
       # executes the passed block, placing the resulting content into a variable called
@@ -16,31 +16,6 @@ module SproutCore
       def content_for(name, &block)
         eval "@content_for_#{name} = (@content_for_#{name} || '') + (capture(&block) || '')"
       end
-
-      private 
-      
-        def capture_erb(*args, &block)
-          begin
-            buffer = eval('_buf', block.binding)
-          rescue
-            buffer = nil
-          end
-      
-          if buffer.nil?
-            block.call(*args).to_s
-          else
-            pos = buffer.length
-            block.call(*args)
-
-            # get emitted data
-            data = buffer[pos..-1]
-
-            # remove from buffer
-            buffer[pos..-1] = ''
-
-            data
-          end
-        end
 
     end
   end

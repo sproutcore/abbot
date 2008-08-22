@@ -19,7 +19,7 @@ module SproutCore
       include SproutCore::Helpers::DomIdHelper
       include SproutCore::ViewHelpers
 
-      attr_reader :entry, :bundle, :entries, :filename, :language, :library
+      attr_reader :entry, :bundle, :entries, :filename, :language, :library, :renderer
 
       def initialize(entry, bundle, deep=true)
         @entry = nil
@@ -98,25 +98,18 @@ module SproutCore
         end
 
         def _render(file_path)
+          SC.logger.debug("~ Rendering #{file_path}")
           input = File.read(file_path)
-          case file_path
+          @renderer = case file_path
           when /\.rhtml$/, /\.html.erb$/
-            render_erb(input)
+            Sproutcore::Renderers::Erubis.new(self)
           when /\.haml$/
-            render_haml(input)
+            Sproutcore::Renderers::Haml.new(self)
           end
+          _render_compiled_template( @renderer.compile(input) )
         end
 
-        def render_erb(input)
-          require 'erubis'
-          _render_compiled_template(Erubis::Eruby.new.convert(input))
-        end
-        
-        def render_haml(input)
-          require 'haml'
-          _render_compiled_template(Haml::Engine.new(input).send(:precompiled_with_ambles, []))
-        end
-        
+        # Renders a compiled template within this context
         def _render_compiled_template(compiled_template)
           self.instance_eval "def __render(); #{compiled_template}; end"
           begin
