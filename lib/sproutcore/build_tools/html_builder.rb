@@ -75,11 +75,6 @@ module SproutCore
       # etc.
       def bundle_name; bundle.bundle_name; end
 
-      #### For Rails Compatibility.  render() does not do anything useful
-      # since the new build system is nice about putting things into the right
-      # place for output.
-      def render; ''; end
-      
       private
 
         # Builds a single entry

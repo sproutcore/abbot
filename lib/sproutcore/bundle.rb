@@ -228,7 +228,6 @@ module SproutCore
       @build_mode = (opts[:build_mode] || SproutCore::Bundle.build_mode || :development).to_sym
 
       #  layout:        Path to the layout resource.  This should be of the form
-      opts[:layout] = 'sproutcore:lib/index.haml' if opts[:layout] == :haml
       @layout = opts[:layout] || 'sproutcore:lib/index.rhtml'
 
       # autobuild?:     Determines if you should autobuild...
