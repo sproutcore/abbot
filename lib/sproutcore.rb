@@ -24,7 +24,8 @@ end
 %w(library bundle bundle_manifest bundle_installer jsdoc jsmin cssmin version).each do |fname|
   require "sproutcore/#{fname}"
 end
-require "sproutcore/renderers/erubis"
-require "sproutcore/renderers/haml"
+%w(erubis haml sass).each do |fname|
+  require "sproutcore/renderers/#{fname}"
+end
 
 SC= SproutCore
