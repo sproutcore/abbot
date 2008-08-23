@@ -4,12 +4,10 @@ module SproutCore
   # The PageHelper is a singleton object that can render the Page javascript
   # object.
   module PageHelper
-
     @@render_contexts = []
-    @@outlets = {}
-    @@outlet_names = []
+    @@outlets = []
     @@styles = []
-    @@defines = {}
+    @@defines = []
 
     # This is the current helper state used when rendering the HTML.  When
     # a view helper is rendered, it may add itself as an outlet to the current
@@ -29,19 +27,17 @@ module SproutCore
     # reset the page helper.
     def self.reset!
       @@render_contexts = []
-      @@outlets = {}
-      @@outlet_names = []
+      @@outlets = []
       @@styles = []
-      @@defines = {}
+      @@defines = []
     end
 
     def self.set_define(key, opts = {})
-      @@defines[key] = opts
+      @@defines << [key, opts]
     end
 
     def self.set_outlet(key,opts = {})
-      @@outlet_names << key
-      @@outlets[key] = opts
+      @@outlets << [key, opts]
     end
 
     def self.add_styles(styles)
@@ -56,14 +52,13 @@ module SproutCore
     # returns the text to insert into the HTML.
     def self.render_js(prefix = 'SC', bundle = nil)
       outlets = []
-      @@outlet_names.each do | key |
-        opts = @@outlets[key]
+      @@outlets.each do | key, opts |
         outlet_path = opts[:outlet_path] || "##{opts[:id] || key}"
         outlets << %{  #{key}: #{opts[:class] || 'SC.View'}.extend({\n  #{ opts[:properties].gsub("\n","\n  ") }\n  }).outletFor("#{outlet_path}") }
       end
 
       # defines let you define classes to include in your UI.
-      ret = @@defines.map do | key, opts |
+      ret = @@defines.each do | key, opts |
         %{#{key} = #{opts[:class] || 'SC.View'}.extend({\n  #{ opts[:properties] }\n});}
       end
       ret << %{#{prefix}.page = SC.Page.create({\n#{ outlets * ",\n\n" }\n}); }
@@ -107,14 +102,13 @@ module SproutCore
       def initialize(view_helper_id, item_id, opts={}, client_builder = nil, render_source=nil)
         @_options = opts.dup
         @bindings = (@_options[:bind] || {}).dup
-        @outlets = {}
+        @outlets = []
         @prototypes = {}
         @view_helper_id = view_helper_id
         @item_id = item_id
         @outlet = opts[:outlet]
         @define = opts[:define]
         @client_builder = client_builder
-        @outlet_names = []
         @render_source = render_source
         @parent_context = SproutCore::PageHelper.current_render_context
         @parent_context.child_contexts << self if @parent_context
@@ -139,8 +133,7 @@ module SproutCore
       end
 
       def set_outlet(key,opts = {})
-        @outlet_names << key
-        @outlets[key] = opts
+        @outlets << [key, opts]
       end
 
       def prepare_bindings
@@ -153,8 +146,7 @@ module SproutCore
       def prepare_outlets
         return if @outlets.size == 0
         outlets = []
-        @outlet_names.each do | key |
-          opts = @outlets[key]
+        @outlets.each do | key, opts |
           outlet_key = key.to_s.camelize(:lower)
           outlets << outlet_key unless opts[:lazy]
 
