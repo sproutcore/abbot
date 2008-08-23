@@ -89,7 +89,7 @@ module SproutCore
           # check for requires.  Only follow a require if the require is in
           # the list of filenames.
           required_file = _require_for(filename, line)
-          unless required_file.nil? || !filenames.include?(required_file)
+          if required_file && filenames.include?(required_file)
             lines, required = _build_one(required_file, lines, required, link_only)
           end
 
@@ -125,12 +125,14 @@ module SproutCore
 
       # check line for required() pattern.  understands JS and CSS.
       def _require_for(filename,line)
-        new_file = line.scan(/require\s*\(\s*['"](.*)(\.(js|css))?['"]\s*\)/)
+        new_file = line.scan(/require\s*\(\s*['"](.*)(\.(js|css|sass))?['"]\s*\)/)
         ret = (new_file.size > 0) ? new_file.first.first : nil
         ret.nil? ? nil : filename_for_require(ret)
       end
 
-      def filename_for_require(ret); "#{ret}.css"; end
+      def filename_for_require(ret)
+        filenames.include?("#{ret}.css") ? "#{ret}.css" : "#{ret}.sass"
+      end
 
       private
 
