@@ -433,10 +433,6 @@ module SproutCore
       def prepare_for_javascript(value)
         return 'null' if value.nil?
         case value
-        when String:
-          %("#{ value.gsub('"','\"').gsub("\n",'\n') }")
-        when Symbol:
-          %("#{ value.to_s.gsub('"','\"').gsub("\n",'\n') }")
         when Array:
           "[#{value.map { |v| prepare_for_javascript(v) } * ','}]"
         when Hash:
@@ -449,7 +445,7 @@ module SproutCore
         when TrueClass:
           "true"
         else
-          value.to_s
+          %("#{ value.to_s.gsub('"','\"').gsub("\n",'\n') }")
         end
       end
 
@@ -639,7 +635,7 @@ module SproutCore
       paths.compact!
 
       # Create list of loaded helper paths
-      @loaded_helpers = [] if @loaded_helpers.nil?
+      @loaded_helpers ||= []
 
       # If a helper path was found, load it.  May require other helpers
       paths.each do |path|
