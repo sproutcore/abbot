@@ -52,8 +52,13 @@ module SproutCore
 
       # Join the lines together.  This is one last chance to do some prep of
       # the data (such as minifcation and comment stripping)
-      # TODO: compress CSS
-      def join(lines); lines.join; end
+      def join(lines)
+        if bundle.minify?
+          SproutCore::CSSPacker.new.compress(lines.join)
+        else
+          lines.join
+        end
+      end
 
       # Rewrites any inline content such as static urls.  Subclasseses can
       # override this to rewrite any other inline content.
