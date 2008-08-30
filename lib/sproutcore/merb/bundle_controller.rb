@@ -46,6 +46,9 @@ module SproutCore
           url = request.uri
           proxy_url, proxy_opts = library.proxy_url_for(url)
           if proxy_url
+            unless request.query_string.length == 0
+              proxy_url = proxy_url + "?" + request.query_string
+            end
             return handle_proxy(url, proxy_url, proxy_opts)
           else
             raise(NotFound, "No SproutCore Bundle registered at this location.")
