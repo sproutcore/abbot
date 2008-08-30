@@ -1,3 +1,7 @@
+== 0.9.17
+
+* Fix for Ticket [124]: Proxy doesn't forward GET params with merb 0.9.4
+
 == 0.9.16
 
 * Added requirement for hoe when installing.
