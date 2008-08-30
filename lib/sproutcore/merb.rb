@@ -15,13 +15,8 @@
 
 # Load Merb if it is available
 begin
-  require('merb-core')
-rescue LoadError
-end
-
-# Load SproutCore Merb support if Merb meets minimum criteria
-if defined?(Merb) && defined?(Merb::VERSION) && (Merb::VERSION.to_f >= 0.9)
+  require('merb-core', ">= 0.9.1, < 0.9.5")
   Dir.glob(File.join(File.dirname(__FILE__),'merb','**','*.rb')).each { |x| require(x) }
-else
-  puts "WARNING: sproutcore/merb required Merb 0.9.1 or later.  Module was not loaded."
+rescue LoadError
+  puts "WARNING: sproutcore/merb required Merb 0.9.1 through 0.9.4.  Module was not loaded."
 end
