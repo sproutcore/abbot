@@ -1,7 +1,7 @@
 require 'sproutcore/version'
 
-AUTHOR = 'Charles Jolley'  # can also be an array of Authors
-EMAIL = "charles@sproutit.com"
+AUTHOR = "Charles Jolley, Erich Ocean"  # can also be an array of Authors
+EMAIL = 'charles@sproutit.com, erich@atlasocean.com'
 DESCRIPTION = "SproutCore - JavaScript Application Framework + Build Tools"
 GEM_NAME = 'sproutcore' # what ppl will type to install your gem
 RUBYFORGE_PROJECT = 'sproutcore' # The unix name for your project
