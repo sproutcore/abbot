@@ -95,24 +95,31 @@ module SproutCore
     class RenderContext
 
       # options passed in from the view helper
+      attr_reader :view_helper_id
       attr_reader :item_id
       attr_accessor :outlet
       attr_accessor :define
       attr_accessor :current_helper
       attr_accessor :client_builder
       attr_reader :render_source
+      attr_reader :parent_context
+      attr_reader :child_contexts
 
-      def initialize(item_id, opts={}, client_builder = nil, render_source=nil)
+      def initialize(view_helper_id, item_id, opts={}, client_builder = nil, render_source=nil)
         @_options = opts.dup
         @bindings = (@_options[:bind] || {}).dup
         @outlets = {}
         @prototypes = {}
+        @view_helper_id = view_helper_id
         @item_id = item_id
         @outlet = opts[:outlet]
         @define = opts[:define]
         @client_builder = client_builder
         @outlet_names = []
         @render_source = render_source
+        @parent_context = SproutCore::PageHelper.current_render_context
+        @parent_context.child_contexts << self if @parent_context
+        @child_contexts = []
 
         @attributes = (@_options[:attributes] || {}).dup
 
@@ -122,6 +129,10 @@ module SproutCore
             @_properties[key.to_s.camelize(:lower)] = prepare_for_javascript(value)
           end
         end
+      end
+      
+      def to_s
+        "RenderContext #{view_helper_id}[#{item_id}]"
       end
 
       def options
@@ -546,7 +557,7 @@ module SproutCore
 
       # create the new render context and set it.
       client_builder = opts[:client] if opts[:client]
-      rc = RenderContext.new(item_id, opts, client_builder, render_source)
+      rc = RenderContext.new(view_helper_id, item_id, opts, client_builder, render_source)
       hs = find_helper(view_helper_id)
 
       # render the inner_html using the block, if one is given.
@@ -557,14 +568,14 @@ module SproutCore
       # extract the properties from the options and setup the render procs.
       hs.prepare_context(rc) unless hs.nil?
 
-      # how have the render context render the HTML content.  This may also
+      # now have the render context render the HTML content.  This may also
       # make changes to the other items to render.
       ret = rc.render_content
 
       SproutCore::PageHelper.pop_render_context
 
       # get the JS.  Save as an outlet or in the page.
-      cur_rc = SproutCore::PageHelper.current_render_context
+      cur_rc = opts[:current_context] || SproutCore::PageHelper.current_render_context
       view_class = opts[:view] || rc.view_class
 
       unless view_class.nil?
