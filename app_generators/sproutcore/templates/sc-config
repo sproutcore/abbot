@@ -18,9 +18,14 @@ config :all do |c|
   # page.
   c[:required] = [:sproutcore]
 
+  
+  # Set this to false to locate your clients at absolute paths.
+  # (Uncomment and define c[:resources_at] if you set this to false.)
+  c[:resources_relative] = true
+
   # This string will be prepended before any URLs that reference JavaScript,
   # CSS or images in your files.
-  c[:resources_at] = 'static'
+  # c[:resources_at] = 'static'
 
   # This string will be prepended before any index.html urls that actually
   # load your clients.  Setting this to an empty string will mount all
