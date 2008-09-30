@@ -1,6 +1,49 @@
+== 0.9.18
+
+* sc-gen should give warning on incorrect usage (Ticket #52) [Alexei Svitkine]
+
+* Regression: body.html.erb no longer works (Ticket #119) [Michael Allman]
+
+* c[:javascript_libs] included too often (Ticket #125) [Lawrence Pit]
+
+* sc-server has to be restarted after error in code is executed (Ticket #43) [macinjosh]
+
+* id attribute generated twice for views (Ticket #70) [Alexei Svitkine]
+
+* text_area_view missing 'show-hint' class (Ticket #24) [mrc]
+
+* Sass support (Ticket #117) [Lawrence Pit]
+
+* html tag is missing required attribute xmlns (Ticket #132) [Alexei Svitkine]
+
+* c[:resources_relative] = true should be default in sc-config (Ticket #173) [Davide Benini]
+
+* text_area_view's generated textarea tag does not validate (Ticket #131) [Alexei Svitkine]
+
+* Throws error when using haml (Ticket #179) [Sindre Aarsaethe]
+
+* sc-gen language USAGE file wrong and doesn't not generate files correctly
+  (Ticket #130) [Trek]
+
+* Allow view_helpers (and templates) to call dom_id to generate a guaranteed unique
+  DOM id (Ticket #147) [Lawrence Pit]
+
+* Fix memory leak in build tool (Ticket #146) [Lawrence Pit]
+
+* require('...') doesn't accept .js extension on end of name (Ticket #144) [Lawrence Pit]
+
+* -s and --source not working on sc-install (Tickets #143, #145) [Trek]
+
+* Add --haml and --sass options to sc-init and sc-client (Ticket #126) [Lawrence Pit]
+
+* Refactored rendering.... allow yield :foobar (Ticket #116) [Lawrence Pit]
+
+* Compress CSS when build for production (Ticketss #148, #151) [Lawrence Pit]
+
 == 0.9.17
 
 * Fix requirements to load correct version of merb (Ticket #158) [Paul Barry]
+
 * Proxy doesn't forward GET params with merb 0.9.4 (Ticket #124) [Lawrence Pit]
 
 == 0.9.16
