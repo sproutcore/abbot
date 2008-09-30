@@ -9,6 +9,7 @@ $:.unshift File.join(APP_ROOT,'lib') ;
 # Require Merb, SproutCore & SproutCore/Merb support
 require 'rubygems'
 require 'rubigen'
+gem('merb-core', '>= 0.9.1')
 require 'merb-core'
 require 'sproutcore'
 require 'sproutcore/merb'
@@ -57,6 +58,9 @@ Merb::Config.use { |c|
 ############################################################
 ## Register Exception Handler
 ##
+
+# required in 0.9.5-0.9.7, when defining an exception controller
+class Application < Merb::Controller ; end
 
 class Exceptions < Merb::Controller
   def base
