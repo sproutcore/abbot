@@ -537,11 +537,8 @@ module SproutCore
 
     end
 
-    @@tick = 0
-    def self._gen_id(type="id")
-      @@tick += 1
-      return "#{type}_#{(Time.now.to_i + @@tick)}"
-    end
+    extend SproutCore::Helpers::CaptureHelper
+    extend SproutCore::Helpers::TextHelper
 
     # :outlet => define if you want this to be used as an outlet.
     # :prototype => define if you want this to be used as a prototype.
@@ -552,7 +549,7 @@ module SproutCore
       if item_id.instance_of?(Hash)
         opts = item_id; item_id = nil
       end
-      item_id = _gen_id if item_id.nil?
+      item_id = dom_id if item_id.nil?
 
       # create the new render context and set it.
       client_builder = opts[:client] if opts[:client]

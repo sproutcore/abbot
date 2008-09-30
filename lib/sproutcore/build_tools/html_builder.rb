@@ -16,6 +16,7 @@ module SproutCore
       include SproutCore::Helpers::TextHelper
       include SproutCore::Helpers::CaptureHelper
       include SproutCore::Helpers::StaticHelper
+      include SproutCore::Helpers::DomIdHelper
       include SproutCore::ViewHelpers
 
       attr_reader :entry, :bundle, :entries, :filename, :language, :library
