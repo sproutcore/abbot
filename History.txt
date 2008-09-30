@@ -1,7 +1,7 @@
 == 0.9.17
 
-* Fix for Ticket [158]: Fix requirements to load correct version of merb (Paul Barry)
-* Fix for Ticket [124]: Proxy doesn't forward GET params with merb 0.9.4 (Lawrence Pit)
+* Fix requirements to load correct version of merb (Ticket #158) [Paul Barry]
+* Proxy doesn't forward GET params with merb 0.9.4 (Ticket #124) [Lawrence Pit]
 
 == 0.9.16
 
