@@ -365,8 +365,6 @@ lib/sproutcore/version.rb
 lib/sproutcore/view_helpers.rb
 lib/sproutcore.rb
 License.txt
-log/merb.4020.pid
-log/merb.main.pid
 Manifest.txt
 public/static/prototype/en/_cache/prototype-1220118491.js
 public/static/sc_test_runner/en/_cache/body-1222296957.css
