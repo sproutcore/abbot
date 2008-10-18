@@ -19,7 +19,6 @@ clients/sc_docs/english.lproj/no_docs.rhtml
 clients/sc_docs/english.lproj/strings.js
 clients/sc_docs/english.lproj/tabs.rhtml
 clients/sc_docs/fixtures/doc.js
-clients/sc_docs/french.lproj/strings.js
 clients/sc_docs/HISTORY
 clients/sc_docs/main.js
 clients/sc_docs/models/doc.js
