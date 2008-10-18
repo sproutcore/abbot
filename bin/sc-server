@@ -9,7 +9,7 @@ $:.unshift File.join(APP_ROOT,'lib') ;
 # Require Merb, SproutCore & SproutCore/Merb support
 require 'rubygems'
 require 'rubigen'
-gem('merb-core', '>= 0.9.1')
+gem('merb-core', '>= 0.9.9')
 require 'merb-core'
 require 'sproutcore'
 require 'sproutcore/merb'
@@ -21,23 +21,23 @@ require 'sproutcore/merb'
 ## Setup Default Options
 ##
 
-begin
-  require 'thin'
-  server_kind = 'thin'
-rescue LoadError
-  server_kind = 'mongrel'
-end
+unless ARGV.index('-a') || ARGV.index('--adapter') || ARGV.index('-i') || ARGV.index('--irb-console')
+  begin
+    require 'thin'
+    server_kind = 'thin'
+  rescue LoadError
+    server_kind = 'mongrel'
+  end
 
-unless ARGV.index('-a') || ARGV.index('-i')
-  ARGV.push *['-a', server_kind]
+  ARGV.push *['--adapter', server_kind]
 end
 
 # Make BlueRibbon run on a different port by default
-unless ARGV.index('-p')
-  ARGV.push *%w[-p 4020]
+unless ARGV.index('-p') || ARGV.index('--port')
+  ARGV.push *%w[--port 4020]
 end
 
-unless ARGV.index('--merb-root')
+unless ARGV.index('-m') || ARGV.index('--merb-root')
   ARGV.push "--merb-root=#{SC.library.root_path}"
 end
 

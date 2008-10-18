@@ -15,8 +15,8 @@
 
 # Load Merb if it is available
 begin
-  gem('merb-core', '>= 0.9.1')
+  gem('merb-core', '>= 0.9.9')
   Dir.glob(File.join(File.dirname(__FILE__),'merb','**','*.rb')).each { |x| require(x) }
 rescue LoadError
-  puts "WARNING: sproutcore/merb requires Merb 0.9.1 or later. Earlier releases are not supported. Module was not loaded."
+  puts "WARNING: sproutcore/merb requires Merb 0.9.9 or later. Earlier releases are not supported. Module was not loaded."
 end
