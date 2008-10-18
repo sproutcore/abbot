@@ -61,6 +61,7 @@ class Sproutcore::BootLoader < Merb::BootLoader
     }
   end
 end
+Sproutcore::BootLoader.before(Merb::BootLoader::Dependencies)
 
 ############################################################
 ## Register Exception Handler
