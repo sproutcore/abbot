@@ -27,7 +27,6 @@ module SproutCore
       def main
 
         self.reset_current_bundle
-        puts current_bundle
         
         # Before we do anything, set the build_mode for the bundles.  This
         # shouldn't change during execution, but if we set this during the
