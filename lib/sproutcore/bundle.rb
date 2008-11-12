@@ -1,4 +1,5 @@
 require 'sproutcore/build_tools'
+require 'digest/md5'
 
 module SproutCore
 
@@ -74,6 +75,10 @@ module SproutCore
   #   MD5 digests instead of timestamps.  This will ensure uniqueness when
   #   building on multiple machines.
   #
+  # build_number:: The build number.  Defaults to timestamp
+  #
+  # prefered_platform:: preferred default platform.  Default :desktop
+  #
   class Bundle
 
     LONG_LANGUAGE_MAP = { :english => :en, :french => :fr, :german => :de, :japanese => :ja, :spanish => :es, :italian => :it }
@@ -94,6 +99,8 @@ module SproutCore
     attr_reader :build_mode, :layout
     attr_reader :make_resources_relative
     attr_reader :use_digest_tokens
+    
+    attr_reader :preferred_platform
 
     def library_root
       @library_root ||= library.nil? ? nil : library.root_path
@@ -129,6 +136,16 @@ module SproutCore
     # true if this bundle should be auto-built.
     def autobuild?
       @autobuild.nil? ? true : @autobuild
+    end
+    
+    # ==== Returns
+    # The build number for the bundle.  If you supply a build number, that 
+    # will be used.  If not, then the build number will always be 
+    # 'development' in development mode and a number computed by MD5 hash
+    # of the entire bundle contents in production mode.
+    def build_number
+      return 'development' if build_mode == :development
+      return @build_number ||= SC.library.compute_build_number(self)
     end
     
     # ==== Returns
@@ -236,6 +253,9 @@ module SproutCore
       
       @use_digest_tokens = opts[:use_digest_tokens] || (@build_mode == :production)
       
+      @preferred_platform = opts[:preferred_platform] || :desktop
+      @build_number = opts[:build_number]
+      
       reload!
     end
 
@@ -247,16 +267,18 @@ module SproutCore
     # The array of stylesheet entries sorted in load order.
     def sorted_stylesheet_entries(opts = {})
       opts[:language] ||= preferred_language
+      opts[:platform] ||= preferred_platform
       entries = entries_for(:stylesheet, opts)
-      BuildTools::ResourceBuilder.sort_entries_by_load_order(entries, opts[:language], self)
+      BuildTools::ResourceBuilder.sort_entries_by_load_order(entries, opts[:language], self, opts[:platform])
     end
 
     # ==== Returns
     # The array of javascript entries sorted in load order.
     def sorted_javascript_entries(opts = {})
       opts[:language] ||= preferred_language
+      opts[:platform] ||= preferred_platform
       entries = entries_for(:javascript, opts)
-      BuildTools::JavaScriptResourceBuilder.sort_entries_by_load_order(entries, opts[:language], self)
+      BuildTools::JavaScriptResourceBuilder.sort_entries_by_load_order(entries, opts[:language], self, opts[:platform])
     end
 
     # This method returns the manifest entries for resources of the specified
@@ -268,14 +290,16 @@ module SproutCore
     #
     # ==== Options
     # language::  The language to use.  Defaults to preferred language.
+    # platform::  The platform to use.  Defaults to preferred platform.
     # hidden::    Can be :none|:include|:only
     #
     def entries_for(resource_type, opts={})
       with_hidden = opts[:hidden] || :none
 
       language = opts[:language] || preferred_language
+      platform = opts[:platform] || preferred_platform
       mode = (opts[:build_mode] || build_mode).to_sym
-      manifest = manifest_for(language, mode)
+      manifest = manifest_for(language, mode, platform)
 
       ret = manifest.entries_for(resource_type)
 
@@ -295,14 +319,16 @@ module SproutCore
     #
     # ==== Options
     # language::  The language to use.  Defaults to preferred language
+    # platform::  The platform to use.  Defaults to preferred platform.
     # hidden::    Can be :none|:include|:only
     #
     def entry_for(resource_name, opts={})
       with_hidden = opts[:hidden] || :none
 
       language = opts[:language] || preferred_language
+      platform = opts[:platform] || preferred_platform
       mode = (opts[:build_mode] || build_mode).to_sym
-      manifest = manifest_for(language, mode)
+      manifest = manifest_for(language, mode, platform)
 
       ret = manifest.entry_for(resource_name)
 
@@ -316,9 +342,9 @@ module SproutCore
     end
 
     # Returns the entry for the specified URL.  This will extract the language
-    # from the URL and try to get the entry from both the manifest in the
-    # current build mode and in the production build mode (if one is
-    # provided)
+    # and platform from the URL and try to get the entry from both the 
+    # manifest in the current build mode and in the production build mode (if 
+    # one is provided)
     #
     # ==== Params
     # url<String>:: The url
@@ -327,15 +353,21 @@ module SproutCore
     # hidden::     Use :include,:none,:only to control hidden options
     # language::   Explicitly include the language.  Leave this out to
     #   autodetect from URL.
+    # platform::   Explicitly include the platform.  Leave this out to 
+    #   autodetect from URL.
     #
     def entry_for_url(url, opts={})
+
       # get the language
       opts[:language] ||= url.match(/^#{url_root}\/([^\/]+)\//).to_a[1] || url.match(/^#{index_root}\/([^\/]+)\//).to_a[1] || preferred_language
 
+      opts[:platform] ||= url.match(/^#{url_root}\/([^\/]+)\/([^\/]+)\//).to_a[2] || url.match(/^#{index_root}\/([^\/]+)\/([^\/]+)\//).to_a[2] || preferred_platform
+      
       # use the current build mode
       opts[:build_mode] = build_mode
       entries(opts).each do |entry|
         return entry if entry.url == url
+        return entry if entry.current_url == url
       end
 
       # try production is necessary...
@@ -343,6 +375,7 @@ module SproutCore
         opts[:build_mode] = :production
         entries(opts).each do |entry|
           return entry if entry.url == url
+          return entry if entry.current_url == url
         end
       end
 
@@ -351,20 +384,24 @@ module SproutCore
 
     # Helper method.  This will normalize a URL into one that can map directly
     # to an entry in the bundle.  If the URL is of a format that cannot be
-    # converted, returns nil.
+    # converted, returns the url.  In particular, this will look for all the 
+    # different ways you can request an index.html file and convert it to a
+    # canonical form
     #
     # ==== Params
     # url<String>:: The URL
     #
     def normalize_url(url)
 
-      # Get the default index.
-      if (url == index_root)
-        url = [index_root, preferred_language.to_s, 'index.html'].join('/')
-
-      # Requests to index_root/lang should have index.html appended to them
-      elsif /^#{index_root}\/[^\/\.]+$/ =~ url
-        url << '/index.html'
+      # Parse the URL
+      matched = url.match(/^#{index_root}(\/([^\/\.]+))?(\/([^\/\.]+))?(\/([^\/\.]+))?(\/|(\/index\.html))?$/)
+      unless matched.nil?
+        matched_language = matched[2] || preferred_language
+        matched_platform = matched[4] || preferred_platform
+        matched_build_number = matched[6] || 'current'
+        url = [index_root, 
+          matched_language, matched_platform, matched_build_number,
+          'index.html'] * '/'
       end
 
       return url
@@ -374,14 +411,16 @@ module SproutCore
     #
     # ==== Options
     # language::  The language to use.  Defaults to preferred language
+    # platform::  The platform to use.  Defaults to preferred platform
     # hidden::    Can be :none|:include|:only
     #
     def entries(opts ={})
       with_hidden = opts[:hidden] || :none
 
       language = opts[:language] || preferred_language
+      platform = opts[:platform] || preferred_platform
       mode = (opts[:build_mode] || build_mode).to_sym
-      manifest = manifest_for(language, mode)
+      manifest = manifest_for(language, mode, platform)
 
       ret = manifest.entries
 
@@ -500,17 +539,17 @@ module SproutCore
       @seen << entry unless @seen.nil?
     end
 
-    # This will perform a complete build for the named language
-    def build_language(language)
-      SC.logger.info("~ Language: #{language}")
-      build_entries(entries(:language => language))
+    # This will perform a build for a single language
+    def build_language(language, platform=nil)
+      SC.logger.info("~ Language/Platform: #{[language,platform].compact.join('/') }")
+      build_entries(entries(:language => language, :platform => platform))
       SC.logger.debug("~ Done.\n")
     end
 
     # This will perform a complete build for all languages that have a
     # matching lproj. You can also pass in an array of languages you would
     # like to build
-    def build(*languages)
+    def build(platform, *languages)
 
       # Get the installed languages (and the preferred language, just in case)
       languages = languages.flatten
@@ -521,7 +560,7 @@ module SproutCore
       SC.logger.debug("~ Source Root: #{source_root}")
       SC.logger.debug("~ Build Root:  #{build_root}")
 
-      languages.uniq.each { |lang| build_language(lang) }
+      languages.uniq.each { |lang| build_language(lang, platform) }
 
       # After build is complete, try to copy the index.html file of the
       # preferred language to the build_root
@@ -679,18 +718,28 @@ module SproutCore
 
     # Returns the bundle manifest for the specified language and build mode.
     # The manifest will be created if it does not yet exist.
-    def manifest_for(language, build_mode)
-      manifest_key = [build_mode.to_s, language.to_s].join(':').to_sym
-      @manifests[manifest_key] ||= BundleManifest.new(self, language.to_sym, build_mode.to_sym)
+    def manifest_for(language, build_mode, platform)
+      manifest_key = [build_mode.to_s, language.to_s, platform.to_s].join(':').to_sym
+      @manifests[manifest_key] ||= BundleManifest.new(self, language.to_sym, build_mode.to_sym, platform.to_sym)
     end
 
+    # ==== Returns
+    # Platforms installed in the source directory
+    #
+    def installed_platforms
+      ret = Dir.glob(File.join(source_root, '*.platform')).map do |x|
+        x.match(/([^\/]+)\.platform$/).to_a[1]
+      end
+      ret << preferred_platform
+      ret.compact.map { |x| x.to_sym }.uniq
+    end
+    
     # ==== Returns
     # Languages installed in the source directory
     #
     def installed_languages
-      ret = Dir.glob(File.join(source_root,'*.lproj')).map do |x|
-        x.match(/([^\/]+)\.lproj$/).to_a[1]
-      end
+      ret = Dir.glob(File.join(source_root,'*.lproj')) + Dir.glob(File.join(source_root, '*.platform', '*.lproj'))
+      ret.map! { |x| x.match(/([^\/]+)\.lproj$/).to_a[1] }
       ret << preferred_language
       ret.compact.map { |x| LONG_LANGUAGE_MAP[x.to_sym] || x.to_sym }.uniq
     end

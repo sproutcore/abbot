@@ -19,11 +19,12 @@ module SproutCore
       include SproutCore::Helpers::DomIdHelper
       include SproutCore::ViewHelpers
 
-      attr_reader :entry, :bundle, :entries, :filename, :language, :library, :renderer
+      attr_reader :entry, :bundle, :entries, :filename, :language, :library, :renderer, :unit_test, :platform
 
       def initialize(entry, bundle, deep=true)
         @entry = nil
         @language = entry.language
+        @platform = entry.platform
         @bundle = bundle
         @library = bundle.library
 
@@ -94,12 +95,31 @@ module SproutCore
 
         def _render(file_path)
           SC.logger.debug("~ Rendering #{file_path}")
-          input = File.read(file_path)
+          
+          # if this is a JS file, read the JS into a unit_test variable then
+          # output a special unit_test.rhtml file.
+          if file_path =~ /\.js$/
+            @unit_test = File.read(file_path)
+            
+            unit_test_template = File.join(File.dirname(__FILE__), 'test_template.rhtml')
+            input = File.read(unit_test_template)
+            
+          # Otherwise, just read in the source file
+          else
+            input = File.read(file_path)
+          end
+          
           @renderer = case file_path
-          when /\.rhtml$/, /\.html.erb$/
+            
+          # rhtml & .html.erb get processed through Erubis. 
+          # JS files passed in for unit tests are also erubis.
+          when /\.js$/, /\.rhtml$/, /\.html.erb$/
             Sproutcore::Renderers::Erubis.new(self)
+            
+          # haml is processed through HAML
           when /\.haml$/
             Sproutcore::Renderers::Haml.new(self)
+          
           end
           _render_compiled_template( @renderer.compile(input) )
         end
@@ -132,9 +152,12 @@ module SproutCore
 
     end
 
-    # Building a test is just like building a single page except that we do not include
-    # all the other html templates in the project
-    def self.build_test(entry, bundle); build_html(entry, bundle, false); end
+    # Building a test is almost like building a single page except that we
+    # do not include all the other html templates.  Also, if the test is a
+    # JS file instead, we need to generate the HTML template.
+    def self.build_test(entry, bundle)
+      build_html(entry, bundle, false)
+    end
 
   end
 end

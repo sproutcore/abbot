@@ -6,21 +6,30 @@ module SproutCore
   # A Bundle Manifest describes all of the resources in a bundle, including
   # mapping their source paths, destination paths, and urls.
   #
-  # A Bundle will create a manifest for every language you request from it.
-  # If you invoke reload! on the bundle, it will dispose of its manifests and
-  # rebuild them.
+  # A Bundle will create a manifest for every language and platform you 
+  # request from it. If you invoke reload! on the bundle, it will dispose of 
+  # its manifests and rebuild them.
   #
   class BundleManifest
 
-    CACHED_TYPES = [:javascript, :stylesheet, :fixture, :test]
+    CACHED_TYPES    = [:javascript, :stylesheet, :fixture, :test]
     SYMLINKED_TYPES = [:resource]
+    
+    PLATFORM_MATCH  = /^([^\/]+)\.platform\//
+    LPROJ_MATCH     = /^([^\/]+\.platform\/)?([^\/]+\.lproj)\//
 
-    attr_reader :bundle, :language, :build_mode
+    NORMALIZED_TYPE_EXTENSIONS = {
+      :stylesheet => { :sass => :css },
+      :test => { '.+' => :html }
+    }
 
-    def initialize(bundle, language, build_mode)
+    attr_reader :bundle, :language, :build_mode, :platform
+
+    def initialize(bundle, language, build_mode, platform)
       @bundle = bundle
       @language = language
       @build_mode = build_mode
+      @platform = platform
       @entries_by_type = {} # entries by type
       @entries_by_filename = {} # entries by files
       build!
@@ -168,7 +177,8 @@ module SproutCore
     end
 
     # Build a catalog of entries for this manifest.  This will simply filter 
-    # out the files that don't actually belong in the current language
+    # out the files that don't actually belong in the current language or 
+    # platform
     def catalog_entries
 
       # Entries arranged by resource filename
@@ -180,8 +190,9 @@ module SproutCore
       default_lproj = bundle.lproj_for(bundle.preferred_language)
       target_lproj = bundle.lproj_for(language)
 
-      # Any files living in the two lproj dirs will be shunted off into these arrays
-      # and processed later to make sure we process them in the right order
+      # Any files living in the two lproj dirs will be shunted off into these 
+      # arrays and processed later to make sure we process them in the right 
+      # order
       default_lproj_files = []
       target_lproj_files = []
 
@@ -192,33 +203,46 @@ module SproutCore
         # Get source type.  Skip any without a useful type
         next if (src_type = type_of(src_path)) == :skip
 
+        # Get target platform (if there is one).  Skip is not target platform
+        if current_platform = src_path.match(PLATFORM_MATCH).to_a[1]
+          next if current_platform.to_sym != platform
+        end
+        
         # Get current lproj (if there is one).  Skip if not default or current
-        if current_lproj = src_path.match(/^([^\/]+\.lproj)\//).to_a[1]
+        if current_lproj = src_path.match(LPROJ_MATCH).to_a[2]
           next if (current_lproj != default_lproj) && (current_lproj != target_lproj)
         end
 
-        # OK, pass all of our validations.  Go ahead and build an entry for this
-        # Add entry to list of entries for appropriate lproj if localized
+        # OK, pass all of our validations.  Go ahead and build an entry for 
+        # this. Add entry to list of entries for appropriate lproj if 
+        # localized.
+        #
+        # Note that entries are namespaced by platform.  This way non-platform
+        # specific entries will not be overwritten by platfor-specific entries
+        # of the same name.
+        #
         entry = build_entry_for(src_path, src_type)
+        entry_key = [current_platform||'', entry.filename].join(':')
         case current_lproj
         when default_lproj
-          default_lproj_entries[entry.filename] = entry
+          default_lproj_entries[entry_key] = entry
         when target_lproj
-          target_lproj_entries[entry.filename] = entry
+          target_lproj_entries[entry_key] = entry
         else
 
           # Be sure to mark any
-          entries[entry.filename] = entry
+          entries[entry_key] = entry
         end
       end
       Dir.chdir(old_wd) # restore wd
 
-      # Now, new in default and target lproj entries.  This will overwrite entries that exist
-      # in both places.
+      # Now, merge in default and target lproj entries.  This will overwrite 
+      # entries that exist in both places.
       entries.merge!(default_lproj_entries)
       entries.merge!(target_lproj_entries)
 
-      # Finally, entries will need to be grouped by type to allow further processing.
+      # Finally, entries will need to be grouped by type to allow further 
+      # processing.
       ret = {}
       entries.values.each { |entry| (ret[entry.type] ||= []) << entry }
       return ret
@@ -275,6 +299,16 @@ module SproutCore
     # source_root) This should assume we are in going to simply build each
     # resource into the build root without combining files, but not using our
     # _src symlink magic.
+    #
+    # +Params+
+    #
+    # src_path:: the source path, relative to the bunlde.source_root
+    # src_type:: the detected source type (from type_of())
+    # composite:: Array of entries that should be combined to form this or nil
+    # hide_composite:: Makes composit entries hidden if !composite.nil?
+    #
+    # +Returns: Entry
+    #
     def build_entry_for(src_path, src_type, composite=nil, hide_composite = true)
       ret = ManifestEntry.new
       ret.ext = File.extname(src_path)[1..-1] || '' # easy stuff
@@ -282,17 +316,20 @@ module SproutCore
       ret.original_path = src_path
       ret.hidden = false
       ret.language = language
+      ret.platform = platform
       ret.use_digest_tokens = bundle.use_digest_tokens
 
-      # the filename is the src_path less any lproj in the front
-      ret.filename = src_path.gsub(/^[^\/]+.lproj\//,'')
+      # the filename is the src_path less any lproj or platform in the front
+      ret.filename = src_path.gsub(LPROJ_MATCH,'')
 
       # the source path is just the combine source root + the path
-      ret.source_path = (composite.nil?) ? File.join(bundle.source_root, src_path) : nil
+      # Composite entries do not have a source path b/c they are generated
+      # dynamically.
+      ret.source_path = composite.nil? ? File.join(bundle.source_root, src_path) : nil
 
       # set the composite property.  The passed in array should contain other
       # entries if hide_composite is true, then hide the composite items as
-      # well
+      # well.  
       unless composite.nil?
         composite.each { |x| x.hidden = true } if hide_composite
         
@@ -303,45 +340,75 @@ module SproutCore
         ret.composite = composite.dup 
       end
 
-      # The build path is the build_root + the filename
-      # The URL is the url root + the language code + filename
-      # also add in _cache or _sym in certain cases.  This is just more
-      # efficient than doing it later.
+      # PREPARE BUILD_PATH and URL
+      
+      # The main index.html file is served from the index_Root.  All other
+      # resourced are served from the URL root.
       url_root = (src_path == 'index.html') ? bundle.index_root : bundle.url_root
-      cache_link = nil
-      use_source_directly =false
 
-      # Note: you can only access real resources via the cache.  If the entry
-      # is a composite then do not go through cache.
+      # Setup special cases.  Certain types of files are processed and then
+      # cached in development mode (i.e. JS + CSS).  Other resources are
+      # simply served up directly without any processing or building.  See
+      # constants for types.
+      cache_link = nil; use_source_directly =false
       if (self.build_mode == :development) #&& composite.nil?
         cache_link = '_cache' if CACHED_TYPES.include?(src_type)
         use_source_directly = true if SYMLINKED_TYPES.include?(src_type)
       end
 
+      # If this resource should be served directly, setup both the build_path
+      # and URL to point to a special URL that maps directly to the resource.
+      # This is only useful in development mode
       ret.use_source_directly = use_source_directly
       if use_source_directly
         ret.build_path = File.join(bundle.build_root, '_src', src_path)
         ret.url = [url_root, '_src', src_path].join('/')
+        
+      # If the resource is not served directly, then calculate the actual 
+      # build path and URL for production mode.  The build path is the 
+      # build root + language + platform + (cache_link || build_number) +
+      # filename 
+      #
+      # The URL is the url_root + current_language + current_platform + (cache_link)
       else
-        ret.build_path = File.join(*[bundle.build_root, language.to_s, cache_link, ret.filename].compact)
-        ret.url = [url_root, language.to_s, cache_link, ret.filename].compact.join('/')
+        path_parts = [bundle.build_root, language.to_s, platform.to_s, 
+           (cache_link || bundle.build_number.to_s), ret.filename]
+        ret.build_path = File.join(*path_parts.compact)
+        
+        path_parts[0] = url_root
+        ret.url = path_parts.compact.join('/')
+        
+        path_parts[3] = 'current' # create path to "current" build
+        ret.current_url = path_parts.compact.join('/')
+        
       end
-      ret.build_path.sub!(/\.sass$/, '.css')
-      ret.url.sub!(/.sass$/, '.css')
+      
+      # Convert the input source type an output type.
+      if sub_type = NORMALIZED_TYPE_EXTENSIONS[ret.type]
+        sub_type.each do | matcher, ext |
+          matcher = /\.#{matcher.to_s}$/; ext = ".#{ext.to_s}"
+          ret.build_path.sub!(matcher, ext)
+          ret.url.sub!(matcher, ext)
+        end
+      end
 
       # Done.
       return ret
     end
 
-    # Lookup the timestamp on the source path and interpolate that into the filename URL.
-    # also insert the _cache element.
+    # Lookup the timestamp on the source path and interpolate that into the 
+    # filename URL and build path.  This should only be called on entries
+    # that are to be cached (in development mode)
     def setup_timestamp_token(entry)
       timestamp = bundle.use_digest_tokens ? entry.digest : entry.timestamp
+      
+      # add timestamp or digest to URL 
       extname = File.extname(entry.url)
-      entry.url = entry.url.gsub(/#{extname}$/,"-#{timestamp}#{extname}") # add timestamp
+      entry.url.gsub!(/#{extname}$/,"-#{timestamp}#{extname}") 
 
+      # add timestamp or digest to build path
       extname = File.extname(entry.build_path)
-      entry.build_path = entry.build_path.gsub(/#{extname}$/,"-#{timestamp}#{extname}") # add timestamp
+      entry.build_path.gsub!(/#{extname}$/,"-#{timestamp}#{extname}")
     end
   end
 
@@ -350,7 +417,8 @@ module SproutCore
   # filename::     path relative to the built language (e.g. sproutcore/en) less file extension
   # ext::          the file extension
   # source_path:: absolute paths into source that will comprise this resource
-  # url::          the url that should be used to reference this resource in the current mode.
+  # url::          the url that should be used to reference this resource in the current build mode.
+  # current_url::  the url that can be used to reference this resource, substituting "current" for a build number
   # build_path::   absolute path to the compiled resource
   # type::         the top-level category
   # original_path:: save the original path used to build this entry
@@ -359,8 +427,9 @@ module SproutCore
   # language::     the language in use when this entry was created
   # composite::    If set, this will contain the filenames of other resources that should be combined to form this resource.
   # bundle:: the owner bundle for this entry
+  # platform:: the target platform for the entry, if any
   #
-  class ManifestEntry < Struct.new(:filename, :ext, :source_path, :url, :build_path, :type, :original_path, :hidden, :use_source_directly, :language, :use_digest_tokens)
+  class ManifestEntry < Struct.new(:filename, :ext, :source_path, :url, :build_path, :type, :original_path, :hidden, :use_source_directly, :language, :use_digest_tokens, :platform, :current_url)
     def to_hash
       ret = {}
       self.members.zip(self.values).each { |p| ret[p[0]] = p[1] }
@@ -431,8 +500,9 @@ module SproutCore
 
     # Returns a URL that takes into account caching requirements.
     def cacheable_url
-      token = (use_digest_tokens) ? digest : timestamp
-      [url, token].compact.join('?')
+      url
+      #token = (use_digest_tokens) ? digest : timestamp
+      #[url, token].compact.join('?')
     end
 
     # :stopdoc:

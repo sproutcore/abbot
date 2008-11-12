@@ -1,3 +1,11 @@
+* Added support for using build numbers in URL strings instead of query string parameters.  This will make caches flush more reliably.
+
+* Added support for building multiple platforms.  This is to be used with mobile platforms.
+
+* Unit tests can now be simple .js files.  These files will be inserted into an html template automatically.
+
+== 0.9.20
+
 == 0.9.19
 
 * back out relative-path change which breaks dev mode [Erich Ocean]

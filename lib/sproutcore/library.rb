@@ -348,6 +348,21 @@ module SproutCore
       self.bundle_installer.remove(bundle_name, opts)
     end
     
+    # Computes a build number for the bundle by generating a SHA1 hash.  The
+    # return value is cached to speed up future requests.
+    def compute_build_number(bundle)
+      @cached_build_numbers ||= {}
+      src = bundle.source_root
+      ret = @cached_build_numbers[src]
+      return ret unless ret.nil?
+
+      digests = Dir.glob(File.join(src, '**', '*.*')).map do |path|
+        (File.exists?(path) && !File.directory?(path)) ? Digest::SHA1.hexdigest(File.read(path)) : '0000'
+      end
+      ret = @cached_build_numbers[src] = Digest::SHA1.hexdigest(digests.join)
+      return ret 
+    end
+      
     protected
 
     # Load the library at the specified path.  Loads the sc-config.rb if it
@@ -379,6 +394,14 @@ module SproutCore
       end
 
       # Override any all options with load_opts
+      if build_numbers = @load_opts[:build_numbers]
+        @load_opts.delete(:build_numbers)
+        build_numbers.each do | bundle_name, build_number |
+          env = @environment[bundle_name.to_sym] ||= {}
+          env[:build_number] = build_number
+        end
+      end
+
       (@environment[:all] ||= {}).merge!(@load_opts)
 
     end

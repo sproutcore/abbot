@@ -62,7 +62,7 @@ module SproutCore
         %{#{key} = #{opts[:class] || 'SC.View'}.extend({\n  #{ opts[:properties] }\n});}
       end
       ret << %{#{prefix}.page = SC.Page.create({\n#{ outlets * ",\n\n" }\n}); }
-      bundle ? SproutCore::BuildTools::JavaScriptResourceBuilder.new(nil, nil, bundle).join(ret) : ret*"\n"
+      bundle ? SproutCore::BuildTools::JavaScriptResourceBuilder.new(nil, nil, bundle, nil).join(ret) : ret*"\n"
     end
 
     def self.render_css

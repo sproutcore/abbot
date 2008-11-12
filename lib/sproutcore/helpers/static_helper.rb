@@ -18,6 +18,7 @@ module SproutCore
       def stylesheets_for_client(bundle_name = nil, opts = {})
 
         opts[:language] ||= language
+        opts[:platform] ||= platform
         
         # Set the import method to use the standard <link> tag, if not set
         include_method = opts[:include_method] ||= :link
@@ -64,6 +65,7 @@ module SproutCore
       def javascripts_for_client(bundle_name = nil, opts = {})
 
         opts[:language] ||= language
+        opts[:platform] ||= platform
 
         # Get bundle
         cur_bundle = bundle_name.nil? ? bundle : library.bundle_for(bundle_name)
@@ -94,6 +96,7 @@ module SproutCore
       # Returns the URL for the named resource
       def static_url(resource_name, opts = {})
         opts[:language] ||= language
+        opts[:platform] ||= platform
         entry = bundle.find_resource_entry(resource_name, opts)
         entry.nil? ? '' : entry.cacheable_url
       end
@@ -102,6 +105,7 @@ module SproutCore
       def loc(string, opts = {})
         string = string.nil? ? '' : string.to_s
         opts[:language] ||= language
+        opts[:platform] ||= platform
         bundle.strings_hash(opts)[string] || string
       end
 

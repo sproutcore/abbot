@@ -10,20 +10,23 @@ module SproutCore
     # The ResourceBuilder knows how
     class ResourceBuilder
 
-      attr_reader :bundle, :language, :filenames
+      attr_reader :bundle, :language, :platform, :filenames
 
       # Utility method you can call to get the items sorted by load order
-      def self.sort_entries_by_load_order(entries, language, bundle)
+      def self.sort_entries_by_load_order(entries, language, bundle, platform)
         filenames = entries.map { |e| e.filename }
         hashed = {}
         entries.each { |e| hashed[e.filename] = e }
 
-        sorted = self.new(filenames, language, bundle).required
+        sorted = self.new(filenames, language, bundle, platform).required
         sorted.map { |filename| hashed[filename] }
       end
 
-      def initialize(filenames, language, bundle)
-        @bundle = bundle; @language = language; @filenames = filenames
+      def initialize(filenames, language, bundle, platform)
+        @bundle = bundle
+        @language = language
+        @platform = platform
+        @filenames = filenames
       end
 
       # Simply returns the filenames in the order that they were required
@@ -81,7 +84,7 @@ module SproutCore
         return [lines, required] if required.include?(filename)
         required << filename
 
-        entry = bundle.entry_for(filename, :hidden => :include, :language => language)
+        entry = bundle.entry_for(filename, :hidden => :include, :language => language, :platform => platform)
         if entry.nil?
           puts "WARNING: Could not find require file: #{filename}"
           return [lines, required]
@@ -197,7 +200,7 @@ module SproutCore
 
     def self.build_stylesheet(entry, bundle)
       filenames = entry.composite? ? entry.composite_filenames : [entry.filename]
-      builder = ResourceBuilder.new(filenames, entry.language, bundle)
+      builder = ResourceBuilder.new(filenames, entry.language, bundle, entry.platform)
       if output = builder.build
         FileUtils.mkdir_p(File.dirname(entry.build_path))
         f = File.open(entry.build_path, 'w')
@@ -208,7 +211,7 @@ module SproutCore
 
     def self.build_javascript(entry, bundle)
       filenames = entry.composite? ? entry.composite_filenames : [entry.filename]
-      builder = JavaScriptResourceBuilder.new(filenames, entry.language, bundle)
+      builder = JavaScriptResourceBuilder.new(filenames, entry.language, bundle, entry.platform)
       if output = builder.build
         FileUtils.mkdir_p(File.dirname(entry.build_path))
         f = File.open(entry.build_path, 'w')

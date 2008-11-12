@@ -69,8 +69,11 @@ module SproutCore
 
         # Check for a few special urls for built-in services and route them off
         case url
+          
+        # Returns the JSON file that contains the current list of tests.
         when "#{current_bundle.url_root}/-tests/index.js"
           ret = handle_test(url)
+          
         when "#{current_bundle.index_root}/-docs/index.html"
           ret = (request.method == :post) ? handle_doc(url) : handle_resource(url)
 

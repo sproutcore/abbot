@@ -47,6 +47,11 @@ languages = nil
 clean = false
 docs = false
 build_all = false 
+build_numbers = nil
+platforms = nil
+symlink = false
+
+$0 = "sc-build #{ARGV * ' '}"
 
 opts = OptionParser.new do |opts|
   opts.version = SproutCore::VERSION::STRING
@@ -76,7 +81,22 @@ opts = OptionParser.new do |opts|
   opts.on("-v", "--[no-]verbose", "If set, extra debug output will be displayed during the build") do |opt_verbose|
     verbose = !!opt_verbose
   end
-
+  
+  opts.on("-p", "--platform=PLATFORM", "A comma separated list of the platforms you want to build.  If you do not pass this option, the build tool will build all platforms found in the target bundle.") do |opt_platform|
+    platforms = opt_platform.split(',').map { |x| x.to_sym }
+  end
+  
+  opts.on("-b", "--build=BUILD_NUMBERS", "build numbers.  Name build number for taret or list of build numbers if needed") do |opt_build|
+    build_numbers = {}
+    opt_build = opt_build.split(',').map { |x| x.split(':') }.each do |x|
+      if x.size == 1
+        build_numbers[bundle_name.to_sym] = x[0].to_sym
+      elsif x.size > 1
+        build_numbers[x[0].to_sym] = x[1].to_sym
+      end
+    end
+  end
+  
   opts.on("-L", "--languages=LANGUAGE", "Pass a comma separated list of the specific languages you want to build.  If you do not pass this option, the build tool will build all languages required by the bundles to function") do |opt_lang|
     languages = opt_lang.split(',').map { |x| x.to_sym }
   end
@@ -93,6 +113,10 @@ opts = OptionParser.new do |opts|
     build_all = !!opt_all
   end
 
+  opts.on('-a', '--[no-]symlink', "Use symlinks where possible to reduce build size.  Only use this option if you are both building and deploying on machines that support symlinks") do |opt_symlink| 
+    symlink = !!opt_symlink
+  end
+  
 end
 opts.parse!
 
@@ -105,7 +129,7 @@ SC.logger.level = (verbose) ? Logger::DEBUG : Logger::INFO
 SC.logger.progname = $0
 
 # Load Library
-library = SC.library_for(library_root, :public_root => build_root, :build_mode => build_mode)
+library = SC.library_for(library_root, :public_root => build_root, :build_mode => build_mode, :build_numbers => build_numbers)
 
 if library.nil?
   SC.logger.fatal("No SproutCore library could be found.  Make sure you are inside of your project directory (the one with an sc-config file in it).")
@@ -116,13 +140,14 @@ end
 ## FIND BUNDLES TO BUILD
 ##
 
-puts "build_root = #{build_root}"
+target_bundle = [] # save for platform detection, does not include required...
 
 # Find the bundles to build.
 if bundle_name
   # Get bundle
   bundle = library.bundle_for(bundle_name.to_sym)
   not_found(bundle) if bundle.nil?
+  target_bundles = [bundle]
 
   # If dependencies are required, get those bundles as well
   if include_dependencies
@@ -137,6 +162,7 @@ if bundle_name
 else
   bundles = (build_all) ? library.bundles : library.default_bundles_for_build
   SC.logger.info("Building ALL bundles:\n #{bundles.map { |x| x.bundle_name } * ', '}...")
+  target_bundles = bundles
 end
 
 ############################################################
@@ -151,7 +177,16 @@ languages ||= library.environment_for(nil)[:build_languages]
 languages = nil unless languages.nil? || languages.size > 0
 languages ||= bundles.map { |b| b.installed_languages }.flatten.uniq 
 
+# Detect required platforms to build
+# Unless platforms are specified on the command line, we build any platforms
+# specified in the build_platforms config or text languages in the target 
+# bundles.
+platforms ||= library.environment_for(nil)[:build_platforms]
+platforms = nil unless platforms.nil? || platforms.size > 0
+platforms ||= target_bundles.map { |b| b.installed_platforms }.flatten.uniq
+
 SC.logger.info("Building Languages: #{languages.join(', ')}")
+SC.logger.info("Building Platforms: #{platforms.join(', ')}")
 
 SC.logger.info('')
 bundles.each do |bundle|
@@ -162,7 +197,9 @@ bundles.each do |bundle|
     FileUtils.rm_rf(bundle.build_root)
   end
 
-  bundle.build(*languages)
+  SC.logger.info("~ Build Number: #{bundle.build_number}")
+  $0 = "sc-build: building #{bundle.bundle_name}"
+  platforms.each { |p| bundle.build(p, *languages) }
 
   if docs
     SC.logger.debug('~ Building docs')
