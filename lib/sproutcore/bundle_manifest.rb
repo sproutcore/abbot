@@ -361,8 +361,10 @@ module SproutCore
       # This is only useful in development mode
       ret.use_source_directly = use_source_directly
       if use_source_directly
-        ret.build_path = File.join(bundle.build_root, '_src', src_path)
-        ret.url = [url_root, '_src', src_path].join('/')
+        path_parts = [bundle.build_root, language.to_s, platform.to_s, '_src', src_path]
+        ret.build_path = File.join(*(path_parts.compact))
+        path_parts[0] = url_root
+        ret.url = path_parts.compact.join('/')
         
       # If the resource is not served directly, then calculate the actual 
       # build path and URL for production mode.  The build path is the 
@@ -562,6 +564,8 @@ module SproutCore
       "xpm"   => "image/x-xpixmap",
       "xwd"   => "image/x-xwindowdump",
       "zip"   => "application/zip",
+      "js"    => "text/javascript",
+      "json"  => "text/json"
     }
     # :startdoc:
 
