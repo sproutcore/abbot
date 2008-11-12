@@ -20,7 +20,7 @@ module SproutCore
 
     NORMALIZED_TYPE_EXTENSIONS = {
       :stylesheet => { :sass => :css },
-      :test => { '.+' => :html }
+      :test => { '[^\/\.]+' => :html }
     }
 
     attr_reader :bundle, :language, :build_mode, :platform
@@ -270,11 +270,11 @@ module SproutCore
     def type_of(src_path)
       return :skip if File.directory?(src_path)
       case src_path
-      when /^tests\/.+/
+      when /^([^\/\.]+\.platform\/)?tests\/.+/
         :test
-      when /^fixtures\/.+\.js$/
+      when /^([^\/\.]+\.platform\/)?fixtures\/.+\.js$/
         :fixture
-      when /^debug\/.+\.js$/
+      when /^([^\/\.]+\.platform\/)?debug\/.+\.js$/
         :debug
       when /\.rhtml$/
         :html
