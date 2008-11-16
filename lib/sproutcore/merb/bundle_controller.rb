@@ -1,6 +1,7 @@
 require 'sproutcore/jsdoc'
 require 'net/http'
 require 'uri'
+require 'rack/utils'
 
 module SproutCore
   
