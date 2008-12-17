@@ -147,7 +147,31 @@ module SproutCore
 
       # Final processing of file.  Remove comments & minify
       def join(lines)
-
+        if bundle.minify?
+          # first suck out any comments that should be retained
+          comments = []
+          include_line = false
+          lines.each do | line |
+            is_mark = (line =~ /@license/)
+            unless include_line
+              if is_mark
+                include_line = true
+                line= "/*!\n"
+              end 
+              is_mark = false
+            end
+            if include_line && is_mark
+              include_line = false
+              comments << "*/\n"  
+            elsif include_line
+              comments << line
+            end 
+          end
+          # now minify and prepend any static
+          comments.push "\n" unless comments.empty?
+          comments.push (lines * '')
+          lines = comments
+        end
         
         lines.join
       end
