@@ -148,27 +148,7 @@ module SproutCore
       # Final processing of file.  Remove comments & minify
       def join(lines)
 
-        if bundle.minify?
-          # first suck out any comments that should be retained
-          comments = []
-          include_line = false
-          lines.each do | line |
-            is_mark = (line =~ /@license/)
-            unless include_line
-              include_line = true if is_mark
-              is_mark = false
-            end
-
-            comments << line if include_line
-            include_line = false if include_line && is_mark
-          end
-
-          # now minify and prepend any static
-          comments.push "\n" unless comments.empty?
-          comments.push SproutCore::JSMin.run(lines * '')
-          lines = comments
-        end
-
+        
         lines.join
       end
 
@@ -217,6 +197,18 @@ module SproutCore
         f = File.open(entry.build_path, 'w')
         f.write(output)
         f.close
+		if bundle.minify?
+			yui_root = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'yui_compressor'))
+			jar_path = File.join(yui_root, 'yuicompressor-2.4.2.jar')
+			filecompress = "java -jar " + jar_path + " --charset utf-8 " + entry.build_path + " -o " +entry.build_path
+			puts 'Compressing with YUI .... '+ entry.build_path
+			puts `#{filecompress}`
+			if $?.exitstatus != 0
+				SC.logger.fatal("!!!!YUI compressor failed, please check that your js code is valid and doesn't contain reserved statements like debugger;")
+				SC.logger.fatal("!!!!Failed compressing ... "+ entry.build_path)
+				exit(1)
+			end
+		end
       end
     end
 
