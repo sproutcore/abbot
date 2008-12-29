@@ -4,7 +4,22 @@ abbot
 
 == DESCRIPTION:
 
-Abbot is a JavaScript build system
+Abbot is a build system for creating static pages on the web.  You can supply
+Abbot with a collection of JavaScript, HTML, CSS and image files and it will 
+combine the files into a bundle of files that are optimized for output on the
+web.
+
+Abbot consists of several tools that all work together:
+
+- Bundle Filter: This system can generate a manifest of the content a bundle should contain when built including all of the rules that should be followed to actually build each entry.  You can write custom filters to modify this manifest, effecting the output.
+
+- JavaScript Builder: This tool can take a number of input files and combine them to produce a single output JavaScript, possibly minifying and performing other optimizations.
+
+- HTML Builder: This tool can take a number of input files and build an output HTML file.
+
+- CSS Builder: ditto for CSS
+
+- Copier: copies files...
 
 == FEATURES/PROBLEMS:
 

@@ -12,15 +12,15 @@ end
 ensure_in_path 'lib'
 require 'abbot'
 
-task :default => 'spec:run'
+task :default => 'spec:specdoc'
 
 PROJ.name = 'abbot'
-PROJ.authors = 'FIXME (who is writing this software)'
-PROJ.email = 'FIXME (your e-mail)'
-PROJ.url = 'FIXME (project homepage)'
+PROJ.authors = 'Sprout Systems, Inc.  Apple, Inc. and contributors'
+PROJ.email = 'contact@sproutcore.com'
+PROJ.url = 'http://www.sproutcore.com/abbot'
 PROJ.version = Abbot::VERSION
 PROJ.rubyforge.name = 'abbot'
-
+PROJ.ruby_opts = []
 PROJ.spec.opts << '--color'
 
 # EOF

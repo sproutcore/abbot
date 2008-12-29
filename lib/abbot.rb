@@ -37,10 +37,16 @@ module Abbot
   def self.require_all_libs_relative_to( fname, dir = nil )
     dir ||= ::File.basename(fname, '.*')
     search_me = ::File.expand_path(
-        ::File.join(::File.dirname(fname), dir, '*', '*.rb'))
+        ::File.join(::File.dirname(fname), dir, '*.rb'))
 
     Dir.glob(search_me).sort.each {|rb| require rb}
   end
+  
+  # Global variable that can store specific environmental settings.  This is
+  # where you will find the build mode among other things set by sc-build.
+  #
+  def self.env; @env ||= { :build_mode => :debug }; end
+  def self.env=(hash); @env = hash; end
 
 end  # module Abbot
 

@@ -1,0 +1,15 @@
+config(all):
+  # required by bundle/environment_spec
+  key1: basic_library
+  key2: basic_library
+  key3: basic_library
+  key4: basic_library
+  key5: basic_library
+  key6: basic_library
+
+config(lib1/nested_app1):
+  # required by bundle/environment_spec
+  key4: nested:basic_library
+  key5: nested:basic_library
+  key6: nested:basic_library
+  

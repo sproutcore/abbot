@@ -1,0 +1,9 @@
+# YAML CONFIG VARIATION
+
+config(domain):
+  a: a
+  b: b
+
+proxy(/url):
+  a: a
+  b: b

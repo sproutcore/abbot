@@ -1,0 +1,2 @@
+config(all):
+  installed_lib1: true 

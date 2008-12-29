@@ -1,0 +1,7 @@
+config(all):
+  # required by bundle/environment_spec
+  key3: nested_app1  
+  
+config(lib1/nested_app1):
+  # required by bundle/environment_spec
+  key6: nested:nested_app1
