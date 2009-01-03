@@ -1,0 +1,7 @@
+Kernel.const_reset :RESULTS, {}
+
+task :default => :installed_task
+
+task :installed_task do
+ RESULTS[:installed_task] = true
+end
