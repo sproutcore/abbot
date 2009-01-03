@@ -26,7 +26,8 @@ module Abbot
         require 'yaml'
         file_contents = File.read(config_path)
         
-        if !YAML::load(file_contents).instance_of?(Hash)
+        results = YAML::load(file_contents) rescue nil
+        if !results.kind_of?(Hash)
           return load_ruby(config_path, file_contents)
         else
           return load_yaml(config_path,file_contents)
@@ -54,12 +55,38 @@ module Abbot
     
     def from_file; @from_file; end
 
+    # Merges configs.  This will walk down the keys, continuing to merge
+    # hashes until none are left.
+    def self.merge_config(hash1, hash2)
+      ret = hash2 || hash1
+      if hash1.kind_of?(Hash) && hash2.kind_of?(Hash) 
+        # Merge hash...
+        hash1 ||= {}
+        hash2 ||= {}
+        ret = {}
+        [hash1.keys, hash2.keys].flatten.compact.uniq.each do |key|
+          ret[key] = merge_config(hash1[key], hash2[key])
+        end
+      end
+      return ret
+    end
+      
     ################################################
     ## CONFIG FILE DSL
     
+    # Scopes the block contents to the specified mode.  You should pass :all
+    # if you want to apply to all modes.
+    def mode(mode_name, &block)
+      old_mode = @current_mode
+      @current_mode = self[("mode(#{mode_name})" || :'mode(all)').to_sym] ||= {}
+      yield if block_given?
+      @current_mode = old_mode
+    end
+
     def config(domain, opts = {}, &block) 
       yield(opts) if block_given?
-      self["config(#{domain})".to_sym] = symbolize_keys(opts)
+      hash = (current_mode["config(#{domain})".to_sym] ||= {})
+      hash.merge! symbolize_keys(opts)
       return self
     end
     
@@ -77,8 +104,30 @@ module Abbot
     end
     
     def apply_yaml(yaml)
-      yaml.each { |k, v| self[k.to_sym] = symbolize_keys(v) }
+      # iterate through the keys and basically convert them into equivalent
+      # ruby calls.
+      yaml.each do |key, hash|
+        case key
+        when /^mode\(.*\)$/:
+          self.mode key.gsub(/^mode\((.*)\)$/, '\1').to_sym do 
+            self.apply_yaml(hash)
+          end
+        
+        when /^config\(.*\)$/:
+          self.config(key.gsub(/^config\((.*)\)$/, '\1').to_sym, hash)
+          
+        when /^proxy\(.*\)$/:
+          self.proxy(key.gsub(/^proxy\((.*)\)$/, '\1').to_sym, hash)
+          
+        else
+          self[key.to_sym] = symbolize_keys(hash)
+        end          
+      end
       return self
+    end
+
+    def current_mode
+      @current_mode ||= (self[:'mode(all)'] ||= {})
     end
     
     protected 

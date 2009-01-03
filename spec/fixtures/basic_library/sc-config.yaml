@@ -6,6 +6,7 @@ config(all):
   key4: basic_library
   key5: basic_library
   key6: basic_library
+  is_production: false
 
 config(lib1/nested_app1):
   # required by bundle/environment_spec
@@ -13,3 +14,7 @@ config(lib1/nested_app1):
   key5: nested:basic_library
   key6: nested:basic_library
   
+mode(production):
+  config(all):
+    is_production: true
+    

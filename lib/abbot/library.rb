@@ -42,9 +42,29 @@ module Abbot
     def bundle_for(bundle_name)
       bundles_by_name[bundle_name.to_sym]
     end
+
+    # Override built in bundle to deal with next library...
+    def merged_sc_config
+      @merged_sc_config ||= Config.merge_config(next_library.nil? ? nil : next_library.merged_sc_config, local_sc_config)
+    end
+        
+    # Returns the next library in the current library history.
+    def next_library; @next_library; end
+    
+    def initialize(opts={}) 
+
+      # Ignore useless options...
+      opts[:bundle_type] = :library
+      opts[:parent_bundle] = nil 
+      super(opts)
+
+      # set next_library...
+      @next_library = opts[:next_library]
+
+    end
     
     protected
-    
+
     # Returns a hash of all bundles keyed by bundle name.
     def bundles_by_name
       return @bundles_by_name unless @bundles_by_name.nil?

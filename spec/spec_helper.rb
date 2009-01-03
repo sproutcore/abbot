@@ -26,6 +26,14 @@ module Abbot
       fixture_path('basic_libary')
     end
     
+    # Gets a new Library with the basic library as the root + 
+    # installed_library in the path.  vs. basic_library_bundle which gets 
+    # a bundle...
+    def basic_library 
+      Abbot::Library.library_for fixture_path('basic_library'),
+        :paths => [fixture_path('installed_library')]
+    end
+    
     def basic_library_bundle
       Abbot::Bundle.new :source_root => fixture_path('basic_library')
     end

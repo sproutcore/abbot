@@ -30,14 +30,29 @@ describe Abbot::Config, 'load' do
   def verify_ruby(path)
     config = Abbot::Config.load(path)
     
-    (c = config[:'config(block)']).should_not be_nil
-    c[:a].should eql(:a)
-    c[:b].should eql(:b)
+    # Configs always live inside of a mode.  The default mode is "all"
+    # Note that :a keys are defined outside of the mode(all) block and :b keys
+    # inside a mode(all) block.  the Config loader should normalize this. 
+    (mode_config = config[:'mode(all)']).should_not be_nil
+      (c = mode_config[:'config(block)']).should_not be_nil
+      c[:a].should eql(:a)
+      c[:b].should eql(:b)
 
-    (c = config[:'config(param)']).should_not be_nil
-    c[:a].should eql(:a)
-    c[:b].should eql(:b)
+      (c = mode_config[:'config(param)']).should_not be_nil
+      c[:a].should eql(:a)
+      c[:b].should eql(:b)
 
+    # Check configs loaded with a mode defined
+    (mode_config = config[:'mode(debug)']).should_not be_nil
+      (c = mode_config[:'config(block)']).should_not be_nil
+      c[:a_debug].should eql(:a)
+      c[:b_debug].should eql(:b)
+
+      (c = mode_config[:'config(param)']).should_not be_nil
+      c[:a_debug].should eql(:a)
+      c[:b_debug].should eql(:b)
+      
+      
     (c = config[:'proxy(/block)']).should_not be_nil
     c[:a].should eql(:a)
     c[:b].should eql(:b)
@@ -49,10 +64,17 @@ describe Abbot::Config, 'load' do
   
   def verify_yaml(path)
     config = Abbot::Config.load(path)
-    
-    (c = config[:'config(domain)']).should_not be_nil
-    c[:a].should eql('a')
-    c[:b].should eql('b')
+
+    (mode_config = config[:'mode(all)']).should_not be_nil
+      (c = mode_config[:'config(domain)']).should_not be_nil
+      c[:a].should eql('a')
+      c[:b].should eql('b')
+
+    # Check configs loaded with a mode defined
+    (mode_config = config[:'mode(debug)']).should_not be_nil
+      (c = mode_config[:'config(domain)']).should_not be_nil
+      c[:a_debug].should eql('a')
+      c[:b_debug].should eql('b')
 
     (c = config[:'proxy(/url)']).should_not be_nil
     c[:a].should eql('a')

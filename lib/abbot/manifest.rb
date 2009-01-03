@@ -11,7 +11,7 @@ module Abbot
     
     # Runs the 'abbot:manifest:prepare' filter on the receiver
     def prepare!
-      bundle.filter_for(:'abbot:manifest:prepare').filter!(self)
+      bundle.filter_for(:'manifest:prepare').filter!(self)
     end
     
   end

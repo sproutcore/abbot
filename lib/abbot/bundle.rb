@@ -20,13 +20,11 @@ module Abbot
     #  :source_root:: The path to the bundle source
     #  :bundle_type:: the bundle type.  must be :framework, :app, :library
     #  :parent_bundle:: the parent bundle.  must be included except for :library
-    #  :next_bundle:: the next bundle in the load path - only for :library
     #
-    def initialize(opts) 
+    def initialize(opts={}) 
       @source_root = opts[:source_root]
       @parent_bundle = opts[:parent_bundle]
       @bundle_type = (opts[:bundle_type] || :library).to_sym 
-      @next_library = opts[:next_library]
       
       # ensure consistency
       raise "bundle must include source_root (opts=#{opts})" if @source_root.nil?
@@ -35,7 +33,6 @@ module Abbot
         raise "library bundle may not have parent bundle" if @parent_bundle
       else
         raise "#{@bundle_type} bundle must have parent bundle" if @parent_bundle.nil?
-        raise "only library bundles may have next_library" if @next_library
       end
 
     end
@@ -75,9 +72,6 @@ module Abbot
     # Returns the type of bundle.  Must be :library, :framework, :app
     def bundle_type; @bundle_type; end
 
-    # Returns the next library in the current library history.
-    def next_library; @next_library; end
-    
     # The name of the bundle as it can be referenced in code.  The bundle name
     # is composed of the bundlename itself + its parent bundle name unless the
     # parent is a library.
@@ -102,7 +96,21 @@ module Abbot
     # Abbot::env) are merged over top.
     #
     def environment
-      @environment ||= merged_sc_config_for(:all).merge(merged_sc_config_for(bundle_name)).merge(Abbot.env)
+      return @environment unless @environment.nil?
+
+      # get current mode
+      mode_name = Abbot.env[:mode] || :debug
+      mode_name = :debug if (mode_name == :development) 
+
+      ret = merged_sc_config_for(:all, :all)
+      
+      ret.merge! merged_sc_config_for(:all, mode_name)
+      ret.merge! merged_sc_config_for(bundle_name, :all)
+
+      ret.merge! merged_sc_config_for(bundle_name, mode_name)
+      ret.merge! Abbot.env
+      
+      @environment = ret 
     end
 
     # Returns a manifest that describes every resource in the bundle.  The
@@ -150,7 +158,7 @@ module Abbot
     ######################################################
     ## INTERNAL SUPPORT METHODS
     ##
-    protected 
+    #protected 
     
     # Returns the paths for all applications installed in this bundle.
     def app_paths
@@ -201,23 +209,17 @@ module Abbot
       if parent_bundle.nil?
         @merged_sc_config = local_sc_config
       else
-        pconf = parent_bundle.merged_sc_config
-        lconf = local_sc_config
-        ret = {}
-        [pconf.keys, lconf.keys].flatten.compact.uniq.each do |key|
-          phash = pconf[key]
-          lhash = lconf[key]
-          ret[key] = phash.nil? ? lhash : (lhash.nil? ? phash : phash.merge(lhash))
-        end
-        @merged_sc_config = ret
+        @merged_sc_config = Config.merge_config(parent_bundle.merged_sc_config, local_sc_config)
       end
+      
       @merged_sc_config
     end
       
     # Returns the merged config setting for the specified bundle key or 
     # returns an empty hash.
-    def merged_sc_config_for(hash_name) 
-      merged_sc_config["config(#{hash_name})".to_sym] || {}
+    def merged_sc_config_for(hash_name, mode_name = :all) 
+      ret = merged_sc_config["mode(#{mode_name})".to_sym]
+      return ret.nil? ? {} : (ret["config(#{hash_name})".to_sym] || {})
     end
     
   end

@@ -2,7 +2,15 @@
 
 config(domain):
   a: a
-  b: b
+  
+mode(all):
+  config(domain):
+    b: b
+  
+mode(debug):
+  config(domain):
+    a_debug: a
+    b_debug: b
 
 proxy(/url):
   a: a

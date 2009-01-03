@@ -29,11 +29,6 @@ describe Abbot::Bundle, 'initialize' do
     lambda { Abbot::Bundle.new :source_root => fixture_path('basic_library', 'apps', 'app1'), :bundle_type => :library, :parent_bundle => basic_library_bundle }.should raise_error
   end
   
-  it "should allow next_bundle only if bundle_type == :library" do
-    lambda { Abbot::Bundle.new :source_root => basic_library_path, :bundle_type => :library, :next_library => installed_library_bundle }.should_not raise_error
-    lambda { Abbot::Bundle.new :source_root => fixture_path('basic_library', 'app1'), :bundle_type => :app, :next_library => installed_library_bundle, :parent_bundle => installed_library_bundle }.should raise_error
-  end
-
   it "should have readers for source_root, bundle_type, and parent_bundle" do
     parent = basic_library_bundle
     b = app1_bundle(parent)

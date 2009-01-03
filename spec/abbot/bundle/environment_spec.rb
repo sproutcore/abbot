@@ -28,6 +28,25 @@ describe Abbot::Bundle, 'environment' do
     (env = b.environment).should_not be_nil
     env[:build_number].should eql(123) # from specific opts
   end
+  
+  it "should merge build mode specific configs" do
+    old_build_mode = Abbot.env[:build_mode]
+    Abbot.env[:mode] = :production
     
+    b = nested_app1_bundle # create new bundle with setting..
+    b.environment[:is_production].should eql(true) # supplied by basic_library/config
+  end
+    
+  it "should merge in global config settings from other libraries (but not from bundles within the libraries)" do
+    # buid library 
+    lib = basic_library
+    b = lib.bundle_for(:lib1)
+    
+    # supplied in installed_library/sc-config
+    b.environment[:installed_key].should eql('installed_library')
+    
+    # defined in installed_library/frameworks/installed_lib1/sc-config
+    b.environment[:installed_lib1].should_not eql(true)
+  end
     
 end
