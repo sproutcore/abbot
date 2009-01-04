@@ -50,6 +50,9 @@ module Abbot
     # instead of a single file, this method will try to find a buildfile 
     # (named Buildfile or sc-config or sc-config.rb).
     #
+    # If you pass a directory with no buildfile, this file assumes you meant
+    # to load an empty buildfile instance or a copy of the base_buildfile.
+    #
     # === Params
     #  path:: the path to laod at
     #  base_buildfile:: a Buildfile instance or nil
@@ -60,14 +63,17 @@ module Abbot
     def self.load(path, base_buildfile = nil)
 
       path = buildfile_path_for(path)
-      raise "No Buildfile found at #{path}" unless File.exist?(path)
           
       # Clone the buildfile object or build a new one
       ret = base_buildfile.nil? ? self.new : base_buildfile.dup
-      ret.path = path
       
       # make the buildfile the current rake application and then load file
-      return ret.define { Kernel.load(path); ret.load_imports }
+      if File.exist?(path)
+        ret.path = path
+        ret.define { Kernel.load(path); ret.load_imports }
+      end
+      
+      return ret 
     end
     
     # Creates a new Buildfile, optionally using the passed instance as a
@@ -95,6 +101,12 @@ module Abbot
     # will yield the block if given after making the buildfile the current
     # build file.
     def define
+      
+      # reset some common settings
+      self.current_mode = :all 
+      self.last_description = nil
+      
+      # save old application and yield
       old_app = Rake.application
       Rake.application = self 
       yield if block_given?
@@ -147,17 +159,124 @@ module Abbot
     end
     
     ################################################
+    # CONFIG METHODS
+    #
+    
+    attr_accessor :current_mode
+    
+    # The hash of configs as loaded from the files.  The configs are stored
+    # by mode and then by config name.  To get a merged config, use
+    # config_for().
+    attr_reader :configs
+    
+    # The hash of proxy commands
+    
+    # Merge the passed hash of options into the config hash.  This method
+    # is usually used by the config global helper
+    #
+    # === Params
+    #  config_name:: the name of the config to set
+    #  config_mode:: the mode to store the config.  If omitted use current
+    #  opts:  the config options to merge in
+    #
+    # === Returns
+    #  receiver
+    #
+    def add_config(config_name, config_mode, opts=nil)
+      # Normalize Params
+      if opts.nil?
+        opts = config_mode; config_mode = nil
+      end
+      config_mode = current_mode if config_mode.nil?
+      
+      # Perform Merge
+      mode_configs = (self.configs[config_mode.to_sym] ||= HashStruct.new)
+      config = (mode_configs[config_name.to_sym] ||= HashStruct.new)
+      config.merge!(opts)
+    end
+    
+    # Returns the merged config setting for the config name and mode.  If 
+    # no mode is specified the :all mode is assumed.
+    #
+    # This will merge config hashes in the following order (mode/name):
+    # 
+    # all:all -> mode:all -> all:config -> mode:config
+    #
+    # 
+    
+    # === Params
+    #  config_name:: The config name
+    #  mode_name:: optional mode name
+    #  
+    # === Returns
+    #  merged config -- a HashStruct
+    def config_for(config_name, mode_name=nil)
+      mode_name = :all if mode_name.nil?
+
+      # collect the hashes
+      all_configs = configs[:all]
+      cur_configs = configs[mode_name]
+      ret = HashStruct.new
+      
+      # now merge em! -- note that this assumes the merge method will handle
+      # self.merge(self) & self.merge(nil) gracefully
+      ret.merge!(all_configs[:all]) if all_configs
+      ret.merge!(cur_configs[:all]) if cur_configs
+      ret.merge!(all_configs[config_name]) if all_configs
+      ret.merge!(cur_configs[config_name]) if cur_configs
+      
+      # Done -- return result
+      return ret  
+    end      
+
+    ################################################
+    # PROXY METHODS
+    #
+    
+    # The hash of all proxies paths and their options
+    attr_reader :proxies
+    
+    # Adds a proxy to the list of proxy paths.  These are used only in server
+    # mode to proxy certain URLs.  If you call this method with the same 
+    # proxy path more than once, the options will be merged.
+    #
+    # === Params
+    #  :proxy_path the URL to proxy
+    #  :opts any proxy options
+    #
+    # === Returns
+    #  receiver
+    #
+    def add_proxy(proxy_path, opts={})
+      @proxies[proxy_path] = HashStruct.new(opts)
+      return self
+    end
+    
+    ################################################
     # INTERNAL SUPPORT
     #
+    
+    def initialize
+      super
+      @configs = HashStruct.new
+      @proxies = HashStruct.new
+    end
     
     # When dup'ing, rewrite the @tasks hash to use clones of the tasks 
     # the point to the new application object.
     def dup
       ret = super
+      
+      # Make sure the tasks themselves are cloned
       tasks = ret.instance_variable_get('@tasks')
       tasks.each do | key, task |
         tasks[key] = task.dup(ret)
       end
+      
+      # Deep clone the config and proxy hashes as well...
+      ret.instance_variable_set('@configs', @configs.deep_clone)
+      ret.instance_variable_set('@proxies', @proxies.deep_clone)
+
       return ret 
     end
     
@@ -223,3 +342,31 @@ alias :filter :task
 # Defines a builder task.  Currently this is just an alias for the task 
 # method.
 alias :builder :task
+
+# Global Helper Methods 
+
+# Buildfile command that will scope any configs inside of the passed block to
+# the named build mode.  To scope to all build modes, use mode :all ...
+def mode(build_mode, &block)
+  old_mode = Rake.application.current_mode
+  Rake.application.current_mode = build_mode.to_sym
+  yield if block_given?
+  Rake.application.current_mode = old_mode
+  return self
+end
+
+# Buildfile command to register config settings for the named bundle hash. To
+# register config settings for all bundles, pass :all
+def config(config_name, opts = {}, &block)
+  opts = Abbot::HashStruct.new(opts)
+  yield(opts) if block_given?
+  Rake.application.add_config config_name, opts
+  return self
+end
+
+# Buildfile command to register a proxy setting.
+def proxy(proxy_path, opts={})
+  Rake.application.add_proxy proxy_path, opts
+end
+
+

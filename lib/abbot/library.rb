@@ -51,6 +51,11 @@ module Abbot
     # Returns the next library in the current library history.
     def next_library; @next_library; end
     
+    # Returns the buildfile from the next library
+    def next_buildfile
+      next_library.nil? ? nil : next_library.buildfile
+    end
+    
     def initialize(opts={}) 
 
       # Ignore useless options...

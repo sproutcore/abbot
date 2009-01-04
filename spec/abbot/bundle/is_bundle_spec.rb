@@ -4,15 +4,15 @@ describe Abbot::Bundle, 'is_bundle?' do
   
   include Abbot::SpecHelpers
   
-  it "should identify a directory with sc-config, sc-config.rb, sc-config.yaml as bundle" do
-    %w(ruby1 ruby2 yaml1 yaml2).each do |p|
-      path = fixture_path('configs', p)
+  it "should identify a directory with sc-config, sc-config.rb, Buildfile as bundle" do
+    %w(basic sc-config sc-config.rb).each do |p|
+      path = fixture_path('buildfiles', p)
       Abbot::Bundle.is_bundle?(path).should be_true
     end
   end
   
   it "should identify a directory without sc-config as not bundle" do
-    path = fixture_path('configs', 'not_bundle')
+    path = fixture_path('buildfiles', 'not_bundle')
     Abbot::Bundle.is_bundle?(path).should be_false
   end
   

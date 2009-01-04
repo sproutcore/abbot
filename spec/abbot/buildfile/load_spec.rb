@@ -43,10 +43,6 @@ describe Abbot::Buildfile, 'from' do
     a = Abbot::Buildfile.load(fixture_path('buildfiles','installed'))
     b = Abbot::Buildfile.load(fixture_path('buildfiles','basic'), a)
     
-    require 'pp'
-    pp b.tasks
-    pp b
-    
     b.execute_task :default
     
     # Found in Buildfile

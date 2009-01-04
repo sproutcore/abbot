@@ -1,4 +1,0 @@
-config(all):
-  
-  # used by environment_spec
-  installed_key: 'installed_library'

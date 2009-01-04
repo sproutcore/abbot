@@ -50,14 +50,15 @@ namespace :manifest do
     end
   end
   filter :default => :localize
+  config :all, :default_language => :en
   
 end
   
-namespace :builders
+namespace :build
 
-  desc "Copy a file from the source path to the destination"
-  builder :copy_file do
-    File.cp_r(ENTRY.source_path, BUILD_PATH) if path != entry.source_path
+  desc "Copy a file from the source path to the destination."
+  builder :copy do
+    File.cp_r(SRC_PATH, DST_PATH) unless SRC_PATH == DST_PATH
   end
 
 end
