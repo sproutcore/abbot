@@ -1,9 +1,12 @@
 require 'rake'
+require File.join(File.dirname(__FILE__), 'hash_struct')
 
 module Abbot
 
-  # A Buildfile is a special type of Rake Application that knows how to load
-  # Abbot build rules.  To load a buildfile, call Buildfile.load() with the 
+  # A Buildfile is a special type of Rake Application that knows how to work
+  # with Abbot Buildfiles.  Buildfiles include addition support on top of rake
+  # for processing command line arguments, and for automatically building
+  # targets.  To load a buildfile, call Buildfile.load() with the 
   # pathname of the build file (or null for an empty file).  You can also
   # pass a parent buildfile which will be used as the basis for the buildfile.
   #
@@ -12,9 +15,10 @@ module Abbot
   # Buildfile as part of a bundle.  The needed tasks will be invoked as needed
   # to populate the manifest, environment, etc.
   #
-  class Buildfile < ::Rake::Application
+  class Buildfile
     
     include ::Rake::Cloneable
+    include ::Rake::TaskManager
     
     # The location of the buildfile represented by this object.
     attr_accessor :path
@@ -23,97 +27,79 @@ module Abbot
     # CLASS METHODS
     #
     
-    # Attempts to locate a buildfile for the specified path.  You can pass
-    # in either a path to the file itself or to its parent directory, in
-    # which case this method will look for one of Buildfile, sc-config, or 
-    # sc-config.rb
-    #
-    # === Params
-    #  path:: The path to search
-    #
-    # === Returns
-    #  The found buildfile path or the same path that was passed in
-    #
-    def self.buildfile_path_for(path)
-      if File.directory?(path)
-        %w(Buildfile sc-config sc-config.rb).each do |filename|
-          if File.exist?(filename = File.join(path, filename))
-            path = filename
-            break
-          end
-        end
-      end
-      return path
-    end
-      
-    # Loads the buildfile at the specified path.  If you pass a directory
-    # instead of a single file, this method will try to find a buildfile 
-    # (named Buildfile or sc-config or sc-config.rb).
-    #
-    # If you pass a directory with no buildfile, this file assumes you meant
-    # to load an empty buildfile instance or a copy of the base_buildfile.
+    # Loads the buildfile at the specified path.  This simply creates a new
+    # instance and loads it.
     #
     # === Params
     #  path:: the path to laod at
-    #  base_buildfile:: a Buildfile instance or nil
     #
     # === Returns
     #  A new Buildfile instance
     #
-    def self.load(path, base_buildfile = nil)
-
-      path = buildfile_path_for(path)
-          
-      # Clone the buildfile object or build a new one
-      ret = base_buildfile.nil? ? self.new : base_buildfile.dup
-      
-      # make the buildfile the current rake application and then load file
-      if File.exist?(path)
-        ret.path = path
-        ret.define { Kernel.load(path); ret.load_imports }
-      end
-      
-      return ret 
+    def self.load(path)
+      self.new.load!(path)
     end
     
-    # Creates a new Buildfile, optionally using the passed instance as a
-    # source, then invokes the passed block with the new receiver as the 
-    # current buildfile.  You can use this instead of loading a buildfile.
-    #
-    # This method is most often used for unit testing.
-    #
-    # === Params
-    #  base_buildfile:: the buildfile to start from
+    # Creates a new buildfile and then gives you an opportunity to define 
+    # its contents by executing the passed block in the context of the 
+    # buildfile.
     #
     # === Returns
     #  A new buildfile instance
     #
-    def self.define(base_buildfile=nil, &block)
-      ret = base_buildfile.nil? ? self.new : base_buildfile.dup
-      return ret.define(&block)
+    def self.define(&block)
+      self.new.define!(&block)
     end
-      
+
     ################################################
     # TASK METHODS
     #
     
+    attr_reader :current_path
+    
     # Extend the buildfile dynamically by executing the named task.  This 
     # will yield the block if given after making the buildfile the current
     # build file.
-    def define
-      
-      # reset some common settings
-      self.current_mode = :all 
-      self.last_description = nil
-      
-      # save old application and yield
-      old_app = Rake.application
-      Rake.application = self 
-      yield if block_given?
-      Rake.application = old_app
+    #
+    # === Params
+    #   string:: optional string to eval
+    #   &block:: optional block to execute
+    #
+    # === Returns
+    #   self
+    #
+    def define!(string=nil, &block)
+      context = reset_define_context :current_mode => :all
+      instance_eval(string) if string
+      instance_eval(&block) if block_given?
+      load_imports
+      reset_define_context context
+      return self
+    end
+    
+    def task_defined?(task_name)
+      !!lookup(task_name)
+    end
+    
+    # Loads the contents of the passed file into the buildfile object.  The
+    # contents will be executed in the context of the buildfile object.  If
+    # the filename passed is nil or the file does not exist, this will simply
+    # do nothing.
+    #
+    # === Returns
+    #  self
+    
+    def load!(filename=nil)
+      old_path = @current_path
+      @current_path = filename
+      loaded_paths << filename # save loaded paths
+      define!(File.read(filename)) if filename && File.exist?(filename)
+      @current_path = old_path
       return self
     end
       
+    def loaded_paths; @loaded_paths ||= []; end
+    
     # Executes the name task.  Unlike invoke_task, this method will execute
     # the task even if it has already been executed before.  You can also 
     # pass a hash of additional constants that will be set on the global
@@ -136,33 +122,41 @@ module Abbot
       tasks.each { |task| task.reenable }
       return self
     end
-    
-    # Execute rules to build a manifest for the passed manifest.  This will
-    # setup the proper global settings and then invoke the manifest:prepare
-    # task, if it exists
-    def prepare_manifest(manifest)
-      execute_task :'manifest:prepare', 
-        :manifest => manifest, 
-        :bundle => manifest.bundle, 
-        :config => manifest.bundle.config
+
+    ################################################
+    # RAKE SUPPORT
+    #
+
+    # Add a file to the list of files to be imported.
+    def add_import(fn)
+      @pending_imports << fn
     end
-    
-    # Execute a build rule for the passed manifest entry.  This will setup the
-    # proper global settings and then invoke the build rule, if it exists
-    def execute_build_rule(build_rule, entry, build_path)
-      execute_task build_rule,
-        :entry => entry, 
-        :build_path => build_path, 
-        :manifest => entry.manifest, 
-        :bundle => entry.bundle,
-        :config => entry.bundle.config
+
+    # Load the pending list of imported files.
+    def load_imports
+      while fn = @pending_imports.shift
+        next if @imported.member?(fn)
+        if fn_task = lookup(fn)
+          fn_task.invoke
+        end
+        load!(fn)
+        @imported << fn
+      end
     end
-    
+
+    # Application options from the command line
+    attr_reader :options
+
     ################################################
     # CONFIG METHODS
     #
     
-    attr_accessor :current_mode
+    def current_mode
+      @define_context.current_mode
+    end
+    def current_mode=(new_mode)
+      @define_context.current_mode = new_mode
+    end
     
     # The hash of configs as loaded from the files.  The configs are stored
     # by mode and then by config name.  To get a merged config, use
@@ -211,7 +205,8 @@ module Abbot
     # === Returns
     #  merged config -- a HashStruct
     def config_for(config_name, mode_name=nil)
-      mode_name = :all if mode_name.nil?
+      mode_name = :all if mode_name.nil? || mode_name.to_s.size == 0
+      config_name = :all if config_name.nil? || config_name.to_s.size == 0
 
       # collect the hashes
       all_configs = configs[:all]
@@ -229,6 +224,13 @@ module Abbot
       return ret  
     end      
 
+    ################################################
+    # PROJECT & TARGET METHODS
+    #
+
+    def project_type; @project_type || :default; end
+    attr_writer :project_type
+    
     ################################################
     # PROXY METHODS
     #
@@ -260,6 +262,9 @@ module Abbot
       super
       @configs = HashStruct.new
       @proxies = HashStruct.new
+      @pending_imports = []
+      @imported = []
+      @options = HashStruct.new
     end
     
     # When dup'ing, rewrite the @tasks hash to use clones of the tasks 
@@ -274,14 +279,23 @@ module Abbot
       end
       
       # Deep clone the config and proxy hashes as well...
-      ret.instance_variable_set('@configs', @configs.deep_clone)
-      ret.instance_variable_set('@proxies', @proxies.deep_clone)
-
+      %w(@configs @proxies @options).each do |ivar|
+        cloned_ivar = instance_variable_get(ivar).deep_clone
+        ret.instance_variable_set(ivar, cloned_ivar)
+      end
       return ret 
     end
     
     protected
 
+    # Save off the old define context and replace it with the passed context
+    # This is used during a call to define()
+    def reset_define_context(context=nil)
+      ret = @define_context
+      @define_context = HashStruct.new(context || {})
+      return ret
+    end
+    
     # For each key in the passed hash, this will register a global 
     def set_kernel_consts(env = nil)
       return env if env.nil?
@@ -305,24 +319,25 @@ module Abbot
       
   end
   
-end
-
-# Extend the Rake Task to include ability to clone.  We can't use the builtin
-# Cloneable dup method because Task.initialize() expects two parameters.
-class Rake::Task
-  include ::Rake::Cloneable
-
-  DUP_KEYS = %w(@prerequisites @actions @full_comment @comment @scope @arg_names)
-  
-  def dup(app=nil)
-    app = application if app.nil?
-    sibling = self.class.new(name, app)
-    DUP_KEYS.each do |key|
-      v = self.instance_variable_get(key)
-      sibling.instance_variable_set(key, v)
+  # The task will only be executed if the destination path does not exist or
+  # if it's timestamp is older than any of the source paths.
+  class BuildTask < ::Rake::Task
+    
+    def needed?
+      return true if out_of_date?
     end
-    sibling.taint if tainted?
-    sibling
+    
+    def out_of_date?
+      ret = false
+      dst_mtime = File.exist?(DST_PATH) ? File.mtime(DST_PATH) : Rake::EARLY
+      SRC_PATHS.each do |path|
+        timestamp = File.exist?(path) ? File.mtime(path) : Rake::EARLY
+        ret = ret || (dst_mtime < timestamp)
+        break if ret
+      end
+      return ret 
+    end
+    
   end
   
 end
@@ -336,37 +351,14 @@ module Kernel
   end
 end
 
-# Defines a filter task.  Currently this is just an alias for the task method
-alias :filter :task
-
-# Defines a builder task.  Currently this is just an alias for the task 
-# method.
-alias :builder :task
-
 # Global Helper Methods 
 
-# Buildfile command that will scope any configs inside of the passed block to
-# the named build mode.  To scope to all build modes, use mode :all ...
-def mode(build_mode, &block)
-  old_mode = Rake.application.current_mode
-  Rake.application.current_mode = build_mode.to_sym
-  yield if block_given?
-  Rake.application.current_mode = old_mode
-  return self
+def build_task(*args, &block)
+  Abbot::BuildTask.define_task(*args, &block)
 end
 
-# Buildfile command to register config settings for the named bundle hash. To
-# register config settings for all bundles, pass :all
-def config(config_name, opts = {}, &block)
-  opts = Abbot::HashStruct.new(opts)
-  yield(opts) if block_given?
-  Rake.application.add_config config_name, opts
-  return self
-end
+# Generic CACHES constant can be used by tasks.
+CACHES = Abbot::HashStruct.new
 
-# Buildfile command to register a proxy setting.
-def proxy(proxy_path, opts={})
-  Rake.application.add_proxy proxy_path, opts
-end
-
+Abbot.require_all_libs_relative_to(__FILE__)
 

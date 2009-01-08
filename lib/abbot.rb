@@ -47,11 +47,24 @@ module Abbot
   # Global variable that can store specific environmental settings.  This is
   # where you will find the build mode among other things set by sc-build.
   #
-  def self.env; @env ||= { :build_mode => :debug }; end
-  def self.env=(hash); @env = hash; end
-
+  def self.env
+    @env ||= HashStruct.new(:build_mode => :debug, :buildfile_names => %w(Buildfile))
+  end
+  def self.env=(hash); @env = HashStruct.new(hash); end
+  
+  def self.build_mode
+    ret = env.build_mode || :debug
+    ret = ret.to_sym unless ret.nil?
+    ret = :debug if ret == :development # backwards compatibility
+    ret
+  end
+  
 end  # module Abbot
 
 Abbot.require_all_libs_relative_to(__FILE__)
+
+# Makes code more readable
+YES = true
+NO = false
 
 # EOF

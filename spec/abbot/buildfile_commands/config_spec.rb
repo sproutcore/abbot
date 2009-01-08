@@ -7,7 +7,7 @@ require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
 # but you can also use these in Buildfiles using the Buildfile.load() method.
 # The tests for those two method ensure that both approaches are identical.
 #
-describe Abbot::Buildfile, 'config helper' do
+describe Abbot::Buildfile::Commands, 'config' do
   
   it "should add the named config to the default mode when first defined" do
     a = Abbot::Buildfile.define do 
@@ -68,7 +68,7 @@ describe Abbot::Buildfile, 'config helper' do
       config :bundle, :test1 => :foo, :test2 => :foo
     end
     
-    b = Abbot::Buildfile.define(a) do
+    b = a.dup.define! do
       config :bundle, :test1 => :bar
     end
     
@@ -84,7 +84,6 @@ describe Abbot::Buildfile, 'config helper' do
       mode :debug do
         config :bundle, :foo => :foo
       end
-      
       config :bundle, :bar => :bar
     end
     

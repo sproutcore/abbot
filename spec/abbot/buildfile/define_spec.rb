@@ -26,7 +26,7 @@ describe Abbot::Buildfile, 'define' do
       end
     end
     
-    b = Abbot::Buildfile.define(a) do
+    b = a.dup.define! do
       task :test_task2 => :test_task1 do
         task2_did_run = true
       end
@@ -39,6 +39,21 @@ describe Abbot::Buildfile, 'define' do
     task1_did_run.should be_true
     task2_did_run.should be_true
   end
+  
+  it "should eval a string if passed to instance version" do
+    
+    # add accessor to test.
+    a = Abbot::Buildfile.new.define! do
+      def did_run; @did_run; end
+    end
+    
+    # now try string eval...
+    a.define! "task :test_task1 do\n@did_run = true\nend"
+    
+    a.execute_task :test_task1
+    a.did_run.should be_true
+  end
+
 end
 
         

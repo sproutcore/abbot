@@ -1,2 +1,0 @@
-This directory is used to test Bundle.is_bundle?.  It does not contain a 
-buildfile and therefore will not be considered a bundle.

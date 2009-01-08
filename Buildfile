@@ -1,66 +1,118 @@
-# Abbot Default Buildfile
-#
-# This build file is loaded when you try to create a library.  It will process
-# any config information you include as well as any tasks or other options you
-# might define.
+import(*Dir.glob(File.join(File.dirname(__FILE__),'buildtasks', '**', '*.rake')))
 
-
-##################################################
-## FILTERS
-##
-## Filters are used to build a manifest of files that need to be built.  The
-## default filter invoked by the build tool is manifest:prepare.  You can hook
-## into the system by adding filters that come before or after.  If you 
-## define a filter more than once, your new settings will merge into the old
-## ones.
+# This task will build a particular entry.  You must pass into the parameters
+# the final buildpath
+task :build do
+  target = PROJECT.target_for(OPTS.target_name)
+  CONFIG.variations.each do |variation|
+    target.manifest_for(variation).build!
+  end
+end
+    
+namespace :bundle do
+  desc "main entrypoint for defining the build number"
+  task :compute_build_number
+end
 
 namespace :manifest do
-
-  filter :default # nothing to do here
-
-  desc "Creates a copy_file manifest entry for every file in the bundle"
-  filter :catalog do
-    source_path = MANIFEST.bundle.source_path
-    Dir.glob(File.join(source_path, '**')).each do |path|
-      MANIFEST.add_entry :source_path => path.gsub(source_path, '')
-    end
-  end
-  filter :default => :catalog
-
-  desc "Assign a language to each entry in the catalog based on the lproj.  Also make the filename language independent."
-  filter :assign_language => :catalog do
-    MANIFEST.entries.each do |entry|
-      next if entry.source_path.nil?
-
-      lang = entry.source_path.match(/(.+)\.lproj\/?/).to_a.last
-      next if lang.nil?
-      
-      entry.language = lang.to_sym
-    end
-  end
-  filter :default => :assign_language
-
-  desc "Strip any resources not part of the current language"
-  filter :localize => :assign_language do
-    clang = CONFIG.current_language
-    dlang = CONFIG.default_language
-
-    entries = {}
-    MANIFEST.entries.each do |entry|
-    end
-  end
-  filter :default => :localize
-  config :all, :default_language => :en
-  
-end
-  
-namespace :build
-
-  desc "Copy a file from the source path to the destination."
-  builder :copy do
-    File.cp_r(SRC_PATH, DST_PATH) unless SRC_PATH == DST_PATH
-  end
-
+  desc "main entrypoint for the manifest build system."
+  task :build
 end
 
+config :all, :url_prefix => 'static'
+
+
+# project :sproutcore do
+#   
+#   target :bundle do
+#     
+#     def find_sproutcore_bundles_in(root_path, project, parent_name = '')
+#       %w(apps clients).each do |dir_path|
+#         dir_path = File.join root_path, dir_path
+#         next unless File.directory? dir_path
+#         Dir.glob(File.join(dir_path, '*')).each do |source_root|
+#           next unless File.directory? source_root
+#           target_name = [parent_name, File.basename(source_root)] * '/'
+#           project.add_target target_name, 'sproutcore:app', 
+#             :source_root => source_root
+#           find_sproutcore_bundles_in source_root, project, target_name
+#         end
+#       end
+# 
+#       dir_path = File.join root_path, 'frameworks'
+#       return unless File.directory? dir_path
+#       Dir.glob(File.join(dir_path, '*')).each do |source_root|
+#         next unless File.directory? source_root
+#         target_name = [parent_name, File.basename(source_root)] * '/'
+#         project.add_target target_name, 'sproutcore:framework', 
+#           :source_root => source_root
+#         find_sproutcore_bundles_in source_root, project, target_name
+#       end
+#     end
+#       
+#     # This task will be executed once per-project.  It should find all 
+#     # SproutCore-style bundles.  Note the use of the helper method.
+#     task :find do
+#       find_sproutcore_bundles_in(PROJECT.project_root, PROJECT)
+#     end
+#     
+#   end
+#   
+#   target :app => :bundle do
+#     
+#   end
+#   
+#   target :framework => :bundle do
+#     
+#   end
+#   
+# end    
+# 
+# 
+# namespace :sproutcore do
+#   
+#   target :bundle do
+#     task :prepare
+#   end
+#   
+#   target :app => :bundle
+#   target :framework => :bundle
+# 
+#   task :find_targets do
+#     # search for SproutCore targets.  Assign target type
+#   end
+#   
+#   namespace :build do
+#     
+#     build_task :javascript => 'build:javascript' do
+#     end
+#     
+#   end
+#   
+# end
+# task 'project:find_targets' => 'sproutcore:find_targets'
+#   
+# namespace :build do
+#   
+#   build_task :copy do
+# 
+#     action do
+#       File.cp(src_path, dst_path)
+#     end
+#     
+#     # define if the item is out of date.  If it is not out of date, the task
+#     # and its dependents will not be executed.
+#     condition do
+#       dst_mtime = File.exist?(dst_path) ? File.mtime(dst_path).to_i : 0
+#       out_of_date = false
+#       src_paths.each do |path|
+#         src_mtime = File.exist?(path) ? File.mtime(path).to_i : 0
+#         break if out_of_date = src_mtime >= dst_mtime
+#       end
+#       out_of_date
+#     end
+#     
+#   end
+# 
+# end
 

@@ -1,7 +1,7 @@
 require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
 
 # The proxy helper defines proxy settings that can be used with sc-server
-describe Abbot::Buildfile, 'proxy helper' do
+describe Abbot::Buildfile::Commands, 'proxy' do
   
   it "should save the opts for a new proxy" do
     b = Abbot::Buildfile.define do
@@ -25,7 +25,7 @@ describe Abbot::Buildfile, 'proxy helper' do
       proxy '/url2', :test1 => :foo
     end
     
-    b = Abbot::Buildfile.define(a) do
+    b = a.dup.define! do
       proxy '/url1', :test1 => :bar
     end
     

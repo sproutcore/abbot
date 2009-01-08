@@ -1,0 +1,5 @@
+task :default => :installed_task2
+
+task :installed_task2 do
+ RESULTS[:installed_task2] = true
+end

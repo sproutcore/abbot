@@ -31,7 +31,7 @@ describe Abbot::Bundle, 'config' do
   
   it "should merge build mode specific configs" do
     old_build_mode = Abbot.env[:build_mode]
-    Abbot.env[:mode] = :production
+    Abbot.env[:build_mode] = :production
     
     b = nested_app1_bundle # create new bundle with setting..
     b.config[:is_production].should eql(true) # supplied by basic_library/config

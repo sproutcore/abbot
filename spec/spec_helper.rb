@@ -1,3 +1,4 @@
+require 'fileutils'
 
 require File.expand_path(
     File.join(File.dirname(__FILE__), %w[.. lib abbot]))
@@ -22,8 +23,30 @@ module Abbot
       File.expand_path File.join(File.dirname(__FILE__), path_items)
     end
     
+    # Make the a newer than b.  touch then sleep until it works...
+    def make_newer(path_a, path_b)
+      FileUtils.touch(path_a)
+      while File.mtime(path_a) <= File.mtime(path_b)
+        sleep(0.1)
+        FileUtils.touch(path_a)
+      end
+    end
+    
+    def empty_project
+      Abbot::Project.new fixture_path('buildfiles', 'empty_project')
+    end
+        
     def basic_library_path
       fixture_path('basic_libary')
+    end
+    
+    
+    ################################
+    
+    # Gets the abbot project itself as a library.  Useful for testing builtin
+    # options.
+    def abbot_library
+      Abbot::Library.library_for fixture_path('..','..'), :paths => []
     end
     
     # Gets a new Library with the basic library as the root + 
@@ -31,7 +54,7 @@ module Abbot
     # a bundle...
     def basic_library 
       Abbot::Library.library_for fixture_path('basic_library'),
-        :paths => [fixture_path('installed_library')]
+        :paths => [fixture_path('installed_library'), fixture_path('..','..')]
     end
     
     def basic_library_bundle

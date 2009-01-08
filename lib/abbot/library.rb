@@ -43,11 +43,6 @@ module Abbot
       bundles_by_name[bundle_name.to_sym]
     end
 
-    # Override built in bundle to deal with next library...
-    def merged_sc_config
-      @merged_sc_config ||= Config.merge_config(next_library.nil? ? nil : next_library.merged_sc_config, local_sc_config)
-    end
-        
     # Returns the next library in the current library history.
     def next_library; @next_library; end
     
@@ -55,6 +50,20 @@ module Abbot
     def next_buildfile
       next_library.nil? ? nil : next_library.buildfile
     end
+    
+    def library; self; end
+    
+    def bundle_name; ''; end
+    
+    # The root directly where all built files should be placed.  Unless you
+    # specify the public_root, the default is the main library source_root +
+    # 'public'
+    def public_root
+      config.public_root || File.join(source_root, 'public')
+    end
+
+    # The URL prefix to prepend before all bundle names in this library
+    def url_prefix; config.url_prefix || 'static'; end    
     
     def initialize(opts={}) 
 
