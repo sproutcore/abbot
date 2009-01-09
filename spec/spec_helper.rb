@@ -47,64 +47,6 @@ module Abbot
       Abbot::Project.new fixture_path('real_world'), :parent => builtin_project
     end
     
-    ################################
-
-    def basic_library_path
-      fixture_path('basic_libary')
-    end
-    
-    # Gets the abbot project itself as a library.  Useful for testing builtin
-    # options.
-    def abbot_library
-      Abbot::Library.library_for fixture_path('..','..'), :paths => []
-    end
-    
-    # Gets a new Library with the basic library as the root + 
-    # installed_library in the path.  vs. basic_library_bundle which gets 
-    # a bundle...
-    def basic_library 
-      Abbot::Library.library_for fixture_path('basic_library'),
-        :paths => [fixture_path('installed_library'), fixture_path('..','..')]
-    end
-    
-    def basic_library_bundle
-      Abbot::Bundle.new :source_root => fixture_path('basic_library')
-    end
-    
-    def app1_bundle(parent_bundle=nil)
-      parent_bundle ||= basic_library_bundle
-      Abbot::Bundle.new :source_root => fixture_path('basic_library', 'apps', 'app1'), :bundle_type => :app, :parent_bundle => parent_bundle
-    end
-
-    def client1_bundle(parent_bundle=nil)
-      parent_bundle ||= basic_library_bundle
-      Abbot::Bundle.new :source_root => fixture_path('basic_library', 'clients', 'client1'), :bundle_type => :app, :parent_bundle => parent_bundle
-    end
-
-    def lib1_bundle(parent_bundle=nil)
-      parent_bundle ||= basic_library_bundle
-      Abbot::Bundle.new :source_root => fixture_path('basic_library', 'frameworks', 'lib1'), :bundle_type => :framework, :parent_bundle => parent_bundle
-    end
-
-    def lib2_bundle(parent_bundle=nil)
-      parent_bundle ||= basic_library_bundle
-      Abbot::Bundle.new :source_root => fixture_path('basic_library', 'frameworks', 'lib2'), :bundle_type => :framework, :parent_bundle => parent_bundle
-    end
-
-    def nested_lib1_bundle(parent_bundle=nil)
-      parent_bundle ||= basic_library_bundle
-      Abbot::Bundle.new :source_root => fixture_path('basic_library', 'frameworks', 'lib1', 'frameworks', 'nested_lib1'), :bundle_type => :framework, :parent_bundle => lib1_bundle
-    end
-
-    def nested_app1_bundle(parent_bundle=nil)
-      parent_bundle ||= basic_library_bundle
-      Abbot::Bundle.new :source_root => fixture_path('basic_library', 'frameworks', 'lib1', 'apps', 'nested_app1'), :bundle_type => :app, :parent_bundle => lib1_bundle
-    end
-    
-    def installed_library_bundle
-      Abbot::Bundle.new :source_root => fixture_path('installed_library')
-    end
-      
   end
 end
 

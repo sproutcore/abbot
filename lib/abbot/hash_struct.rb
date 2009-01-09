@@ -21,6 +21,14 @@ module Abbot
       sibling
     end
     
+    # Returns true if the receiver has all of the options set
+    def has_options?(opts = {})
+      opts.each do |key, value|
+        return false if self[key] != value
+      end
+      return true
+    end
+    
     ######################################################
     # INTERNAL SUPPORT
     #

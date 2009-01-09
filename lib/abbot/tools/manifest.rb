@@ -46,6 +46,33 @@ module Abbot
         return manifest
       end
       
+      # Entry point for a command line tool.
+      desc "prepare TARGET", "generates a manifest file for the target"
+      method_options :language => :optional, :project => :optional, :output => :optional
+      def prepare(target)
+        self.project = Abbot::Project.load_nearest_project(options.project || Dir.pwd)
+        raise "You do not appear to be in a project" if self.project.nil?
+        
+        self.target = project.target_for(target_name = target)
+        raise "#{target_name} could not be found in project" if self.target.nil?
+
+        if options.language
+          languages = options.language.split(',')
+        else
+          languages = target.installed_languages
+        end
+        manifests = languages.map do |language|
+          self.manifest = target.manifest_for(:language => language)
+          prepare!
+          self.manifest
+        end
+        
+        output = options.output.nil? ? STDOUT : File.open(options.output, 'w+')
+        output.write manifests.to_yaml
+        output.close
+        return 0
+      end
+       
       # main entry point.  This method is called right after any options are 
       # processed to actually perform transforms on the manifest.  The 
       # default behavior simply calls out to several other transform methods 

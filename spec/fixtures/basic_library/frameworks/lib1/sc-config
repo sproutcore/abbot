@@ -1,9 +1,0 @@
-config :all,
-  # required by bundle/environment_spec
-  :key2 => 'lib1',
-  :key3 => 'lib1'
-  
-config 'lib1/nested_app1',
-  # required by bundle/environment_spec
-  :key5 => 'nested:lib1'
-

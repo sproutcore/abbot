@@ -45,6 +45,10 @@ module Abbot
     end
     
     attr_reader :project
+
+    ######################################################
+    # CONFIG
+    #
     
     # Returns the buildfile for this target.  The buildfile is a clone of 
     # the parent target buildfile with any buildfile found in the current
@@ -66,6 +70,64 @@ module Abbot
     def config
       return @config ||= buildfile.config_for(target_name, Abbot.build_mode).merge(Abbot.env)
     end
+    
+    # Clears the cached config, reloading it from the buildfile again.  This
+    # is mostly used for unit testing. 
+    def reload_config!
+      @config= nil
+      return self
+    end
+    
+
+    ######################################################
+    ## COMPUTED HELPER PROPERTIES
+    ##
+
+    # Returns all of the targets required by this target.  This will use the
+    # "required" config, resolving the target names using target_for().
+    #
+    # === Returns
+    #  Array of Targets
+    #
+    def required_targets
+      @required_target ||= [config.required || []].flatten.compact.map { |target_name| target_for(target_name) }.compact
+    end
+
+    # Returns the expanded list of required targets, ordered as they actually
+    # need to be loaded.
+    def expand_required_targets
+      seen = []
+      ret = []
+      required_targets.each do |target|
+        next if seen.include?(target)
+        seen << target # avoid loading again
+
+        # add required targets, if not already seend...
+        target.expand_required_targets.each do |required|
+          next if seen.include?(required)
+          ret << required
+          seen << required
+        end
+      end
+      return ret 
+    end
+
+    # Returns the root url that should prefix every built manifest entry
+    # This is composed from the target name and the global url prefix.
+    def url_root
+      self[:url_root] || config.url_root || ['/', config.url_prefix, target_name].join('')
+    end
+    
+    # The full path to the build root of the bundle.  Unless you specify the
+    # build_root + bundle_build_root options, this will be computed from the
+    # public_root + url_prefix + bundle_name
+    def build_root
+      self[:build_root] || config.build_root || File.join(project.project_root.to_s, config.public_prefix.to_s, config.url_prefix.to_s, target_name.to_s)
+    end
+
+    ######################################################
+    # MANIFEST
+    #
 
     # An array of manifests for the target.  You can retrieve the manifest
     # for a particular variation using the method manifest_for().
@@ -76,13 +138,13 @@ module Abbot
     def manifest_for(variation={})
       ret = manifests.find { |m| m.has_options?(variation) }
       if ret.nil?
-        ret = Manifest.new(variation.merge(:target => self)).prepare!
+        ret = Manifest.new(self, variation)
         @manifests << ret
       end
       return ret 
     end
     
-    ########################################################################
+    ######################################################
     # TARGET METHODS
     #
     

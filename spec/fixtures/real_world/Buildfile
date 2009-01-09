@@ -4,3 +4,5 @@
 # override this for itself, so you don't have to worry about it causing 
 # trouble.
 config :all, :required => :sproutcore
+
+config :mobile_photos, :required => 'sproutcore/mobile'

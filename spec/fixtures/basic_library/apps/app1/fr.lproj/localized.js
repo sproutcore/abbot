@@ -1,1 +1,0 @@
-// FRENCH - localized javascript

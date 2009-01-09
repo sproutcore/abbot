@@ -1,2 +1,0 @@
-# used by environment_spec
-config :all, :installed_key => :installed_library

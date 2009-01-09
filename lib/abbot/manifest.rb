@@ -7,16 +7,19 @@ module Abbot
   #
   class Manifest < HashStruct
     
-    attr_reader :bundle
+    attr_reader :target
     attr_reader :entries
     
-    def initialize(bundle, language)
-      super()
-      @bundle = bundle 
+    def initialize(target, opts)
+      super(opts)
+      @target = target 
       @entries = []
-      @needs_build = true
+      @is_prepared = NO
     end
 
+    def prepared?; @is_prepared; end
+    def prepared!; @is_prepared = YES; end
+    
     # Reset the manifest.  This will clear out the existing manifest and set
     # it to need another build.  The next time you call build!, the manifest
     # will be rebuilt.

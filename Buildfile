@@ -1,5 +1,10 @@
 config :all,
-  :url_prefix => 'static',
+
+  # REQUIRED CONFIGS 
+  # You will not usually need to override these configs, but the code assumes
+  # they will be present, so you must support them.
+  :public_prefix => 'public',
+  :url_prefix    => 'static',
   
   # Defines the directories that may contain targets, and maps them to a 
   # target type.  When a project tries to find all of the targets in a 
