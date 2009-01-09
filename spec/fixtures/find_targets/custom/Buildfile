@@ -1,0 +1,8 @@
+config :all,
+  :target_types => {
+    :foos => :foo,
+    :bars => :bar
+  },
+  :allow_nested_targets => true
+  
+  

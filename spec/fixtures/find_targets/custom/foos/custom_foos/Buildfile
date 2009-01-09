@@ -1,0 +1,5 @@
+config :all,
+  :target_types => {
+    :custom_foodir => :foo,
+    :bars => :bar
+  }

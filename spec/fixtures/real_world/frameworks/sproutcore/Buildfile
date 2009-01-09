@@ -1,0 +1,22 @@
+# Framework-level Buildfile
+
+config :sproutcore, :required => :desktop
+
+config :foundation,
+  :required => :costello
+  
+config :application, 
+  :required => %w(costello foundation)
+  
+config :data_store,
+  :required => %w(costello foundation)
+  
+config :desktop,
+  :required => %w(costello foundation application data_store)
+  
+config :mobile,
+  :required => %w(costello foundation application data_store)
+
+%w(uploader docs test_runner).each do |target_name|
+  config target_name, :required => :sproutcore
+end

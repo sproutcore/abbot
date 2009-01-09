@@ -1,0 +1,1 @@
+config :all, :allow_nested_targets => false

@@ -1,0 +1,6 @@
+# Project-level Buildfile
+
+# This is the generic requirement for most apps.  Of course SproutCore will
+# override this for itself, so you don't have to worry about it causing 
+# trouble.
+config :all, :required => :sproutcore
