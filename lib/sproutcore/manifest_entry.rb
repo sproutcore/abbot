@@ -26,18 +26,18 @@ module SC
     # true if the current manifest entry should not be included in the 
     # build.  The entry may still be used as an input for other entries and
     # it may still be referenced directly
-    def hidden?; self[:is_hidden] ||= false; end
+    def hidden?; self[:hidden] ||= false; end
     
     # Sets the entry's hidden? property to true
-    def hide!; self[:is_hidden] = true; self; end
+    def hide!; self[:hidden] = true; self; end
 
     # true if the manifest entry represents a composite resource built from
     # one or more source entries.  Composite resources will have their 
     # source_entries staged before the entry itself is built to staged.
-    def composite?; self[:is_composite]; end
+    def composite?; self[:composite]; end
     
     # Marks the entry as composite.  Returns self
-    def composite!; self[:is_composite] = true; self; end
+    def composite!; self[:composite] = true; self; end
     
     # Returns the source_path for the entry.  If the entry is composite, 
     # returns the first entry's staging path.
@@ -73,8 +73,8 @@ module SC
     # The owner manifest
     attr_accessor :manifest
 
-    # The owner bundle
-    def bundle; @bundle ||= manifest.bundle; end
+    # The owner target
+    def target; @target ||= manifest.target; end
     
     ######################################################
     # BUILDING

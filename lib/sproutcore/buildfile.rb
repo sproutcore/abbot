@@ -30,6 +30,16 @@ module SC
     # CLASS METHODS
     #
     
+    # Determines if this directory has a buildfile or not...
+    def self.has_buildfile?(dir_path, buildfile_names)
+      buildfile_names ||= (SC.env.buildfile_names || BUILDFILE_NAMES)
+      buildfile_names.each do |path|
+        path = File.join(dir_path, path)
+        return true if File.exist?(path) && !File.directory(path)
+      end
+      return false
+    end
+      
     # Loads the buildfile at the specified path.  This simply creates a new
     # instance and loads it.
     #

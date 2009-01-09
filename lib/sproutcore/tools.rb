@@ -18,6 +18,53 @@ module SC
   #
   module Tools
     
+    # The Tool base class is inherited by most tools.  It automatically 
+    # accepts a --project option, or otherwise tries to autodetect the
+    # project.  
+    class Tool < ::Thor
+
+      attr_accessor :target, :manifest, :entry
+      
+      def project 
+        return @project unless @project.nil?
+        project_path = options['project']
+        if project_path.nil? 
+          @project = SC::Project.load_nearest_project Dir.pwd, 
+            :parent => SC.builtin_project
+        else
+          @project = SC::Project.load File.expand_path(project_path), 
+            :parent => SC.builtin_project
+        end
+        return @project
+      end
+      attr_writer :project
+      
+      # Verifies that a project could be created.  If you pass an option, it
+      # should be the project you want to set.  If the new project value is
+      # nil, then this will raise a standard error.
+      def requires_project!
+        if project.nil?
+          raise "You do not appear to be inside a valid project.  Try changing to your project directory and try again.  If you are inside your project directory, make sure you have a Buildfile or sc-config installed as well."
+        end
+        return project
+      end
+      
+      # Verifies that the target is set.  If you pass a target name, this will
+      # first try to get the target from the project and set it.  Otherwise,
+      # it will just check.
+      def requires_target!(target_name=nil)
+        if target_name
+          requires_project!
+          @target = project.target_for(target_name)
+        end
+        if self.target.nil?
+          raise "Target #{target_name} could not be found in this project"
+        end
+        return self.target
+      end
+      
+    end
+    
   end
   
 end

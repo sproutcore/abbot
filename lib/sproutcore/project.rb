@@ -49,6 +49,15 @@ module SC
       @buildfile = @targets = nil
     end
 
+    # Attempts to find the nearest project root
+    def self.load_nearest_project(path, opts={})
+      while !(path.nil? || Buildfile.has_buildfile?(path))
+        new_path = File.dirname(path)
+        path = (new_path == path) ? nil : new_path
+      end
+      (path) ? self.new(path,opts) : nil
+    end
+    
     # Returns a new project loaded from the specified path
     def self.load(project_root, opts={})
       new project_root, opts

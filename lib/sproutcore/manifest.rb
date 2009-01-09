@@ -19,6 +19,12 @@ module SC
 
     def prepared?; @is_prepared; end
     def prepared!; @is_prepared = YES; end
+
+    def to_hash
+      ret = super
+      ret[:entries] = entries.map { |e| e.to_hash }
+      return ret
+    end
     
     # Reset the manifest.  This will clear out the existing manifest and set
     # it to need another build.  The next time you call build!, the manifest
@@ -49,46 +55,6 @@ module SC
       @entries << (ret = ManifestEntry.new(opts))
       return ret 
     end
-    
-    def needs_build?; @needs_build; end
-    
-    # Invoke this method to build the manifest for the bundle.  This will
-    # execute the manifest:build task from the Buildfile.  If the manifest has
-    # already been built, then this method will have no effect.  To rebuild
-    # a manifest try:
-    #
-    #  manifest.reset!.build!
-    #
-    # === Params
-    #  task_name:: the task to invoke to build this manifest.  Usually only needed for unit testing.
-    #
-    # === Returns
-    # self
-    #
-    def build!(task_name='manifest:build')
-      return self unless self.needs_build?
-      
-      self.reset!
-      @needs_build = false
-      
-      # Execute the manifest:build task.  Be sure to setup the proper env
-      bundle.buildfile.execute_task(task_name, 
-        :bundle => bundle, :manifest => self, :config => bundle.config)
-      
-      return self
-    end
-
-    # Builds the passed entry.  The entry must belong to the manifest
-    def build_entry(entry, build_path)
-      bundle.buildfile.execute_task(entry.build_task,
-        :bundle => bundle,
-        :manifest => self, 
-        :entry => entry, 
-        :config => bundle.config,
-        :dst_path => build_path, 
-        :src_path => entry.source_path,
-        :src_paths => entry.source_paths)
-    end    
     
   end
   

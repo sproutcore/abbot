@@ -29,6 +29,12 @@ module SC
       return true
     end
     
+    def to_hash
+      ret = {}
+      each { |key, value| ret[key] = value }
+      return ret
+    end
+    
     ######################################################
     # INTERNAL SUPPORT
     #

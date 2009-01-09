@@ -64,6 +64,11 @@ module SproutCore
     ret
   end
   
+  # Returns a project instance representing the builtin library
+  def self.builtin_project
+    @builtin_project ||= SC::Project.new(PATH)
+  end
+  
 end  # module SC
 
 SC = SproutCore # alias

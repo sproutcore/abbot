@@ -124,7 +124,7 @@ module SC
     def build_root
       self[:build_root] || config.build_root || File.join(project.project_root.to_s, config.public_prefix.to_s, config.url_prefix.to_s, target_name.to_s)
     end
-
+    
     ######################################################
     # MANIFEST
     #
