@@ -1,4 +1,4 @@
-module Abbot
+module SC
   
   # A project describes a collection of targets that you can build.  Normally
   # you instantiate a project by calling Project.load() method.  You should 
@@ -59,7 +59,7 @@ module Abbot
     # buildfiles found in the current project.  Buildfiles include any file
     # named "Buildfile", "sc-config", or "sc-config.rb".  You can also 
     # specify your own buildfile names with the "buildfile_names" config in
-    # the Abbot.env.
+    # the SC.env.
     #
     # === Returns
     #  Buildfile instance
@@ -74,7 +74,7 @@ module Abbot
     #
     #  config for all modes, all targets +
     #  config for current mode, all targets +
-    #  Current environment defined in Abbot.env
+    #  Current environment defined in SC.env
     #
     # This is the config hash you should access to determine general project
     # wide settings that cannot be overridden by individual targets.
@@ -83,7 +83,7 @@ module Abbot
     #  merged HashStruct
     #
     def config
-      return @config ||= buildfile.config_for(:all, Abbot.build_mode).merge(Abbot.env)
+      return @config ||= buildfile.config_for(:all, SC.build_mode).merge(SC.env)
     end
 
     # A hash of the known targets for this project, including any targets

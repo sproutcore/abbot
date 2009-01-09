@@ -1,6 +1,6 @@
 require 'thor'
 
-module Abbot
+module SC
 
   # The tools module contain the classes that make up the command line tools
   # available from SproutCore. In general, each command line tool has a peer
@@ -22,4 +22,4 @@ module Abbot
   
 end
 
-Abbot.require_all_libs_relative_to(__FILE__)
+SC.require_all_libs_relative_to(__FILE__)

@@ -6,7 +6,7 @@ gem 'thor', '>= 0.9.9'
 YES = true
 NO = false
 
-module Abbot
+module SproutCore
 
   # :stopdoc:
   VERSION = '1.0.0'
@@ -64,8 +64,10 @@ module Abbot
     ret
   end
   
-end  # module Abbot
+end  # module SC
 
-Abbot.require_all_libs_relative_to(__FILE__)
+SC = SproutCore # alias
+
+SC.require_all_libs_relative_to(__FILE__)
 
 # EOF

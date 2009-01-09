@@ -1,15 +1,15 @@
 require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
 
 # define a custom subclass of the task to make sure classes are copied
-class CustomTestTask < Abbot::Buildfile::Task  
+class CustomTestTask < SC::Buildfile::Task  
   attr_accessor :test_property
 end
 
-describe Abbot::Buildfile::Task, 'dup' do
+describe SC::Buildfile::Task, 'dup' do
 
   before do
-    @app = Abbot::Buildfile.define # used to hook a buildtask 
-    @task = Abbot::Buildfile::Task.new(:foo, @app)
+    @app = SC::Buildfile.define # used to hook a buildtask 
+    @task = SC::Buildfile::Task.new(:foo, @app)
   end
   
   it "should clone actions and prerequisites" do
@@ -35,7 +35,7 @@ describe Abbot::Buildfile::Task, 'dup' do
   end
   
   it "should take passed application property if defined" do
-    app2 = Abbot::Buildfile.define
+    app2 = SC::Buildfile.define
     task2 = @task.dup(app2)
     task2.application.should eql(app2)
   end

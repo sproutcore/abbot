@@ -1,9 +1,9 @@
 require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
 
-describe Abbot::Buildfile::Commands, 'namespace' do
+describe SC::Buildfile::Commands, 'namespace' do
 
   it "should define tasks as part of namespace" do
-    b = Abbot::Buildfile.define do
+    b = SC::Buildfile.define do
       namespace :foo do
         task :task1 
       end

@@ -3,10 +3,10 @@ require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
 buildfile = nil
 
 # This should return the merged config setting for the named options
-describe Abbot::Buildfile, 'config_for' do
+describe SC::Buildfile, 'config_for' do
   
   before do
-    @buildfile = Abbot::Buildfile.define do
+    @buildfile = SC::Buildfile.define do
       
       # all - all
       config :all,

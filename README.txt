@@ -1,15 +1,15 @@
-abbot
+sproutcore
     by Charles Jolley
-    http://github.com/sproutit/abbot
+    http://github.com/sproutit/sproutcore
 
 == DESCRIPTION:
 
-Abbot is a build system for creating static pages on the web.  You can supply
-Abbot with a collection of JavaScript, HTML, CSS and image files and it will 
+SC is a build system for creating static pages on the web.  You can supply
+SC with a collection of JavaScript, HTML, CSS and image files and it will 
 combine the files into a bundle of files that are optimized for output on the
 web.
 
-Abbot consists of several tools that all work together:
+SC consists of several tools that all work together:
 
 - Bundle Filter: This system can generate a manifest of the content a bundle should contain when built including all of the rules that should be followed to actually build each entry.  You can write custom filters to modify this manifest, effecting the output.
 

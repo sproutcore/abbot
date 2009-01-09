@@ -1,4 +1,4 @@
-module Abbot
+module SC
   
   # Buildfile tasks are rake tasks with a few extras added to support 
   # unique buildfile constraints.

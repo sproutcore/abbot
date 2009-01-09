@@ -3,12 +3,12 @@ require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
 buildfile = nil
 task_result = nil
 
-describe Abbot::Buildfile, 'execute_task' do
+describe SC::Buildfile, 'execute_task' do
 
-  include Abbot::SpecHelpers
+  include SC::SpecHelpers
 
   before do
-    buildfile = Abbot::Buildfile.define do 
+    buildfile = SC::Buildfile.define do 
       
       task :task1 do
         task_result = :task1

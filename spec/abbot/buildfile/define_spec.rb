@@ -1,10 +1,10 @@
 require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
 
-describe Abbot::Buildfile, 'define' do
+describe SC::Buildfile, 'define' do
 
   it "should return new buildfile with task defined in block" do
     task_did_run = false
-    b = Abbot::Buildfile.define do 
+    b = SC::Buildfile.define do 
       task :test_task do
         task_did_run = true
       end
@@ -20,7 +20,7 @@ describe Abbot::Buildfile, 'define' do
     task1_did_run = false
     task2_did_run = false
     
-    a = Abbot::Buildfile.define do
+    a = SC::Buildfile.define do
       task :test_task1 do
         task1_did_run = true
       end
@@ -43,7 +43,7 @@ describe Abbot::Buildfile, 'define' do
   it "should eval a string if passed to instance version" do
     
     # add accessor to test.
-    a = Abbot::Buildfile.new.define! do
+    a = SC::Buildfile.new.define! do
       def did_run; @did_run; end
     end
     

@@ -1,6 +1,6 @@
 require 'ostruct'
 
-module Abbot
+module SC
 
   # A manifest entry describes a single item that can be built by the build
   # system.  A manifest entry can be assigned any properties you like during

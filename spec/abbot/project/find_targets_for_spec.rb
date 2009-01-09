@@ -1,8 +1,8 @@
 require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
 
-describe Abbot::Project, 'find_targets_for' do
+describe SC::Project, 'find_targets_for' do
 
-  include Abbot::SpecHelpers
+  include SC::SpecHelpers
   
   # path for a target inside fixtures for this test
   def target_path(*args)
@@ -24,7 +24,7 @@ describe Abbot::Project, 'find_targets_for' do
   
   it "should search recursively for apps, clients, and frameworks dirs with standard options -- also should ignore CaSeOfDir" do
     
-    project = Abbot::Project.new(target_path('standard'), :parent => builtin_project)
+    project = SC::Project.new(target_path('standard'), :parent => builtin_project)
 
     # verify preconditions
     target_types = project.config.target_types
@@ -49,7 +49,7 @@ describe Abbot::Project, 'find_targets_for' do
   
   it "should find targets based on target_types hash, including overrides in  target Buildfiles" do
     
-    project = Abbot::Project.new(target_path('custom'))
+    project = SC::Project.new(target_path('custom'))
     
     # NOTE: find_targets_spec/custom/Buildfile defines foo & bar types
     # custom/foos/custom_foos/Buildfiels overrides.
@@ -61,7 +61,7 @@ describe Abbot::Project, 'find_targets_for' do
   
   it "should recursively find targets unless allows_nested_targets = false; should respect overrides in Buildfiles" do
     
-    project = Abbot::Project.new(target_path('nested'))
+    project = SC::Project.new(target_path('nested'))
     
     # NOTE: find_targets_spec/custom/Buildfile defines foo & bar types
     # custom/foos/custom_foos/Buildfiels overrides.

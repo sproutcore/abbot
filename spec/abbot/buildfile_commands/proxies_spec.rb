@@ -1,17 +1,17 @@
 require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
 
 # The proxy helper defines proxy settings that can be used with sc-server
-describe Abbot::Buildfile::Commands, 'proxy' do
+describe SC::Buildfile::Commands, 'proxy' do
   
   it "should save the opts for a new proxy" do
-    b = Abbot::Buildfile.define do
+    b = SC::Buildfile.define do
       proxy '/url', :foo => :bar
     end
     b.proxies['/url'].foo.should eql(:bar)
   end
 
   it "should save the REPLACE opts for multiple calls to proxy" do
-    b = Abbot::Buildfile.define do
+    b = SC::Buildfile.define do
       proxy '/url', :test1 => :foo, :test2 => :foo
       proxy '/url', :test1 => :bar
     end
@@ -20,7 +20,7 @@ describe Abbot::Buildfile::Commands, 'proxy' do
   end
   
   it "should merge multiple proxy urls and REPLACE opts for chained files" do
-    a = Abbot::Buildfile.define do
+    a = SC::Buildfile.define do
       proxy '/url1', :test1 => :foo, :test2 => :foo
       proxy '/url2', :test1 => :foo
     end

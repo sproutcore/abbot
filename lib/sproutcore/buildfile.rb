@@ -1,10 +1,10 @@
 require 'rake'
 require File.join(File.dirname(__FILE__), 'hash_struct')
 
-module Abbot
+module SC
 
   # A Buildfile is a special type of Rake Application that knows how to work
-  # with Abbot Buildfiles.  Buildfiles include addition support on top of rake
+  # with SC Buildfiles.  Buildfiles include addition support on top of rake
   # for processing command line arguments, and for automatically building
   # targets.  To load a buildfile, call Buildfile.load() with the 
   # pathname of the build file (or null for an empty file).  You can also
@@ -17,7 +17,7 @@ module Abbot
   #
   class Buildfile
     
-    # Default buildfile names.  Override with Abbot.env.buildfile_names
+    # Default buildfile names.  Override with SC.env.buildfile_names
     BUILDFILE_NAMES = %w(Buildfile sc-config sc-config.rb)
     
     include ::Rake::Cloneable
@@ -101,7 +101,7 @@ module Abbot
       if File.directory?(filename)
         
         # search directory for buildfiles and load them.
-        buildfile_names ||= (Abbot.env.buildfile_names || BUILDFILE_NAMES)
+        buildfile_names ||= (SC.env.buildfile_names || BUILDFILE_NAMES)
         buildfile_names.each do |path|
           path = File.join(filename, path)
           next unless File.exist?(path) && !File.directory?(path)
@@ -400,11 +400,11 @@ end
 # Global Helper Methods 
 
 def build_task(*args, &block)
-  Abbot::BuildTask.define_task(*args, &block)
+  SC::BuildTask.define_task(*args, &block)
 end
 
 # Generic CACHES constant can be used by tasks.
-CACHES = Abbot::HashStruct.new
+CACHES = SC::HashStruct.new
 
-Abbot.require_all_libs_relative_to(__FILE__)
+SC.require_all_libs_relative_to(__FILE__)
 

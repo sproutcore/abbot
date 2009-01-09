@@ -1,11 +1,11 @@
 require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
 
-describe Abbot::Project, 'add_target' do
+describe SC::Project, 'add_target' do
 
-  include Abbot::SpecHelpers
+  include SC::SpecHelpers
 
   before do
-    @project = Abbot::Project.new fixture_path('buildfiles', 'empty_project')
+    @project = SC::Project.new fixture_path('buildfiles', 'empty_project')
   end
   
   it "should add a target with the passed name" do

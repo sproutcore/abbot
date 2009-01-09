@@ -1,8 +1,8 @@
 require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
 
-describe Abbot::Target, 'required_targets' do
+describe SC::Target, 'required_targets' do
 
-  include Abbot::SpecHelpers
+  include SC::SpecHelpers
 
   before do
     @project = real_world_project

@@ -1,4 +1,4 @@
-module Abbot
+module SC
   
   # A Manifest describes all of the files that should be found inside of a 
   # single bundle/language.  A Manifest can have global properties assigned to

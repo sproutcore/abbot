@@ -10,16 +10,16 @@ rescue LoadError
 end
 
 ensure_in_path 'lib'
-require 'abbot'
+require 'sproutcore'
 
 task :default => 'spec:specdoc'
 
-PROJ.name = 'abbot'
+PROJ.name = 'sproutcore'
 PROJ.authors = 'Sprout Systems, Inc.  Apple, Inc. and contributors'
 PROJ.email = 'contact@sproutcore.com'
-PROJ.url = 'http://www.sproutcore.com/abbot'
-PROJ.version = Abbot::VERSION
-PROJ.rubyforge.name = 'abbot'
+PROJ.url = 'http://www.sproutcore.com/sproutcore'
+PROJ.version = SC::VERSION
+PROJ.rubyforge.name = 'sproutcore'
 PROJ.ruby_opts = []
 PROJ.spec.opts << '--color'
 

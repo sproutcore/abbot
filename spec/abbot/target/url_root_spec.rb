@@ -1,8 +1,8 @@
 require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
 
-describe Abbot::Target, 'url_root' do
+describe SC::Target, 'url_root' do
 
-  include Abbot::SpecHelpers
+  include SC::SpecHelpers
 
   before do
     @project = real_world_project

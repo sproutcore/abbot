@@ -1,4 +1,4 @@
-module Abbot
+module SC
   
   class Bundle
     
@@ -45,7 +45,7 @@ module Abbot
     # === Returns
     # true if the passed path appears to be a bundle
     def self.is_bundle?(path)
-      path = Abbot::Buildfile.buildfile_path_for(path)
+      path = SC::Buildfile.buildfile_path_for(path)
       return File.exist?(path) && !File.directory?(path)
     end
     
@@ -101,12 +101,12 @@ module Abbot
     
     # Returns the config for the current bundle.  The config is computed by 
     # taking the merged config settings from the build file given the current
-    # build mode, then merging any environmental configs (set in Abbot::env)
+    # build mode, then merging any environmental configs (set in SC::env)
     # over the top.
     #
     # This is the config hash you should use to control how items are built.
     def config
-      return @config ||= buildfile.config_for(bundle_name, Abbot.build_mode).merge(Abbot.env)
+      return @config ||= buildfile.config_for(bundle_name, SC.build_mode).merge(SC.env)
     end
     
     ######################################################
@@ -182,7 +182,7 @@ module Abbot
     # Returns a prepared bundle manifest 
     def manifest_for(language)
       language = language.to_sym
-      @manifests[language] ||= ::Abbot::Manifest.new(self, language).build!
+      @manifests[language] ||= ::SC::Manifest.new(self, language).build!
     end
     
     ######################################################

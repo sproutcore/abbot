@@ -1,14 +1,14 @@
 require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
 
-describe Abbot::Project, 'targets' do
+describe SC::Project, 'targets' do
 
-  include Abbot::SpecHelpers
+  include SC::SpecHelpers
 
   it "should clone targets from a parent project" do
     
     # Generate a dummy class to manually add a target.  This way we isolate
     # the tests for merging from tests of finding targets...
-    test_project = Class.new(Abbot::Project) do
+    test_project = Class.new(SC::Project) do
       def find_targets_for(root_path, root_name, config)
         self.add_target :base1, :dummy_type
       end
@@ -17,7 +17,7 @@ describe Abbot::Project, 'targets' do
     
     # Now generate a real project with an empty path.  This should clone 
     # targets from the parent...
-    project = Abbot::Project.new fixture_path('buildfiles', 'empty_project'), :parent => parent
+    project = SC::Project.new fixture_path('buildfiles', 'empty_project'), :parent => parent
     project.targets.size.should eql(1)
     project.targets['base1'].target_name.should eql(:base1)
   end
@@ -27,7 +27,7 @@ describe Abbot::Project, 'targets' do
   it "should invoke the find_targets_for method on itself" do
     
     # Generate dummy class with custom find_targets_for.
-    test_project = Class.new(Abbot::Project) do
+    test_project = Class.new(SC::Project) do
       
       attr_reader :did_call_find_targets_for
       attr_reader :passed_root_path

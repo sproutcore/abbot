@@ -1,4 +1,4 @@
-module Abbot
+module SC
 
   class Buildfile
     
@@ -14,7 +14,7 @@ module Abbot
       #   end
       #
       def task(*args, &block)
-        define_task(::Abbot::Buildfile::Task, *args, &block)
+        define_task(::SC::Buildfile::Task, *args, &block)
       end
     
       # Import the partial Rakefiles +fn+.  Imported files are loaded _after_ 
@@ -89,7 +89,7 @@ module Abbot
       #  end
       #
       def config(config_name, opts = {}, &block)
-        opts = ::Abbot::HashStruct.new(opts)
+        opts = ::SC::HashStruct.new(opts)
         yield(opts) if block_given?
         add_config config_name, opts
         return self

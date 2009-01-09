@@ -1,4 +1,4 @@
-module Abbot
+module SC
   
   # Defines a build target in a project.  A build target is a component that
   # you might want to build separately such as an application or library.
@@ -63,12 +63,12 @@ module Abbot
     
     # Returns the config for the current project.  The config is computed by 
     # taking the merged config settings from the build file given the current
-    # build mode, then merging any environmental configs (set in Abbot::env)
+    # build mode, then merging any environmental configs (set in SC::env)
     # over the top.
     #
     # This is the config hash you should use to control how items are built.
     def config
-      return @config ||= buildfile.config_for(target_name, Abbot.build_mode).merge(Abbot.env)
+      return @config ||= buildfile.config_for(target_name, SC.build_mode).merge(SC.env)
     end
     
     # Clears the cached config, reloading it from the buildfile again.  This

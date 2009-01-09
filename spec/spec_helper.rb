@@ -1,7 +1,7 @@
 require 'fileutils'
 
 require File.expand_path(
-    File.join(File.dirname(__FILE__), %w[.. lib abbot]))
+    File.join(File.dirname(__FILE__), %w[.. lib sproutcore]))
 
 Spec::Runner.configure do |config|
   # == Mock Framework
@@ -14,7 +14,7 @@ Spec::Runner.configure do |config|
   # config.mock_with :rr
 end
 
-module Abbot
+module SC
   
   module SpecHelpers
     
@@ -33,18 +33,18 @@ module Abbot
     end
 
     def empty_project
-      Abbot::Project.new fixture_path('buildfiles', 'empty_project')
+      SC::Project.new fixture_path('buildfiles', 'empty_project')
     end
     
     # The builtin project (i.e. default Buildfile)
     def builtin_project
-      Abbot::Project.new fixture_path('..','..')
+      SC::Project.new fixture_path('..','..')
     end
     
     # Loads a standard project, with the builtin project as parent.  Simulates
     # real world scenario
     def real_world_project
-      Abbot::Project.new fixture_path('real_world'), :parent => builtin_project
+      SC::Project.new fixture_path('real_world'), :parent => builtin_project
     end
     
   end

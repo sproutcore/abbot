@@ -7,10 +7,10 @@ require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
 # but you can also use these in Buildfiles using the Buildfile.load() method.
 # The tests for those two method ensure that both approaches are identical.
 #
-describe Abbot::Buildfile::Commands, 'config' do
+describe SC::Buildfile::Commands, 'config' do
   
   it "should add the named config to the default mode when first defined" do
-    a = Abbot::Buildfile.define do 
+    a = SC::Buildfile.define do 
       config :test1, :foo => :bar
     end
     
@@ -21,7 +21,7 @@ describe Abbot::Buildfile::Commands, 'config' do
   end
   
   it "should merge options when same config is named mode than once" do
-    a = Abbot::Buildfile.define do
+    a = SC::Buildfile.define do
       config :test1, :test1 => :foo, :test2 => :foo
       config :test1, :test1 => :bar
     end
@@ -32,17 +32,17 @@ describe Abbot::Buildfile::Commands, 'config' do
   end
   
   it "should both accept an options hash, accept a block, or both" do
-    a = Abbot::Buildfile.define do
+    a = SC::Buildfile.define do
       config :test1, :foo => :bar
     end
     
-    b = Abbot::Buildfile.define do
+    b = SC::Buildfile.define do
       config :test1 do |c|
         c[:foo] = :bar
       end
     end
     
-    c = Abbot::Buildfile.define do
+    c = SC::Buildfile.define do
       config :test1, :test1 => :foo, :test2 => :foo do |c|
         c[:test1] = :bar
       end
@@ -55,7 +55,7 @@ describe Abbot::Buildfile::Commands, 'config' do
   end
   
   it "should allow OpenStruct-style setting of configs when passed to block" do
-    a = Abbot::Buildfile.define do
+    a = SC::Buildfile.define do
       config :test1 do |c|
         c.foo = :bar
       end
@@ -64,7 +64,7 @@ describe Abbot::Buildfile::Commands, 'config' do
   end  
   
   it "should merge configs on top of a base buildfile configs without changing the root config" do
-    a = Abbot::Buildfile.define do
+    a = SC::Buildfile.define do
       config :bundle, :test1 => :foo, :test2 => :foo
     end
     
@@ -80,7 +80,7 @@ describe Abbot::Buildfile::Commands, 'config' do
   end   
   
   it "should store configs inside of a specific mode when specified" do
-    a = Abbot::Buildfile.define do
+    a = SC::Buildfile.define do
       mode :debug do
         config :bundle, :foo => :foo
       end

@@ -1,4 +1,4 @@
-module Abbot
+module SC
   
   # A HashStruct is a type of hash that can also be accessed as a structed
   # (like an OpenStruct).  It also treats strings and symbols as the same

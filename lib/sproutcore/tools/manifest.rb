@@ -1,4 +1,4 @@
-module Abbot
+module SC
   module Tools
     
     # Prepares a manifest for use in the build system.  A manifest maps every
@@ -50,7 +50,7 @@ module Abbot
       desc "prepare TARGET", "generates a manifest file for the target"
       method_options :language => :optional, :project => :optional, :output => :optional
       def prepare(target)
-        self.project = Abbot::Project.load_nearest_project(options.project || Dir.pwd)
+        self.project = SC::Project.load_nearest_project(options.project || Dir.pwd)
         raise "You do not appear to be in a project" if self.project.nil?
         
         self.target = project.target_for(target_name = target)

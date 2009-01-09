@@ -1,12 +1,12 @@
 require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
 
-describe Abbot::Buildfile, 'load' do
+describe SC::Buildfile, 'load' do
 
-  include Abbot::SpecHelpers
+  include SC::SpecHelpers
 
   it "should load the contents of the buildfile as well as imports" do
     p = fixture_path('buildfiles', 'basic', 'Buildfile')
-    b = Abbot::Buildfile.load(p)
+    b = SC::Buildfile.load(p)
     
     b.should_not be_nil
     b.execute_task(:default)
@@ -19,7 +19,7 @@ describe Abbot::Buildfile, 'load' do
   end
   
   it "should be able to load the contents of one builfile on top of another" do
-    a = Abbot::Buildfile.load(fixture_path('buildfiles','installed', 'Buildfile'))
+    a = SC::Buildfile.load(fixture_path('buildfiles','installed', 'Buildfile'))
     b = a.dup.load! fixture_path('buildfiles','basic', 'Buildfile')
     
     b.execute_task :default
@@ -37,7 +37,7 @@ describe Abbot::Buildfile, 'load' do
     path1 = fixture_path('buildfiles','installed', 'Buildfile')
     path2 = fixture_path('buildfiles','installed', 'Buildfile2')
     
-    a = Abbot::Buildfile.new
+    a = SC::Buildfile.new
     a.load! path1
     a.load! path2
     
