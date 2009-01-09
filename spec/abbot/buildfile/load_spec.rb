@@ -41,7 +41,6 @@ describe Abbot::Buildfile, 'load' do
     a.load! path1
     a.load! path2
     
-    puts "\na.loaded_paths = #{a.loaded_paths * "\n"}\n"
     a.loaded_paths.size.should eql(2)
     a.loaded_paths.should include(path1)
     a.loaded_paths.should include(path2)

@@ -17,6 +17,9 @@ module Abbot
   #
   class Buildfile
     
+    # Default buildfile names.  Override with Abbot.env.buildfile_names
+    BUILDFILE_NAMES = %w(Buildfile sc-config sc-config.rb)
+    
     include ::Rake::Cloneable
     include ::Rake::TaskManager
     
@@ -86,15 +89,32 @@ module Abbot
     # the filename passed is nil or the file does not exist, this will simply
     # do nothing.
     #
+    # === Params
+    #  filename:: the buildfile to load or a directory
+    #  buildfile_names:: optional array of names to search in directory
+    #
     # === Returns
     #  self
     
-    def load!(filename=nil)
-      old_path = @current_path
-      @current_path = filename
-      loaded_paths << filename # save loaded paths
-      define!(File.read(filename)) if filename && File.exist?(filename)
-      @current_path = old_path
+    def load!(filename=nil, buildfile_names=nil)
+      # If a directory is passed, look for any buildfile and load them...
+      if File.directory?(filename)
+        
+        # search directory for buildfiles and load them.
+        buildfile_names ||= (Abbot.env.buildfile_names || BUILDFILE_NAMES)
+        buildfile_names.each do |path|
+          path = File.join(filename, path)
+          next unless File.exist?(path) && !File.directory?(path)
+          load!(path)
+        end
+        
+      elsif File.exist?(filename)
+        old_path = @current_path
+        @current_path = filename
+        loaded_paths << filename # save loaded paths
+        define!(File.read(filename)) if filename && File.exist?(filename)
+        @current_path = old_path
+      end
       return self
     end
       
@@ -154,9 +174,25 @@ module Abbot
     def current_mode
       @define_context.current_mode
     end
+    
     def current_mode=(new_mode)
       @define_context.current_mode = new_mode
     end
+
+    # Configures the buildfile for use with the specified target.  Call this
+    # BEFORE you load any actual file contents.
+    #
+    # === Returns
+    #  self
+    #
+    def for_target(target)
+      @target_name = target.target_name.to_s
+      return self
+    end
+    
+    # The namespace for this buildfile.  This should be name equal to the
+    # namespace of the target that owns the buildfile, if there is one
+    attr_reader :target_name
     
     # The hash of configs as loaded from the files.  The configs are stored
     # by mode and then by config name.  To get a merged config, use
@@ -182,6 +218,16 @@ module Abbot
         opts = config_mode; config_mode = nil
       end
       config_mode = current_mode if config_mode.nil?
+      
+      # Normalize the config name -- :all or 'all' is OK, absolute OK.
+      config_name = config_name.to_s
+      if config_name != 'all' && (config_name[0..0] != '/')
+        if target_name && (config_name == File.basename(target_name))
+          config_name = target_name
+        else
+          config_name = [target_name, config_name].join('/')
+        end
+      end
       
       # Perform Merge
       mode_configs = (self.configs[config_mode.to_sym] ||= HashStruct.new)

@@ -1,5 +1,10 @@
 require 'rubygems'
 gem 'rake', '> 0.8.0'
+gem 'thor', '>= 0.9.9'
+
+# Makes code more readable
+YES = true
+NO = false
 
 module Abbot
 
@@ -62,9 +67,5 @@ module Abbot
 end  # module Abbot
 
 Abbot.require_all_libs_relative_to(__FILE__)
-
-# Makes code more readable
-YES = true
-NO = false
 
 # EOF

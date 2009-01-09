@@ -47,12 +47,13 @@ describe Abbot::Buildfile, 'config_for' do
 
   end
   
-  def test_config(bundle_name, mode_name)
-    config = @buildfile.config_for(bundle_name, mode_name)
+  def test_config(target_key, mode_name)
+    target_name = target_key.to_s.sub /^([^\/])/,'/\1'
+    config = @buildfile.config_for(target_name, mode_name)
     config.test1.should eql(:all_all)
     config.test2.should eql("#{mode_name}_all".to_sym)
-    config.test3.should eql("all_#{bundle_name}".to_sym)
-    config.test4.should eql("#{mode_name}_#{bundle_name}".to_sym)
+    config.test3.should eql("all_#{target_key}".to_sym)
+    config.test4.should eql("#{mode_name}_#{target_key}".to_sym)
   end
   
   it "config_for(all, all) should exclude all specific mode/bundle settings" do

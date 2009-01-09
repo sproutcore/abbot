@@ -31,17 +31,27 @@ module Abbot
         FileUtils.touch(path_a)
       end
     end
-    
+
     def empty_project
       Abbot::Project.new fixture_path('buildfiles', 'empty_project')
     end
-        
+    
+    # The builtin project (i.e. default Buildfile)
+    def builtin_project
+      Abbot::Project.new fixture_path('..','..')
+    end
+    
+    # Loads a standard project, with the builtin project as parent.  Simulates
+    # real world scenario
+    def real_world_project
+      Abbot::Project.new fixture_path('real_world'), :parent => builtin_project
+    end
+    
+    ################################
+
     def basic_library_path
       fixture_path('basic_libary')
     end
-    
-    
-    ################################
     
     # Gets the abbot project itself as a library.  Useful for testing builtin
     # options.

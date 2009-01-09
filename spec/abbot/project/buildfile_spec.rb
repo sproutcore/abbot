@@ -6,6 +6,7 @@ describe Abbot::Project, 'buildfile' do
 
   it "should return a new, empty buildfile if no Buildfile can be found in the project" do
     project = Abbot::Project.new fixture_path('buildfiles', 'empty_project')
+    puts project.buildfile.loaded_paths
     project.buildfile.loaded_paths.size.should eql(0)
     project.buildfile.tasks.size.should eql(0)
   end

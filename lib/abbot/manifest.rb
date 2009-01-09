@@ -15,11 +15,8 @@ module Abbot
       @bundle = bundle 
       @entries = []
       @needs_build = true
-      @language = language
     end
 
-    def language; @language; end
-    
     # Reset the manifest.  This will clear out the existing manifest and set
     # it to need another build.  The next time you call build!, the manifest
     # will be rebuilt.

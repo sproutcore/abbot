@@ -54,7 +54,7 @@ module Abbot
     #  Buildfile
     #
     def buildfile 
-      @buildfile ||= parent_target.buildfile.dup.load(self.source_root)
+      @buildfile ||= parent_target.buildfile.dup.for_target(self).load!(self.source_root)
     end
     
     # Returns the config for the current project.  The config is computed by 
@@ -81,6 +81,10 @@ module Abbot
       end
       return ret 
     end
+    
+    ########################################################################
+    # TARGET METHODS
+    #
     
     # Finds the parent target for this target.  The parent target is the 
     # target with a higher-level of hierarchy.

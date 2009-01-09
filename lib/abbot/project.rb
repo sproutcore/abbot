@@ -29,11 +29,8 @@ module Abbot
   #
   class Project
     
-    # Default buildfile names.  Override with Abbot.env.buildfile_names
-    BUILDFILE_NAMES = %w(Buildfile sc-config sc-config.rb)
-    
     # the path of this project
-    attr_reader :project_path
+    attr_reader :project_root
     
     # Parent project this project shoud inherit build rules and targets from
     attr_reader :parent_project 
@@ -46,51 +43,64 @@ module Abbot
     # If you pass a parent project, then this project will start out with a
     # clone of the parent project's buildfile and targets.
     #
-    def initialize(project_path, opts ={})
-      @project_path = project_path
+    def initialize(project_root, opts ={})
+      @project_root = project_root
       @parent_project = opts[:parent]
       @buildfile = @targets = nil
     end
 
-    def self.load(project_path, opts={})
-      new project_path, project_type, opts
+    # Returns a new project loaded from the specified path
+    def self.load(project_root, opts={})
+      new project_root, opts
     end
 
-    # Retrieves the current buildfile for the project.  If the project has
-    # a parent_project, the parent's buildfile will be used as the basis for
-    # this buildfile.
+    # The current buildfile for the project.  The buildfile is calculated by
+    # merging any parent project buildfile with the contents of any 
+    # buildfiles found in the current project.  Buildfiles include any file
+    # named "Buildfile", "sc-config", or "sc-config.rb".  You can also 
+    # specify your own buildfile names with the "buildfile_names" config in
+    # the Abbot.env.
     #
-    # This method will look for any buildfiles matching the 
-    # buildfile_names environment and load, in order.
+    # === Returns
+    #  Buildfile instance
+    #
     def buildfile
-      return @buildfile unless @buildfile.nil?
-      
-      # get base buildfile
-      @buildfile = parent_project.nil? ? Buildfile.new : parent_project.buildfile.dup
-      
-      # Look for any buildfiles matching the buildfile names and load them
-      (Abbot.env.buildfile_names || BUILDFILE_NAMES).each do |filename|
-        filename = File.join(project_path, filename)
-        next unless File.exist?(filename) && !File.directory?(filename)
-        @buildfile.load!(filename)
-      end
-      return @buildfile
+      @buildfile ||= (parent_project.nil? ? Buildfile.new : parent_project.buildfile.dup).load!(project_root)
     end
 
-    # Returns the config for the current project.  The config is computed by 
-    # taking the merged config settings from the build file given the current
-    # build mode, then merging any environmental configs (set in Abbot::env)
-    # over the top.
+    # The config for the current project.  The config is computed by merging
+    # the config settings from the current buildfile and then the current
+    # environment in the following order:
     #
-    # This is the config hash you should use to control how items are built.
+    #  config for all modes, all targets +
+    #  config for current mode, all targets +
+    #  Current environment defined in Abbot.env
+    #
+    # This is the config hash you should access to determine general project
+    # wide settings that cannot be overridden by individual targets.
+    #
+    # === Returns
+    #  merged HashStruct
+    #
     def config
       return @config ||= buildfile.config_for(:all, Abbot.build_mode).merge(Abbot.env)
     end
 
-    # Retrieves a hash of all the targets known to this project, including
-    # those targets that are owned by the parent project.  The first time you
-    # call this method, it will get the targets from the parent and then it 
-    # will ask the buildfile to find any targets.
+    # A hash of the known targets for this project, including any targets
+    # inherited from a parent project.  Each target is stored in the hash
+    # by target_name.
+    #
+    # The first time this method is called, the project will automatically
+    # clone any targets from a parent project, and then calls 
+    # find_targets_for() on itself to recursively discover any targets in
+    # the project.
+    #
+    # If you need to change the way the project discovers project, override
+    # find_targets_for() instead of this method.
+    #
+    # === Returns
+    #  Hash of targets keyed by target_name
+    #
     def targets
       return @targets unless @targets.nil?
       
@@ -98,10 +108,23 @@ module Abbot
       @targets = HashStruct.new
       dup_targets(parent_project.targets) if parent_project
 
-      # Ask buildfile to find all targets for self.
-      buildfile.execute_task('abbot:find_targets', :project => self, :config => self.config) rescue nil
+      # find targets inside project.  
+      find_targets_for(project_root, nil, self.config)
       
       return @targets
+    end
+
+    # Returns the target with the specified target name.  The target name 
+    # may be absolute path or not, both will lookup from the top.  
+    #
+    # === Params
+    #  target_name:: the target to lookup
+    #
+    # === Returns
+    #  a Target instance or nil if no matching target could be found
+    #
+    def target_for(target_name)
+      targets[target_name.to_s.sub(/^([^\/])/,'/\1')]
     end
     
     # Adds a new target to the project with the passed target name.  Include
@@ -117,13 +140,67 @@ module Abbot
     #  source_root:: the absolute path to the target source
     #
     # === Returns
-    #  self
+    #  new target
     #
     def add_target(target_name, target_type, options={})
       targets[target_name] = Target.new(target_name.to_sym, 
           target_type.to_sym, options.merge(:project => self))
-      return self
     end
+
+    # Called by project to discover any targets within the project itself.  
+    # The default implementation will search the project root directory for 
+    # any directories matching those named in the "target_types" config. (See 
+    # Buildfile for documentation).  It will then recursively descend into 
+    # each target looking for further nested targets unless you've set the 
+    # "allow_nested_targets" config to false.
+    #
+    # If you need to change the way the project autodiscovers its own targets
+    # you can either change the "target_types" and "allow_nested_targets" 
+    # configs or you can override this method in your own ruby code to 
+    # do whatever kind of changes you want.
+    #
+    # === Params
+    #  root_path:: The path to search for targets.
+    #  root_name:: The root target name
+    #  config::    The config hash to use for this.  Should come from target
+    #
+    # === Returns
+    #  self
+    #
+    def find_targets_for(root_path, root_name, config)
+      
+      # look for directories matching the target_types keys and create target
+      # with target_types value as type. -- normalize to lowercase string
+      target_types = {}
+      (config.target_types || {}).each do |key, value| 
+        target_types[key.to_s.downcase] = value
+      end
+
+      # look for directories matching a target type
+      Dir.glob(File.join(root_path, '*')).each do |dir_name|
+        target_type = target_types[File.basename(dir_name).to_s.downcase]
+        next if target_type.nil?
+        next unless File.directory?(dir_name)
+
+        # loop through each item in the directory.  
+        Dir.glob(File.join(dir_name,'*')).each do |source_root|
+          next unless File.directory?(source_root)
+
+          # compute target name and create target
+          target_name = [root_name, File.basename(source_root)] * '/'
+          target = self.add_target target_name, target_type,
+            :source_root => source_root
+          
+          # if target's config allows nested targets, then call recursively
+          # asking the target's config allows the target's Buildfile to 
+          # override the default.
+          if target.config.allow_nested_targets
+            find_targets_for(source_root, target_name, target.config)
+          end
+        end # Dir.glob
+      end # target_type.each
+      return self
+    end 
     
     private 
     
@@ -134,7 +211,7 @@ module Abbot
         add_target target.target_name, target
       end
     end
-    
+        
   end
   
 end
