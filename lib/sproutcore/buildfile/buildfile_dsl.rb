@@ -16,6 +16,10 @@ module SC
       def task(*args, &block)
         define_task(::SC::Buildfile::Task, *args, &block)
       end
+      
+      def build_task(*args, &block)
+        define_task(::SC::Buildfile::BuildTask, *args, &block)
+      end
     
       # Import the partial Rakefiles +fn+.  Imported files are loaded _after_ 
       # the current file is completely loaded.  This allows the import statement 

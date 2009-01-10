@@ -375,27 +375,6 @@ module SC
       
   end
   
-  # The task will only be executed if the destination path does not exist or
-  # if it's timestamp is older than any of the source paths.
-  class BuildTask < ::Rake::Task
-    
-    def needed?
-      return true if out_of_date?
-    end
-    
-    def out_of_date?
-      ret = false
-      dst_mtime = File.exist?(DST_PATH) ? File.mtime(DST_PATH) : Rake::EARLY
-      SRC_PATHS.each do |path|
-        timestamp = File.exist?(path) ? File.mtime(path) : Rake::EARLY
-        ret = ret || (dst_mtime < timestamp)
-        break if ret
-      end
-      return ret 
-    end
-    
-  end
-  
 end
 
 # Add public method to kernel to remove defined constant using private
@@ -406,15 +385,6 @@ module Kernel
     const_set key, value
   end
 end
-
-# Global Helper Methods 
-
-def build_task(*args, &block)
-  SC::BuildTask.define_task(*args, &block)
-end
-
-# Generic CACHES constant can be used by tasks.
-CACHES = SC::HashStruct.new
 
 SC.require_all_libs_relative_to(__FILE__)
 
