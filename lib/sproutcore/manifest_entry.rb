@@ -18,10 +18,32 @@ module SC
   #
   class ManifestEntry < HashStruct
 
-    def initialize(opts={})
-      @manifest = opts.delete :manifest # store manifest has ivar
+    def initialize(manifest, opts={})
+      @manifest = manifest # store manifest has ivar
       super(opts)
     end
+    
+    # invoked whenever the manifest entry is first created.  This will invoke
+    # the entry:prepare task if defined.
+    def prepare!
+      if !@is_prepared
+        @is_prepared = true
+        buildfile = manifest.target.buildfile
+        if buildfile.task_defined? 'entry:prepare'
+          buildfile.execute_task 'entry:prepare',
+            :entry => self,
+            :manifest => self.manifest,
+            :target => self.manifest.target,
+            :config => self.manifest.target.config,
+            :project => self.manifest.target.project
+        end
+      end
+      return self
+    end
+    
+    ######################################################
+    # CONVENIENCE METHODS
+    #
     
     # true if the current manifest entry should not be included in the 
     # build.  The entry may still be used as an input for other entries and
@@ -55,21 +77,6 @@ module SC
     # Only used if the entry is marked as a composite
     def source_entries; self[:source_entries] || []; end
 
-    # Build path.  Computed from the filename unless otherwise specified
-    def build_path
-      self[:build_path] || File.join(manifest.build_path, self.filename)
-    end
-    
-    # Staging path.  Computed from the filename unless otherwise specified
-    def staging_path
-      self[:staging_path] || File.join(manifest.staging_path, self.filename)
-    end
-    
-    # Url.  Computed from filename unless otherwise specified
-    def url
-      self[:url] || [manifest.url_path, self.filename].join('/')
-    end
-    
     # The owner manifest
     attr_accessor :manifest
 
@@ -80,22 +87,46 @@ module SC
     # BUILDING
     #
 
-    # Builds the entry to its target build path.  This method can be invoked
-    # an entry to build the file into its file output path.  You must have
-    # added this to a manifest first for this to work
+    # Invokes the entry's build task to build to its build path.  If the 
+    # entry has source entries, they will be staged first.
     def build!
-      self.source_entries.each { |e| e.stage! } if self.composite?
-      manifest.build_entry self, self.build_path
-      return self
+      build_to self.build_path
     end
 
     # Builds an entry into its staging path.  This method can be invoked on 
     # any entry whose output is required by another entry to be built.
     def stage!
-      self.source_entries.each { |e| e.stage! } if self.composite?
-      manifest.build_entry self, self.staging_path
-      return self
+      build_to self.staging_path
     end
+    
+    private 
+    
+    def build_to(dst_path)
+      if self.build_task.nil?
+        raise "no build task defined for #{self.filename}" 
+      end
+
+      # stage source entries if needed...
+      (self.source_entries || []).each { |e| e.stage! } if composite?
+      
+      # get build task and build it
+      buildfile = manifest.target.buildfile
+      if !buildfile.task_defined?(self.build_task)
+        raise "Could not build entry #{self.filename} because build task '#{self.build_task}' is not defined"
+      end
+      
+      buildfile.execute_task self.build_task,
+        :entry => self,
+        :manifest => self.manifest,
+        :target => self.manifest.target,
+        :config => self.manifest.target.config,
+        :project => self.manifest.target.project,
+        :src_path => self.source_path,
+        :src_paths => self.source_paths,
+        :dst_path => dst_path
+        
+      return self
+    end  
 
   end
   

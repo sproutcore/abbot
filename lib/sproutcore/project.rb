@@ -51,11 +51,13 @@ module SC
 
     # Attempts to find the nearest project root
     def self.load_nearest_project(path, opts={})
-      while !(path.nil? || Buildfile.has_buildfile?(path))
+      candidate = nil
+      while path
+        candidate = path if Buildfile.has_buildfile?(path)
         new_path = File.dirname(path)
         path = (new_path == path) ? nil : new_path
       end
-      (path) ? self.new(path,opts) : nil
+      (candidate) ? self.new(candidate, opts) : nil
     end
     
     # Returns a new project loaded from the specified path
@@ -133,7 +135,8 @@ module SC
     #  a Target instance or nil if no matching target could be found
     #
     def target_for(target_name)
-      targets[target_name.to_s.sub(/^([^\/])/,'/\1')]
+      ret = (targets[target_name.to_s.sub(/^([^\/])/,'/\1')])
+      ret.nil? ? nil : ret.prepare!
     end
     
     # Adds a new target to the project with the passed target name.  Include

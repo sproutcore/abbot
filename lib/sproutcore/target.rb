@@ -46,6 +46,27 @@ module SC
     
     attr_reader :project
 
+    # Invoke this method to make sure the basic paths for the target have
+    # been prepared.  This method is called on the target before it is 
+    # returned from any call target_for().  It will invoke the target:prepare
+    # build task.
+    #
+    # You can call this method as often as you want; it will only execute 
+    # once.
+    #
+    # === Returns 
+    #  Target
+    def prepare!
+      if !@is_prepared
+        @is_prepared = true
+        if buildfile.task_defined? 'target:prepare'
+          buildfile.execute_task 'target:prepare', 
+            :target => self, :project => self.project, :config => self.config       
+        end
+      end
+      return self
+    end
+    
     ######################################################
     # CONFIG
     #
@@ -75,6 +96,8 @@ module SC
     # is mostly used for unit testing. 
     def reload_config!
       @config= nil
+      @is_prepared = false
+      prepare!
       return self
     end
     
@@ -112,17 +135,61 @@ module SC
       return ret 
     end
 
-    # Returns the root url that should prefix every built manifest entry
-    # This is composed from the target name and the global url prefix.
-    def url_root
-      self[:url_root] || config.url_root || ['/', config.url_prefix, target_name].join('')
+    # Computes a unique build number for this target.  The build number is
+    # gauranteed to change anytime the contents of any source file changes or
+    # anytime the build number of a required target changes.  Although this
+    # will generate long strings, it will automatically ensure that resources
+    # are properly cached when deployed.
+    #
+    # Note that this method does NOT set the build_number on the receiver;
+    # it just calculates a value and returns it.  You usually call this 
+    # method just to set the build_number on the target.
+    #
+    # === Returns
+    #  A build number string
+    #
+    def compute_build_number
+      require 'digest/md5'
+      # No predefined build number was found, instead let's compute it!
+      digests = Dir.glob(File.join(source_root, '**', '*.*')).map do |path|
+        allowed = File.exists?(path) && !File.directory?(path)
+        allowed = allowed && !target_directory?(path)
+        allowed ? Digest::SHA1.hexdigest(File.read(path)) : '0000'
+      end
+      
+      # Get all required targets and add in their build number.
+      required_targets.each do |target|
+        digests << (target.build_number || target.compute_build_number)
+      end
+
+      # Finally digest the complete string - tada! build number
+      Digest::SHA1.hexdigest(digests.join)
     end
     
-    # The full path to the build root of the bundle.  Unless you specify the
-    # build_root + bundle_build_root options, this will be computed from the
-    # public_root + url_prefix + bundle_name
-    def build_root
-      self[:build_root] || config.build_root || File.join(project.project_root.to_s, config.public_prefix.to_s, config.url_prefix.to_s, target_name.to_s)
+    # Returns true if the passed path appears to be a target directory 
+    # according to the target's current config.
+    def target_directory?(path, root_path=nil)
+      root_path = self.source_root if root_path.nil?
+      @target_names ||= target.config.target_types.keys
+      path = path.to_s.sub /^#{root_path}\//, ''
+      @target_names.each do |name|
+        return true if path =~ /^#{name.to_s}/
+      end
+      return false
+    end
+    
+    # Invoked to set the build number on the target.  This will invoke the
+    # target:build_number task, if defined.
+    #
+    # === Returns
+    #  receiver
+    #
+    def prepare_build_number!
+      if buildfile.task_defined 'target:build_number'
+        buildfile.execute_task 'target:build_number',
+          :target => self, :config => self.config, :project => self.project
+      end
+      return self
     end
     
     ######################################################

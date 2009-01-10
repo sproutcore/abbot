@@ -23,7 +23,12 @@ module SC
     # project.  
     class Tool < ::Thor
 
+      map '-o' => 'output'
+      map '-vv' => 'verbose'
+      
       attr_accessor :target, :manifest, :entry
+      
+      def verbose?; options['verbose'] || false; end
       
       def project 
         return @project unless @project.nil?
@@ -35,6 +40,9 @@ module SC
           @project = SC::Project.load File.expand_path(project_path), 
             :parent => SC.builtin_project
         end
+        
+        puts("~ Loaded project at: #{@project.project_root}") if verbose? && @project
+        
         return @project
       end
       attr_writer :project
@@ -62,6 +70,24 @@ module SC
         end
         return self.target
       end
+      
+      # Fix start so that it treats command-name like command_name
+      def self.start(args = ARGV)
+        args = args.dup
+        args[0] = args[0].gsub('-','_') if args.size>0
+
+        is_verbose = args.include?('--verbose') || args.include?('-vv')
+        
+        begin
+          super(args)
+        rescue Exception => e
+          STDERR << "ERROR: " << e << "\n\n"
+          STDERR << "========\n#{e.backtrace.join("\n")}\n" if is_verbose
+          exit(1)
+        end
+      end
+      
+      def logger; @logger = ::Logger.new; end
       
     end
     
