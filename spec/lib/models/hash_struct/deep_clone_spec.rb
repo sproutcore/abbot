@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
+require File.join(File.dirname(__FILE__), %w[.. .. .. spec_helper])
 
 describe SC::HashStruct, 'deep_clone' do
 

@@ -1,5 +1,5 @@
 require 'rake'
-require File.join(File.dirname(__FILE__), 'hash_struct')
+require File.join(File.dirname(__FILE__), 'models', 'hash_struct')
 
 module SC
 
