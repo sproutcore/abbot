@@ -17,10 +17,20 @@ module SC
         define_task(::SC::Buildfile::Task, *args, &block)
       end
       
+      def replace_task(*args, &block)
+        @is_redefining = true
+        begin
+          define_task(::SC::Buildfile::Task, *args, &block)
+        rescue Exception => e
+          @is_redefining = false
+          raise e
+        end
+      end
+      
       def build_task(*args, &block)
         define_task(::SC::Buildfile::BuildTask, *args, &block)
       end
-    
+
       # Import the partial Rakefiles +fn+.  Imported files are loaded _after_ 
       # the current file is completely loaded.  This allows the import statement 
       # to appear anywhere in the importing file, and yet allowing the imported 

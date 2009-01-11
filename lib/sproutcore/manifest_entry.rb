@@ -41,6 +41,8 @@ module SC
       return self
     end
     
+    def prepared?; @is_prepared || false; end
+    
     ######################################################
     # CONVENIENCE METHODS
     #

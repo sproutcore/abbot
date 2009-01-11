@@ -67,6 +67,9 @@ module SC
       return self
     end
     
+    # Used for unit testing
+    def prepared?; @is_prepared || false; end
+    
     ######################################################
     # CONFIG
     #

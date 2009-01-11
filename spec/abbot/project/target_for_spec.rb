@@ -25,4 +25,9 @@ describe SC::Project, 'target_for' do
     target.should be_nil
   end
   
+  it "should call prepare! on new targets" do
+    target = @project.target_for(:contacts)
+    target.prepared?.should be_true
+  end
+  
 end

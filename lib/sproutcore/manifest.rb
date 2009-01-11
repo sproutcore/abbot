@@ -34,10 +34,13 @@ module SC
       return self
     end
 
+    def prepared?; @is_prepared || false; end
+    
     # Builds the manifest.  This will prepare the manifest and then invoke
     # the manifest:build task if defined.
     def build!
       prepare!
+      reset_entries!
       if target.buildfile.task_defined? 'manifest:build'
         target.buildfile.execute_task 'manifest:build',
           :manifest => self,

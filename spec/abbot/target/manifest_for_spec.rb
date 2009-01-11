@@ -31,6 +31,12 @@ describe SC::Target, 'manifest_for' do
     found.vers.should eql(1)
   end
   
+  # IMPORTANT:  This condition is assumed by the manifest/prepare_spec.
+  it "should NOT call prepare! when creating a new manifest" do
+    manifest = @target.manifest_for :language => :en
+    manifest.prepared?.should be_false
+  end
+  
 end
 
     

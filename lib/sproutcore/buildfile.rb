@@ -174,6 +174,13 @@ module SC
       end
     end
 
+    # Support redefining a task...
+    def intern(task_class, task_name)
+      ret = super(task_class, task_name)
+      ret.clear if @is_redefining
+      return ret
+    end
+
     # Application options from the command line
     attr_reader :options
 
@@ -365,9 +372,9 @@ module SC
         
         # Save the old const value
         ret[key] = Kernel.const_get(const_key) rescue nil
-        
-        # If the old value differs from the new value, change it
-        Kernel.const_reset(const_key, value) if ret[key] != value
+
+        # Reset
+        Kernel.const_reset(const_key, value)
       end
       
       return ret

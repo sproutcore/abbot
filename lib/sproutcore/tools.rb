@@ -24,13 +24,66 @@ module SC
     class Tool < ::Thor
 
       map '-o' => 'output'
-      map '-vv' => 'verbose'
+      map '-v' => 'verbose'
+      map '-dd' => 'debug'
+      
+      # These are standard options you can merge in to support for the 
+      # tool in general.
       
       attr_accessor :target, :manifest, :entry
+
+      ######################################################
+      # STANDARD OPTIONS SUPPORT
+      #
+
+      STD_OPTIONS = { :verbose => :boolean, :debug => :boolean, :logfile => :optional }
+
+      # Prepare the standard options.  This should be the first method you
+      # call.  This will write the standard options to the SC.env and 
+      # do any other necessary setup.
+      def prepare_standard_options!
+        SC.env.log_level = options['debug'] ? :debug : (options['verbose'] ? :info : :warn)
+        SC.env.logfile = File.expand_path(options['logfile']) if options['logfile']
+      end
+        
+      def verbose?; options['debug'] || options['verbose'] || false; end
       
-      def verbose?; options['verbose'] || false; end
+      def debug?; options['debug'] || false; end
+
+      ######################################################
+      # PROJECT SUPPORT
+      #
       
-      def project 
+      # The current working project
+      attr_accessor :project
+      
+      # Attempts to discover the current working project.  Unless you specify
+      # otherwise, this will use either the passed project path or it will
+      # walk up the current path looking for the top-level directory with
+      # a Buildfile or looking for the first Buildfile with a "project" 
+      # directive.
+      #
+      # === Options
+      #  :use_option:: if true, respects command line.  default true
+      #  :required::   raises an exception if no project found. def true
+      #
+      # === Returns
+      #  project instance or nil
+      #
+      def discover_project!(opts = {})
+        use_option = opts[:use_option].nil? ? true : opts[:use_option]
+        is_required = opts[:required].nil? ? true : opts[:required]
+        ret = nil
+        
+        project_path = use_option ? options['project'] : nil
+        if project_path.nil? # attempt to autodiscover
+          ret = SC::Project.load_nearest_project Dir.pwd, :parent => SC.builtin_paroject
+        else
+          ret = SC::Project.load File.expand_path(project_path), :parent => SC.builting_project
+        end
+      end
+        
+      def project(opts = {})
         return @project unless @project.nil?
         project_path = options['project']
         if project_path.nil? 
@@ -86,9 +139,7 @@ module SC
           exit(1)
         end
       end
-      
-      def logger; @logger = ::Logger.new; end
-      
+            
     end
     
   end

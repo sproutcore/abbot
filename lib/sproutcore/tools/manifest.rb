@@ -25,8 +25,10 @@ module SC
   #
   class Tools::Manifest < Tools::Tool
         
-    # Entry point for internal use.  This will create an instance, save
-    # the current project, target, and manifest and then call prepare!
+    # Entry point for internal use.  This will instantiate the tool, build
+    # and return the manifest, bypassing option processing and serialization
+    # steps.  You can use this method to invoke this tool from Ruby code 
+    # without paying the extra cost of running the tool externally.
     #
     # === Params
     #  manifest:: the manifest to prepare
@@ -42,11 +44,21 @@ module SC
       tool.build!
       return manifest
     end
+
+    ######################################################
+    # COMMAND LINE PROCESSING
+    #
+
+    # Standard build options; may be inherited by other tools
+    BUILD_OPTIONS = {
+      :language => :optional, # specify on or more languages to build
+      :build    => :optional, # name one or more build numbers
+      :project  => :optional, # name the path to the project 
+    }
     
     # Entry point for a command line tool.
     desc "build TARGET", "generates a manifest file for the target"
-    method_options :language => :optional, :build  => :optional, 
-      :project => :optional, :output => :optional, :verbose => :boolean
+    method_options STD_OPTIONS.merge(BUILD_OPTIONS).merge(:output => :optional)
                    
     def build(target_name)
       require 'json'

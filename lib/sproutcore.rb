@@ -57,6 +57,29 @@ module SproutCore
   end
   def self.env=(hash); @env = HashStruct.new(hash); end
   
+  # Returns a standard logger object.  You can replace this with your own
+  # logger to redirect all SproutCore log output if needed.  Otherwise, a
+  # logger will bre created based on your env.log_level and env.logfile 
+  # options.
+  def logger 
+    return @logger unless @logger.nil?
+    
+    if env.logfile
+      @logger = Logger.new env.logfile, 10, 1024000
+    else
+      @logger = Logger.new STDERR
+    end
+    
+    @logger.level = (env.log_level == :debug) ? Logger::DEBUG : ((env.log_level == :info) ? Logger::INFO : Logger::WARN)
+    
+    return @logger
+  end
+  attr_writer :logger
+
+  # Returns the current build mode. The build mode is determined based on the
+  # current environment build_mode settings.  Note that for backwards 
+  # compatibility reasons, :development and :debug are treated as being 
+  # identical.
   def self.build_mode
     ret = env.build_mode || :debug
     ret = ret.to_sym unless ret.nil?
