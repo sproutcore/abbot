@@ -53,4 +53,13 @@ describe SC::Buildfile, 'dup' do
     a.dup.project_type.should eql(:foo)
   end
   
+  it "should NOT clone the project? status (must be set per-instance)" do
+    a = SC::Buildfile.define
+    a.project!
+    a.project?.should be_true
+    
+    a.dup.project?.should be_false
+  end
+  
+  
 end

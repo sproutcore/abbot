@@ -17,6 +17,13 @@ module SC
         define_task(::SC::Buildfile::Task, *args, &block)
       end
       
+      # Replace an existing task instead of enhancing it.
+      #
+      # Example:
+      #   replace_task :clobber => :clean do
+      #      rm_rf 'javascript'
+      #   end
+      #
       def replace_task(*args, &block)
         @is_redefining = true
         begin
@@ -27,6 +34,9 @@ module SC
         end
       end
       
+      # Define a build task.  A build task will not run if the destination
+      # file is newer than the source files.
+      #
       def build_task(*args, &block)
         define_task(::SC::Buildfile::BuildTask, *args, &block)
       end
@@ -117,6 +127,14 @@ module SC
       def proxy(proxy_path, opts={})
         add_proxy proxy_path, opts
       end
+      
+      # Register info about this buildfile as a project
+      def project(name=nil, type=nil)
+        self.project_name = name.nil? ? :default : name.to_sym
+        self.project_type = type.nil? ? :default : type.to_sym
+        self.project!
+      end
+      
     end
     
     include Commands

@@ -354,8 +354,16 @@ module SC
     # PROJECT & TARGET METHODS
     #
 
+    # This is set if you use the project helper method in your buildfile.
+    attr_accessor :project_name
+    
     def project_type; @project_type || :default; end
     attr_writer :project_type
+    
+    # Returns YES if this buildfile appears to represent a project.  If you
+    # use the project() helper method, it will set this
+    def project?; @is_project || false; end
+    def project!; @is_project = true; end
     
     ################################################
     # PROXY METHODS
@@ -409,6 +417,9 @@ module SC
         cloned_ivar = instance_variable_get(ivar).deep_clone
         ret.instance_variable_set(ivar, cloned_ivar)
       end
+      
+      ret.instance_variable_set('@is_project', false) # transient - do not dup
+      
       return ret 
     end
     
