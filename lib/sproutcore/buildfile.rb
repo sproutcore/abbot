@@ -3,17 +3,80 @@ require File.join(File.dirname(__FILE__), 'models', 'hash_struct')
 
 module SC
 
-  # A Buildfile is a special type of Rake Application that knows how to work
-  # with SC Buildfiles.  Buildfiles include addition support on top of rake
-  # for processing command line arguments, and for automatically building
-  # targets.  To load a buildfile, call Buildfile.load() with the 
-  # pathname of the build file (or null for an empty file).  You can also
-  # pass a parent buildfile which will be used as the basis for the buildfile.
+  # A Buildfile is a special type of file that contains the configurations and
+  # build tasks used for a particular project or project target.  Buildfiles
+  # are based on Rake but largely use their own syntax and helper methods.
+  # 
+  # Whenever you create a project, you will often also add a Buildfile, 
+  # sc-config, or sc-config.rb file.  All of these files are laoded into the
+  # build system using this class.  The other model objects will then 
+  # reference their buildfile to extract configuration information and to find
+  # key tasks required for the build process.
   #
-  # Once a buildfile has been instantiated, you can run any task on the
-  # buildfile by calling execute_task().  Usually though, you will use a 
-  # Buildfile as part of a bundle.  The needed tasks will be invoked as needed
-  # to populate the manifest, environment, etc.
+  # == Loading a Buildfile
+  #
+  # To load a buildfile, just use the load() method:
+  #
+  #   buildfile = Buildfile.load('/path/to/buildfile')
+  #
+  # You can also load multiple buildfiles by calling the load!() method on
+  # an exising Buildfile object or by passing a directory with several 
+  # buildfiles in it:
+  #
+  #   buildfile = Buildfile.new
+  #   buildfile.load!('buildfile1').load!('buildfile2')
+  #
+  # == Defining a Buildfile
+  #
+  # Finally, you can also define new settings on a buildfile directly.  Simply
+  # use the define() method:
+  #
+  #   buildfile = Buildfile.define do
+  #     task :demo_task
+  #   end
+  #
+  # You can also define additional tasks on an existing buildfile object like
+  # so:
+  #
+  #  buildfile = Buildfile.new
+  #  buildfile.define! do
+  #    task :demo_task
+  #  end
+  #
+  # When you call define!() on a buildfile, the block is executed in the 
+  # context of the buildfile object, just like a Buildfile loaded from disk.
+  # You will not usually use define!() on a buildfile in normal code, but it 
+  # is very useful for unit testing.
+  #
+  # == Executing Tasks
+  #
+  # Once a buildfile is loaded, you can execute tasks on the buildfile using
+  # the execute_task() method.  You should pass the name of the task you want
+  # to execute along with any constants you want set for the task to access:
+  #
+  #   buildfile.execute_task :demo_task, :context => my_context
+  #
+  # With the above example, the demo_task could access the "context" as a 
+  # global constant like do:
+  #
+  #   task :demo_task do
+  #      CONTEXT.name = "demo!"
+  #   end
+  #
+  # == Accessing Configs
+  #
+  # Configs are stored in a "normalized" state in the "configs" property.  You
+  # can access configs directly this way, but the more useful way to access
+  # configs is through the config_for() method.  Pass the name of the target
+  # that is the current "focus" of the config:
+  #
+  #   config = buildfile.config_for('/sproutcore') # target always starts w /
+  #
+  # Configs can be specified in different "contexts" by the buildfile.  When
+  # you call this method, the configs will be merged together, layering any
+  # configs that are targeted specifically at the /sproutcore target over the
+  # top of globally defined configs.  The current build mode is also reflected
+  # in this call.
   #
   class Buildfile
     
