@@ -188,10 +188,13 @@ module SC
     #  receiver
     #
     def prepare_build_number!
-      if buildfile.task_defined 'target:build_number'
+      if buildfile.task_defined? 'target:build_number'
         buildfile.execute_task 'target:build_number',
           :target => self, :config => self.config, :project => self.project
+      else
+        SC::logger.warn "Could not find required target target:build_number"
       end
+      
       return self
     end
     

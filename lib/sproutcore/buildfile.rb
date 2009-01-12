@@ -204,6 +204,7 @@ module SC
     def execute_task(task_name, consts = nil)
       consts = set_kernel_consts consts  # save  to restore
       reenable_tasks
+      SC.logger.info "executing #{task_name}"
       self[task_name.to_s].invoke 
       set_kernel_consts consts # clear constants
     end

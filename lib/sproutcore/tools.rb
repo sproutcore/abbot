@@ -29,34 +29,96 @@ module SC
       
       # These are standard options you can merge in to support for the 
       # tool in general.
-      
+      method_options({ :verbose     => :boolean,  
+                       :debug       => :boolean, 
+                       :logfile     => :optional,
+                       :mode        => :optional,
+                       :environment => :optional })
+                     
       def initialize(opts, *args)
-        puts "opts = #{opts} args = #{args * ','}"
+        super
       end
       
       attr_accessor :target, :manifest, :entry
 
+      def options
+        @tool_options ||= HashStruct.new(super)
+      end
+      
       ######################################################
       # STANDARD OPTIONS SUPPORT
       #
 
-      STD_OPTIONS = { :verbose => :boolean, :debug => :boolean, :logfile => :optional }
-
-      # Prepare the standard options.  This should be the first method you
-      # call.  This will write the standard options to the SC.env and 
-      # do any other necessary setup.
-      def prepare_standard_options!
-        SC.env.log_level = options['debug'] ? :debug : (options['verbose'] ? :info : :warn)
-        SC.env.logfile = File.expand_path(options['logfile']) if options['logfile']
+      def invoke(*args)
+        discover_build_mode
+        discover_logger
+        discover_build_numbers
+        standard_options!(*args)
+        super
       end
-        
-      def verbose?; options['debug'] || options['verbose'] || false; end
-      
-      def debug?; options['debug'] || false; end
 
+      # Set/restore the default build mode
+      def self.default_build_mode(build_mode=nil)
+        @build_mode = build_mode unless build_mode.nil?
+        @build_mode || (self == Tool ? :debug : superclass.default_build_mode)
+      end
+
+      # Discovers the build mode from the passed options
+      def discover_build_mode
+        build_mode = options.mode || options.environment || self.class.default_build_mode || :debug
+        SC.build_mode = build_mode.to_sym
+        return self
+      end
+
+      # Prepares the logging options.
+      #
+      # === Returns
+      #  self
+      def discover_logger
+        if options.debug
+          SC.env.log_level = :debug
+        else
+          SC.env.log_level = options.verbose ? :info : :warn
+        end
+        SC.env.logfile = File.expand_path(options.logfile) if options.logfile
+        return self
+      end
+      
+      # Discovers any build numbers passed in the environment.
+      #
+      # === Returns
+      #  self
+      def discover_build_numbers
+        return self if (numbers = options.build).nil? # nothing to do
+        
+        build_numbers = {}
+        numbers.split(',').each do |key_code|
+          target_name, build_number = key_code.split(':')
+          if build_number.nil?
+            SC.env.build_number = target_name
+          else
+            target_name = target_name.to_s.sub(/^([^\/])/,'/\1').to_sym
+            build_numbers[target_name] = build_number
+          end
+        end
+        SC.env.build_numbers = build_numbers if build_numbers.size > 0
+      end
+      
+      # Override this method in your subclass if you have some standard 
+      # options you want to process for all incoming commands.
+      def standard_options!(*args)
+      end
+      
+      def debug?; SC.env.log_level == :debug; end
+      
       ######################################################
       # PROJECT SUPPORT
       #
+      
+      # Standard options needed to support finding a project.  Be sure to
+      # call prepare_project
+      PROJECT_OPTIONS = { :project     => :optional, 
+                          :library     => :optional }  # deprecated
       
       # The current working project
       attr_accessor :project
@@ -69,77 +131,86 @@ module SC
       #
       # === Options
       #  :use_option:: if true, respects command line.  default true
-      #  :required::   raises an exception if no project found. def true
       #
       # === Returns
-      #  project instance or nil
+      #  self
       #
-      def discover_project!(opts = {})
+      def prepare_project(opts = {})
+        return @project unless @project.nil?
+        
         use_option = opts[:use_option].nil? ? true : opts[:use_option]
-        is_required = opts[:required].nil? ? true : opts[:required]
         ret = nil
         
-        project_path = use_option ? options['project'] : nil
+        project_path = use_option ? (options.project || options.library) : nil
         if project_path.nil? # attempt to autodiscover
-          ret = SC::Project.load_nearest_project Dir.pwd, :parent => SC.builtin_paroject
+          ret = SC::Project.load_nearest_project Dir.pwd, :parent => SC.builtin_project
         else
-          ret = SC::Project.load File.expand_path(project_path), :parent => SC.builting_project
-        end
-      end
-        
-      def project(opts = {})
-        return @project unless @project.nil?
-        project_path = options['project']
-        if project_path.nil? 
-          @project = SC::Project.load_nearest_project Dir.pwd, 
-            :parent => SC.builtin_project
-        else
-          @project = SC::Project.load File.expand_path(project_path), 
-            :parent => SC.builtin_project
+          ret = SC::Project.load File.expand_path(project_path), :parent => SC.builtin_project
         end
         
-        puts("~ Loaded project at: #{@project.project_root}") if verbose? && @project
-        
-        return @project
+        SC.logger.info "Loaded project at: #{ret.project_root}" if ret
+        @project = ret
+        return self
       end
-      attr_writer :project
       
-      # Verifies that a project could be created.  If you pass an option, it
-      # should be the project you want to set.  If the new project value is
-      # nil, then this will raise a standard error.
-      def requires_project!
-        if project.nil?
-          raise "You do not appear to be inside a valid project.  Try changing to your project directory and try again.  If you are inside your project directory, make sure you have a Buildfile or sc-config installed as well."
+      # Verifies that a project has been set.  If no project is set, it will
+      # attempt to discover the project.  If that fails, then it will raise
+      # an error and exit.
+      # 
+      # The options you pass pass through to prepare_project()
+      #
+      # === Returns
+      #  self
+      #
+      def requires_project!(opts = {})
+        if prepare_project(opts).project.nil?
+          raise "You do not appear to be inside of a valid project.  Try changing to your project directory and try again.  If you are inside of your project, make sure you have a Buildfile or sc-config at the root level."
         end
-        return project
+        return self
       end
+
+      ######################################################
+      # TARGET SUPPORT
+      #
+      
+      # The targets to work on
+      attr_accessor :targets
       
       # Verifies that the target is set.  If you pass a target name, this will
       # first try to get the target from the project and set it.  Otherwise,
-      # it will just check.
-      def requires_target!(target_name=nil)
-        if target_name
-          requires_project!
-          @target = project.target_for(target_name)
+      # it will just check that a target has been set.
+      #
+      # === Returns 
+      #   self
+      def requires_targets!(*target_names)
+        if target_names.size > 0
+          prepare_project
+          puts target_names.first
+          @targets = target_names.map { |t| self.project.target_for(t) }
         end
-        if self.target.nil?
-          raise "Target #{target_name} could not be found in this project"
+        if self.targets.nil? || self.targets.size == 0
+          raise "#{ target_names.size > 0 ? target_names.join(',') : 'No target' } could not be found in this project"
         end
-        return self.target
+        return self
       end
+
+
+      ######################################################
+      # INTERNAL SUPPORT
+      #
       
       # Fix start so that it treats command-name like command_name
       def self.start(args = ARGV)
-        args = args.dup
-        args[0] = args[0].gsub('-','_') if args.size>0
 
-        is_verbose = args.include?('--verbose') || args.include?('-vv')
+        is_verbose = args.include?('--verbose') || args.include?('-v')
         
         begin
           super(args)
         rescue Exception => e
-          STDERR << "ERROR: " << e << "\n\n"
-          STDERR << "========\n#{e.backtrace.join("\n")}\n" if is_verbose
+          SC.logger.fatal(e)
+          if is_verbose
+            SC.logger.fatal("BACKTRACE:\n#{e.backtrace.join("\n")}\n")
+          end
           exit(1)
         end
       end

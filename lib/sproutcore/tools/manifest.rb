@@ -45,22 +45,61 @@ module SC
       return manifest
     end
 
+    # Entry point for the build_number command.  This will find the build
+    # number for the target based on the current config and return it.  You 
+    # can use this build number or set it as needed.
+    #
+    # === Params
+    #  target:: the target you want to find the build number for
+    #
+    # === Returns
+    #  The build number for the target
+    #
+    def self.build_number(target)
+      tool = self.new
+      tool.targets = [target]
+      tool.project = target.project
+      return tool.get_build_number!
+    end
+
+    ######################################################
+    # GENERAL COMMAND-LINE OPTIONS
+    #
+
+    default_build_mode :production
+
+    method_options PROJECT_OPTIONS
+    def initialize(*args)
+      super
+    end
+    
+    ######################################################
+    # BUILD-NUMBER COMMAND
+    #
+    
+    desc "build-number TARGET", "calculates a build number for a target"
+    def build_number(*target_names)
+      requires_targets!(*target_names)
+      STDOUT << get_build_number!
+      return 0
+    end
+    
+    # Actually calculates the build number...
+    def get_build_number!
+      targets.first.prepare_build_number!.build_number
+    end
+      
+      
     ######################################################
     # COMMAND LINE PROCESSING
     #
 
-    # Standard build options; may be inherited by other tools
-    BUILD_OPTIONS = {
-      :language => :optional, # specify on or more languages to build
-      :build    => :optional, # name one or more build numbers
-      :project  => :optional, # name the path to the project 
-    }
-    
     # Entry point for a command line tool.
-    desc "build TARGET", "generates a manifest file for the target"
-    method_options STD_OPTIONS.merge(BUILD_OPTIONS).merge(:output => :optional)
-                   
-    def build(target_name)
+    desc "build [TARGET]", "generates a manifest file for the target"
+    method_options :output => :optional
+    def build(target_name=nil)
+      return "building #{target_name}"
+      
       require 'json'
       
       apply_build_numbers!
@@ -78,41 +117,10 @@ module SC
       return 0
     end
     
-    desc "build_number TARGET", "calculates a build number for a target"
-    method_options :project => :optional, :build => :optional, :verbose => :boolean
-    def build_number(target_name)
-
-      apply_build_numbers! # if build numbers were included, put into env
-
-      # Next, get the project & target then get the build number...
-      requires_project!
-      requires_target!(target_name)
-      
-      # Finally compute the build number
-      STDOUT << self.class.build_number(self.target)
-      return 0
-    end
-
-    # Computes the build number for a particular src_root
-    def self.build_number(target)
-      target.prepare_build_number!
-    end
 
     def apply_build_numbers!
-      return if (build = options['build']).nil?
-      build_numbers = {}
-      build.split(',').each do |key_code|
-        target_name, build_number = key_code.split(':')
-        if build_number.nil?
-          SC.env.build_number = target_name
-        else
-          target_name = target_name.to_s.sub(/^([^\/])/,'/\1').to_sym
-          build_numbers[target_name] = build_number
-        end
-      end
-      SC.env.build_numbers = build_numbers if build_numbers.size > 0
     end
-      
+
     # main entry point.  This method is called right after any options are 
     # processed to actually perform transforms on the manifest.  The 
     # default behavior simply calls out to several other transform methods 

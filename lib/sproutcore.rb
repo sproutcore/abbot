@@ -1,4 +1,6 @@
 require 'rubygems'
+require 'logger'
+
 gem 'rake', '> 0.8.0'
 
 # Makes code more readable
@@ -60,13 +62,18 @@ module SproutCore
   # logger to redirect all SproutCore log output if needed.  Otherwise, a
   # logger will bre created based on your env.log_level and env.logfile 
   # options.
-  def logger 
+  def self.logger 
     return @logger unless @logger.nil?
     
     if env.logfile
       @logger = Logger.new env.logfile, 10, 1024000
     else
       @logger = Logger.new STDERR
+      
+      # if we are logging to the screen, no reason to use a std loggin fmt
+      @logger.formatter = lambda do |severity, time, progname, msg|
+        [severity, '~', msg.to_s, "\n"].join(' ') 
+      end
     end
     
     @logger.level = (env.log_level == :debug) ? Logger::DEBUG : ((env.log_level == :info) ? Logger::INFO : Logger::WARN)
@@ -84,6 +91,13 @@ module SproutCore
     ret = ret.to_sym unless ret.nil?
     ret = :debug if ret == :development # backwards compatibility
     ret
+  end
+  
+  def self.build_mode=(new_mode)
+    new_mode = new_mode.to_sym
+    new_mode = :debug if new_mode == :development
+    env.build_mode = new_mode
+    self.build_mode
   end
   
   # Returns a project instance representing the builtin library

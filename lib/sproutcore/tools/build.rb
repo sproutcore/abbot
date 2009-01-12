@@ -1,3 +1,5 @@
+require File.expand_path(File.join(File.dirname(__FILE__), 'manifest'))
+
 module SC
 
   # Builds a manifest or a single entry from a manifest
@@ -11,11 +13,14 @@ module SC
       end
     end
     
+    default_task :build
+    
     desc "build [TARGET]", "builds a target"
-    method_options :language => :optional, :build  => :optional, 
-      :project => :optional, :output => :optional, :verbose => :boolean,
-      :languages => :optional
-    def build(target_name)
+    def build(target_name=nil)
+      
+      require 'pp'
+      pp options
+      
       require 'json'
 
       apply_build_numbers!
