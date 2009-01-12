@@ -1,6 +1,5 @@
 require 'rubygems'
 gem 'rake', '> 0.8.0'
-gem 'thor', '>= 0.9.9'
 
 # Makes code more readable
 YES = true

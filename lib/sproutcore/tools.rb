@@ -1,4 +1,4 @@
-require 'thor'
+require File.expand_path(File.join(SC::LIBPATH, 'thor', 'lib', 'thor'))
 
 module SC
 
