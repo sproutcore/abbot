@@ -47,8 +47,21 @@ module SC
 
     # Allow for method-like access to hash also...
     def method_missing(method_name, *args)
-      if method_name.to_s =~ /=$/
-        self[method_name.to_s[0..-2]] = args[0]
+      method_name = method_name.to_s
+      if method_name =~ /=$/
+        # suppoert property? = true
+        if method_name =~ /\?=$/
+          method_name = method_name[0..-3]
+          value = !!args[0]
+        else
+          method_name = method_name[0..-2]
+          value = args[0]
+        end
+        self[method_name] = value
+        
+      # convert property? => !!self[:property]
+      elsif method_name =~ /\?$/
+        !!self[method_name[0..-2]]
       else
         self[method_name]
       end

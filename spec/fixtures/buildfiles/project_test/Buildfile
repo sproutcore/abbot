@@ -1,0 +1,4 @@
+# Verify that the top-level buildfile is defined as a project.  Since these
+# fixtures live inside of the project directory (which itself has a buildfile
+# we want to make sure we stop here during testing)
+project :demo

@@ -1,5 +1,9 @@
 # Project-level Buildfile
 
+# required because this buildfile lives inside of the source dir which itself
+# has a Buildfile
+project! 
+
 # This is the generic requirement for most apps.  Of course SproutCore will
 # override this for itself, so you don't have to worry about it causing 
 # trouble.

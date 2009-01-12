@@ -53,7 +53,14 @@ module SC
     def self.load_nearest_project(path, opts={})
       candidate = nil
       while path
-        candidate = path if Buildfile.has_buildfile?(path)
+        if Buildfile.has_buildfile?(path)
+          candidate = path 
+          
+          # If we find a buildfile and the buildfile explicitly states 
+          # that it is a project, then just stop here..
+          break if Buildfile.load(path).project? 
+        end
+            
         new_path = File.dirname(path)
         path = (new_path == path) ? nil : new_path
       end

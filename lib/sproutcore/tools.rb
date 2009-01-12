@@ -30,6 +30,10 @@ module SC
       # These are standard options you can merge in to support for the 
       # tool in general.
       
+      def initialize(opts, *args)
+        puts "opts = #{opts} args = #{args * ','}"
+      end
+      
       attr_accessor :target, :manifest, :entry
 
       ######################################################
