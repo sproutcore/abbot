@@ -5,7 +5,7 @@ describe SC::Manifest, 'build!' do
   include SC::SpecHelpers
 
   before do
-    @project = real_world_project
+    @project = fixture_project(:real_world)
     
     ## IMPORTANT: Note the task defined here is assumed by tests below...
     @project.buildfile.define! do

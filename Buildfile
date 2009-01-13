@@ -6,7 +6,7 @@ config :all,
   # REQUIRED CONFIGS 
   # You will not usually need to override these configs, but the code assumes
   # they will be present, so you must support them.
-  :public_prefix => 'public',
+  :build_prefix => 'public',
   :url_prefix    => 'static',
   
   # Defines the directories that may contain targets, and maps them to a 

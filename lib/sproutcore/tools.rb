@@ -16,205 +16,117 @@ module SC
   # to modify one of these classes will actually be picked up by the 
   # tool itself when it runs.
   #
-  module Tools
+  class Tools < ::Thor
     
-    # The Tool base class is inherited by most tools.  It automatically 
-    # accepts a --project option, or otherwise tries to autodetect the
-    # project.  
-    class Tool < ::Thor
-
-      map '-o' => 'output'
-      map '-v' => 'verbose'
-      map '-dd' => 'debug'
+    ################################################
+    ## GLOBAL OPTIONS 
+    ##
+    
+    # All sproutcore tools can take some standard options.  These are 
+    # processed automatically when the tool is loaded
+    method_options({ '--project'        => :optional,
+                     '--library'        => :optional, # deprecated
+                     '--mode'           => :optional,
+                     '--environment'    => :optional, # deprecated
+                     '--logfile'        => :optional,
+                     ['--verbose', '-v']      => false,
+                     ['--very-verbose', '-V'] => false })
+    def initialize(options, *args)
+      super
+    end
+    
+    def invoke(*args)
+      require 'pp'
+      pp options
       
-      # These are standard options you can merge in to support for the 
-      # tool in general.
-      method_options({ :verbose     => :boolean,  
-                       :debug       => :boolean, 
-                       :logfile     => :optional,
-                       :mode        => :optional,
-                       :environment => :optional })
-                     
-      def initialize(opts, *args)
-        super
+      prepare_logger!
+      prepare_mode!
+      super
+    end
+      
+    def options; @tool_options ||= HashStruct.new(super); end
+    
+    def prepare_logger!
+      SC.env.log_level = options['very-verbose'] ? :debug : (options.verbose ? :info : :warn)
+      SC.env.logfile = File.expand_path(options.logfile) if options.logfile
+    end
+
+    def prepare_mode!
+      build_mode = options.mode || options.environment || :production
+      SC.build_mode = build_mode
+    end
+
+    # Find the project...
+    attr_reader :project
+    def requires_project!
+      
+      ret = nil
+      project_path = options.project || options.library
+      if project_path.nil? # attempt to autodiscover
+        SC.logger.debug "No project path specified.  Searching for projects in #{Dir.pwd}"
+        ret = SC::Project.load_nearest_project Dir.pwd, :parent => SC.builtin_project
+        if ret.nil?
+          raise("You do not appear to be inside of a project.  Try changing to your project directory or make sure your project as a Buildfile or sc-config")
+        end
+      else
+        SC.logger.debug "Project path specified at #{project_path}"
+        ret = SC::Project.load File.expand_path(project_path), :parent => SC.builtin_project
+        if ret.nil?
+          raise "Could not load project at #{project_path}"
+        end
       end
       
-      attr_accessor :target, :manifest, :entry
-
-      def options
-        @tool_options ||= HashStruct.new(super)
-      end
+      SC.logger.debug "Loaded project at: #{ret.project_root}"
+      @project = ret
+    end
       
-      ######################################################
-      # STANDARD OPTIONS SUPPORT
-      #
-
-      def invoke(*args)
-        discover_build_mode
-        discover_logger
-        discover_build_numbers
-        standard_options!(*args)
-        super
-      end
-
-      # Set/restore the default build mode
-      def self.default_build_mode(build_mode=nil)
-        @build_mode = build_mode unless build_mode.nil?
-        @build_mode || (self == Tool ? :debug : superclass.default_build_mode)
-      end
-
-      # Discovers the build mode from the passed options
-      def discover_build_mode
-        build_mode = options.mode || options.environment || self.class.default_build_mode || :debug
-        SC.build_mode = build_mode.to_sym
-        return self
-      end
-
-      # Prepares the logging options.
-      #
-      # === Returns
-      #  self
-      def discover_logger
-        if options.debug
-          SC.env.log_level = :debug
+    # Find one or more targets with the passed target names
+    def find_targets(*targets)
+      requires_project!
+      targets.map do |target_name|
+        ret = project.target_for(target_name)
+        if ret.nil?
+          raise "No target named #{target_name} could be found in project"
         else
-          SC.env.log_level = options.verbose ? :info : :warn
+          SC.logger.debug "Found target '#{target_name}' at PROJECT:#{ret.source_root.sub(/^#{project.project_root}\//,'')}"
         end
-        SC.env.logfile = File.expand_path(options.logfile) if options.logfile
-        return self
+        ret
       end
-      
-      # Discovers any build numbers passed in the environment.
-      #
-      # === Returns
-      #  self
-      def discover_build_numbers
-        return self if (numbers = options.build).nil? # nothing to do
-        
-        build_numbers = {}
-        numbers.split(',').each do |key_code|
-          target_name, build_number = key_code.split(':')
-          if build_number.nil?
-            SC.env.build_number = target_name
-          else
-            target_name = target_name.to_s.sub(/^([^\/])/,'/\1').to_sym
-            build_numbers[target_name] = build_number
-          end
-        end
-        SC.env.build_numbers = build_numbers if build_numbers.size > 0
-      end
-      
-      # Override this method in your subclass if you have some standard 
-      # options you want to process for all incoming commands.
-      def standard_options!(*args)
-      end
-      
-      def debug?; SC.env.log_level == :debug; end
-      
-      ######################################################
-      # PROJECT SUPPORT
-      #
-      
-      # Standard options needed to support finding a project.  Be sure to
-      # call prepare_project
-      PROJECT_OPTIONS = { :project     => :optional, 
-                          :library     => :optional }  # deprecated
-      
-      # The current working project
-      attr_accessor :project
-      
-      # Attempts to discover the current working project.  Unless you specify
-      # otherwise, this will use either the passed project path or it will
-      # walk up the current path looking for the top-level directory with
-      # a Buildfile or looking for the first Buildfile with a "project" 
-      # directive.
-      #
-      # === Options
-      #  :use_option:: if true, respects command line.  default true
-      #
-      # === Returns
-      #  self
-      #
-      def prepare_project(opts = {})
-        return @project unless @project.nil?
-        
-        use_option = opts[:use_option].nil? ? true : opts[:use_option]
-        ret = nil
-        
-        project_path = use_option ? (options.project || options.library) : nil
-        if project_path.nil? # attempt to autodiscover
-          ret = SC::Project.load_nearest_project Dir.pwd, :parent => SC.builtin_project
-        else
-          ret = SC::Project.load File.expand_path(project_path), :parent => SC.builtin_project
-        end
-        
-        SC.logger.info "Loaded project at: #{ret.project_root}" if ret
-        @project = ret
-        return self
-      end
-      
-      # Verifies that a project has been set.  If no project is set, it will
-      # attempt to discover the project.  If that fails, then it will raise
-      # an error and exit.
-      # 
-      # The options you pass pass through to prepare_project()
-      #
-      # === Returns
-      #  self
-      #
-      def requires_project!(opts = {})
-        if prepare_project(opts).project.nil?
-          raise "You do not appear to be inside of a valid project.  Try changing to your project directory and try again.  If you are inside of your project, make sure you have a Buildfile or sc-config at the root level."
-        end
-        return self
-      end
+    end
 
-      ######################################################
-      # TARGET SUPPORT
-      #
-      
-      # The targets to work on
-      attr_accessor :targets
-      
-      # Verifies that the target is set.  If you pass a target name, this will
-      # first try to get the target from the project and set it.  Otherwise,
-      # it will just check that a target has been set.
-      #
-      # === Returns 
-      #   self
-      def requires_targets!(*target_names)
-        if target_names.size > 0
-          prepare_project
-          puts target_names.first
-          @targets = target_names.map { |t| self.project.target_for(t) }
-        end
-        if self.targets.nil? || self.targets.size == 0
-          raise "#{ target_names.size > 0 ? target_names.join(',') : 'No target' } could not be found in this project"
-        end
-        return self
+    # Wraps around find_targets but raises an exception if no target is 
+    # specified.
+    def requires_targets!(*targets)
+      targets = find_targets(*targets)
+      if targets.size == 0
+        raise "You must specify a target with this command" 
       end
+      targets
+    end
+    
+    # Finds one target.  This is just a convenience method wrapped around 
+    # find_targets()
+    def find_target(target); find_targets(target); end
 
-
-      ######################################################
-      # INTERNAL SUPPORT
-      #
-      
-      # Fix start so that it treats command-name like command_name
-      def self.start(args = ARGV)
-
-        is_verbose = args.include?('--verbose') || args.include?('-v')
-        
-        begin
-          super(args)
-        rescue Exception => e
-          SC.logger.fatal(e)
-          if is_verbose
-            SC.logger.fatal("BACKTRACE:\n#{e.backtrace.join("\n")}\n")
-          end
-          exit(1)
+    # Requires exactly one target.
+    def requires_target!(*targets)
+      requires_targets!(*targets).first
+    end
+    
+    # Fix start so that it treats command-name like command_name
+    def self.start(args = ARGV)
+      # manually check for verbose in case we don't get far enough in regular
+      # processing to actually set the verbose mode.
+      is_verbose = %w(-v -V --verbose --very-verbose).any? { |x| args.include?(x) }
+      begin
+        super(args)
+      rescue Exception => e
+        SC.logger.fatal(e)
+        if is_verbose
+          SC.logger.fatal("BACKTRACE:\n#{e.backtrace.join("\n")}\n")
         end
+        exit(1)
       end
-            
     end
     
   end

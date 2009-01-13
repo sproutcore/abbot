@@ -5,7 +5,7 @@ describe SC::Target, 'parent_target' do
   include SC::SpecHelpers
 
   before do
-    @project = real_world_project
+    @project = fixture_project(:real_world)
   end
 
   it "should return next direct parent when nested" do

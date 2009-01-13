@@ -1,5 +1,9 @@
 # Framework-level Buildfile
 
+# By default, all of these frameworks don't require anything. 
+# This is necessary since the default buildfile requires sproutcore.
+config :all, :required => [] 
+
 config :sproutcore, :required => :desktop
 
 config :foundation,

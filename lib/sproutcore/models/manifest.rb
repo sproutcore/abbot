@@ -23,6 +23,7 @@ module SC
     def prepare!
       if !@is_prepared
         @is_prepared = true
+        target.prepare!
         if target.buildfile.task_defined? 'manifest:prepare'
           target.buildfile.execute_task 'manifest:prepare',
             :manifest => self, 
@@ -78,7 +79,7 @@ module SC
     # === Returns
     #  Manifest (self)
     #
-    def load_hash!(hash)
+    def load(hash)
       merge!(hash)
       entry_hashes = self.delete(:entries) || []
       @entries = entry_hashes.map do |opts|

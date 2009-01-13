@@ -5,10 +5,15 @@ describe SC::Manifest, 'prepare!' do
   include SC::SpecHelpers
   
   before do
-    @project = real_world_project
+    @project = fixture_project(:real_world)
     @target = @project.target_for :contacts
     
     @target.buildfile.define! do
+      
+      replace_task 'target:prepare' do
+        # avoid invoking original machinery...
+      end
+      
       replace_task 'manifest:prepare' do
         MANIFEST.task_did_run = (MANIFEST.task_did_run || 0) + 1
       end
@@ -19,6 +24,12 @@ describe SC::Manifest, 'prepare!' do
 
   it "should return self" do
     @manifest.prepare!.should eql(@manifest)
+  end
+
+  it "should execure prepare! on target" do
+    @target.prepared?.should be_false
+    @manifest.prepare!
+    @target.prepared?.should be_true
   end
   
   it "should execute manifest:prepare if defined" do

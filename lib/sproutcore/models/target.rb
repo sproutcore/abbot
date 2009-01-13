@@ -116,7 +116,7 @@ module SC
     #  Array of Targets
     #
     def required_targets
-      @required_target ||= [config.required || []].flatten.compact.map { |target_name| target_for(target_name) }.compact
+      @required_targets ||= [config.required || []].flatten.compact.map { |target_name| target_for(target_name) }.compact
     end
 
     # Returns the expanded list of required targets, ordered as they actually
@@ -138,11 +138,23 @@ module SC
       return ret 
     end
 
+    # Returns true if the passed path appears to be a target directory 
+    # according to the target's current config.
+    def target_directory?(path, root_path=nil)
+      root_path = self.source_root if root_path.nil?
+      @target_names ||= self.config.target_types.keys
+      path = path.to_s.sub /^#{root_path}\//, ''
+      @target_names.each do |name|
+        return true if path =~ /^#{name.to_s}/
+      end
+      return false
+    end
+    
     # Computes a unique build number for this target.  The build number is
-    # gauranteed to change anytime the contents of any source file changes or
-    # anytime the build number of a required target changes.  Although this
-    # will generate long strings, it will automatically ensure that resources
-    # are properly cached when deployed.
+    # gauranteed to change anytime the contents of any source file changes 
+    # or anytime the build number of a required target changes.  Although 
+    # this will generate long strings, it will automatically ensure that 
+    # resources are properly cached when deployed.
     #
     # Note that this method does NOT set the build_number on the receiver;
     # it just calculates a value and returns it.  You usually call this 
@@ -151,51 +163,43 @@ module SC
     # === Returns
     #  A build number string
     #
-    def compute_build_number
-      require 'digest/md5'
-      # No predefined build number was found, instead let's compute it!
-      digests = Dir.glob(File.join(source_root, '**', '*.*')).map do |path|
-        allowed = File.exists?(path) && !File.directory?(path)
-        allowed = allowed && !target_directory?(path)
-        allowed ? Digest::SHA1.hexdigest(File.read(path)) : '0000'
-      end
+    def compute_build_number(seen=nil)
       
-      # Get all required targets and add in their build number.
-      required_targets.each do |target|
-        digests << (target.build_number || target.compute_build_number)
+      # Use config build number specifically for this target, if specified
+      build_number = config.build_number
+
+      # Otherwise, look for a global build_numbers hash and try that
+      if build_number.nil? && (build_numbers = config.build_numbers)
+        build_number = build_numbers[target_name.to_s] || build_numbers[target_name.to_sym]
       end
 
-      # Finally digest the complete string - tada! build number
-      Digest::SHA1.hexdigest(digests.join)
-    end
-    
-    # Returns true if the passed path appears to be a target directory 
-    # according to the target's current config.
-    def target_directory?(path, root_path=nil)
-      root_path = self.source_root if root_path.nil?
-      @target_names ||= target.config.target_types.keys
-      path = path.to_s.sub /^#{root_path}\//, ''
-      @target_names.each do |name|
-        return true if path =~ /^#{name.to_s}/
-      end
-      return false
-    end
-    
-    # Invoked to set the build number on the target.  This will invoke the
-    # target:build_number task, if defined.
-    #
-    # === Returns
-    #  receiver
-    #
-    def prepare_build_number!
-      if buildfile.task_defined? 'target:build_number'
-        buildfile.execute_task 'target:build_number',
-          :target => self, :config => self.config, :project => self.project
-      else
-        SC::logger.warn "Could not find required target target:build_number"
+      # Otherwise, actually compute a build number. 
+      if build_number.nil?
+        require 'digest/md5'
+
+        # No predefined build number was found, instead let's compute it!
+        digests = Dir.glob(File.join(source_root, '**', '*.*')).map do |path|
+          allowed = File.exists?(path) && !File.directory?(path)
+          allowed = allowed && !target_directory?(path)
+          allowed ? Digest::SHA1.hexdigest(File.read(path)) : '0000'
+        end
+
+        # Get all required targets and add in their build number.
+        # Note the "seen" variable passed here will avoid circular references
+        # causing infinite loops.  Normally this should not be necessary, but
+        # we put this here to gaurd against misconfigured projects
+        seen ||= []
+        required_targets.each do |ct|
+          next if seen.include?(ct)
+          seen << ct
+          digests << (ct.build_number || ct.compute_build_number(seen))
+        end
+
+        # Finally digest the complete string - tada! build number
+        build_number = Digest::SHA1.hexdigest(digests.join)
       end
       
-      return self
+      return build_number
     end
     
     ######################################################
@@ -262,6 +266,7 @@ module SC
       if target_name =~ /^\// # absolute target
         ret = project.target_for(target_name)
       else # relative target...
+        
         # look for any targets that are children of this target
         ret = project.target_for([self.target_name, target_name].join('/'))
         
@@ -273,6 +278,43 @@ module SC
       return ret 
     end
         
+    ######################################################
+    # LANGUAGE HELPER METHODS
+    #
+    
+    LONG_LANGUAGE_MAP = { :english => :en, :french => :fr, :german => :de, :japanese => :ja, :spanish => :es, :italian => :it }
+    SHORT_LANGUAGE_MAP = { :en => :english, :fr => :french, :de => :german, :ja => :japanese, :es => :spanish, :it => :italian }
+
+    # Returns the language codes for any languages actually found in this 
+    # target.
+    def installed_languages
+      ret = Dir.glob(File.join(source_root, '*.lproj')).map do |path|
+        next unless path =~ /\/([^\/]+)\.lproj/
+        (LONG_LANGUAGE_MAP[$1.downcase.to_sym] || $1).to_s
+      end
+      ret << config.preferred_language.to_s if config.preferred_language
+      ret.compact.uniq.sort { |a,b| a.downcase <=> b.downcase }.map { |l| l.to_sym }
+    end
+    
+    # Returns project-relative path to the lproj directory for the named 
+    # short language code
+    def lproj_for(language_code)
+      
+      # try code as passed
+      ret = "#{language_code}.lproj"
+      return ret if File.directory? File.join(source_root, ret)
+      
+      # try long language too...
+      language_code = SHORT_LANGUAGE_MAP[language_code.to_s.downcase.to_sym]
+      if language_code
+        ret = "#{language_code}.lproj"
+        return ret if File.directory? File.join(source_root, ret)
+      end
+      
+      # None found
+      return nil
+    end
+    
   end
   
 end

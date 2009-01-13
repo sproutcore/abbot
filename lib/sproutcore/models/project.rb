@@ -143,7 +143,7 @@ module SC
     #
     def target_for(target_name)
       ret = (targets[target_name.to_s.sub(/^([^\/])/,'/\1')])
-      ret.nil? ? nil : ret.prepare!
+      ret.nil? ? nil : ret
     end
     
     # Adds a new target to the project with the passed target name.  Include

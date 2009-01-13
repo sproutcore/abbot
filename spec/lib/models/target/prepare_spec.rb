@@ -5,7 +5,7 @@ describe SC::Target, 'prepare!' do
   include SC::SpecHelpers
 
   before do
-    @project = real_world_project
+    @project = fixture_project(:real_world)
 
     # get target from project manually since target_for() calls prepare!
     @target = @project.targets['/contacts']

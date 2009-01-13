@@ -5,8 +5,8 @@ describe SC::Target, 'url_root' do
   include SC::SpecHelpers
 
   before do
-    @project = real_world_project
-    @target = @project.target_for(:sproutcore)
+    @project = fixture_project(:real_world)
+    @target = @project.target_for(:sproutcore).prepare!
   end
 
   it "should use url_root config if defined" do

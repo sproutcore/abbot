@@ -5,7 +5,7 @@ describe SC::Project, 'target_for' do
   include SC::SpecHelpers
 
   before do
-    @project = real_world_project
+    @project = fixture_project(:real_world)
   end
   
   it "should lookup absolute target names (/foo) from the top" do
@@ -25,9 +25,9 @@ describe SC::Project, 'target_for' do
     target.should be_nil
   end
   
-  it "should call prepare! on new targets" do
+  it "should NOT call prepare! on new targets" do
     target = @project.target_for(:contacts)
-    target.prepared?.should be_true
+    target.prepared?.should be_false
   end
   
 end

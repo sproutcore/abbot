@@ -5,7 +5,7 @@ describe SC::Target, 'config' do
   include SC::SpecHelpers
 
   before do
-    @project = real_world_project
+    @project = fixture_project(:real_world)
   end
   
   it "should pickup global config setting when target does not override" do

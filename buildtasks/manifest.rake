@@ -34,4 +34,23 @@ namespace :manifest do
       
   end
   
+  # Invoked to actually build a manifest.  This will invoke several other 
+  # tasks on the same manifest.  In a Buildfile you may choose to extend or
+  # override this task to provide your own manifest generation.
+  task :build do
+    puts "BUILDING MANIFEST!"
+    execute_task 'manifest:catalog_entries'
+  end
+  
+  task :catalog_entries do
+    source_root = MANIFEST.source_root
+    Dir.glob(File.join(source_root, '**', '*')).each do |path|
+      next if !File.exist?(path) || File.directory?(path)
+      next if TARGET.target_directory?(path)
+      filename = path.sub /^#{source_root}\//, ''
+      MANIFEST.add_entry filename # entry:prepare will fill in the rest
+    end
+  end
+  
+    
 end
