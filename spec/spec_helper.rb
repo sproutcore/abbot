@@ -24,17 +24,19 @@ module SC
     
     attr_reader :real_project_root
     
-    def initialize(project_root, opts ={})
+    def initialize(proot, opts ={})
       
       @tempfile = Tempfile.new('compute_build_number') # keep placeholder
-      @real_project_root = project_root
-      project_root = "#{@tempfile.path}-project"
-      FileUtils.cp_r(@real_project_root, @project_root) # clone real_world
-      super(project_root, opts)
+      @real_project_root = proot
+      proot = "#{@tempfile.path}-project"
+      FileUtils.cp_r(@real_project_root, proot) # clone real_world
+      super(proot, opts)
     end
       
     def cleanup
-      File.rm_r(project_root) unless (@real_project_root == project_root)
+      # delete the project root.  Double check this is stored in a tmp loc
+      # just to avoid problems.
+      FileUtils.rm_r(project_root) if project_root =~ /^#{Regexp.escape Dir.tmpdir}/
     end
     
   end

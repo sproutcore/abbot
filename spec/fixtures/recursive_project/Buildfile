@@ -1,0 +1,8 @@
+# This buildfile causes the sproutcore/costello target to require the 
+# sproutcore project, which requires the sproutcore/costello target (i.e.
+# a recursive reference)
+#
+# Test against this project to ensure this sort of thing does not cause 
+# infinite loops
+config :all, :required => :sproutcore
+config :sproutcore, :required => :costello

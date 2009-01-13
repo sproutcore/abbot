@@ -122,20 +122,25 @@ module SC
     # Returns the expanded list of required targets, ordered as they actually
     # need to be loaded.
     def expand_required_targets
-      seen = []
+      _expand_required_targets([self])
+    end
+    
+    def _expand_required_targets(seen)
       ret = []
       required_targets.each do |target|
         next if seen.include?(target)
         seen << target # avoid loading again
-
+        
         # add required targets, if not already seend...
-        target.expand_required_targets.each do |required|
-          next if seen.include?(required)
+        target._expand_required_targets(seen).each do |required|
           ret << required
           seen << required
         end
+        
+        # then add my own target...
+        ret << target
       end
-      return ret 
+      return ret.uniq.compact
     end
 
     # Returns true if the passed path appears to be a target directory 
@@ -143,9 +148,9 @@ module SC
     def target_directory?(path, root_path=nil)
       root_path = self.source_root if root_path.nil?
       @target_names ||= self.config.target_types.keys
-      path = path.to_s.sub /^#{root_path}\//, ''
+      path = path.to_s.sub /^#{Regexp.escape root_path}\//, ''
       @target_names.each do |name|
-        return true if path =~ /^#{name.to_s}/
+        return true if path =~ /^#{Regexp.escape name.to_s}/
       end
       return false
     end
@@ -178,11 +183,12 @@ module SC
         require 'digest/md5'
 
         # No predefined build number was found, instead let's compute it!
-        digests = Dir.glob(File.join(source_root, '**', '*.*')).map do |path|
+        digests = Dir.glob(File.join(source_root, '**', '*')).map do |path|
           allowed = File.exists?(path) && !File.directory?(path)
           allowed = allowed && !target_directory?(path)
-          allowed ? Digest::SHA1.hexdigest(File.read(path)) : '0000'
+          allowed ? Digest::SHA1.hexdigest(File.read(path)) : nil
         end
+        digests.compact!
 
         # Get all required targets and add in their build number.
         # Note the "seen" variable passed here will avoid circular references
@@ -199,7 +205,7 @@ module SC
         build_number = Digest::SHA1.hexdigest(digests.join)
       end
       
-      return build_number
+      return build_number.to_s
     end
     
     ######################################################
