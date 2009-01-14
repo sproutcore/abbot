@@ -77,6 +77,25 @@ module SC
       SC::TemporaryTestProject.new fixture_path(*paths), :parent => builtin_project
     end
     
+    #####################################################
+    # TOOL TESTING
+    #
+    
+    # Captures a stdout/stdin/stderr stream for evaluation
+    def capture(stream)
+      begin
+        stream = stream.to_s
+        eval "$#{stream} = StringIO.new"
+        yield
+        result = eval("$#{stream}").string
+      ensure 
+        eval("$#{stream} = #{stream.upcase}")
+      end
+
+      result
+    end
+
+    alias silence capture
     
   end
 end

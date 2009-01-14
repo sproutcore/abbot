@@ -8,7 +8,12 @@ module SC
   class Manifest < HashStruct
     
     attr_reader :target
-    attr_reader :entries
+    
+    def entries(opts={})
+      include_hidden = opts[:hidden] || false
+      return @entries if include_hidden
+      @entries.reject { |e| e.hidden? }
+    end
     
     def initialize(target, opts)
       super(opts)
@@ -101,6 +106,21 @@ module SC
       opts[:filename] = filename
       @entries << (ret = ManifestEntry.new(self, opts)).prepare!
       return ret 
+    end
+    
+    # Finds the first visible entry with the specified filename.  Include
+    # hidden if you like.
+    #
+    # === Params
+    #   filename:: the filename to search
+    # 
+    # === Options
+    #   :hidden:: if true, include hidden entries
+    #
+    # === Returns
+    #   the manifest entry
+    def entry_for(filename, opts = {})
+      entries(opts).find { |entry| entry.filename == filename }
     end
     
   end

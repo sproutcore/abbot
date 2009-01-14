@@ -7,9 +7,7 @@
 # tasks in your buildfiles.
 namespace :manifest do
   
-  # Invoked just before a manifest object is built to setup any standard 
-  # properties on the manifest.  The default configures a build_root, 
-  # source_root, staging_root, url_root, index_root and more.
+  desc "Invoked just before a manifest object is built to setup standard properties"
   task :prepare do
     require 'tempfile'
 
@@ -32,23 +30,36 @@ namespace :manifest do
     MANIFEST.index_root = 
       [TARGET.index_root, MANIFEST.language, TARGET.build_number].join('/')
       
+    # source_root
+    MANIFEST.source_root = TARGET.source_root
   end
   
   # Invoked to actually build a manifest.  This will invoke several other 
   # tasks on the same manifest.  In a Buildfile you may choose to extend or
   # override this task to provide your own manifest generation.
-  task :build do
+  task :build => :catalog do
     puts "BUILDING MANIFEST!"
-    execute_task 'manifest:catalog_entries'
   end
-  
-  task :catalog_entries do
-    source_root = MANIFEST.source_root
+
+  desc "first step in building a manifest, this adds a simple copy file entry for every file in the source"
+  task :catalog do
+    source_root = TARGET.source_root
     Dir.glob(File.join(source_root, '**', '*')).each do |path|
       next if !File.exist?(path) || File.directory?(path)
       next if TARGET.target_directory?(path)
-      filename = path.sub /^#{source_root}\//, ''
+      filename = path.sub /^#{Regexp.escape source_root}\//, ''
       MANIFEST.add_entry filename # entry:prepare will fill in the rest
+    end
+  end
+  
+  desc "hides structural files that do not belong in build"
+  task :hide_buildfiles => 'manifest:catalog' do
+    MANIFEST.entries.each do |entry|
+      # allow if inside lproj
+      next if entry.localized? || entry.filename =~ /^.+\.lproj\/.+$/
+      
+      # otherwise, skip if ext not js
+      entry.hide! if entry.ext != 'js'
     end
   end
   

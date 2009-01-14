@@ -17,6 +17,41 @@ module SC
   # tool itself when it runs.
   #
   class Tools < ::Thor
+
+    ################################################
+    ## EXCEPTIONS
+    ##
+    
+    # Raise this type of exception when a fatal error occurs because the
+    # user did not pass the correct options.  This will be caught and 
+    # displayed at the top level before exiting.  Note that if you raise 
+    # an exception of some other type, then a backtrace may be displayed as 
+    # well (Which is not preferred)
+    class FatalException < Exception
+    end
+    
+    # Helper method.  Call this when an acception occurs that is fatal due to
+    # a problem with the user.
+    def fatal!(description)
+      raise FatalException, description
+    end
+    
+    # Helper method.  Call this when you want to log an info message.  Logs to
+    # the standard logger.
+    def info(description)
+      SC.logger.info(description)
+    end
+    
+    # Helper method.  Call this when you want to log a debug message.
+    def debug(description)
+      SC.logger.debug(description)
+    end
+    
+    # Log this when you need to issue a warning.
+    def warn(description)
+      SC.logger.warn(description)
+    end
+     
     
     ################################################
     ## GLOBAL OPTIONS 
@@ -36,9 +71,6 @@ module SC
     end
     
     def invoke(*args)
-      require 'pp'
-      pp options
-      
       prepare_logger!
       prepare_mode!
       super
@@ -52,31 +84,33 @@ module SC
     end
 
     def prepare_mode!
-      build_mode = options.mode || options.environment || :production
+      build_mode = (options.mode || options.environment || 'production').to_s.downcase.to_sym
       SC.build_mode = build_mode
     end
 
     # Find the project...
-    attr_reader :project
+    attr_accessor :project
     def requires_project!
+      
+      return @project unless @project.nil?
       
       ret = nil
       project_path = options.project || options.library
       if project_path.nil? # attempt to autodiscover
-        SC.logger.debug "No project path specified.  Searching for projects in #{Dir.pwd}"
+        debug "No project path specified.  Searching for projects in #{Dir.pwd}"
         ret = SC::Project.load_nearest_project Dir.pwd, :parent => SC.builtin_project
         if ret.nil?
-          raise("You do not appear to be inside of a project.  Try changing to your project directory or make sure your project as a Buildfile or sc-config")
+          fatal!("You do not appear to be inside of a project.  Try changing to your project directory or make sure your project as a Buildfile or sc-config")
         end
       else
-        SC.logger.debug "Project path specified at #{project_path}"
+        debug "Project path specified at #{project_path}"
         ret = SC::Project.load File.expand_path(project_path), :parent => SC.builtin_project
         if ret.nil?
-          raise "Could not load project at #{project_path}"
+          fatal! "Could not load project at #{project_path}"
         end
       end
       
-      SC.logger.debug "Loaded project at: #{ret.project_root}"
+      info "Loaded project at: #{ret.project_root}"
       @project = ret
     end
       
@@ -86,9 +120,9 @@ module SC
       targets.map do |target_name|
         ret = project.target_for(target_name)
         if ret.nil?
-          raise "No target named #{target_name} could be found in project"
+          fatal! "No target named #{target_name} could be found in project"
         else
-          SC.logger.debug "Found target '#{target_name}' at PROJECT:#{ret.source_root.sub(/^#{project.project_root}\//,'')}"
+          debug "Found target '#{target_name}' at PROJECT:#{ret.source_root.sub(/^#{project.project_root}\//,'')}"
         end
         ret
       end
@@ -99,7 +133,7 @@ module SC
     def requires_targets!(*targets)
       targets = find_targets(*targets)
       if targets.size == 0
-        raise "You must specify a target with this command" 
+        fatal! "You must specify a target with this command" 
       end
       targets
     end
@@ -122,10 +156,9 @@ module SC
         super(args)
       rescue Exception => e
         SC.logger.fatal(e)
-        if is_verbose
+        if is_verbose && !e.kind_of?(FatalException)
           SC.logger.fatal("BACKTRACE:\n#{e.backtrace.join("\n")}\n")
         end
-        exit(1)
       end
     end
     

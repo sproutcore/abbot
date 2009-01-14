@@ -14,20 +14,24 @@ namespace :target do
 
     # use url_root config or merge url_prefix + target_name
     TARGET.url_root = CONFIG.url_root || 
-      ['/', CONFIG.url_prefix, TARGET.target_name].join('')
+      [nil, CONFIG.url_prefix, TARGET.target_name].join('/').gsub(/\/+/,'/')
     
     # use index_root config or merge index_prefix + target_name
     TARGET.index_root = CONFIG.index_root || 
-      ['/', CONFIG.index_prefix, TARGET.target_name].join('')
+      [nil, CONFIG.index_prefix, TARGET.target_name].join('/').gsub(/\/+/, '/')
 
-    TARGET.build_root = CONFIG.build_root || 
+    # Split all of these paths in case we are on windows...
+    TARGET.build_root = File.expand_path(CONFIG.build_root || 
       File.join(PROJECT.project_root.to_s, 
-        CONFIG.build_prefix.to_s, CONFIG.url_prefix.to_s, 
-        TARGET.target_name.to_s)
+        (CONFIG.build_prefix || '').to_s.split('/'), 
+        (CONFIG.url_prefix || '').to_s.split('/'), 
+        TARGET.target_name.to_s.split('/')))
         
-    TARGET.staging_root = File.join(PROJECT.project_root.to_s, 
-      (PROJECT.config.staging_prefix || 'tmp').to_s, 'staging', 
-      TARGET.target_name.to_s)
+    TARGET.staging_root = File.expand_path(CONFIG.staging_root ||
+      File.join(PROJECT.project_root.to_s, 
+        (CONFIG.staging_prefix || '').to_s.split('/'), 
+        (CONFIG.url_prefix || '').to_s.split('/'), 
+        TARGET.target_name.to_s))
       
     TARGET.build_number = TARGET.compute_build_number
     

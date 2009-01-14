@@ -39,6 +39,8 @@ namespace :entry do
     # Fill in a default build task
     ENTRY.build_task ||= 'build:copy'
     
+    ENTRY.ext = File.extname(filename)[1..-1]
+    
     # If the build_task is build:copy, make the staging path equal the 
     # source_root.  This is an optimization that will avoid unnecessary 
     # copying.  All other build_tasks we build a staging path from the root.
