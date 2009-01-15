@@ -9,7 +9,7 @@ describe SC::Buildfile, 'load' do
     b = SC::Buildfile.load(p)
     
     b.should_not be_nil
-    b.execute_task(:default)
+    b.invoke(:default)
     
     # Found in Buildfile
     RESULTS[:test_task1].should be_true
@@ -22,7 +22,7 @@ describe SC::Buildfile, 'load' do
     a = SC::Buildfile.load(fixture_path('buildfiles','installed', 'Buildfile'))
     b = a.dup.load! fixture_path('buildfiles','basic', 'Buildfile')
     
-    b.execute_task :default
+    b.invoke :default
     
     # Found in Buildfile
     RESULTS[:test_task1].should be_true

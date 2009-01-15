@@ -12,7 +12,7 @@ describe SC::Buildfile, 'define' do
     
     b.should_not be_nil
     
-    b.execute_task :test_task
+    b.invoke :test_task
     task_did_run.should be_true
   end
   
@@ -35,7 +35,7 @@ describe SC::Buildfile, 'define' do
     a.should_not be_nil
     b.should_not be_nil
     
-    b.execute_task :test_task2
+    b.invoke :test_task2
     task1_did_run.should be_true
     task2_did_run.should be_true
   end
@@ -50,7 +50,7 @@ describe SC::Buildfile, 'define' do
     # now try string eval...
     a.define! "task :test_task1 do\n@did_run = true\nend"
     
-    a.execute_task :test_task1
+    a.invoke :test_task1
     a.did_run.should be_true
   end
 

@@ -8,9 +8,9 @@ module SC
 
     def needed?
       ret = false
-      dst_mtime = File.exist?(DST_PATH) ? File.mtime(DST_PATH) : Rake::EARLY
+      dst_mtime = File.exist?(DST_PATH) ? File.mtime(DST_PATH) : EARLY
       SRC_PATHS.each do |path|
-        timestamp = File.exist?(path) ? File.mtime(path) : Rake::EARLY
+        timestamp = File.exist?(path) ? File.mtime(path) : EARLY
         ret = ret || (dst_mtime < timestamp)
         break if ret
       end

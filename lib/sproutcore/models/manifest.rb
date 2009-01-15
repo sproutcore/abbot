@@ -30,7 +30,7 @@ module SC
         @is_prepared = true
         target.prepare!
         if target.buildfile.task_defined? 'manifest:prepare'
-          target.buildfile.execute_task 'manifest:prepare',
+          target.buildfile.invoke 'manifest:prepare',
             :manifest => self, 
             :target => self.target, 
             :config => self.target.config,
@@ -48,7 +48,7 @@ module SC
       prepare!
       reset_entries!
       if target.buildfile.task_defined? 'manifest:build'
-        target.buildfile.execute_task 'manifest:build',
+        target.buildfile.invoke 'manifest:build',
           :manifest => self,
           :target => self.target,
           :config => self.target.config,
@@ -69,9 +69,9 @@ module SC
     end
       
     # Returns the manifest as a hash that can be serialized to json or yaml
-    def to_hash
-      ret = super
-      ret[:entries] = entries.map { |e| e.to_hash }
+    def to_hash(opts={})
+      ret = super()
+      ret[:entries] = entries(opts).map { |e| e.to_hash }
       return ret
     end
     
@@ -105,6 +105,18 @@ module SC
     def add_entry(filename, opts = {})
       opts[:filename] = filename
       @entries << (ret = ManifestEntry.new(self, opts)).prepare!
+      return ret 
+    end
+    
+    # Creates a composite entry with the passed filename.  Expects you to
+    # a source_entries option.  This automatically hides the source entries.
+    def add_composite(filename, opts = {})
+      opts[:filename] = filename
+      opts[:source_entries] ||= []
+      opts[:composite] = true
+      @entries << (ret = ManifestEntry.new(self, opts)).prepare!
+      
+      ret.source_entries.each { |entry| entry.hide! }
       return ret 
     end
     

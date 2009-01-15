@@ -14,7 +14,7 @@ describe "namespace :target" do
     end
     
     def run_task
-      @buildfile.execute_task 'target:prepare',
+      @buildfile.invoke 'target:prepare',
         :target => @target, :project => @project, :config => @target.config
     end
     

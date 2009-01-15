@@ -42,6 +42,8 @@ module SC
       # languages for all app targets.
       if (languages = options.languages).nil?
         languages = targets.map { |t| t.installed_languages }
+      else
+        languages = languages.split(':').map { |l| l.to_sym }
       end
       languages = languages.flatten.uniq.compact
       SC.logger.info "Building languages: #{ languages * "," }"
@@ -53,9 +55,10 @@ module SC
       manifests.flatten!
       
       # Build'em
-      manifests.each do |manifest| 
+      manifests.map! do |manifest| 
         SC.logger.info "Building manifest for: #{manifest.target.target_name}:#{manifest.language}"
         manifest.build!
+        manifest.to_hash
       end
       
       # Serialize'em

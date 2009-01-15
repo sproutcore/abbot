@@ -1,5 +1,6 @@
-require 'rake'
 require File.join(File.dirname(__FILE__), 'models', 'hash_struct')
+require File.join(File.dirname(__FILE__), 'buildfile', 'cloneable')
+require File.join(File.dirname(__FILE__), 'buildfile', 'task_manager')
 
 module SC
 
@@ -51,10 +52,10 @@ module SC
   # == Executing Tasks
   #
   # Once a buildfile is loaded, you can execute tasks on the buildfile using
-  # the execute_task() method.  You should pass the name of the task you want
+  # the invoke() method.  You should pass the name of the task you want
   # to execute along with any constants you want set for the task to access:
   #
-  #   buildfile.execute_task :demo_task, :context => my_context
+  #   buildfile.invoke :demo_task, :context => my_context
   #
   # With the above example, the demo_task could access the "context" as a 
   # global constant like do:
@@ -83,8 +84,8 @@ module SC
     # Default buildfile names.  Override with SC.env.buildfile_names
     BUILDFILE_NAMES = %w(Buildfile sc-config sc-config.rb)
     
-    include ::Rake::Cloneable
-    include ::Rake::TaskManager
+    include Cloneable
+    include TaskManager
     
     # The location of the buildfile represented by this object.
     attr_accessor :path
@@ -201,20 +202,10 @@ module SC
     # === Params
     #  task_name:: the full name of the task, including namespaces
     #  consts:: Optional hash of constant values to set on the env
-    def execute_task(task_name, consts = nil)
+    def invoke(task_name, consts = nil)
       consts = set_kernel_consts consts  # save  to restore
-      reenable_tasks
-      SC.logger.debug "executing #{task_name}"
       self[task_name.to_s].invoke 
       set_kernel_consts consts # clear constants
-    end
-
-    # Reenables all executed tasks.  This will allow tasks to run again even
-    # if they have already executed.  This is usually called by execute_task,
-    # you will not usually need to call it directly.
-    def reenable_tasks
-      tasks.each { |task| task.reenable }
-      return self
     end
 
     ################################################

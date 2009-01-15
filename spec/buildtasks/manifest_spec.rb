@@ -14,7 +14,7 @@ describe "namespace :manifest" do
   end
 
   def run_task(task_name)
-    @buildfile.execute_task task_name,
+    @buildfile.invoke task_name,
       :manifest => @manifest,
       :target =>   @target, 
       :project =>  @project, 

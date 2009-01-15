@@ -168,7 +168,7 @@ module SC
     # you should set the build number on the BUNDLE
     def build_number
       return @build_number unless @build_number.nil?
-      buildfile.execute_task 'bundle:compute_build_number',
+      buildfile.invoke 'bundle:compute_build_number',
        :bundle => self, :config => self.config
       return @build_number || 'current'
     end

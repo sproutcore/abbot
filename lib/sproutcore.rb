@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'logger'
 
-gem 'rake', '> 0.8.0'
+#gem 'rake', '> 0.8.0'
 
 # Makes code more readable
 YES = true

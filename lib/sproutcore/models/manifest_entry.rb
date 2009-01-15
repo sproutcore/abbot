@@ -30,7 +30,7 @@ module SC
         @is_prepared = true
         buildfile = manifest.target.buildfile
         if buildfile.task_defined? 'entry:prepare'
-          buildfile.execute_task 'entry:prepare',
+          buildfile.invoke 'entry:prepare',
             :entry => self,
             :manifest => self.manifest,
             :target => self.manifest.target,
@@ -117,7 +117,7 @@ module SC
         raise "Could not build entry #{self.filename} because build task '#{self.build_task}' is not defined"
       end
       
-      buildfile.execute_task self.build_task,
+      buildfile.invoke self.build_task,
         :entry => self,
         :manifest => self.manifest,
         :target => self.manifest.target,

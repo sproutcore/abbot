@@ -60,7 +60,7 @@ module SC
       if !@is_prepared
         @is_prepared = true
         if buildfile.task_defined? 'target:prepare'
-          buildfile.execute_task 'target:prepare', 
+          buildfile.invoke 'target:prepare', 
             :target => self, :project => self.project, :config => self.config       
         end
       end

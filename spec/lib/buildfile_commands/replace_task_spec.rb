@@ -21,7 +21,7 @@ describe SC::Buildfile::Commands, 'task' do
       end
     end
     
-    b.execute_task :task1, :results => results
+    b.invoke :task1, :results => results
     
     results[:foo].should eql(:replaced)
   end

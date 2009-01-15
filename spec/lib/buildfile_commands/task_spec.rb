@@ -28,7 +28,7 @@ describe SC::Buildfile::Commands, 'task' do
       end
     end
     
-    b.execute_task :task1, :results => results
+    b.invoke :task1, :results => results
     results[:foo].should be_true
     results[:bar].should be_true
   end

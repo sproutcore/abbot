@@ -51,13 +51,5 @@ describe SC::Buildfile::Task, 'dup' do
     task2 = @task.dup
     task2.test_property.should eql(:bar)
   end
-  
-  it "should not duplicate already_invoked" do
-    @task.invoke
-    @task.invoked?.should be_true # check precondition
     
-    task2 = @task.dup
-    task2.invoked?.should be_false
-  end
-  
 end
