@@ -131,15 +131,15 @@ module SC
     # Same as invoke, but explicitly pass a call chain to detect
     # circular dependencies.
     def invoke_with_call_chain(task_args, invocation_chain) # :nodoc:
-      return if invocation_chain.already_invoked?(self)
-      new_chain = InvocationChain.append(self, invocation_chain)
-      @lock.synchronize do
-        SC.logger.debug "** Invoke #{name} #{format_trace_flags}"
-        new_chain = invoke_prerequisites(task_args, new_chain)
-        execute(task_args) if needed?
+      unless invocation_chain.already_invoked?(self)
+        invocation_chain = InvocationChain.append(self, invocation_chain)
+        @lock.synchronize do
+          SC.logger.debug "** Invoke #{name} #{format_trace_flags}"
+          invocation_chain = invoke_prerequisites(task_args, invocation_chain)
+          execute(task_args) if needed?
+        end
       end
-      
-      return new_chain
+      return invocation_chain
     end
     protected :invoke_with_call_chain
 

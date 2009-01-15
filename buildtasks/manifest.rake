@@ -33,12 +33,10 @@ namespace :manifest do
     # source_root
     MANIFEST.source_root = TARGET.source_root
   end
-  
-  # Invoked to actually build a manifest.  This will invoke several other 
-  # tasks on the same manifest.  In a Buildfile you may choose to extend or
-  # override this task to provide your own manifest generation.
-  task :build => %w(manifest:prepare_stylesheets) do
-    puts "BUILDING MANIFEST!"
+
+  desc "Actually builds a manifest.  This will catalog all entries and then filter them"
+  task :build => %w(manifest:catalog manifest:localize) do
+    puts "BUILDING MANIFEST! - #{SC.build_mode} - load_debug = #{CONFIG.load_debug} - load_fixtures = #{CONFIG.load_fixtures}"
   end
 
   desc "first step in building a manifest, this adds a simple copy file entry for every file in the source"
@@ -52,19 +50,33 @@ namespace :manifest do
     end
   end
   
-  desc "hides structural files that do not belong in build"
-  task :hide_buildfiles => 'manifest:catalog' do
+  desc "hides structural files that do not belong in build include Buildfiles and debug or fixtures if turned off"
+  task :hide_buildfiles => :catalog do
+    load_debug = CONFIG.load_debug
+    load_fixtures = CONFIG.load_fixtures
     MANIFEST.entries.each do |entry|
-      # allow if inside lproj
+      # if in /debug or /foo.lproj/debug  - hide...
+      if !load_debug && entry.filename =~ /^(([^\/]+)\.lproj\/)?debug\/.+$/
+        entry.hide!
+        next
+      end
+      
+      # if in /fixtures or /foo.lproj/fixtures - hide...
+      if !load_fixtures && entry.filename =~ /^(([^\/]+)\.lproj\/)?fixtures\/.+$/
+        entry.hide!
+        next
+      end
+      
+      # otherwise, allow if inside lproj
       next if entry.localized? || entry.filename =~ /^.+\.lproj\/.+$/
       
-      # otherwise, skip if ext not js
+      # or skip if ext not js
       entry.hide! if entry.ext != 'js'
     end
   end
   
   desc "localizes files. reject any files from other languages"
-  task :localize => %w(manifest:hide_buildfiles) do
+  task :localize => [:catalog, :hide_buildfiles] do
     seen = {} # already seen entries...
     preferred_language = TARGET.config.preferred_language || :en
     
@@ -107,31 +119,8 @@ namespace :manifest do
     end
   end
   
-  desc "Removes fixtures from the list of entries unless config.load_fixtures is true"
-  task :hide_fixtures => %w(manifest:localize) do
-    unless CONFIG.load_fixtures
-      MANIFEST.entries.each do |entry|
-        entry.hide! if entry.filename =~ /^fixtures\/.+$/
-      end
-    end
-  end
-  
-  desc "Removes any debug assets unless config.load_debug is true" 
-  task :hide_debug => %w(manifest:hide_fixtures) do
-    unless CONFIG.load_debug
-      MANIFEST.entries.each do |entry|
-        entry.hide! if entry.filename =~ /^debug\/.+$/
-      end
-    end
-  end
-
-  # Assign a normalized type to each entry.  Normalized types are used by 
-  # later tasks to sort the entries into groups for post-processing.  The 
-  # default implementation assigns each item a type of :html, :javascript,
-  # :stylesheet, :test, :image, or :resource.  You can extend this to assign
-  # different entry_types to an entry to do your own processing later.
-  #
-  task :assign_types => %w(manifest:hide_debug) do
+  desc "assigns a normalized type to each entry.  These types will be used to control all the future filters"
+  task :assign_types => :localize do
     MANIFEST.entries.each do |entry|
       next if entry.entry_type
       

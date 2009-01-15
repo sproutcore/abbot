@@ -104,20 +104,62 @@ describe "namespace :manifest" do
       super('manifest:hide_buildfiles')
     end
     
+    def entry_for(filename)
+      @manifest.entry_for filename, :hidden => true
+    end
+    
     it "should hide any Buildfile, sc-config, or sc-config.rb" do
       run_task
-      @manifest.entry_for('Buildfile', :hidden => true).hidden?.should be_true
+      entry_for('Buildfile').hidden?.should be_true
     end
     
     it "should hide any non .js file outside of .lproj dirs" do
       run_task
-      @manifest.entry_for('README', :hidden => true).hidden?.should be_true
-      @manifest.entry_for('lib/index.html', :hidden => true).hidden?.should be_true
+      entry_for('README').hidden?.should be_true
+      entry_for('lib/index.html').hidden?.should be_true
     end
     
     it "should NOT hide non-js files inslide lproj dirs" do
       run_task
-      entry = @manifest.entry_for('english.lproj/demo.html', :hidden => true)
+      entry = entry_for('english.lproj/demo.html')
+      entry.hidden?.should be_false
+    end
+
+    # CONFIG.load_fixtures
+    it "should hide files in /fixtures and /*.lproj/fixtures if CONFIG.load_fixtures is false" do
+      @target.config.load_fixtures = false
+      run_task
+      entry = entry_for('fixtures/sample_fixtures.js')
+      entry.hidden?.should be_true
+      entry = entry_for('english.lproj/fixtures/sample_fixtures-loc.js')
+      entry.hidden?.should be_true
+    end
+    
+    it "should NOT hide files in /fixtures and /*.lproj/fixtures if CONFIG.load_fixtures is true" do
+      @target.config.load_fixtures = true
+      run_task
+      entry = entry_for('fixtures/sample_fixtures.js')
+      entry.hidden?.should be_false
+      entry = entry_for('english.lproj/fixtures/sample_fixtures-loc.js')
+      entry.hidden?.should be_false
+    end
+    
+    # CONFIG.load_debug
+    it "should hide files in /debug and /*.lproj/debug if CONFIG.load_debug is false" do
+      @target.config.load_debug = false
+      run_task
+      entry = entry_for('debug/sample_debug.js')
+      entry.hidden?.should be_true
+      entry = entry_for('english.lproj/debug/sample_debug-loc.js')
+      entry.hidden?.should be_true
+    end
+    
+    it "should NOT hide files in /debug and /*.lproj/debug if CONFIG.load_fixtures is true" do
+      @target.config.load_debug = true
+      run_task
+      entry = entry_for('debug/sample_debug.js')
+      entry.hidden?.should be_false
+      entry = entry_for('english.lproj/debug/sample_debug-loc.js')
       entry.hidden?.should be_false
     end
     
