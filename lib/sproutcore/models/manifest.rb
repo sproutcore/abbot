@@ -71,7 +71,26 @@ module SC
     # Returns the manifest as a hash that can be serialized to json or yaml
     def to_hash(opts={})
       ret = super()
-      ret[:entries] = entries(opts).map { |e| e.to_hash }
+      
+      if only_keys = opts[:only]
+        filtered = {}
+        ret.each do |key, value|
+          filtered[key] = value if only_keys.include?(key)
+        end
+        ret = filtered
+      end
+
+      # Always include entries unless they are explicitly excluded
+      ret[:entries] = entries(opts).map { |e| e.to_hash(opts) }
+      
+      if except_keys = opts[:except]
+        filtered = {}
+        ret.each do |key, value|
+          filtered[key] = value unless except_keys.include?(key)
+        end
+        ret = filtered
+      end
+
       return ret
     end
     

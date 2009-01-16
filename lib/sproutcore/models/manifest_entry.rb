@@ -43,6 +43,31 @@ module SC
     
     def prepared?; @is_prepared || false; end
     
+    def to_hash(opts={})
+      ret = super()
+      if ret[:source_entries]
+        ret[:source_entries] = ret[:source_entries].map { |e| e.to_hash(opts)}
+      end
+      
+      if only_keys = opts[:only]
+        filtered = {}
+        ret.each do |key, value|
+          filtered[key] = value if only_keys.include?(key)
+        end
+        ret = filtered
+      end
+      
+      if except_keys = opts[:except]
+        filtered = {}
+        ret.each do |key, value|
+          filtered[key] = value unless except_keys.include?(key)
+        end
+        ret = filtered
+      end
+
+      return ret
+    end
+    
     ######################################################
     # CONVENIENCE METHODS
     #

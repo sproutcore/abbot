@@ -9,6 +9,9 @@ module SC
                          :format        => :optional,
                          :output        => :output,
                          :all           => false,
+                         :only          => :optional,
+                         :except        => :optional,
+                         :hidden        => false,
                          ['--include-required', '-r'] => false }
                      
     desc "manifest [TARGET..]", "Generates a manifest for the specified targets"
@@ -24,6 +27,21 @@ module SC
       format = (options.format || 'yaml').to_s.downcase.to_sym
       if ![:yaml, :json].include?(format)
         raise "Format must be yaml or json"
+      end
+      
+      # Get allowed keys
+      only_keys = nil
+      if options[:only]
+        only_keys = (options[:only] || '').to_s.split(',')
+        only_keys.map! { |k| k.to_sym }
+        only_keys = nil if only_keys.size == 0
+      end
+
+      except_keys = nil
+      if options[:except]
+        except_keys = (options[:except] || '').to_s.split(',')
+        except_keys.map! { |k| k.to_sym }
+        except_keys = nil if except_keys.size == 0
       end
       
       requires_project! # get project
@@ -58,13 +76,15 @@ module SC
       manifests.map! do |manifest| 
         SC.logger.info "Building manifest for: #{manifest.target.target_name}:#{manifest.language}"
         manifest.build!
-        manifest.to_hash
+        
+        manifest.to_hash :hidden => options.hidden, 
+          :only => only_keys, :except => except_keys
       end
       
       # Serialize'em
       case format
       when :yaml
-        output = manifests.to_yaml
+        output = ["# SproutCore Build Manifest v1.0", manifests.to_yaml].join("\n")
       when :json
         output = mainfests.to_json
       end

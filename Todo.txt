@@ -1,0 +1,1 @@
+- Add manifest:prepare_build_tasks:image + build:image tasks to use pngcrush on PNG's.
