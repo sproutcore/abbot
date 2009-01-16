@@ -289,9 +289,9 @@ describe "namespace :manifest" do
   
   describe "manifest:prepare_build_tasks:tests" do
     
-    def run_task
+    def run_task(load_tests=true)
       @manifest.prepare!
-      @target.config.load_tests = true # force...
+      @target.config.load_tests = load_tests # force...
       super('manifest:prepare_build_tasks:tests')
     end
   
@@ -370,6 +370,12 @@ describe "namespace :manifest" do
       entry.source_entries.each do |entry|
         entry.should_not be_hidden
       end
+    end
+    
+    it "should not generate an -index.json entry if tests not loaded" do
+      run_task(false)
+      entry = @manifest.entry_for('tests/-index.json')
+      entry.should be_nil
     end
     
   end
