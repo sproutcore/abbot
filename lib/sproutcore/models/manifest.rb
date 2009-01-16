@@ -120,6 +120,56 @@ module SC
       return ret 
     end
     
+    # Creates an entry with will apply a build task to the source entry. Use
+    # this method when you need to apply a build task to an entry to convert
+    # it into another format or to perform some kind of incremental build.
+    #
+    # === Params
+    #  entry:: the entry that should be the source of the transform
+    #
+    # === Options
+    # You can assign any options you like and they will be copied onto the
+    # new entry.  The following options, however, have special meaning:
+    #
+    #  :build_task:: name the new build task you use.  otherwise uses copy
+    #  :ext:: the new file extension. if you don't override, the build_path
+    #    staging_path and filename will all be adjusted to have this ext.
+    #
+    # === Returns 
+    #   the new ManifestEntry
+    # 
+    def add_transform(entry, opts ={})
+
+      # Clone important properties to new transform...
+      opts = HashStruct.new(opts)
+      %w(filename build_path url).each do |key|
+        opts[key] ||= entry[key]
+      end
+      
+      # generate a unique staging path...
+      opts.staging_path ||= unique_staging_path(entry.staging_path)
+      opts.source_entry   = entry
+      opts.source_entries = [entry]
+      opts.composite      = true
+      
+      # Normalize to new extension if provided.  else copy ext from entry...
+      if opts.ext
+        %w(filename build_path staging_path url).each do |key|
+          opts[key] = opts[key].ext(opts.ext)
+        end
+        opts.ext = opts.ext.to_s
+      else
+        opts.ext = entry.ext
+      end
+
+      # Create new entry and hide old one
+      @entries << (ret = ManifestEntry.new(self, opts)).prepare!
+      entry.hide!
+      
+      # done!
+      return ret 
+    end
+    
     # Finds the first visible entry with the specified filename.  Include
     # hidden if you like.
     #
@@ -133,6 +183,22 @@ module SC
     #   the manifest entry
     def entry_for(filename, opts = {})
       entries(opts).find { |entry| entry.filename == filename }
+    end
+    
+    # Finds a unique staging path starting with the root proposed staging
+    # path.
+    def unique_staging_path(path)
+      paths = entries(:hidden => true).map { |e| e.staging_path }
+      while paths.include?(path)
+        path = path.sub(/(__\$[0-9]+)?(\.\w+)?$/,"__$#{next_staging_uuid}\\2")
+      end
+      return path
+    end
+    
+    protected
+    
+    def next_staging_uuid
+      self.staging_uuid = (self.staging_uuid || 0) + 1
     end
     
   end

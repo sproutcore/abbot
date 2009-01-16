@@ -35,8 +35,7 @@ namespace :manifest do
   end
 
   desc "Actually builds a manifest.  This will catalog all entries and then filter them"
-  task :build => %w(manifest:catalog manifest:localize) do
-    puts "BUILDING MANIFEST! - #{SC.build_mode} - load_debug = #{CONFIG.load_debug} - load_fixtures = #{CONFIG.load_fixtures}"
+  task :build => %w(catalog localize prepare_build_tasks:all) do
   end
 
   desc "first step in building a manifest, this adds a simple copy file entry for every file in the source"
@@ -46,29 +45,31 @@ namespace :manifest do
       next if !File.exist?(path) || File.directory?(path)
       next if TARGET.target_directory?(path)
       filename = path.sub /^#{Regexp.escape source_root}\//, ''
-      MANIFEST.add_entry filename # entry:prepare will fill in the rest
+      MANIFEST.add_entry filename, :original => true # entry:prepare will fill in the rest
     end
   end
   
   desc "hides structural files that do not belong in build include Buildfiles and debug or fixtures if turned off"
   task :hide_buildfiles => :catalog do
-    load_debug = CONFIG.load_debug
-    load_fixtures = CONFIG.load_fixtures
+    # these directories are to be excluded unless CONFIG.load_"dirname" = true
+    dirnames = %w(debug tests fixtures).reject { |k| CONFIG["load_#{k}"] }
+
+    # loop through entries and hide those that do not below...
     MANIFEST.entries.each do |entry|
-      # if in /debug or /foo.lproj/debug  - hide...
-      if !load_debug && entry.filename =~ /^(([^\/]+)\.lproj\/)?debug\/.+$/
-        entry.hide!
-        next
-      end
-      
-      # if in /fixtures or /foo.lproj/fixtures - hide...
-      if !load_fixtures && entry.filename =~ /^(([^\/]+)\.lproj\/)?fixtures\/.+$/
-        entry.hide!
-        next
+
+      # if in /dirname or /foo.lproj/dirname -- hide it!
+      dirnames.each do |dirname|
+        if entry.filename =~ /^(([^\/]+)\.lproj\/)?#{dirname}\/.+$/
+          entry.hide!
+          next
+        end
       end
       
       # otherwise, allow if inside lproj
       next if entry.localized? || entry.filename =~ /^.+\.lproj\/.+$/
+      
+      # allow if in tests, fixtures or debug as well...
+      next if entry.filename =~ /^(tests|fixtures|debug)\/.+$/
       
       # or skip if ext not js
       entry.hide! if entry.ext != 'js'
@@ -118,108 +119,106 @@ namespace :manifest do
       end
     end
   end
-  
-  desc "assigns a normalized type to each entry.  These types will be used to control all the future filters"
-  task :assign_types => :localize do
-    MANIFEST.entries.each do |entry|
-      next if entry.entry_type
+
+  namespace :prepare_build_tasks do
+    
+    desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
+    task :all => %w(tests javascript css html images sass)
+
+    desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
+    task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
+    
+    desc "create builder tasks for all unit tests based on file extension."
+    task :tests => :setup do
       
-      # Compute entry type, possibly swapping entry for a transformed entry
-      entry.entry_type = case entry.filename
-      when /^tests\/.+/
-        :test
-      when /\.(rhtml|haml|html\.erb)$/
-        :html
-      when /\.(css|sass)$/
-        :stylesheet
-      when /\.js$/
-        :javascript
-      when /\.(jpg|png|gif)$/
-        :image
-      else
-        :resource
+      # Generate test entries
+      test_entries = []
+      MANIFEST.entries.each do |entry|
+        next unless entry.filename =~ /^tests\//
+        test_entries << MANIFEST.add_transform(entry, 
+          :build_task => "build:test:#{entry.ext}",
+          :entry_type => :test,
+          :ext        => :html)
       end
+      
+      # Add summary entry
+      MANIFEST.add_entry 'tests/-index.json',
+        :composite      => true, 
+        :source_entries => test_entries,
+        :build_task     => 'build:test:index.json',
+        :entry_type     => :resource
     end
-  end
-  
-  # Build compiled entries for each :javascript entry.  Look inside the 
-  # entry for an sc_resource('foo') call.  This will determine the resource
-  # name.  If none is supplied, use 'javascript.js'.  
-  task :prepare_javascripts => %w(manifest:assign_types) do
-    entries = MANIFEST.entries.reject { |e| e.entry_type != :javascript }
-    
-    # sort entries by resource name
-    sorted = {}
-    entries.each do |entry|
-      resource_name = 'javascript'
-      File.readlines(entry.stage!.staging_path).each do |line|
-        if line =~ /^\s*sc_resource\((["'])(.+)(\1)\)\s*\;/
-          resource_name = $2
-          break
-        end
-      end
-      (sorted[resource_name] ||= []) << entry
-    end
-    
-    # now generate composite javascript resources for each
-    sorted.each do |resource_name, entries|
-      MANIFEST.add_composite "#{resource_name}.js",
-        :source_entries => entries, :build_task => 'build:javascript'
-    end
-  end
+    task :javascript => :tests # IMPORTANT! to avoid JS including unit tests.
+    task :html       => :tests # IMPORTANT! to avoid HTML including tests
 
-  # Build compiled entries for each :stylesheet entry.  Look inside the 
-  # entry for an sc_resource('foo') call.  This will determine the resource
-  # name.  If none is supplied, use 'stylesheet.css'.  
-  task :prepare_stylesheets => %w(manifest:prepare_javascripts) do
-    entries = MANIFEST.entries.reject { |e| e.entry_type != :stylesheet }
-    
-    # sort entries by resource name
-    sorted = {}
-    entries.each do |entry|
-      resource_name = 'stylesheet'
-      File.readlines(entry.stage!.staging_path).each do |line|
-        if line =~ /^\s*\/\*\s*sc_resource\((["'])(.+)(\1)\)\s*\/\*/
-          resource_name = $2
-          break
-        end
+    desc "scans for javascript files, annotates them and prepares combined entries for each output target" 
+    task :javascript => :setup do
+      # select all entries relevant entries
+      entries = MANIFEST.entries.select do |e| 
+        (e.entry_type == :javascript) || (e.entry_type.nil? && e.ext == 'js')
       end
-      (sorted[resource_name] ||= []) << entry
-    end
-    
-    # now generate composite javascript resources for each
-    sorted.each do |resource_name, entries|
-      MANIFEST.add_composite "#{resource_name}.css",
-        :source_entries => entries, :build_task => 'build:stylesheet'
-    end
-  end
 
-  # Build compiled entry for index.html.  Look inside the 
-  # entry for an sc_resource('foo') call.  This will determine the resource
-  # name.  If none is supplied, use 'stylesheet.css'.  
-  task :prepare_stylesheets => %w(manifest:prepare_javascripts) do
-    entries = MANIFEST.entries.reject { |e| e.entry_type != :stylesheet }
-    
-    # sort entries by resource name
-    sorted = {}
-    entries.each do |entry|
-      resource_name = 'stylesheet'
-      File.readlines(entry.stage!.staging_path).each do |line|
-        if line =~ /^\s*\/\*\s*sc_resource\((["'])(.+)(\1)\)\s*\/\*/
-          resource_name = $2
-          break
-        end
+      # tag entry with build directives and sort by resource
+      entries_by_resource = {}
+      entries.each do |entry|
+        entry.resource = 'javascript'
+        entry.discover_build_directives!
+        (entries_by_resource[entry.resource] ||= []) << entry
       end
-      (sorted[resource_name] ||= []) << entry
+      
+      # Now, build combined entry for each resource
+      entries_by_resource.each do |resource_name, entries|
+        MANIFEST.add_composite resource_name.ext('js'),
+          :build_task => 'build:javascript',
+          :source_entries => entries
+      end
     end
     
-    # now generate composite javascript resources for each
-    sorted.each do |resource_name, entries|
-      MANIFEST.add_composite "#{resource_name}.css",
-        :source_entries => entries, :build_task => 'build:stylesheet'
+    desc "scans for css files, annotates them and prepares combined entries for each output target"
+    task :css => :setup do
+      # select all entries with an entry_type of :css or with ext of css
+      entries = MANIFEST.entries.select do |e| 
+        (e.entry_type == :css) || (e.entry_type.nil? && e.ext == 'css')
+      end
+
+      # tag entry with build directives and sort by resource
+      entries_by_resource = {}
+      entries.each do |entry|
+        entry.resource = 'stylesheet'
+        entry.discover_build_directives!
+        (entries_by_resource[entry.resource] ||= []) << entry
+      end
+      
+      # Now, build combined entry for each resource
+      entries_by_resource.each do |resource_name, entries|
+        MANIFEST.add_composite resource_name.ext('css'),
+          :build_task => 'build:css',
+          :source_entries => entries
+      end
     end
+    
+    desc "create a builder task for all sass files to create css files"
+    task :sass => :setup do
+      MANIFEST.entries.each do |entry|
+        next unless entry.ext == "sass"
+        MANIFEST.add_transform(entry,
+          :build_task => 'build:sass',
+          :entry_type => :css,
+          :ext        => 'css')
+      end
+    end
+    task :css => :sass # IMPORTANT! to ensure sass files are rolled into css
+    
+    desc "..."
+    task :html => :setup do
+    end
+    
+    desc "..."
+    task :image => :setup do
+    end
+    
+    
   end
-    
       
   
 end

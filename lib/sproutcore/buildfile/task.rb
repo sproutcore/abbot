@@ -26,6 +26,10 @@ module SC
     # Array of nested namespaces names used for task lookup by this task.
     attr_reader :scope
 
+    # The number of times this task has been invoked.  Use to ensure that 
+    # the task was invoked during some call chain...
+    attr_reader :invoke_count
+    
     # Return task name
     def to_s
       name
@@ -70,6 +74,7 @@ module SC
       @application = app
       @scope = app.current_scope
       @arg_names = nil
+      @invoke_count = 0
     end
 
     # Enhance a task with prerequisites or actions.  Returns self.
@@ -136,6 +141,7 @@ module SC
         @lock.synchronize do
           SC.logger.debug "** Invoke #{name} #{format_trace_flags}"
           invocation_chain = invoke_prerequisites(task_args, invocation_chain)
+          @invoke_count += 1
           execute(task_args) if needed?
         end
       end

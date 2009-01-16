@@ -85,6 +85,52 @@ module SC
     # The owner target
     def target; @target ||= manifest.target; end
     
+    # Scans the source paths (first staging any source entries) for the 
+    # passed regex.  Your block will be executed with each line that matched.
+    # Returns the results of each block
+    #
+    # === Example
+    #
+    #  entry.extract_content(/require\((.+)\)/) { |line| $1 }
+    #
+    def scan_source(regexp, &block)
+      if entries = self.source_entries
+        entries.each { |entry| entry.stage! }
+      end
+
+      if paths = self.source_paths
+        paths.each do |path|
+          next unless File.exist?(path)
+          File.readlines(path).each do |line|
+            line.scan(regexp) { |result| yield(result) }
+          end 
+        end
+      end
+    end
+
+    BUILD_DIRECTIVES_REGEX = /(sc_require|require|sc_resource)\(\s*(['"])(.+)['"]\s*\)/
+    
+    # Scans the source paths for standard build directives and annotates the
+    # entry accordingly.  You should only call this method on entries 
+    # representing CSS or JavaScript resources.  It will yield undefined
+    # results on all other file types.
+    #
+    def discover_build_directives!
+      self.requires = []
+      scan_source(BUILD_DIRECTIVES_REGEX) do |matches|
+        # strip off any file ext
+        filename = matches[2].ext ''
+        case matches[0]
+        when 'sc_require':
+          self.requires << filename
+        when 'require':
+          self.requires << filename
+        when 'sc_resource'
+          self.resource = filename
+        end
+      end
+    end
+    
     ######################################################
     # BUILDING
     #

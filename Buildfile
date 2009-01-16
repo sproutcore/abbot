@@ -32,7 +32,10 @@ mode :all do
     :load_fixtures => false,
     
     # Do not include debug directory in built project
-    :load_debug => false
+    :load_debug => false,
+    
+    # Do not build tests.
+    :load_tests => false
 end
 
 
@@ -41,6 +44,7 @@ mode :debug do
   
     # in debug mode, load fixtures and debug code
     :load_fixtures => true,
-    :load_debug    => true
+    :load_debug    => true,
+    :load_tests    => true
 end
 

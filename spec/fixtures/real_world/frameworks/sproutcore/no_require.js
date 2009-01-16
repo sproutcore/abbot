@@ -1,0 +1,1 @@
+/* Javascript with no requires */

@@ -21,9 +21,10 @@ namespace :entry do
     # contain the staging_path from the source_entries.   The source_path
     # is simply the first source_paths.
     if ENTRY.composite?
-      ENTRY.source_entries ||= []
+      ENTRY.source_entries ||= [ENTRY.source_entry].compact
       ENTRY.source_paths ||= ENTRY.source_entries.map { |e| e.staging_path }
       ENTRY.source_path ||= ENTRY.source_paths.first
+      ENTRY.source_entry ||= ENTRY.source_entries.first
       
     # Otherwise, the source_path is where we will pull from and source_paths
     # is simply the source_path in an array.
@@ -47,7 +48,7 @@ namespace :entry do
     if ENTRY.build_task.to_s == 'build:copy'
       ENTRY.staging_path ||= ENTRY.source_path
     else
-      ENTRY.staging_path ||= File.join(MANIFEST.staging_root, filename)
+      ENTRY.staging_path ||= MANIFEST.unique_staging_path(File.join(MANIFEST.staging_root, filename))
     end
   end
   
