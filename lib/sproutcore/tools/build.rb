@@ -47,7 +47,9 @@ module SC
           
           # if clean is enabled, first delete the build_root dir for the 
           # manifest.
-          FileUtils.rm_r(manifest.build_root) if SC.env.clean 
+          if SC.env.clean & File.directory?(manifest.build_root)
+            FileUtils.rm_r(manifest.build_root)
+          end 
           
           entries.each do |entry|
             info "  #{entry.filename} -> #{entry.build_path}"
