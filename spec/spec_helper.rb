@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'tempfile'
 
 require File.expand_path(
     File.join(File.dirname(__FILE__), %w[.. lib sproutcore]))
@@ -49,15 +50,6 @@ module SC
       File.expand_path File.join(File.dirname(__FILE__), path_items)
     end
     
-    # Make the a newer than b.  touch then sleep until it works...
-    def make_newer(path_a, path_b)
-      FileUtils.touch(path_a)
-      while File.mtime(path_a) <= File.mtime(path_b)
-        sleep(0.1)
-        FileUtils.touch(path_a)
-      end
-    end
-
     def empty_project
       SC::Project.new fixture_path('buildfiles', 'empty_project')
     end
@@ -73,8 +65,46 @@ module SC
       SC::Project.new fixture_path(*paths), :parent => builtin_project
     end
 
+    #####################################################
+    # BUILD TESTING
+    #
+
     def temp_project(*paths)
       SC::TemporaryTestProject.new fixture_path(*paths), :parent => builtin_project
+    end
+    
+    def files_eql(path_a, path_b)
+      return false if File.exist?(path_a) != File.exist?(path_b)
+      if File.exist?(path_a)
+        file_a = File.read(path_a)
+        file_b = File.read(path_b)
+        return file_a == file_b
+      end
+      return true # neither paths exist
+    end
+
+    # Writes a dummy file at the specified path.
+    def write_dummy(at_path, string = "DUMMY")
+      FileUtils.mkdir_p(File.dirname(at_path))
+      f = File.open(at_path, 'w')
+      f.write(string)
+      f.close
+      return string
+    end
+    
+    # Tests to see if the file at_path matches the dummy file or not.
+    def is_dummy(at_path, string = "DUMMY")
+      return false if !File.exist?(at_path)
+      File.read(at_path) == string
+    end
+    
+    # Make the a newer than b.  touch then sleep until it works...
+    def make_newer(path_a, path_b)
+      FileUtils.touch(path_a)
+      while File.mtime(path_a) <= File.mtime(path_b)
+        sleep(0.1)
+        FileUtils.touch(path_a)
+      end
     end
     
     #####################################################

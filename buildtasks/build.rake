@@ -9,7 +9,9 @@ namespace :build do
 
   # copies the files
   build_task :copy do
-    File.cp_r(SRC_PATH, DST_PATH)
+    require 'fileutils'
+    FileUtils.mkdir_p(File.dirname(DST_PATH))
+    FileUtils.cp_r(SRC_PATH, DST_PATH)
   end
   
 end

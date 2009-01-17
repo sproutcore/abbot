@@ -30,6 +30,10 @@ module SC
     # the task was invoked during some call chain...
     attr_reader :invoke_count
     
+    # The number of times the task was actually executed.  This may differ 
+    # from the invoke_count if the task was invoked but was not needed.
+    attr_reader :execute_count
+    
     # Return task name
     def to_s
       name
@@ -74,7 +78,7 @@ module SC
       @application = app
       @scope = app.current_scope
       @arg_names = nil
-      @invoke_count = 0
+      @invoke_count = @execute_count = 0
     end
 
     # Enhance a task with prerequisites or actions.  Returns self.
@@ -170,6 +174,7 @@ module SC
 
     # Execute the actions associated with this task.
     def execute(args=nil)
+      @execute_count += 1
       args ||= EMPTY_TASK_ARGS
       if SC.env.dryrun
         SC.logger.info "** Execute (dry run) #{name}"

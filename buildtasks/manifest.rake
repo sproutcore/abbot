@@ -227,6 +227,15 @@ namespace :manifest do
         entry.entry_type = :html
         entry.resource = 'index'
         
+        entry.render_task = case entry.ext
+        when 'rhtml':
+          'render:erubis'
+        when 'erb':
+          "render:erubis"
+        when 'haml':
+          'render:haml'
+        end
+        
         # use a custom scan method since discover_build_directives! is too
         # general...
         

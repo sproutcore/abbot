@@ -620,6 +620,29 @@ describe "namespace :manifest" do
         entry.resource.should == 'bar'
       end
     end
+
+    describe "annotates entries with render_task" do
+      
+      before do
+        run_task
+      end
+      
+      it "file.erb => render:erubis" do
+        expected = entry_for('file_extension_test.html.erb')
+        expected.render_task.should == "render:erubis"
+      end
+
+      it "file.haml => render:haml" do
+        expected = entry_for('file_extension_test.haml')
+        expected.render_task.should == "render:haml"
+      end
+
+      it "file.rhtml => render:erubis" do
+        expected = entry_for('file_extension_test.rhtml')
+        expected.render_task.should == "render:erubis"
+      end
+
+    end
     
     describe "combines html entries into one output file per resource" do
       
