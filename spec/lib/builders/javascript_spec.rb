@@ -53,6 +53,16 @@ describe SC::Builder::Stylesheet do
       line.should_not =~ /@@foo/ # make sure key is removed...
     end
   end
+
+  it "should not remove server-side keys from strings.js files that are not found in an .lproj (i.e. not localized)" do
+    lines = run_builder 'strings.js', false # <-- NOT localized.
+    @entry.should_not be_localized
+    lines.each do |line|
+      next if line.size == 1 # skip empty lines
+      next if line =~ /\s*\/\// # skip comment lines
+      line.should =~ /@@foo/ # make sure key is NOT removed...
+    end
+  end
       
   
 end
