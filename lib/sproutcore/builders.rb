@@ -59,7 +59,7 @@ module SproutCore
     # this is often overridden by subclasses.  the default just wraps in 
     # quotes.
     def static_url(url='')
-      ['"', url.gsub('"','\"'),'"'].join('')
+      ["'", url.gsub('"','\"'),"'"].join('')
     end
     
   end

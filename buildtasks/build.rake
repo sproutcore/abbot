@@ -25,6 +25,7 @@ namespace :build do
   
   desc "builds a single javascript file"
   build_task :javascript do
+    SC::Builder::JavaScript.build ENTRY, DST_PATH
   end
   
   desc "builds an html file, possibly executing render tasks"
