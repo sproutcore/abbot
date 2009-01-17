@@ -4,7 +4,8 @@
 # ===========================================================================
 
 # Tasks invoked while building Target objects.  You can override these methods
-# in your buildfiles.
+# in your buildfiles.  You can also define new builders and assign them to
+# manifest entries if you also override/extend manifest:build.
 namespace :build do
 
   desc "copies a single resource"

@@ -1,5 +1,5 @@
 # Import all build tasks
-import *Dir.glob(File.join(File.dirname(__FILE__), 'buildtasks', '**', '*.rake'))
+import *Dir.glob(File.join(File.dirname(current_path), 'buildtasks', '**', '*.rake'))
 
 mode :all do
   config :all,
