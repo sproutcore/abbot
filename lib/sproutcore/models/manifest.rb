@@ -1,3 +1,5 @@
+require 'set'
+
 module SC
   
   # A Manifest describes all of the files that should be found inside of a 
@@ -194,8 +196,10 @@ module SC
       return ret 
     end
     
-    # Finds the first visible entry with the specified filename.  Include
-    # hidden if you like.
+    # Finds the first visible entry with the specified filename.  You may also
+    # pass any number of additional options which will be used to further 
+    # restrict your search.  If you pass :hidden => true only hidden entries
+    # will be returned.  Otherwise, only visible entries will be returned.
     #
     # === Params
     #   filename:: the filename to search
@@ -209,6 +213,47 @@ module SC
       entries(:hidden => opts[:hidden]).find do |entry| 
         (entry.filename == filename) && entry.has_options?(opts)
       end
+    end
+    
+    # Attempts to find any entry matching the specified static URL fragment.
+    # the fragment you pass may contain only a portion of the url, and it may
+    # exclude the file extension if you choose.  The filter will select the
+    # entry with the broadest match possible.
+    #
+    # This is the root search method used by static_url().
+    #
+    def find_entry(fragment, opts = {}, seen=nil)
+      
+      extname = File.extname(fragment)
+      rootname = fragment.sub(/#{extname}$/, '')
+      entry_extname = entry_rootname = nil
+
+      ret = entries(:hidden => opts[:hidden]).reject do |entry|
+        if entry.has_options?(opts)
+          entry_extname = File.extname(entry.filename)
+          entry_rootname = entry.filename.sub(/#{entry_extname}$/,'')
+          ext_match = (extname.nil? || extname.size == 0) || (entry_extname == extname)
+        else
+          ext_match = false
+        end
+        !(ext_match && (/#{rootname}$/ =~ entry_rootname))
+      end
+
+      ret = ret.first
+
+      # if no match was found, search the same manifests in required targets
+      if ret.nil?
+        seen = Set.new if seen.nil?
+        seen << self
+        target.expand_required_targets.each do |target|
+          next if seen.include?(target) # avoid recursion
+          
+          manifest = target.manifest_for(:language => self.language).prepare!
+          ret = manifest.find_entry(fragment, opts, seen)
+          break unless ret.nil?
+        end
+      end
+      return ret
     end
     
     # Finds a unique staging path starting with the root proposed staging
