@@ -1,0 +1,9 @@
+1 sc_require('foo');
+2    sc_require('foo') ;     
+3 sc_require("foo")   ; 
+4 /* A COMMENT */ sc_require("foo");
+5 require("foo");
+6 sc_resource('foo'); 
+7    sc_resource(    "foo"  ) ;   style: { foo: bar; }
+8 sc_resource('foo "with quotes"'); 
+9  require( 'foo' ); /* ANOTHER COMMENT */

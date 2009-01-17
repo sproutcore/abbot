@@ -35,7 +35,7 @@ namespace :manifest do
   end
 
   desc "Actually builds a manifest.  This will catalog all entries and then filter them"
-  task :build => %w(catalog hide_buildfiles localize) # prepare_build_tasks:all
+  task :build => %w(catalog hide_buildfiles localize prepare_build_tasks:all)
   
   desc "first step in building a manifest, this adds a simple copy file entry for every file in the source"
   task :catalog do |t|
@@ -123,7 +123,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
     
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(tests javascript css html image sass combine) 
+    task :all => :css #%w(tests javascript css html image sass combine) 
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)

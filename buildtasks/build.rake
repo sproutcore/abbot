@@ -16,6 +16,7 @@ namespace :build do
 
   desc "builds a single css files"
   build_task :css do
+    SC::Builder::Stylesheet.build ENTRY, DST_PATH
   end
 
   desc "builds a single sass file"

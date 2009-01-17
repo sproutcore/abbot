@@ -1,0 +1,12 @@
+1  background-image: static_url('image');
+2  background-image: static_url('image') ;
+3  background-image: static_url("image") no-repeat top left ;
+4  background-image:    static_url("image")
+5  background-image:  static_url("image")     no-repeat top left ;
+6  background-image: sc_static('image');
+7  background-image: sc_static("image") ;
+8  background-image: sc_static('image') no-repeat top left ;
+9  background-image:    sc_static("image")
+10 background-image:  sc_static("image")     no-repeat top left ;
+
+
