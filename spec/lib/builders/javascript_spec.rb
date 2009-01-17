@@ -1,30 +1,18 @@
-require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
-describe SC::Builder::Stylesheet do
+require File.join(File.dirname(__FILE__), 'spec_helper')
+describe SC::Builder::JavaScript do
   
   include SC::SpecHelpers
-
+  include SC::BuilderSpecHelper
+  
   before do
-    @project  = temp_project :builder_tests
-    @target   = @project.target_for :javascript_test
-    @manifest = @target.manifest_for :language => :en
-    @manifest.prepare!
-    
-    # add fake image entry for sc_static tests..
-    @manifest.add_entry 'icons/image.png'
-    
+    std_before :javascript_test
   end
 
   def run_builder(filename, localize=false)
-    @entry = @manifest.add_entry filename # basic entry...
-    @entry[:localized] = true if localize # needed for strings.js test...
-    dst_path = @entry.build_path
-    File.exist?(@entry.source_path).should be_true # precondition
-    
-    SC::Builder::JavaScript.build(@entry, dst_path) # perform build
-    
-    lines = File.readlines(dst_path)
-    lines.size.should > 0 # make sure something built
-    return lines
+    super(filename) do |entry, dst_path|
+      entry[:localized] = true if localize
+      SC::Builder::JavaScript.build(entry, dst_path)
+    end
   end
     
   it "converts calls to sc_super() => arguments.callee.base.apply()" do

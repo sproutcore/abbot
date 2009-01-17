@@ -1,29 +1,17 @@
-require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
+require File.join(File.dirname(__FILE__), 'spec_helper')
 describe SC::Builder::Stylesheet do
   
   include SC::SpecHelpers
-
+  include SC::BuilderSpecHelper
+  
   before do
-    @project  = temp_project :builder_tests
-    @target   = @project.target_for :stylesheet_test
-    @manifest = @target.manifest_for :language => :en
-    @manifest.prepare!
-    
-    # add fake image entry for sc_static tests..
-    @manifest.add_entry 'icons/image.png'
-    
+    std_before :stylesheet_test
   end
 
   def run_builder(filename)
-    entry = @manifest.add_entry filename # basic entry...
-    dst_path = entry.build_path
-    File.exist?(entry.source_path).should be_true # precondition
-    
-    SC::Builder::Stylesheet.build(entry, dst_path) # perform build
-    
-    lines = File.readlines(dst_path)
-    lines.size.should > 0 # make sure something built
-    return lines
+    super do |entry, dst_path|
+      SC::Builder::Stylesheet.build(entry, dst_path)
+    end
   end
     
   # This test passes a test fixture file through the builder that contains 

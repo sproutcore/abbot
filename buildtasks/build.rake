@@ -21,6 +21,7 @@ namespace :build do
 
   desc "builds a single sass file"
   build_task :sass do
+    SC::Builder::Sass.build ENTRY, DST_PATH
   end
   
   desc "builds a single javascript file"

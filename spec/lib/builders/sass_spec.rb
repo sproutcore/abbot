@@ -1,0 +1,38 @@
+require File.join(File.dirname(__FILE__), 'spec_helper')
+
+# If sass is not installed, just skip these.
+has_sass = true
+begin
+  require 'sass'
+  
+rescue Exception => e
+  puts "WARNING: Skipping SC::Builder::Sass tests because sass is not installed.  Run 'sudo gem install haml' first and try again."
+  has_sass = false
+end
+
+if has_sass
+  describe SC::Builder::Sass do
+  
+    include SC::SpecHelpers
+    include SC::BuilderSpecHelper
+  
+    before do
+      std_before :sass_test
+    end
+
+    def run_builder(filename)
+      super do |entry, dst_path|
+        SC::Builder::Sass.build(entry, dst_path)
+      end
+    end
+  
+    it "should build a sass file" do
+      lines = run_builder('sample.sass')
+      lines = lines.join('').gsub("\n",'') # strip newlines to make compare easy
+    
+      # just verify that output looks like the CSS we expect
+      lines.should =~ /\#main\s+p.+\{.+color.+width.+\}/
+    end
+  
+  end
+end
