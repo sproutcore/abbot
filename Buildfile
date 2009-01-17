@@ -46,5 +46,6 @@ mode :debug do
     :load_fixtures => true,
     :load_debug    => true,
     :load_tests    => true
+
 end
 

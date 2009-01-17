@@ -163,6 +163,7 @@ namespace :manifest do
       # tag entry with build directives and sort by resource
       entries_by_resource = {}
       entries.each do |entry|
+        entry.entry_type = :javascript
         entry.resource = 'javascript'
         entry.discover_build_directives!
         (entries_by_resource[entry.resource] ||= []) << entry
@@ -186,6 +187,7 @@ namespace :manifest do
       # tag entry with build directives and sort by resource
       entries_by_resource = {}
       entries.each do |entry|
+        entry.entry_type = :css
         entry.resource = 'stylesheet'
         entry.discover_build_directives!
         (entries_by_resource[entry.resource] ||= []) << entry
@@ -211,8 +213,35 @@ namespace :manifest do
     end
     task :css => :sass # IMPORTANT! to ensure sass files are rolled into css
     
-    desc "..."
+    desc "find all html-generating files, annotate and combine them"
     task :html => :setup do
+      # select all entries with proper extensions
+      known_ext = %w(rhtml erb haml)
+      entries = MANIFEST.entries.select do |e| 
+        (e.entry_type == :html) || (e.entry_type.nil? && known_ext.include?(e.ext))
+      end
+
+      # tag entry with build directives and sort by resource
+      entries_by_resource = {}
+      entries.each do |entry|
+        entry.entry_type = :html
+        entry.resource = 'index'
+        
+        # use a custom scan method since discover_build_directives! is too
+        # general...
+        
+        entry. scan_source(/<%\s*sc_resource\(?\s*['"](.+)['"]\s*\)?/) do |m|
+          entry.resource = m[0].ext ''
+        end
+        (entries_by_resource[entry.resource] ||= []) << entry
+      end
+      
+      # Now, build combined entry for each resource
+      entries_by_resource.each do |resource_name, entries|
+        MANIFEST.add_composite resource_name.ext('html'),
+          :build_task => 'build:html',
+          :source_entries => entries
+      end
     end
     
     desc "..."
