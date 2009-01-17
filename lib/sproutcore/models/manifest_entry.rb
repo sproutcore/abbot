@@ -88,22 +88,6 @@ module SC
     # Marks the entry as composite.  Returns self
     def composite!; self[:composite] = true; self; end
     
-    # Returns the source_path for the entry.  If the entry is composite, 
-    # returns the first entry's staging path.
-    def source_path
-      composite? ? self.source_paths.first : self[:source_path]
-    end
-
-    # Returns all source_paths for the entry.  If the entry is composite,
-    # returns the staging paths for the entries.  If the entriy is not
-    # composite, uses the source_paths setting or the source_path setting
-    def source_paths
-      composite? ? self.source_entries.map { |x| x.staging_path } : (self[:source_paths] || [self[:source_path]].compact)
-    end
-
-    # Only used if the entry is marked as a composite
-    def source_entries; self[:source_entries] || []; end
-
     # The owner manifest
     attr_accessor :manifest
 
@@ -142,7 +126,8 @@ module SC
     #
     def discover_build_directives!
       self.requires = []
-      scan_source(BUILD_DIRECTIVES_REGEX) do |matches|
+      entry = self.transform? ? self.source_entry : self
+      entry.scan_source(BUILD_DIRECTIVES_REGEX) do |matches|
         # strip off any file ext
         filename = matches[2].ext ''
         case matches[0]

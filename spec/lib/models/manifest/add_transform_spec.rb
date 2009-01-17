@@ -58,6 +58,11 @@ describe SC::Manifest, 'add_transform' do
     @entry.should be_hidden
   end
   
+  it "should mark the new entry as a transform" do
+    new_entry = @manifest.add_transform @entry, :build_task => 'foo'
+    new_entry.should be_transform
+  end
+  
   it "swaps extensions in filename, url, build_path, and staging_path if :ext option is provided" do
     # Check preconditions
     File.extname(@entry.filename).should == '.js'

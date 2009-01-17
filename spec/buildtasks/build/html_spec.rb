@@ -10,12 +10,12 @@ describe "build:html" do
     @task_name = 'build:html'
   end
   
-  it "sets up a shared HtmlContext and invokes the render_task for each entry"
-  
-  it "finally renders the layout specified in MANIFEST.layout_path"
-  
-  it "substitutes static_url() directives"
-  
-  it "supports common text helpers in context"  
-  
+  # it "sets up a shared HtmlContext and invokes the render_task for each entry"
+  # 
+  # it "finally renders the layout specified in MANIFEST.layout_path"
+  # 
+  # it "substitutes static_url() directives"
+  # 
+  # it "supports common text helpers in context"  
+  # 
 end

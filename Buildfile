@@ -35,7 +35,11 @@ mode :all do
     :load_debug => false,
     
     # Do not build tests.
-    :load_tests => false
+    :load_tests => false,
+    
+    # Generate a combined javascript and stylesheet
+    :combine_javascript => true,
+    :combine_stylesheet => true
 end
 
 
@@ -45,7 +49,11 @@ mode :debug do
     # in debug mode, load fixtures and debug code
     :load_fixtures => true,
     :load_debug    => true,
-    :load_tests    => true
+    :load_tests    => true,
+    
+    # Do not combine javascript and stylesheet
+    :combine_javascript => false,
+    :combine_stylesheet => false
 
 end
 

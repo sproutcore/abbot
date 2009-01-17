@@ -86,13 +86,14 @@ namespace :manifest do
       # Is a localized resource!
       if entry.filename =~ /^([^\/]+)\.lproj\/(.+)$/
         entry.language = (SC::Target::LONG_LANGUAGE_MAP[$1.to_s.downcase.to_sym]) || $1.to_sym
-        entry.filename = $2
         entry.localized = true
 
         # remove .lproj dir from build paths as well..
         lang_dir = "#{$1}.lproj/"
-        entry.build_path = entry.build_path.sub(lang_dir,'')
-        entry.url = entry.url.sub(lang_dir,'')
+        sub_str = (entry.ext == 'js') ? 'lproj/' : ''
+        entry.filename   = entry.filename.sub(lang_dir, sub_str)
+        entry.build_path = entry.build_path.sub(lang_dir, sub_str)
+        entry.url        = entry.url.sub(lang_dir, sub_str)
         
         # if this is part of the current language, always include...
         # hide any preferred_language entry...
@@ -123,7 +124,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
     
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(tests javascript css html image sass) 
+    task :all => %w(tests javascript css html image sass combine) 
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -155,63 +156,85 @@ namespace :manifest do
 
     desc "scans for javascript files, annotates them and prepares combined entries for each output target" 
     task :javascript => :setup do
-      # select all entries relevant entries
+      # select all original entries with with ext of css
       entries = MANIFEST.entries.select do |e| 
-        (e.entry_type == :javascript) || (e.entry_type.nil? && e.ext == 'js')
+        e.original? && e.ext == 'js'
       end
 
-      # tag entry with build directives and sort by resource
-      entries_by_resource = {}
+      # add transform & tag with build directives.
       entries.each do |entry|
-        entry.entry_type = :javascript
-        entry.resource = 'javascript'
+        entry = MANIFEST.add_transform entry,
+          :build_task => 'build:javascript',
+          :resource   => 'javascript',
+          :entry_type => :javascript
         entry.discover_build_directives!
-        (entries_by_resource[entry.resource] ||= []) << entry
       end
       
-      # Now, build combined entry for each resource
-      entries_by_resource.each do |resource_name, entries|
-        MANIFEST.add_composite resource_name.ext('js'),
-          :build_task => 'build:javascript',
-          :source_entries => entries
+    end
+
+    desc "scans for css files, creates a transform and annotates them"
+    task :css => :setup do
+      
+      # select all original entries with with ext of css
+      entries = MANIFEST.entries.select do |e| 
+        e.original? && e.ext == 'css'
+      end
+
+      # add transform & tag with build directives.
+      entries.each do |entry|
+        entry = MANIFEST.add_transform entry,
+          :build_task => 'build:css',
+          :resource   => 'stylesheet',
+          :entry_type => :css
+        entry.discover_build_directives!
       end
     end
     
-    desc "scans for css files, annotates them and prepares combined entries for each output target"
-    task :css => :setup do
-      # select all entries with an entry_type of :css or with ext of css
-      entries = MANIFEST.entries.select do |e| 
-        (e.entry_type == :css) || (e.entry_type.nil? && e.ext == 'css')
+    desc "generates combined entries for javascript and css"
+    task :combine => %w(setup css javascript sass) do
+
+      # sort entries...
+      css_entries = {}
+      javascript_entries = {}
+      MANIFEST.entries.each do |entry|
+        case entry.entry_type
+        when :css
+          (css_entries[entry.resource] ||= []) << entry
+        when :javascript
+          (javascript_entries[entry.resource] ||= []) << entry
+        end
       end
 
-      # tag entry with build directives and sort by resource
-      entries_by_resource = {}
-      entries.each do |entry|
-        entry.entry_type = :css
-        entry.resource = 'stylesheet'
-        entry.discover_build_directives!
-        (entries_by_resource[entry.resource] ||= []) << entry
+      # build combined CSS entry
+      css_entries.each do |resource_name, entries|
+        MANIFEST.add_composite resource_name.ext('css'),
+          :build_task     => 'build:combine:css',
+          :source_entries => entries,
+          :hide_entries   => CONFIG.combine_stylesheet
       end
       
-      # Now, build combined entry for each resource
-      entries_by_resource.each do |resource_name, entries|
-        MANIFEST.add_composite resource_name.ext('css'),
-          :build_task => 'build:css',
-          :source_entries => entries
+      # build combined JS entry
+      javascript_entries.each do |resource_name, entries|
+        MANIFEST.add_composite resource_name.ext('js'),
+          :build_task     => 'build:combine:javascript',
+          :source_entries => entries,
+          :hide_entries   => CONFIG.combine_javascript
       end
+      
     end
     
     desc "create a builder task for all sass files to create css files"
     task :sass => :setup do
       MANIFEST.entries.each do |entry|
         next unless entry.ext == "sass"
-        MANIFEST.add_transform(entry,
+        MANIFEST.add_transform entry,
           :build_task => 'build:sass',
           :entry_type => :css,
-          :ext        => 'css')
+          :ext        => 'css',
+          :resource   => 'stylesheet',
+          :requires   => []
       end
     end
-    task :css => :sass # IMPORTANT! to ensure sass files are rolled into css
     
     desc "find all html-generating files, annotate and combine them"
     task :html => :setup do
@@ -239,7 +262,7 @@ namespace :manifest do
         # use a custom scan method since discover_build_directives! is too
         # general...
         
-        entry. scan_source(/<%\s*sc_resource\(?\s*['"](.+)['"]\s*\)?/) do |m|
+        entry.scan_source(/<%\s*sc_resource\(?\s*['"](.+)['"]\s*\)?/) do |m|
           entry.resource = m[0].ext ''
         end
         (entries_by_resource[entry.resource] ||= []) << entry

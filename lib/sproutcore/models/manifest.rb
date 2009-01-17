@@ -128,14 +128,18 @@ module SC
     end
     
     # Creates a composite entry with the passed filename.  Expects you to
-    # a source_entries option.  This automatically hides the source entries.
+    # a source_entries option.  This automatically hides the source entries
+    # unless you pass the :hide_entries => false option.
     def add_composite(filename, opts = {})
+      should_hide_entries = opts.delete(:hide_entries)
+      should_hide_entries = true if should_hide_entries.nil?
+      
       opts[:filename] = filename
       opts[:source_entries] ||= []
       opts[:composite] = true
       @entries << (ret = ManifestEntry.new(self, opts)).prepare!
       
-      ret.source_entries.each { |entry| entry.hide! }
+      ret.source_entries.each { |entry| entry.hide! } if should_hide_entries
       return ret 
     end
     
@@ -170,6 +174,7 @@ module SC
       opts.source_entry   = entry
       opts.source_entries = [entry]
       opts.composite      = true
+      opts.transform      = true # make .transform? = true
       
       # Normalize to new extension if provided.  else copy ext from entry...
       if opts.ext
@@ -201,7 +206,9 @@ module SC
     # === Returns
     #   the manifest entry
     def entry_for(filename, opts = {})
-      entries(opts).find { |entry| entry.filename == filename }
+      entries(:hidden => opts[:hidden]).find do |entry| 
+        (entry.filename == filename) && entry.has_options?(opts)
+      end
     end
     
     # Finds a unique staging path starting with the root proposed staging
