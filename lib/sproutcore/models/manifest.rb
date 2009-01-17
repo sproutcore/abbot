@@ -93,6 +93,8 @@ module SC
         ret = filtered
       end
 
+      # always add target name. needed to reload
+      ret[:target_name] = target.target_name
       return ret
     end
     

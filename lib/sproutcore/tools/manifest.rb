@@ -9,13 +9,14 @@ module SC
                          :format        => :optional,
                          :output        => :output,
                          :all           => false,
-                         :only          => :optional,
-                         :except        => :optional,
-                         :hidden        => false,
                          ['--include-required', '-r'] => false }
                      
     desc "manifest [TARGET..]", "Generates a manifest for the specified targets"
-    method_options(MANIFEST_OPTIONS)
+    method_options(MANIFEST_OPTIONS.merge(
+      :format        => :optional,
+      :only          => :optional,
+      :except        => :optional,
+      :hidden        => false ))
     def manifest(*targets)
 
       # Copy some key props to the env
@@ -44,39 +45,11 @@ module SC
         except_keys = nil if except_keys.size == 0
       end
       
-      requires_project! # get project
-      
-      # If targets are specified, build a manifest specifically for those
-      # targets.  Otherwise, build for all targets in the project.
-      if (targets = find_targets(*targets)).size == 0
-        targets = project.targets.values
-        unless options.all? # remove those with autobuild turned off in config
-          targets.reject! { |t| !t.config.autobuild? }
-        end
-      end
-      SC.logger.info "Building targets: #{targets.map { |t| t.target_name } * ","}"
-      
-      # Use passed languages.  If none are specified, merge installed 
-      # languages for all app targets.
-      if (languages = options.languages).nil?
-        languages = targets.map { |t| t.installed_languages }
-      else
-        languages = languages.split(':').map { |l| l.to_sym }
-      end
-      languages = languages.flatten.uniq.compact
-      SC.logger.info "Building languages: #{ languages * "," }"
-      
-      # Now fetch the manifests to build.  One per target/language
-      manifests = targets.map do |target|
-        languages.map { |l| target.manifest_for :language => l }
-      end
-      manifests.flatten!
-      
-      # Build'em
+      # call core method to actually build the manifests...
+      manifests = build_manifests(*targets)
+
+      # now convert them to hashes...
       manifests.map! do |manifest| 
-        SC.logger.info "Building manifest for: #{manifest.target.target_name}:#{manifest.language}"
-        manifest.build!
-        
         manifest.to_hash :hidden => options.hidden, 
           :only => only_keys, :except => except_keys
       end

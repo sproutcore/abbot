@@ -39,7 +39,10 @@ mode :all do
     
     # Generate a combined javascript and stylesheet
     :combine_javascript => true,
-    :combine_stylesheet => true
+    :combine_stylesheet => true,
+    
+    # by default all targets autobuild
+    :autobuild => true
 end
 
 

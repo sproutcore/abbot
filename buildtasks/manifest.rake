@@ -35,9 +35,8 @@ namespace :manifest do
   end
 
   desc "Actually builds a manifest.  This will catalog all entries and then filter them"
-  task :build => %w(catalog localize prepare_build_tasks:all) do
-  end
-
+  task :build => %w(catalog hide_buildfiles localize) # prepare_build_tasks:all
+  
   desc "first step in building a manifest, this adds a simple copy file entry for every file in the source"
   task :catalog do |t|
     source_root = TARGET.source_root

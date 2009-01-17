@@ -2,6 +2,6 @@
 
 require File.expand_path(File.join(File.dirname(__FILE__), %w[.. lib sproutcore]))
 
-SC::Toolss::Build.invoke
+SC::Tools.invoke 'build'
 
 # EOF

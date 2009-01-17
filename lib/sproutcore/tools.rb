@@ -117,15 +117,36 @@ module SC
     # Find one or more targets with the passed target names
     def find_targets(*targets)
       requires_project!
-      targets.map do |target_name|
-        ret = project.target_for(target_name)
-        if ret.nil?
-          fatal! "No target named #{target_name} could be found in project"
-        else
-          debug "Found target '#{target_name}' at PROJECT:#{ret.source_root.sub(/^#{project.project_root}\//,'')}"
+      
+      # If targets are specified, find the targets project or parents...
+      if targets.size > 0
+        targets = targets.map do |target_name|
+          ret = project.target_for(target_name)
+          if ret.nil?
+            fatal! "No target named #{target_name} could be found in project"
+          else
+            debug "Found target '#{target_name}' at PROJECT:#{ret.source_root.sub(/^#{project.project_root}\//,'')}"
+          end
+          ret
         end
-        ret
+        
+      # IF no targets are specified, then just get all targets in project.
+      # If --all option was specified, include those that do not autobuild
+      else
+        targets = project.targets.values
+        unless options.all?
+          targets.reject! { |t| !t.config.autobuild? }
+        end
+      end 
+
+      # If include required was specified, merge in all required bundles as 
+      # well.
+      if options['include-required']
+        targets.each { |target| targets += target.expand_required_targets }
+        targets = targets.flatten.uniq.compact
       end
+      
+      return targets
     end
 
     # Wraps around find_targets but raises an exception if no target is 
@@ -138,14 +159,54 @@ module SC
       targets
     end
     
-    # Finds one target.  This is just a convenience method wrapped around 
-    # find_targets()
-    def find_target(target); find_targets(target); end
-
     # Requires exactly one target.
     def requires_target!(*targets)
       requires_targets!(*targets).first
     end
+    
+    # Discovers the languages requested by the user for a build.  Uses the
+    # --languages command line option or disovers in targets.
+    def find_languages(*targets)
+      # Use passed languages.  If none are specified, merge installed 
+      # languages for all app targets.
+      if (languages = options.languages).nil?
+        languages = targets.map { |t| t.installed_languages }
+      else
+        languages = languages.split(':').map { |l| l.to_sym }
+      end
+      languages.flatten.uniq.compact
+    end
+    
+    # Core method to process command line options and then build a manifest.
+    # Shared by sc-manifest and sc-build commands.
+    def build_manifests(*targets)
+      
+      requires_project! # get project
+      targets = find_targets(*targets) # get targets
+      languages = find_languages(*targets) # get languages
+
+      # log output
+      SC.logger.info "Building targets: #{targets.map { |t| t.target_name } * ","}"
+      SC.logger.info "Building languages: #{ languages * "," }"
+      
+      # Now fetch the manifests to build.  One per target/language
+      manifests = targets.map do |target|
+        languages.map { |l| target.manifest_for :language => l }
+      end
+      manifests.flatten!
+      
+      # Build'em
+      manifests.each do |manifest| 
+        SC.logger.info "Building manifest for: #{manifest.target.target_name}:#{manifest.language}"
+        manifest.build!
+      end
+      
+      return manifests
+    end
+    
+    ################################################
+    ## MAIN ENTRYPOINT
+    ##
     
     # Fix start so that it treats command-name like command_name
     def self.start(args = ARGV)
