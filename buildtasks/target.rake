@@ -34,7 +34,6 @@ namespace :target do
         TARGET.target_name.to_s))
       
     TARGET.build_number = TARGET.compute_build_number
-    
   end
   
 end

@@ -82,7 +82,7 @@ describe SC::Manifest, 'add_transform' do
   it "rebases the staging path for transform entry to staging_root if original staging_path == source_path" do
     
     @entry.staging_path = @entry.source_path
-    @target.staging_root = "staging/"
+    @manifest.staging_root = "staging/"
     new_entry = @manifest.add_transform @entry
     new_entry.staging_path.should =~ /^staging\//
   end

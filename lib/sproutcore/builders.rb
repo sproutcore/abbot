@@ -36,7 +36,7 @@ module SproutCore
     # joins the array of lines.  this is where you can also do any final
     # post-processing on the build
     def joinlines(lines)
-      lines * "\n"
+      lines * ""
     end
     
     # writes the passed lines to the named file

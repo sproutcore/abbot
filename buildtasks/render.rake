@@ -10,10 +10,12 @@ namespace :render do
 
   desc "renders erubis including .rhtml and .html.erb files"
   build_task :erubis do
+    SC::RenderEngine::Erubis.new(CONTEXT).compile(SRC_PATH)
   end
   
   desc "renders haml files"
   build_task :haml do
+    SC::RenderEngine::Haml.new(CONTEXT).compile(SRC_PATH)
   end
   
 end

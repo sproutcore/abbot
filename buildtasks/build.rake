@@ -32,18 +32,27 @@ namespace :build do
   
   desc "builds an html file, possibly executing render tasks"
   build_task :html do
+    SC::Builder::Html.build ENTRY, DST_PATH
   end
 
-  namespace :combine do
+  desc "combines several source files into a single target, using the ordered_entries property if it exists"
+  build_task :combine do
+    SC::Builder::Combine.build ENTRY, DST_PATH
+  end
+  
+  namespace :minify do
     
-    desc "combines several css files into a single css file" 
+    desc "Minifies a CSS file by invoking CSSmin"
     build_task :css do
+      SC::Builder::Minify.build ENTRY, DST_PATH, :css
     end
-    
-    desc "combines several javascript files into a single javascript file"
+
+    desc "minifies a JavaScript file by invoking the YUI compressor"
     build_task :javascript do
+      SC::Builder::Minify.build ENTRY, DST_PATH, :javascript
     end
     
   end
+  
   
 end

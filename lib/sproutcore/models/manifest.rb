@@ -177,7 +177,7 @@ module SC
       # staging_path set == to source_root (optimization for build:copy), then
       # first rebase staging path against the staging root.
       if (staging_path = entry.staging_path) == entry.source_path
-        staging_path = File.join(target.staging_root, entry.filename) 
+        staging_path = File.join(self.staging_root, entry.filename) 
       end
       opts.staging_path ||= unique_staging_path(staging_path)
       

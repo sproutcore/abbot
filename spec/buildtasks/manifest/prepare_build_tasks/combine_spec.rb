@@ -50,8 +50,8 @@ describe "manifest:prepare_build_tasks:combine" do
     end
     
     it "entries have a build_task = build:combine:css" do
-      entry_for('stylesheet.css').build_task.should == 'build:combine:css'
-      entry_for('bar.css').build_task.should == 'build:combine:css'
+      entry_for('stylesheet.css').build_task.should == 'build:combine'
+      entry_for('bar.css').build_task.should == 'build:combine'
     end
     
     it "hides source entries" do
@@ -159,7 +159,7 @@ describe "manifest:prepare_build_tasks:combine" do
     
     it "entries have a build_task = build:combine:javascript" do
       %w(javascript.js bar.js).each do |filename|
-        entry_for(filename).build_task.should == 'build:combine:javascript'
+        entry_for(filename).build_task.should == 'build:combine'
       end
     end
     

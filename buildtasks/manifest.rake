@@ -123,7 +123,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
     
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css javascript sass) #%w(tests html image combine) 
+    task :all => %w(css javascript sass combine minify) #%w(tests html image) 
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -196,6 +196,10 @@ namespace :manifest do
       css_entries = {}
       javascript_entries = {}
       MANIFEST.entries.each do |entry|
+        # we can only combine entries with a resource property.
+        next if entry.resource.nil?
+        
+        # look for CSS or JS type entries
         case entry.entry_type
         when :css
           (css_entries[entry.resource] ||= []) << entry
@@ -207,10 +211,11 @@ namespace :manifest do
       # build combined CSS entry
       css_entries.each do |resource_name, entries|
         MANIFEST.add_composite resource_name.ext('css'),
-          :build_task     => 'build:combine:css',
-          :source_entries => entries,
-          :hide_entries   => CONFIG.combine_stylesheet,
-          :ordered_entries => SC::Helper::EntrySorter.sort(entries)
+          :build_task      => 'build:combine',
+          :source_entries  => entries,
+          :hide_entries    => CONFIG.combine_stylesheet,
+          :ordered_entries => SC::Helper::EntrySorter.sort(entries),
+          :entry_type      => :css
       end
       
       # build combined JS entry
@@ -218,10 +223,11 @@ namespace :manifest do
         resource_name = resource_name.ext('js')
         pf = (resource_name == 'javascript.js') ? %w(lproj/strings.js core.js utils.js) : []
         MANIFEST.add_composite resource_name,
-          :build_task     => 'build:combine:javascript',
-          :source_entries => entries,
-          :hide_entries   => CONFIG.combine_javascript,
-          :ordered_entries => SC::Helper::EntrySorter.sort(entries, pf)
+          :build_task      => 'build:combine',
+          :source_entries  => entries,
+          :hide_entries    => CONFIG.combine_javascript,
+          :ordered_entries => SC::Helper::EntrySorter.sort(entries, pf),
+          :entry_type      => :javascript
       end
       
     end
@@ -279,6 +285,26 @@ namespace :manifest do
       end
     end
     
+    desc "creates transform entries for all css and Js entries to minify them if needed"
+    task :minify => %w(setup javascript css combine sass) do
+      
+      minify_css = CONFIG.minify_css
+      minify_css = CONFIG.minify if minify_css.nil?
+
+      minify_javascript = CONFIG.minify_javascript
+      minify_javascript = CONFIG.minify if minify_javascript.nil?
+      
+      MANIFEST.entries.dup.each do |entry|
+        case entry.entry_type
+        when :css
+          MANIFEST.add_transform(entry, :build_task => 'build:minify:css') if minify_css
+        when :javascript
+          MANIFEST.add_transform(entry, :build_task => 'build:minify:javascript') if minify_javascript
+        end
+      end
+      
+    end
+
     desc "..."
     task :image => :setup do
     end

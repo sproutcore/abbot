@@ -42,7 +42,10 @@ mode :all do
     :combine_stylesheet => true,
     
     # by default all targets autobuild
-    :autobuild => true
+    :autobuild => true,
+    
+    # by default do not minify javacript or stylesheets
+    :minify    => false
 end
 
 
@@ -59,4 +62,10 @@ mode :debug do
     :combine_stylesheet => false
 
 end
+
+mode :production do
+  # minify JS && CSS in production mode
+  config :all, :minify => true
+end
+
 
