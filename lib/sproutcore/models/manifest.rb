@@ -173,8 +173,15 @@ module SC
         opts[key] ||= entry[key]
       end
       
-      # generate a unique staging path...
-      opts.staging_path ||= unique_staging_path(entry.staging_path)
+      # generate a unique staging path.  If the original entry has its 
+      # staging_path set == to source_root (optimization for build:copy), then
+      # first rebase staging path against the staging root.
+      if (staging_path = entry.staging_path) == entry.source_path
+        staging_path = File.join(target.staging_root, entry.filename) 
+      end
+      opts.staging_path ||= unique_staging_path(staging_path)
+      
+      # copy other useful entries
       opts.source_entry   = entry
       opts.source_entries = [entry]
       opts.composite      = true
