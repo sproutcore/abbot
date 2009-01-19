@@ -297,9 +297,20 @@ namespace :manifest do
       MANIFEST.entries.dup.each do |entry|
         case entry.entry_type
         when :css
-          MANIFEST.add_transform(entry, :build_task => 'build:minify:css') if minify_css
+          if minify_css
+            MANIFEST.add_transform entry, 
+              :build_task => 'build:minify:css',
+              :entry_type => :css,
+              :minified   => true
+          end
+              
         when :javascript
-          MANIFEST.add_transform(entry, :build_task => 'build:minify:javascript') if minify_javascript
+          if minify_javascript 
+            MANIFEST.add_transform entry, 
+              :build_task => 'build:minify:javascript',
+              :entry_type => :javascript,
+              :minified   => true
+          end
         end
       end
       
