@@ -209,7 +209,7 @@ describe "manifest:prepare_build_tasks:combine" do
         entry = @manifest.entry_for('javascript.js')
 
         # get the expected set of ordered entries...based on contents of 
-        # project...
+        # project... note that we require 'd', which should match 'lproj/d'
         expected = %w(c.js a.js lproj/d.js b.js)
 
         entry.ordered_entries.should_not be_nil
