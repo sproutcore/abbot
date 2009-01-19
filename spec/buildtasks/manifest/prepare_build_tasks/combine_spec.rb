@@ -62,6 +62,55 @@ describe "manifest:prepare_build_tasks:combine" do
       end
     end
     
+    
+    describe "adds ENTRY.ordered_entries propery with entries following load order" do
+      
+      before do
+        @project = fixture_project :ordered_entries
+      end
+      
+      it "orders entries as lproj/strings -> core -> utils -> others alphabetically without requires" do
+        
+        @target = @project.target_for :no_requires
+        @buildfile = @target.buildfile
+        @config = @target.config
+        @manifest = @target.manifest_for(:language => :en)
+        @target.prepare! # make sure its ready for the manifest...
+        
+        run_task
+        entry = @manifest.entry_for('stylesheet.css')
+
+        # get the expected set of ordered entries...based on contents of 
+        # project...
+        expected = %w(a.css a/a.css a/b.css B.css b/a.css c.css)
+
+        entry.ordered_entries.should_not be_nil
+        filenames = entry.ordered_entries.map { |e| e.filename }
+        filenames.should eql(expected)
+      end
+
+      it "will override default order respecting ENTRY.required" do
+        
+        @target = @project.target_for :with_requires
+        @buildfile = @target.buildfile
+        @config = @target.config
+        @manifest = @target.manifest_for(:language => :en)
+        @target.prepare! # make sure its ready for the manifest...
+        
+        run_task
+        entry = @manifest.entry_for('stylesheet.css')
+
+        # get the expected set of ordered entries...based on contents of 
+        # project...
+        expected = %w(c.css a.css b.css)
+
+        entry.ordered_entries.should_not be_nil
+        filenames = entry.ordered_entries.map { |e| e.filename }
+        filenames.should eql(expected)
+      end
+      
+    end
+    
   end
 
   describe "when CONFIG.combine_stylesheet = false" do
@@ -120,6 +169,54 @@ describe "manifest:prepare_build_tasks:combine" do
           entry.should be_hidden
         end
       end
+    end
+    
+    describe "adds ENTRY.ordered_entries propery with entries following load order" do
+      
+      before do
+        @project = fixture_project :ordered_entries
+      end
+      
+      it "orders entries as lproj/strings -> core -> utils -> others alphabetically without requires" do
+        
+        @target = @project.target_for :no_requires
+        @buildfile = @target.buildfile
+        @config = @target.config
+        @manifest = @target.manifest_for(:language => :en)
+        @target.prepare! # make sure its ready for the manifest...
+        
+        run_task
+        entry = @manifest.entry_for('javascript.js')
+
+        # get the expected set of ordered entries...based on contents of 
+        # project...
+        expected = %w(lproj/strings.js core.js utils.js 1.js a.js a/a.js a/b.js B.js b/a.js c.js)
+
+        entry.ordered_entries.should_not be_nil
+        filenames = entry.ordered_entries.map { |e| e.filename }
+        filenames.should eql(expected)
+      end
+
+      it "will override default order respecting ENTRY.required" do
+        
+        @target = @project.target_for :with_requires
+        @buildfile = @target.buildfile
+        @config = @target.config
+        @manifest = @target.manifest_for(:language => :en)
+        @target.prepare! # make sure its ready for the manifest...
+        
+        run_task
+        entry = @manifest.entry_for('javascript.js')
+
+        # get the expected set of ordered entries...based on contents of 
+        # project...
+        expected = %w(c.js a.js lproj/d.js b.js)
+
+        entry.ordered_entries.should_not be_nil
+        filenames = entry.ordered_entries.map { |e| e.filename }
+        filenames.should eql(expected)
+      end
+      
     end
     
   end

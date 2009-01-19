@@ -6,6 +6,9 @@ describe SC::Builder::JavaScript do
   
   before do
     std_before :javascript_test
+    
+    # add fake image entry for sc_static tests..
+    @manifest.add_entry 'icons/image.png'
   end
 
   def run_builder(filename, localize=false)

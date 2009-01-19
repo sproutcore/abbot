@@ -1,0 +1,1 @@
+// tests loading resources from within english.lproj

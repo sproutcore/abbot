@@ -8,7 +8,7 @@ module SC
 
       def compile(input)
         begin
-          require 'hamle'
+          require 'haml'
         rescue
           raise "Cannot render HAML file because haml is not installed. Try running 'sudo gem install haml' and try again"
         end

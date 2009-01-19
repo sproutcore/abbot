@@ -209,15 +209,19 @@ namespace :manifest do
         MANIFEST.add_composite resource_name.ext('css'),
           :build_task     => 'build:combine:css',
           :source_entries => entries,
-          :hide_entries   => CONFIG.combine_stylesheet
+          :hide_entries   => CONFIG.combine_stylesheet,
+          :ordered_entries => SC::Helper::EntrySorter.sort(entries)
       end
       
       # build combined JS entry
       javascript_entries.each do |resource_name, entries|
-        MANIFEST.add_composite resource_name.ext('js'),
+        resource_name = resource_name.ext('js')
+        pf = (resource_name == 'javascript.js') ? %w(lproj/strings.js core.js utils.js) : []
+        MANIFEST.add_composite resource_name,
           :build_task     => 'build:combine:javascript',
           :source_entries => entries,
-          :hide_entries   => CONFIG.combine_javascript
+          :hide_entries   => CONFIG.combine_javascript,
+          :ordered_entries => SC::Helper::EntrySorter.sort(entries, pf)
       end
       
     end

@@ -7,9 +7,6 @@ module SC::BuilderSpecHelper
     @target   = @project.target_for target_name
     @manifest = @target.manifest_for :language => :en
     @manifest.prepare!
-    
-    # add fake image entry for sc_static tests..
-    @manifest.add_entry 'icons/image.png'
   end
   
   def run_builder(filename, &block)
