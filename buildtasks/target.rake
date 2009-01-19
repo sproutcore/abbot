@@ -34,6 +34,9 @@ namespace :target do
         TARGET.target_name.to_s))
       
     TARGET.build_number = TARGET.compute_build_number
+    
+    # The target is loadable if it is an app
+    TARGET.loadable = TARGET.target_type == :app
   end
   
 end

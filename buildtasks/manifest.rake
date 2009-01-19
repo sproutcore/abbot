@@ -123,7 +123,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
     
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css javascript sass combine minify) #%w(tests html image) 
+    task :all => %w(css javascript sass combine minify html) #%w(tests html image) 
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -279,9 +279,11 @@ namespace :manifest do
       
       # Now, build combined entry for each resource
       entries_by_resource.each do |resource_name, entries|
-        MANIFEST.add_composite resource_name.ext('html'),
+        resource_name = resource_name.ext('html')
+        MANIFEST.add_composite resource_name,
           :build_task => 'build:html',
-          :source_entries => entries
+          :source_entries => entries,
+          :hidden     =>  !TARGET.loadable? && (resource_name == 'index.html')
       end
     end
     

@@ -59,8 +59,17 @@ describe "manifest:prepare_build_tasks:html" do
     
     before do
       run_task
-      @index_entry = @manifest.entry_for 'index.html'
+      @index_entry = entry_for 'index.html'
       @bar_entry = @manifest.entry_for('bar.html')
+    end
+    
+    it "should hide an index.html entry if the target is not loadable" do
+      @target.should_not be_loadable # precondition
+      @index_entry.should be_hidden
+    end
+
+    it "should not hide other .html entries if the target is not loadable" do
+      @bar_entry.should_not be_hidden
     end
     
     it "should be composite entries" do

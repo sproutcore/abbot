@@ -18,6 +18,14 @@ describe "namespace :target" do
         :target => @target, :project => @project, :config => @target.config
     end
     
+    ### loadable -- if true, the target should have index.html and other files 
+    ###   generated to make it loadable in the browser.  
+    it "sets target.loadable? if target_type == :app" do
+      @target.target_type = :app
+      run_task
+      @target.should be_loadable
+    end
+    
     ### URL_ROOT -- used to compute the url for static assets
     it "uses config.url_root if present" do
       @target.config.url_root = 'foo'
