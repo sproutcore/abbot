@@ -15,6 +15,7 @@ module SC
       #
       def content_for(name, &block)
         eval "@content_for_#{name} = (@content_for_#{name} || '') + (capture(&block) || '')"
+        return '' # incase user does <%= content_for ... %>
       end
 
     end

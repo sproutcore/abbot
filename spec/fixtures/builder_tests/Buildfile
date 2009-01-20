@@ -1,3 +1,6 @@
 # needed for HTML test...
-config :html_test, :required => [:req_target_2]
+config :html_test, 
+  :required => [:req_target_2],
+  :layout   => 'lib/layout_template.rhtml'
+  
 config :req_target_2, :required => [:req_target_1]

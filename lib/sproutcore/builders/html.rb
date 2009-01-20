@@ -35,13 +35,33 @@ module SC
     # the current render
     attr_reader :renderer
     
+    # manifest owning the current entry
+    attr_reader :manifest
+    
+    # The entry for the layout we want to build.  this will be used to 
+    # stage the layout if needed..
+    def layout_entry
+      @manifest.entry_for(@layout) || @manifest.entry_for(@layout, :hidden => true)
+    end
+    
+    # the path to the current layout for the resource.  this is computed 
+    # from the layout property, which is a relative pathname.
+    def layout_path
+      entry = layout_entry
+      entry.nil? ? nil : entry.staging_path
+    end
+    
     def initialize(entry)
       super(entry)
       @target = @bundle = entry.manifest.target
       @filename = entry.filename
       @language = @entry.manifest.language
       @project = @library = @target.project
+      @manifest = entry.manifest
       @renderer = nil
+      
+      # set the current layout from the target's config.layout
+      @layout = @target.config.layout || 'lib/index.rhtml'
       
       # find all entries -- use source_Entries + required if needed
       @entries = entry.source_entries.dup

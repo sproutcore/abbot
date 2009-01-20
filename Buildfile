@@ -45,7 +45,10 @@ mode :all do
     :autobuild => true,
     
     # by default do not minify javacript or stylesheets
-    :minify    => false
+    :minify    => false,
+    
+    # use the default layout defined in SproutCore
+    :layout    => 'sproutcore:lib/index.rhtml'
 end
 
 

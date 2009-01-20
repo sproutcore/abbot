@@ -94,11 +94,31 @@ module SC
       end
 
       # Returns the URL for the named resource
-      def static_url(resource_name, opts = {})
-        opts[:language] ||= language
-        opts[:platform] ||= platform
-        entry = bundle.find_resource_entry(resource_name, opts)
-        entry.nil? ? '' : entry.cacheable_url
+      def sc_static(resource_name, opts = {})
+        
+        # determine which manifest to search.  if a language is explicitly
+        # specified, lookup manifest for that language.  otherwise use 
+        # current manifest.
+        m = self.manifest 
+        if opts[:language]
+          m = target.manifest_for(:language => opts[:language]).build! 
+        end
+        
+        entry = m.find_entry(resource_name)
+        entry.nil? ? '' : entry.url
+      end
+      alias_method :static_url, :sc_static
+
+      # Allows you to specify HTML resource this html template should be
+      # merged into.   Optionally also specify the layout file to use when
+      # building this resource.
+      #
+      # == Example
+      #   <% sc_resource :foo, :layout => 'sproutcore:lib/index.html' %>
+      #
+      def sc_resource(resource_name, opts = {})
+        @layout = opts[:layout] if opts[:layout]
+        return ''
       end
 
       # Localizes the passed string, using the optional passed options.
@@ -108,7 +128,7 @@ module SC
         opts[:platform] ||= platform
         bundle.strings_hash(opts)[string] || string
       end
-
+      
     end
 
   end

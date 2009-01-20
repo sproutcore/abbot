@@ -30,14 +30,20 @@ describe SC::Manifest, 'entry_for' do
       :foo    => :foo, 
       :item   => :hidden
       
+    # since we generate the manifest entries manually for testing purposes, 
+    # mark the manifest as built to avoid invoking that machinery...
+    @manifest.instance_variable_set('@is_built', true)
+    
     # add other targets as well..
     @shared = @project.target_for(:shared).manifest_for(:language => :en)
     @shared.prepare!
     @shared.add_entry 'foobar/fake.png'
+    @shared.instance_variable_set('@is_built', true)
     
     @nested = @project.target_for('/test_app/nested').manifest_for(:language => :en)
     @nested.prepare!
     @nested.add_entry 'foobar/fake.png'
+    @nested.instance_variable_set('@is_built', true)
     
   end
     

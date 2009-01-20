@@ -50,22 +50,29 @@ describe SC::Manifest, 'build!' do
     lambda { manifest.build! }.should_not raise_error
   end
   
-  it "should reset the entries if it is called a second time" do
+  it "should build only once unless reset_entries! is called" do
     @manifest.build! # do build once...
     @manifest.add_entry 'example'  # pretend this happpened during build...
     @manifest.entries.size.should eql(1) # precondition
     
+    @manifest.build!
+    @manifest.entries.size.should eql(1) # should NOT be reset.  
+    
+    # reset and try again
+    @manifest.reset_entries!
     @manifest.build!
     @manifest.entries.size.should eql(0) # should be reset.  
      # build! would normally repopulate...
     
   end
   
-  it "should execute manifest:build each time it is called" do
+  it "should execute manifest:build only one time unless reset" do
     @manifest.prepared?.should be_false # check precondition
-    @manifest.build!.build!.build!
+    @manifest.build!.build! # second time should do nothing
+    @manifest.reset_entries!
+    @manifest.build! # should run since we reset...
     @manifest.prepared?.should be_true
-    @manifest.task_did_run.should eql(3) # ran only once?
+    @manifest.task_did_run.should eql(2) # ran only once?
   end
   
 end

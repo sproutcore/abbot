@@ -36,7 +36,29 @@ describe SC::Builder::JavaScript do
     entry_names = @bar_entry.source_entries.map { |e| e.filename }.sort
     entry_names.should == %w(bar1_sample.rhtml)
   end
-  
+
+  describe "layout_path" do
+    
+    before do 
+      @index_builder = SC::Builder::Html.new(@index_entry)
+    end
+    
+    it "initially resolves layout_path using layout config for target" do
+      # see the Buildfile for the fixture project to see this config.
+      @index_builder.layout_path.should == File.join(@project.project_root, %w(apps html_test lib layout_template.rhtml))
+    end
+    
+    it "changes its resolved path if you alter the layout variable" do
+      # use helper method...
+      @index_builder.sc_resource('index', 
+        :layout => 'req_target_2:lib/alt_layout.rhtml')
+      
+      @index_builder.layout_path.should == File.join(@project.project_root, %w(frameworks req_target_2 lib alt_layout.rhtml))
+    end
+  end
+      
+
+      
   describe "building an index.html entry" do
   end
   
@@ -53,26 +75,54 @@ describe SC::Builder::JavaScript do
       @builder = SC::Builder::Html.new(@bar_entry)
     end
     
-    it "exposes entry = current entry" do
-      @builder.entry.should == @bar_entry
+    describe "Basic properties" do
+      it "exposes entry = current entry" do
+        @builder.entry.should == @bar_entry
+      end
+    
+      it "exposes current target as both 'target' & 'bundle' (for backwards compatibility)" do
+        @builder.bundle.should == @target
+        @builder.target.should == @target
+      end
+    
+      it "exposes current project as both 'project' & 'library' (for backwards compatibility)" do
+        @builder.project.should == @project
+        @builder.library.should == @project
+      end
+    
+      it "exposes output filename as 'filename'" do
+        @builder.filename.should == 'bar1.html'
+      end
+    
+      it "exposes current language as 'language'" do
+        @builder.language.should == :en
+      end
     end
     
-    it "exposes current target as both 'target' & 'bundle' (for backwards compatibility)" do
-      @builder.bundle.should == @target
-      @builder.target.should == @target
-    end
-    
-    it "exposes current project as both 'project' & 'library' (for backwards compatibility)" do
-      @builder.project.should == @project
-      @builder.library.should == @project
-    end
-    
-    it "exposes output filename as 'filename'" do
-      @builder.filename.should == 'bar1.html'
-    end
-    
-    it "exposes current language as 'language'" do
-      @builder.language.should == :en
+    # Static helper contains methods needed to generate a SproutCore app
+    # such as static_url, sc_resource, etc.
+    describe "StaticHelper" do
+      
+      it "exposes static_url() & sc_static() alias" do
+        @builder.static_url('icons/image').should =~ /icons\/image.png/
+        @builder.static_url('image.jpg').should =~ /image.jpg/
+
+        @builder.sc_static('icons/image').should =~ /icons\/image.png/
+        @builder.sc_static('image.jpg').should =~ /image.jpg/
+      end
+      
+      it "takes a :language option for static_url to select an alternate manifest (deprecated - supported for backwards compatibility)" do
+        @builder.static_url('fr.png', :language => :fr).should =~ /french-icons\/fr.png/
+        
+        @builder.sc_static('fr.png', :language => :fr).should =~ /french-icons\/fr.png/
+      end
+      
+      it "accepts sc_resource(rsrc_name, opts).  :layout opt may be used to set layout.  otherwise this is scanned for during manifest building" do
+        @builder.sc_resource('foo', :layout => 'bar')
+        @builder.instance_variable_get('@layout').should == 'bar'
+      end
+        
+      
     end
     
     describe "TagHelpers" do
@@ -142,6 +192,20 @@ describe SC::Builder::JavaScript do
       end
     end
     
+    describe "CaptureHelper" do
+      
+      it "returns the results of the passed block - optionally passing through renderer (not tested)" do
+        result = @builder.capture { 'result' }
+        result.should == 'result'
+      end
+      
+      it "adds the result of the passed block to the builder as an instance variable called @content_for_foo" do
+        result = @builder.content_for(:foo) { "result" }
+        @builder.instance_variable_get('@content_for_foo').should == 'result'
+        result.should == ''
+      end
+    end
+        
   end
   
   

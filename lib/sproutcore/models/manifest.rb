@@ -61,13 +61,15 @@ module SC
     # Builds the manifest if it has not been built yet.
     def build!
       prepare!
-      reset_entries!
-      if target.buildfile.task_defined? 'manifest:build'
-        target.buildfile.invoke 'manifest:build',
-          :manifest => self,
-          :target => self.target,
-          :config => self.target.config,
-          :project => self.target.project
+      if !@is_built
+        @is_built = true
+        if target.buildfile.task_defined? 'manifest:build'
+          target.buildfile.invoke 'manifest:build',
+            :manifest => self,
+            :target => self.target,
+            :config => self.target.config,
+            :project => self.target.project
+        end
       end
       return self
     end
@@ -79,6 +81,7 @@ module SC
     #   Manifest (self)
     #
     def reset_entries!
+      @is_built = false
       @entries = []
       return self
     end
@@ -174,11 +177,13 @@ module SC
     #  :build_task:: name the new build task you use.  otherwise uses copy
     #  :ext:: the new file extension. if you don't override, the build_path
     #    staging_path and filename will all be adjusted to have this ext.
-    #
+    #  :hide_entry:: the source entry will be hidden unless set to false
     # === Returns 
     #   the new ManifestEntry
     # 
     def add_transform(entry, opts ={})
+      should_hide_entries = opts.delete(:hide_entries) || opts.delete(:hide_entry)
+      should_hide_entries = true if should_hide_entries.nil?
 
       # Clone important properties to new transform...
       opts = HashStruct.new(opts)
@@ -212,7 +217,7 @@ module SC
 
       # Create new entry and hide old one
       @entries << (ret = ManifestEntry.new(self, opts)).prepare!
-      entry.hide!
+      entry.hide! if should_hide_entries
       
       # done!
       return ret 
@@ -253,6 +258,7 @@ module SC
         filename = target_name
       else
         manifest = target.target_for(target_name).manifest_for(self.variation)
+        manifest.build!
       end
       
       manifest.entries(:hidden => opts[:hidden]).find do |entry| 
@@ -293,7 +299,7 @@ module SC
         target.expand_required_targets.each do |target|
           next if seen.include?(target) # avoid recursion
           
-          manifest = target.manifest_for(self.variation).prepare!
+          manifest = target.manifest_for(self.variation).build!
           ret = manifest.find_entry(fragment, opts, seen)
           break unless ret.nil?
         end
