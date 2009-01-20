@@ -20,16 +20,16 @@ describe "manifest:prepare_build_tasks:javascript" do
   
   describe "supports require() and sc_require() statements" do
     
-    it "adds a entry.requires property to entrys with empty array of no requires are specified in file"  do
+    it "adds a entry.required property to entrys with empty array of no requires are specified in file"  do
       run_task
       entry = entry_for('no_require.js')
-      entry.requires.should == []
+      entry.required.should == []
     end
     
-    it "searches files for require() & sc_requires() statements and adds them to entry.requires array -- (also should ignore any ext)" do
+    it "searches files for require() & sc_requires() statements and adds them to entry.required array -- (also should ignore any ext)" do
       run_task
       entry = entry_for('has_require.js')
-      entry.requires.sort.should == ['demo2', 'no_require']
+      entry.required.sort.should == ['demo2', 'no_require']
     end
   
   end

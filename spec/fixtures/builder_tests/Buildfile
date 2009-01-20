@@ -1,0 +1,3 @@
+# needed for HTML test...
+config :html_test, :required => [:req_target_2]
+config :req_target_2, :required => [:req_target_1]

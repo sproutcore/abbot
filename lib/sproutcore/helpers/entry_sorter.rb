@@ -73,7 +73,7 @@ module SC
       return if seen.include?(entry)
 
       seen << entry
-      required_entries(entry.requires, entries).each do |required|
+      required_entries(entry.required, entries).each do |required|
         next if required.nil?
         add_entry_to_set(required, ret, seen, entries)
       end

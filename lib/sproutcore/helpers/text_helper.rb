@@ -29,17 +29,6 @@ module SC
         renderer.concat(string, binding)
       end
 
-      # If +text+ is longer than +length+, +text+ will be truncated to the length of
-      # +length+ and the last three characters will be replaced with the +truncate_string+.
-      #
-      #   truncate("Once upon a time in a world far far away", 14)
-      #    => Once upon a...
-      def truncate(text, length = 30, truncate_string = "...")
-        if text.nil? then return end
-        l = length - truncate_string.chars.length
-        (text.chars.length > length ? text.chars[0...l] + truncate_string : text).to_s
-      end
-
       # Highlights one or more +phrases+ everywhere in +text+ by inserting it into
       # a +highlighter+ string. The highlighter can be specialized by passing +highlighter+
       # as a single-quoted string with \1 where the phrase is to be inserted.
@@ -58,34 +47,6 @@ module SC
         end
       end
 
-      # Extracts an excerpt from +text+ that matches the first instance of +phrase+.
-      # The +radius+ expands the excerpt on each side of +phrase+ by the number of characters
-      # defined in +radius+. If the excerpt radius overflows the beginning or end of the +text+,
-      # then the +excerpt_string+ will be prepended/appended accordingly. If the +phrase+
-      # isn't found, nil is returned.
-      #
-      #   excerpt('This is an example', 'an', 5)
-      #    => "...s is an examp..."
-      #
-      #   excerpt('This is an example', 'is', 5)
-      #    => "This is an..."
-      def excerpt(text, phrase, radius = 100, excerpt_string = "...")
-        if text.nil? || phrase.nil? then return end
-        phrase = Regexp.escape(phrase)
-
-        if found_pos = text.chars =~ /(#{phrase})/i
-          start_pos = [ found_pos - radius, 0 ].max
-          end_pos   = [ found_pos + phrase.chars.length + radius, text.chars.length ].min
-
-          prefix  = start_pos > 0 ? excerpt_string : ""
-          postfix = end_pos < text.chars.length ? excerpt_string : ""
-
-          prefix + text.chars[start_pos..end_pos].strip + postfix
-        else
-          nil
-        end
-      end
-
       # Attempts to pluralize the +singular+ word unless +count+ is 1. If +plural+
       # is supplied, it will use that when count is > 1, if the ActiveSupport Inflector
       # is loaded, it will use the Inflector to determine the plural form, otherwise
@@ -99,28 +60,17 @@ module SC
           singular
         elsif plural
           plural
-        elsif Object.const_defined?("Inflector")
-          Inflector.pluralize(singular)
         else
-          singular + "s"
+          singular.plural
         end
-      end
-
-      # Wraps the +text+ into lines no longer than +line_width+ width. This method
-      # breaks on the first whitespace character that does not exceed +line_width+.
-      #
-      #   word_wrap('Once upon a time', 4)
-      #    => Once\nupon\na\ntime
-      def word_wrap(text, line_width = 80)
-        text.gsub(/\n/, "\n\n").gsub(/(.{1,#{line_width}})(\s+|$)/, "\\1\n").strip
       end
 
       begin
         unless Object.const_defined?(:RedCloth)
-          gem "redcloth"
+          gem "RedCloth"
           require 'redcloth'
         end
-
+        
         # Returns the text with all the Textile codes turned into HTML tags.
         # <i>This method is only available if RedCloth[http://whytheluckystiff.net/ruby/redcloth/]
         # is available</i>.

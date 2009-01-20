@@ -241,7 +241,7 @@ namespace :manifest do
           :entry_type => :css,
           :ext        => 'css',
           :resource   => 'stylesheet',
-          :requires   => []
+          :required   => []
       end
     end
     
@@ -279,8 +279,8 @@ namespace :manifest do
       
       # even if no resource was found for the index.html, add one anyway if 
       # the target is loadable
-      if TARGET.loadable? && entries_by_resource['index.html'].nil?
-        entries_by_resource['index.html'] = []
+      if TARGET.loadable? && entries_by_resource['index'].nil?
+        entries_by_resource['index'] = []
       end
       
       # Now, build combined entry for each resource

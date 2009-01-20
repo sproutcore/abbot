@@ -125,16 +125,16 @@ module SC
     # results on all other file types.
     #
     def discover_build_directives!
-      self.requires = []
+      self.required = []
       entry = self.transform? ? self.source_entry : self
       entry.scan_source(BUILD_DIRECTIVES_REGEX) do |matches|
         # strip off any file ext
         filename = matches[2].ext ''
         case matches[0]
         when 'sc_require':
-          self.requires << filename
+          self.required << filename
         when 'require':
-          self.requires << filename
+          self.required << filename
         when 'sc_resource'
           self.resource = filename
         end

@@ -1,7 +1,11 @@
 require 'rubygems'
 require 'logger'
+require 'extlib'
 
 #gem 'rake', '> 0.8.0'
+
+$KCODE = 'u'
+require 'jcode'
 
 # Makes code more readable
 YES = true

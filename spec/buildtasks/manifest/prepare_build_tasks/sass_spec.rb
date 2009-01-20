@@ -80,9 +80,9 @@ describe "manifest:prepare_build_tasks:sass" do
       end
     end
     
-    it "sets the entry.requires => []" do
+    it "sets the entry.required => []" do
       @entries.each do |entry|
-        entry.requires.should == []
+        entry.required.should == []
       end
     end
     
