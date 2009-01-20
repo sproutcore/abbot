@@ -130,6 +130,18 @@ describe SC::Builder::JavaScript do
       ## TODO: Test remaining methods from TextHelper are added.
     end
     
+    describe "DomIdHelper" do
+      
+      it "generates a unique ID each time it is called" do
+        seen_ids = []
+        10.times do
+          next_id = @builder.dom_id!
+          seen_ids.should_not include(seen_ids)
+          seen_ids << next_id
+        end
+      end
+    end
+    
   end
   
   
