@@ -44,8 +44,21 @@ module SC
 
     def prepared?; @is_prepared || false; end
     
-    # Builds the manifest.  This will prepare the manifest and then invoke
-    # the manifest:build task if defined.
+    # Returns the options that select the current variation.  The current 
+    # implementation is hardcoded to return the language, but this may be 
+    # generalized in the future.
+    #
+    # You can use this method to select the same manifest in other targets.
+    #
+    # === Examples
+    #
+    #   other_manifest = other_target.manifest_for(my_manifest.variation)
+    # 
+    def variation
+      return { :language => self.language }
+    end
+    
+    # Builds the manifest if it has not been built yet.
     def build!
       prepare!
       reset_entries!
@@ -210,6 +223,21 @@ module SC
     # restrict your search.  If you pass :hidden => true only hidden entries
     # will be returned.  Otherwise, only visible entries will be returned.
     #
+    # You may also include the name of the target you would like to search.
+    # The target name should be relative to the target you are requesting 
+    # from.
+    #
+    # === Examples
+    #
+    #   entry = manifest.entry_for('javascript.js')
+    #     => returns local javascript.js entry
+    #
+    #   entry = manifest.entry_for('sproutcore:javascript.js')
+    #     => returns entry for javascript.js in 'sproutcore' bundle
+    #
+    #   entry = manifest.entry_for('sproutcore/costello:javascript.js')
+    #
+    #
     # === Params
     #   filename:: the filename to search
     # 
@@ -219,7 +247,15 @@ module SC
     # === Returns
     #   the manifest entry
     def entry_for(filename, opts = {})
-      entries(:hidden => opts[:hidden]).find do |entry| 
+      target_name, filename = filename.split(':')
+      if filename.nil?  # no targetname given...
+        manifest = self
+        filename = target_name
+      else
+        manifest = target.target_for(target_name).manifest_for(self.variation)
+      end
+      
+      manifest.entries(:hidden => opts[:hidden]).find do |entry| 
         (entry.filename == filename) && entry.has_options?(opts)
       end
     end
@@ -257,7 +293,7 @@ module SC
         target.expand_required_targets.each do |target|
           next if seen.include?(target) # avoid recursion
           
-          manifest = target.manifest_for(:language => self.language).prepare!
+          manifest = target.manifest_for(self.variation).prepare!
           ret = manifest.find_entry(fragment, opts, seen)
           break unless ret.nil?
         end

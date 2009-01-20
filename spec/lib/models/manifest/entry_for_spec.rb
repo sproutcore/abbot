@@ -29,6 +29,16 @@ describe SC::Manifest, 'entry_for' do
       :hidden => true, 
       :foo    => :foo, 
       :item   => :hidden
+      
+    # add other targets as well..
+    @shared = @project.target_for(:shared).manifest_for(:language => :en)
+    @shared.prepare!
+    @shared.add_entry 'foobar/fake.png'
+    
+    @nested = @project.target_for('/test_app/nested').manifest_for(:language => :en)
+    @nested.prepare!
+    @nested.add_entry 'foobar/fake.png'
+    
   end
     
   it "finds the first visible file matching the filename" do
@@ -55,6 +65,22 @@ describe SC::Manifest, 'entry_for' do
   
   it "returns nil if no matching entry could be found" do
     @manifest.entry_for('imaginary').should be_nil
+  end
+  
+  describe "can name entries in other targets by prefixing entry name with target:entry_name" do
+    
+    it "will search another manifest" do
+      entry = @manifest.entry_for('shared:foobar/fake.png')
+      entry.should_not be_nil
+      entry.manifest.should == @shared
+    end
+  
+    it "will search for nested targets relative to current target" do
+      entry = @manifest.entry_for('nested:foobar/fake.png')
+      entry.should_not be_nil
+      entry.manifest.should == @nested
+    end
+    
   end
   
 end
