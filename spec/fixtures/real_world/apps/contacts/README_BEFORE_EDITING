@@ -1,0 +1,1 @@
+Note: the buildtasks/manifest/prepare_build_tasks/html_spec.rb assumes this (contacts) target contains NO .rhtml or .haml fragments.  

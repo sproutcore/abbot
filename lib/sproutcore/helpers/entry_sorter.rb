@@ -5,7 +5,7 @@ module SC
   # the entries to sort along with any filenames you prefer to have added to
   # the top.  If you don't specify any filenames, then the entries will be
   # sorted alphabetically except for requires.
-  class Helper::EntrySorter
+  class Helpers::EntrySorter
     
     def self.sort(entries, preferred_filenames = [])
       self.new(preferred_filenames).sort(entries)

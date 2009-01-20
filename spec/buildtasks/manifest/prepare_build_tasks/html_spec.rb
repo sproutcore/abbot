@@ -55,7 +55,46 @@ describe "manifest:prepare_build_tasks:html" do
 
   end
   
-  describe "combines html entries into one output file per resource" do
+  describe "special case handling of index.html for loadable targets" do
+    
+    before do
+      # load application target instead of framework...
+      @target = @project.target_for :contacts
+      @buildfile = @target.buildfile
+      @config = @target.config
+      @manifest = @target.manifest_for(:language => :fr)
+      @target.prepare!
+
+      run_task
+      @index_entry = entry_for 'index.html'
+    end
+    
+    it "applies these rules only to a target that is loadable" do
+      @target.should be_loadable # precondition
+    end
+    
+    # an index.html is always needed for an application to load properly
+    # even if not explicit fragments are present in the app.
+    it "generates an index.html entry even if there are no source html fragments" do
+      @index_entry.should_not be_nil
+      @index_entry.source_entries.size.should == 0 # precondition
+    end
+    
+    it "does not hide the index.html entry" do
+      @index_entry.should_not be_hidden
+    end
+    
+    it "adds the include_required_targets? property to the entry" do
+      @index_entry.should be_include_required_targets
+    end
+    
+    it "marks the target as loadable" do
+      @target.should be_loadable
+    end
+  
+  end
+    
+  describe "special case handling of index.html for frameworks" do
     
     before do
       run_task
@@ -63,13 +102,30 @@ describe "manifest:prepare_build_tasks:html" do
       @bar_entry = @manifest.entry_for('bar.html')
     end
     
-    it "should hide an index.html entry if the target is not loadable" do
+    it "applies these rules only to a target that is not loadable" do
       @target.should_not be_loadable # precondition
+    end
+    
+    it "hides an index.html entry" do
       @index_entry.should be_hidden
     end
-
+    
+    it "does not add include_required_targets property to entry" do
+      @index_entry.should_not be_include_required_targets
+    end
+    
     it "should not hide other .html entries if the target is not loadable" do
       @bar_entry.should_not be_hidden
+    end
+    
+  end
+  
+  describe "combines html entries into one output file per resource" do
+    
+    before do
+      run_task
+      @index_entry = entry_for 'index.html'
+      @bar_entry = @manifest.entry_for('bar.html')
     end
     
     it "should be composite entries" do

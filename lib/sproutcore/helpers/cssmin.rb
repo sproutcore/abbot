@@ -23,7 +23,7 @@
 # * {Mailinglist}[http://groups.google.com/group/xy-oss-projects-discussion]
 # * {Continous Integration Builds and Tests}[http://cruisecontrol-rb.xhochy.com/builds/rainpress]
 # * {Freshmeat Record}[http://freshmeat.net/projects/rainpress]
-module SC::Helper
+module SC::Helpers
 
   # == Information
   #

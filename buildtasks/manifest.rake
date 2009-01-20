@@ -214,7 +214,7 @@ namespace :manifest do
           :build_task      => 'build:combine',
           :source_entries  => entries,
           :hide_entries    => CONFIG.combine_stylesheet,
-          :ordered_entries => SC::Helper::EntrySorter.sort(entries),
+          :ordered_entries => SC::Helpers::EntrySorter.sort(entries),
           :entry_type      => :css
       end
       
@@ -226,7 +226,7 @@ namespace :manifest do
           :build_task      => 'build:combine',
           :source_entries  => entries,
           :hide_entries    => CONFIG.combine_javascript,
-          :ordered_entries => SC::Helper::EntrySorter.sort(entries, pf),
+          :ordered_entries => SC::Helpers::EntrySorter.sort(entries, pf),
           :entry_type      => :javascript
       end
       
@@ -277,13 +277,21 @@ namespace :manifest do
         (entries_by_resource[entry.resource] ||= []) << entry
       end
       
+      # even if no resource was found for the index.html, add one anyway if 
+      # the target is loadable
+      if TARGET.loadable? && entries_by_resource['index.html'].nil?
+        entries_by_resource['index.html'] = []
+      end
+      
       # Now, build combined entry for each resource
       entries_by_resource.each do |resource_name, entries|
         resource_name = resource_name.ext('html')
+        is_index = resource_name == 'index.html'
         MANIFEST.add_composite resource_name,
           :build_task => 'build:html',
           :source_entries => entries,
-          :hidden     =>  !TARGET.loadable? && (resource_name == 'index.html')
+          :hidden     =>  !TARGET.loadable? && is_index,
+          :include_required_targets => TARGET.loadable? && is_index
       end
     end
     
