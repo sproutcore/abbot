@@ -84,6 +84,7 @@ module SC
         urls = []
         combine_javascript = t.config.combine_javascript
         combined_entries(t, opts, 'javascript.js') do |cur_target, cur_entry|
+          
           # include either the entry URL or URL of ordered entries
           # depending on setup
           if combine_javascript
@@ -200,9 +201,9 @@ module SC
         targets.each do |t|
           # get the manifest for the target
           cur_manifest = t.manifest_for(v).build!
-          
+
           # get the stylesheet entry for it...
-          entry = cur_manifest.entry_for entry_name, :combined => true
+          entry = cur_manifest.entry_for entry_name
           next if entry.nil? || !entry.composite? # no stylesheet...
           
           yield(t, entry)

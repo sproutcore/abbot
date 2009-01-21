@@ -41,6 +41,7 @@ module SC
     def build_javascript(dst_path)
       yui_root = File.expand_path(File.join(LIBPATH, '..', 'vendor', 'yui-compressor'))
       jar_path = File.join(yui_root, 'yuicompressor-2.4.2.jar')
+      FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
       filecompress = "java -jar " + jar_path + " --charset utf-8 " + entry.source_path + " -o " + dst_path
       SC.logger.info  'Compressing with YUI .... '+ dst_path
       SC.logger.debug `#{filecompress}`
