@@ -7,25 +7,6 @@ module SC
 
     module StaticHelper
 
-      def combined_entries(t, opts, entry_name, &block)
-        
-        # choose manifest variant.  default to current manifest variant 
-        # if no explicit language was passed.
-        v = opts[:language] ? { :language => opts[:language] } : manifest.variation
-        
-        targets = (t.expand_required_targets + [t])
-        targets.each do |t|
-          # get the manifest for the target
-          cur_manifest = t.manifest_for(v).build!
-          
-          # get the stylesheet entry for it...
-          entry = cur_manifest.entry_for entry_name, :combined => true
-          next if entry.nil? || !entry.composite? # no stylesheet...
-          
-          yield(t, entry)
-        end
-      end
-        
       # This method will return the HTML to link to all the stylesheets
       # required by the named bundle.  If you pass no options, the current
       # client will be used.
@@ -153,6 +134,15 @@ module SC
         @layout = opts[:layout] if opts[:layout]
         return ''
       end
+        
+      # Localizes the passed string, using the optional passed options.
+      def loc(string, opts = {})
+        string = string.nil? ? '' : string.to_s
+        language = opts[:language] || self.language
+        return strings_hash(language)[string] || string
+      end
+      
+      private 
 
       # Returns a merged strings hash from all of the required bundles.  Used
       # by loc()
@@ -199,15 +189,26 @@ module SC
         @strings_hashes[for_language] = ret
         return ret # done!
       end
+
+      def combined_entries(t, opts, entry_name, &block)
         
+        # choose manifest variant.  default to current manifest variant 
+        # if no explicit language was passed.
+        v = opts[:language] ? { :language => opts[:language] } : manifest.variation
         
-      # Localizes the passed string, using the optional passed options.
-      def loc(string, opts = {})
-        string = string.nil? ? '' : string.to_s
-        language = opts[:language] || self.language
-        return strings_hash(language)[string] || string
+        targets = (t.expand_required_targets + [t])
+        targets.each do |t|
+          # get the manifest for the target
+          cur_manifest = t.manifest_for(v).build!
+          
+          # get the stylesheet entry for it...
+          entry = cur_manifest.entry_for entry_name, :combined => true
+          next if entry.nil? || !entry.composite? # no stylesheet...
+          
+          yield(t, entry)
+        end
       end
-      
+        
     end
 
   end

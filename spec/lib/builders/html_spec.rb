@@ -32,6 +32,7 @@ describe SC::Builder::JavaScript do
     
     # Verify index entry -- should have erb_sample + rhtml_sample entries
     @index_entry.should_not be_nil
+    @index_entry.should be_include_required_targets
     entry_names = @index_entry.source_entries.map { |e| e.filename }.sort
     entry_names.should == %w(erb_sample.html.erb rhtml_sample.rhtml)
     
@@ -63,10 +64,31 @@ describe SC::Builder::JavaScript do
       
 
       
-  describe "building an index.html entry" do
+  describe "render an index.html entry" do
+    
+    it "should render html, including any content from required targets" do
+      result = SC::Builder::Html.new(@index_entry).render
+      result.should =~ /erb_sample/
+      result.should =~ /rhtml_sample/
+      
+      # verify it included the other items..
+      result.should =~ /req_target_1_sample/
+      result.should =~ /req_target_2_sample/
+    end
+      
   end
   
   describe "building non-index entries" do
+    
+    it "should render html, including only items from the target itself" do
+      result = SC::Builder::Html.new(@bar_entry).render
+      result.should =~ /bar1_sample/
+
+      # verify it did not include other targets..
+      result.should_not =~ /req_target_1_sample/
+      result.should_not =~ /req_target_2_sample/
+    end
+    
   end
   
   # templates should expect to be able to access certain environmental 
@@ -110,7 +132,7 @@ describe SC::Builder::JavaScript do
       it "exposes static_url() & sc_static() alias" do
         @builder.static_url('icons/image').should =~ /icons\/image.png/
         @builder.static_url('image.jpg').should =~ /image.jpg/
-
+  
         @builder.sc_static('icons/image').should =~ /icons\/image.png/
         @builder.sc_static('image.jpg').should =~ /image.jpg/
       end
@@ -151,7 +173,7 @@ describe SC::Builder::JavaScript do
             $1.should == urls.shift
           end
         end
-
+  
         # look for link tags in order...
         def expect_imports(result, urls = [])
           urls = urls.dup # don't corrupt original array
@@ -188,7 +210,7 @@ describe SC::Builder::JavaScript do
           @target.config.combine_stylesheets = false 
           result = @builder.stylesheets_for_client
           expect_links(result, urls)
-
+  
           result = @builder.stylesheets_for_client(:include_method => :import)
           expect_imports(result, urls)
         end
@@ -211,7 +233,7 @@ describe SC::Builder::JavaScript do
             $1.should == urls.shift
           end
         end
-
+  
         it "generates a link to javascript.js entries for all required targets if CONFIG.combine_javascript = true" do
           # figure expected urls...
           urls = %w(req_target_1 req_target_2 html_test).map do |target_name|
@@ -273,7 +295,7 @@ describe SC::Builder::JavaScript do
     end
     
     describe "TextHelper" do
-
+  
       it "exposes highlight(str, highlight_str, repl_Str)" do
         @builder.highlight('You searched for: rails', 'rails').should == 'You searched for: <strong class="highlight">rails</strong>'
       end
@@ -294,7 +316,7 @@ describe SC::Builder::JavaScript do
       rescue LoadError
         puts "WARNING: Not testing textilize() because RedCloth is not installed"
       end
-
+  
       begin
         gem 'bluecloth'
         require 'bluecloth'

@@ -66,14 +66,73 @@ module SC
       # find all entries -- use source_Entries + required if needed
       @entries = entry.source_entries.dup
       if entry.include_required_targets?
-        sources = @target
+        @target.expand_required_targets.each do |target|
+          cur_manifest = target.manifest_for(@manifest.variation).build!
+          cur_entry = cur_manifest.entry_for(entry.filename, :combined => true) || cur_manifest.entry_for(entry.filename, :hidden => true, :combined => true)
+          next if cur_entry.nil?
+          @entries += cur_entry.source_entries
+        end
       end
     end
     
+    # Renders the html file, returning the resulting string which can be 
+    # written to a file.
+    def render
+      # render each entry...
+      @entries.each { |entry| render_entry(entry) }
+      
+      # then finally compile the layout.
+      compile(SC::RenderEngine::Erubis.new(self), self.layout_path, :_final_)
+      return @content_for__final_
+    end
+      
     def build(dst_path)
-      ### TODO
-      lines = readlines(entry.source_path).map { |l| rewrite_inline_code(l) }
-      writelines dst_path, lines
+      writelines dst_path, [self.render]
+    end
+    
+    # Loads the passed input file and then hands it to the render_engine 
+    # instance to compile th file.  the results will be targeted at the
+    # @content_for_resources area by default unless you pass an optional
+    # content_for_key or otherwise override in your template.
+    #
+    # === Params
+    #  render_engine:: A render engine instance
+    #  input_path:: The file to load
+    #  content_for_key:: optional target for content
+    #
+    # === Returns
+    #  self
+    #
+    def compile(render_engine, input_path, content_for_key = :resources)
+      input = File.read(input_path)
+      content_for content_for_key do
+        _render_compiled_template( render_engine.compile(input) )
+      end
+      return self
+    end
+
+    private
+    
+    # Renders a single entry.  The entry will be staged and then its 
+    # render task will be executed.
+    def render_entry(entry)
+      entry.stage!
+      entry.target.buildfile.invoke entry.render_task,
+        :entry    => entry, 
+        :src_path => entry.staging_path,
+        :context  => self
+    end
+    
+    # Renders a compiled template within this context
+    def _render_compiled_template(compiled_template)
+      self.instance_eval "def __render(); #{compiled_template}; end"
+      begin
+        self.send(:__render) do |*names|
+          self.instance_variable_get("@content_for_#{names.first}")
+        end
+      ensure
+        class << self; self end.class_eval{ remove_method(:__render) } rescue nil
+      end
     end
     
   end
