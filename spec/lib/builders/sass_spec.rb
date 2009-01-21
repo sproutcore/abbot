@@ -20,6 +20,11 @@ if has_sass
       std_before :sass_test
     end
 
+
+    after do
+      std_after
+    end
+
     def run_builder(filename)
       super do |entry, dst_path|
         SC::Builder::Sass.build(entry, dst_path)

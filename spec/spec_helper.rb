@@ -27,7 +27,7 @@ module SC
     
     def initialize(proot, opts ={})
       
-      @tempfile = Tempfile.new('compute_build_number') # keep placeholder
+      @tempfile = Tempfile.new(File.basename(proot)) # keep placeholder
       @real_project_root = proot
       proot = "#{@tempfile.path}-project"
       FileUtils.cp_r(@real_project_root, proot) # clone real_world
@@ -37,7 +37,11 @@ module SC
     def cleanup
       # delete the project root.  Double check this is stored in a tmp loc
       # just to avoid problems.
-      FileUtils.rm_r(project_root) if project_root =~ /^#{Regexp.escape Dir.tmpdir}/
+      if project_root =~ /^#{Regexp.escape Dir.tmpdir}/
+        FileUtils.rm_r(project_root) 
+      else
+        puts "WARNING: Not deleting project_root: #{project_root}"
+      end
     end
     
   end

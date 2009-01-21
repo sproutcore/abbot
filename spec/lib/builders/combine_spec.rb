@@ -9,6 +9,10 @@ describe SC::Builder::Combine do
     std_before :combine_test
   end
 
+  after do
+    std_after
+  end
+  
   def verify_combine(main_entryname, filename_ext, src_root=nil)
     # generate artificial entries to test.
     source_entries = %w(a b c).map do |filename|

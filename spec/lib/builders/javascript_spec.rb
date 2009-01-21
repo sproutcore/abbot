@@ -11,6 +11,11 @@ describe SC::Builder::JavaScript do
     @manifest.add_entry 'icons/image.png'
   end
 
+
+  after do
+    std_after
+  end
+
   def run_builder(filename, localize=false)
     super(filename) do |entry, dst_path|
       entry[:localized] = true if localize

@@ -14,6 +14,10 @@ describe SC::Builder::JavaScript do
     @index_entry = @manifest.entry_for('index.html')
     @bar_entry   = @manifest.entry_for('bar1.html')
   end
+
+  after do
+    std_after
+  end
   
   it "VERIFY PRECONDITIONS" do
     @target.should be_loadable

@@ -12,6 +12,10 @@ module SC::BuildSpecHelpers
     @manifest.build! # get a basic manifest good to go...
   end
   
+  def std_after
+    @project.cleanup
+  end
+  
   def run_task(entry=nil, dst_path=nil)
     entry ||= @entry
     @buildfile.invoke @task_name,

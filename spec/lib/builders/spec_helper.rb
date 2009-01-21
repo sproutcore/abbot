@@ -9,6 +9,10 @@ module SC::BuilderSpecHelper
     @manifest.prepare!
   end
   
+  def std_after
+    @project.cleanup
+  end
+  
   def run_builder(filename, &block)
     @entry = @manifest.add_entry filename # basic entry...
     @dst_path = @entry.build_path

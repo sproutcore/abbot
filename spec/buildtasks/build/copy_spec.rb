@@ -16,6 +16,10 @@ describe "build:copy" do
     @entry.build_task.should == 'build:copy' # precondition
   end
 
+  after do
+    std_after
+  end
+  
   it "copies from source to dst_path if dst_path does not exist" do
     File.exist?(@dst_path).should be_false # precondition
     

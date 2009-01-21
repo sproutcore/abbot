@@ -11,6 +11,11 @@ describe SC::Builder::Stylesheet do
     @manifest.add_entry 'icons/image.png'
   end
 
+
+  after do
+    std_after
+  end
+
   def run_builder(filename)
     super do |entry, dst_path|
       SC::Builder::Stylesheet.build(entry, dst_path)
