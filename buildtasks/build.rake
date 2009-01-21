@@ -35,6 +35,11 @@ namespace :build do
     SC::Builder::Html.build ENTRY, DST_PATH
   end
 
+  desc "builds a strings file for use by server-side processing"
+  build_task :strings do
+    SC::Builder::Strings.build ENTRY, DST_PATH
+  end
+  
   desc "combines several source files into a single target, using the ordered_entries property if it exists"
   build_task :combine do
     SC::Builder::Combine.build ENTRY, DST_PATH

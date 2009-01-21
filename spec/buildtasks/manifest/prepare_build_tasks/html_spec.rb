@@ -14,8 +14,10 @@ describe "manifest:prepare_build_tasks:html" do
     super('manifest:prepare_build_tasks:html')
   end
 
-  it "should run manifest:prepare_build_tasks:setup as prereq" do
-    should_run('manifest:prepare_build_tasks:setup') { run_task }
+  it "should run manifest:prepare_build_tasks:setup & strings as prereq" do
+    %w(setup).each do |task_name|
+      should_run("manifest:prepare_build_tasks:#{task_name}") { run_task }
+    end
   end
 
   describe "supports sc_resource() statement" do

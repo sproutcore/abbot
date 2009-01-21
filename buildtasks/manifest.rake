@@ -123,7 +123,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
     
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css javascript sass combine minify html) #%w(tests html image) 
+    task :all => %w(css javascript sass combine minify html strings) #%w(tests html image) 
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -247,6 +247,7 @@ namespace :manifest do
     
     desc "find all html-generating files, annotate and combine them"
     task :html => :setup do
+      
       # select all entries with proper extensions
       known_ext = %w(rhtml erb haml)
       entries = MANIFEST.entries.select do |e| 
@@ -326,6 +327,19 @@ namespace :manifest do
       
     end
 
+    desc "adds a loc strings entry that generates a yaml file server-side functions can use" 
+    task :strings => :setup do
+      # find the lproj/strings.js file...
+      if entry = MANIFEST.entry_for('lproj/strings.js')
+        MANIFEST.add_transform entry, 
+          :build_task => 'build:strings',
+          :ext        => 'yaml',
+          :entry_type => :strings,
+          :hide_entry => false,
+          :hidden     => true
+      end
+    end
+    
     desc "..."
     task :image => :setup do
     end
