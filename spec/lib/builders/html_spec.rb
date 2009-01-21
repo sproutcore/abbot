@@ -141,7 +141,116 @@ describe SC::Builder::JavaScript do
         end
         
       end
+      
+      describe "exposes stylesheets_for_client()" do
         
+        # look for link tags in order...
+        def expect_links(result, urls = [])
+          urls = urls.dup # don't corrupt original array
+          result.scan /\<link.+href\=\"([^\"]+)\"[^\<]+\/\>/ do |m|
+            $1.should == urls.shift
+          end
+        end
+
+        # look for link tags in order...
+        def expect_imports(result, urls = [])
+          urls = urls.dup # don't corrupt original array
+          result.scan /@import\s+url\(\'(.+)\'\)/ do |m|
+            $1.should == urls.shift
+          end
+        end
+          
+        it "generates a link to stylesheet.css entries for all required targets if CONFIG.combine_stylesheetss = true" do
+          # figure expected urls...
+          urls = %w(req_target_1 req_target_2 html_test).map do |target_name|
+            t = @project.target_for(target_name)
+            t.manifest_for(:language => :en).build!.entry_for('stylesheet.css').url
+          end
+          
+          @target.config.combine_stylesheets = true 
+          result = @builder.stylesheets_for_client
+          expect_links(result, urls)
+          
+          # also works for @import
+          result = @builder.stylesheets_for_client(:include_method => :import)
+          expect_imports(result, urls)
+        end
+        
+        it "generates a link to the ordered entries of each stylesheet.css for all required targets if CONFIG.combine_stylesheetss = false" do
+          # figure expected urls...
+          urls = %w(req_target_1 req_target_2 html_test).map do |target_name|
+            t = @project.target_for(target_name)
+            e = t.manifest_for(:language => :en).build!.entry_for('stylesheet.css')
+            e.ordered_entries.map { |e| e.url }
+          end
+          urls.flatten!
+          
+          @target.config.combine_stylesheets = false 
+          result = @builder.stylesheets_for_client
+          expect_links(result, urls)
+
+          result = @builder.stylesheets_for_client(:include_method => :import)
+          expect_imports(result, urls)
+        end
+      
+        it "adds stylehseet_libs to end of styles" do
+          @target.config.stylesheet_libs = %w(foo bar)
+          result = @builder.stylesheets_for_client
+          result.should =~ /href=\"foo\"/
+          result.should =~ /href=\"bar\"/
+        end
+      
+      end
+      
+      describe "exposes javascript_for_client()" do
+        
+        # look for link tags in order...
+        def expect_scripts(result, urls = [])
+          urls = urls.dup # don't corrupt original array
+          result.scan /\<script.+src\=\"([^\"]+)\"[^\<]+\>\s*\<\/script\>/ do |m|
+            $1.should == urls.shift
+          end
+        end
+
+        it "generates a link to javascript.js entries for all required targets if CONFIG.combine_javascript = true" do
+          # figure expected urls...
+          urls = %w(req_target_1 req_target_2 html_test).map do |target_name|
+            t = @project.target_for(target_name)
+            t.manifest_for(:language => :en).build!.entry_for('javascript.js').url
+          end
+          
+          @target.config.combine_javascript = true 
+          result = @builder.javascripts_for_client
+          expect_scripts(result, urls)
+        end
+        
+        it "generates a link to the ordered entries of each javascript.js for all required targets if CONFIG.combine_javascript = false" do
+          # figure expected urls...
+          urls = %w(req_target_1 req_target_2 html_test).map do |target_name|
+            t = @project.target_for(target_name)
+            e = t.manifest_for(:language => :en).build!.entry_for('javascript.js', :combined => true)
+            e.ordered_entries.map { |e| e.url }
+          end
+          urls.flatten!
+          
+          @target.config.combine_javascript = false 
+          result = @builder.javascripts_for_client
+          expect_scripts(result, urls)
+        end
+        
+        it "adds preferredLanguage definition" do
+          result = @builder.javascripts_for_client
+          result.should =~ /String.preferredLanguage = "en"/
+        end
+        
+        it "adds javascript_libs to end of scripts" do
+          @target.config.javascript_libs = %w(foo bar)
+          result = @builder.javascripts_for_client
+          result.should =~ /src=\"foo\"/
+          result.should =~ /src=\"bar\"/
+        end
+      
+      end
       
     end
     

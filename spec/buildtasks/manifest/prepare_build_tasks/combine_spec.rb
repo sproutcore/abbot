@@ -24,10 +24,10 @@ describe "manifest:prepare_build_tasks:combine" do
   #######################################
   # stylesheet.css support
   #
-  describe "whem CONFIG.combine_stylesheet = true" do
+  describe "whem CONFIG.combine_stylesheets = true" do
     
     before do
-      @config.combine_stylesheet = true
+      @config.combine_stylesheets = true
       run_task
     end
     
@@ -113,10 +113,10 @@ describe "manifest:prepare_build_tasks:combine" do
     
   end
 
-  describe "when CONFIG.combine_stylesheet = false" do
+  describe "when CONFIG.combine_stylesheets = false" do
     
     before do
-      @config.combine_stylesheet = false
+      @config.combine_stylesheets = false
       run_task
     end
     

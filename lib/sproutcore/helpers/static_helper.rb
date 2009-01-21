@@ -7,6 +7,25 @@ module SC
 
     module StaticHelper
 
+      def combined_entries(t, opts, entry_name, &block)
+        
+        # choose manifest variant.  default to current manifest variant 
+        # if no explicit language was passed.
+        v = opts[:language] ? { :language => opts[:language] } : manifest.variation
+        
+        targets = (t.expand_required_targets + [t])
+        targets.each do |t|
+          # get the manifest for the target
+          cur_manifest = t.manifest_for(v).build!
+          
+          # get the stylesheet entry for it...
+          entry = cur_manifest.entry_for entry_name, :combined => true
+          next if entry.nil? || !entry.composite? # no stylesheet...
+          
+          yield(t, entry)
+        end
+      end
+        
       # This method will return the HTML to link to all the stylesheets
       # required by the named bundle.  If you pass no options, the current
       # client will be used.
@@ -15,29 +34,35 @@ module SC
       # current :language => the language to render. defaults to current
       # language
       #
-      def stylesheets_for_client(bundle_name = nil, opts = {})
+      def stylesheets_for_client(target_name = nil, opts = nil)
 
-        opts[:language] ||= language
-        opts[:platform] ||= platform
-        
-        # Set the import method to use the standard <link> tag, if not set
+        # normalize params
+        if target_name.kind_of?(Hash) && opts.nil?
+          opts = target_name
+          target_name = nil
+        end
+        opts = {} if opts.nil?
+
+        # process options
         include_method = opts[:include_method] ||= :link
+        t = target_name ? target.target_for(target_name) : target
 
-        # Get bundle
-        cur_bundle = bundle_name.nil? ? bundle : library.bundle_for(bundle_name)
-
-        # Convert to a list of required bundles
-        all_bundles = cur_bundle.all_required_bundles
-
-        # For each bundle, get the ordered list of stylsheet urls
+        # collect urls from entries
         urls = []
-        all_bundles.each do |b|
-          urls += b.sorted_stylesheet_entries(opts).map { |x| x.cacheable_url }
+        combine_stylesheets = t.config.combine_stylesheets
+        combined_entries(t, opts, 'stylesheet.css') do |cur_target, cur_entry|
+          # include either the entry URL or URL of ordered entries
+          # depending on setup
+          if combine_stylesheets
+            urls << cur_entry.url
+          else
+            urls += cur_entry.ordered_entries.map { |e| e.url }
+          end
+          
+          # add any stylesheet libs from the target
+          urls += (cur_target.config.stylesheet_libs || [])
         end
-        all_bundles.each do |b|
-          urls += b.stylesheet_libs.reject { |lib| urls.include? lib } if b.stylesheet_libs
-        end
-
+          
         # Convert to HTML and return
         urls = urls.map do |url|
           if include_method == :import
@@ -62,24 +87,32 @@ module SC
       # client_name = the name of the client to render or nil to use the
       # current :language => the language to render. defaults to @language.
       #
-      def javascripts_for_client(bundle_name = nil, opts = {})
+      def javascripts_for_client(target_name = nil, opts = {})
 
-        opts[:language] ||= language
-        opts[:platform] ||= platform
-
-        # Get bundle
-        cur_bundle = bundle_name.nil? ? bundle : library.bundle_for(bundle_name)
-
-        # Convert to a list of required bundles
-        all_bundles = cur_bundle.all_required_bundles
-
-        # For each bundle, get the ordered list of stylsheet urls
-        urls = []
-        all_bundles.each do |b|
-          urls += b.sorted_javascript_entries(opts).map { |x| x.cacheable_url }
+        # normalize params
+        if target_name.kind_of?(Hash) && opts.nil?
+          opts = target_name
+          target_name = nil
         end
-        all_bundles.each do |b|
-          urls += b.javascript_libs.reject { |lib| urls.include? lib } if b.javascript_libs
+        opts = {} if opts.nil?
+
+        # process options
+        t = target_name ? target.target_for(target_name) : target
+
+        # collect urls from entries
+        urls = []
+        combine_javascript = t.config.combine_javascript
+        combined_entries(t, opts, 'javascript.js') do |cur_target, cur_entry|
+          # include either the entry URL or URL of ordered entries
+          # depending on setup
+          if combine_javascript
+            urls << cur_entry.url
+          else
+            urls += cur_entry.ordered_entries.map { |e| e.url }
+          end
+          
+          # add any stylesheet libs from the target
+          urls += (cur_target.config.javascript_libs || [])
         end
 
         # Convert to HTML and return
@@ -142,7 +175,7 @@ module SC
         
         # get all of the targets to merge...
         ret = {}
-        targets = ([target] + target.expand_required_targets).reverse
+        targets = (target.expand_required_targets + [target])
         targets.each do |t|
           # get the manifest for the target
           cur_manifest = (t == target) ? m : t.manifest_for(m.variation)

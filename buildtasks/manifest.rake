@@ -213,9 +213,10 @@ namespace :manifest do
         MANIFEST.add_composite resource_name.ext('css'),
           :build_task      => 'build:combine',
           :source_entries  => entries,
-          :hide_entries    => CONFIG.combine_stylesheet,
+          :hide_entries    => CONFIG.combine_stylesheets,
           :ordered_entries => SC::Helpers::EntrySorter.sort(entries),
-          :entry_type      => :css
+          :entry_type      => :css,
+          :combined        => true
       end
       
       # build combined JS entry
@@ -227,7 +228,8 @@ namespace :manifest do
           :source_entries  => entries,
           :hide_entries    => CONFIG.combine_javascript,
           :ordered_entries => SC::Helpers::EntrySorter.sort(entries, pf),
-          :entry_type      => :javascript
+          :entry_type      => :javascript,
+          :combined        => true
       end
       
     end
