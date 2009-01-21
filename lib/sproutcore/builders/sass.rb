@@ -1,3 +1,4 @@
+require File.expand_path(File.join(File.dirname(__FILE__), 'base'))
 require 'fileutils'
 
 module SC
@@ -6,7 +7,7 @@ module SC
   # further processing than simply executing the Sass.  It would be nice to 
   # add support for sc_static and other directives at some point.
   #
-  class Builder::Sass < Builder
+  class Builder::Sass < Builder::Base
     
     def build(dst_path)
       begin

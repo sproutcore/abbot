@@ -1,3 +1,4 @@
+require File.expand_path(File.join(File.dirname(__FILE__), 'base'))
 require 'fileutils'
 
 module SC
@@ -7,7 +8,7 @@ module SC
   # tool expects the javascript files to have already been processed for any
   # build directives such sc_static().
   #
-  class Builder::Combine < Builder
+  class Builder::Combine < Builder::Base
     
     def build(dst_path)
       lines = []

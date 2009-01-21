@@ -1,3 +1,4 @@
+require File.expand_path(File.join(File.dirname(__FILE__), 'base'))
 require 'fileutils'
 
 module SC
@@ -6,7 +7,7 @@ module SC
   # substitute any calls to sc_super and sc_static() (or static_url()).  It 
   # does NOT product a combined JavaScript for production.  See the 
   # Builder::CombinedJavaScript for more.
-  class Builder::JavaScript < Builder
+  class Builder::JavaScript < Builder::Base
     
     def build(dst_path)
       lines = readlines(entry.source_path).map { |l| rewrite_inline_code(l) }

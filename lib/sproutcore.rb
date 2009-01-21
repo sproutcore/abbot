@@ -114,5 +114,8 @@ end  # module SC
 SC = SproutCore # alias
 
 SC.require_all_libs_relative_to(__FILE__)
+%w(buildfile models helpers deprecated builders render_engines tools rack).each do |dir|
+  SC.require_all_libs_relative_to(__FILE__, ['sproutcore', dir])
+end
 
 # EOF

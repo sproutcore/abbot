@@ -1,3 +1,4 @@
+require File.expand_path(File.join(File.dirname(__FILE__), 'base'))
 require 'fileutils'
 
 module SC
@@ -5,7 +6,7 @@ module SC
   # This builder is used to generate a file containing all of the loc strings
   # for a particular manifest.  The strings file is used when generating 
   # HTML try to map localized strings
-  class Builder::Strings < Builder
+  class Builder::Strings < Builder::Base
     
     def build(dst_path)
       data = parse_strings_js(entry.source_path)

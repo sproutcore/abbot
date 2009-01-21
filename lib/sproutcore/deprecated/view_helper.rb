@@ -1,5 +1,3 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..','helpers'))
-
 module SproutCore
 
   # The PageHelper is a singleton object that can render the Page javascript

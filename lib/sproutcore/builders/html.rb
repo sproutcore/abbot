@@ -1,11 +1,10 @@
-require File.join(SC::LIBPATH, 'sproutcore', 'helpers')
-require File.join(SC::LIBPATH, 'sproutcore', 'deprecated')
+require File.expand_path(File.join(File.dirname(__FILE__), 'base'))
 
 module SC
 
   # Builds an HTML files.  This will setup an HtmlContext and then invokes
   # the render engines for each source before finally rendering the layout.
-  class Builder::Html < Builder
+  class Builder::Html < Builder::Base
     
     include SC::Helpers::TagHelper
     include SC::Helpers::TextHelper

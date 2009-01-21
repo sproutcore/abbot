@@ -1,3 +1,4 @@
+require File.expand_path(File.join(File.dirname(__FILE__), 'base'))
 require 'fileutils'
 
 module SC
@@ -8,7 +9,7 @@ module SC
   # static_url())  This builder does NOT handle combining multiple stylesheets
   # into one.  See the Builder::CombineStylesheets builder instead.
   #
-  class Builder::Stylesheet < Builder
+  class Builder::Stylesheet < Builder::Base
     
     def build(dst_path)
       lines = readlines(entry.source_path).map { |l| rewrite_inline_code(l) }
