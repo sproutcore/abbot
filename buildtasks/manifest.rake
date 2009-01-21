@@ -43,7 +43,10 @@ namespace :manifest do
     Dir.glob(File.join(source_root, '**', '*')).each do |path|
       next if !File.exist?(path) || File.directory?(path)
       next if TARGET.target_directory?(path)
+      
+      # cut source root out to make filename.  make sure path separators are /
       filename = path.sub /^#{Regexp.escape source_root}\//, ''
+      filename = filename.split(::File::SEPARATOR).join('/')
       MANIFEST.add_entry filename, :original => true # entry:prepare will fill in the rest
     end
   end
@@ -163,6 +166,9 @@ namespace :manifest do
       # add transform & tag with build directives.
       entries.each do |entry|
         entry = MANIFEST.add_transform entry,
+          :filename   => ['source', entry.filename].join('/'),
+          :build_path => File.join(MANIFEST.build_root, 'source', entry.filename),
+          :url => [MANIFEST.url_root, 'source', entry.filename].join("/"),
           :build_task => 'build:javascript',
           :resource   => 'javascript',
           :entry_type => :javascript
@@ -182,6 +188,9 @@ namespace :manifest do
       # add transform & tag with build directives.
       entries.each do |entry|
         entry = MANIFEST.add_transform entry,
+          :filename   => ['source', entry.filename].join('/'),
+          :build_path => File.join(MANIFEST.build_root, 'source', entry.filename),
+          :url => [MANIFEST.url_root, 'source', entry.filename].join("/"),
           :build_task => 'build:css',
           :resource   => 'stylesheet',
           :entry_type => :css
@@ -222,7 +231,7 @@ namespace :manifest do
       # build combined JS entry
       javascript_entries.each do |resource_name, entries|
         resource_name = resource_name.ext('js')
-        pf = (resource_name == 'javascript.js') ? %w(lproj/strings.js core.js utils.js) : []
+        pf = (resource_name == 'javascript.js') ? %w(source/lproj/strings.js source/core.js source/utils.js) : []
         MANIFEST.add_composite resource_name,
           :build_task      => 'build:combine',
           :source_entries  => entries,
@@ -238,7 +247,12 @@ namespace :manifest do
     task :sass => :setup do
       MANIFEST.entries.each do |entry|
         next unless entry.ext == "sass"
+        
+        
         MANIFEST.add_transform entry,
+          :filename   => ['source', entry.filename].join('/'),
+          :build_path => File.join(MANIFEST.build_root, 'source', entry.filename),
+          :url => [MANIFEST.url_root, 'source', entry.filename].join("/"),
           :build_task => 'build:sass',
           :entry_type => :css,
           :ext        => 'css',
@@ -332,10 +346,14 @@ namespace :manifest do
     end
 
     desc "adds a loc strings entry that generates a yaml file server-side functions can use" 
-    task :strings => :setup do
+    task :strings => %w(setup javascript) do
       # find the lproj/strings.js file...
-      if entry = MANIFEST.entry_for('lproj/strings.js')
+      if entry = MANIFEST.entry_for('source/lproj/strings.js')
         MANIFEST.add_transform entry, 
+          :filename   => 'strings.yaml',
+          :build_path => File.join(MANIFEST.build_root, 'strings.yaml'),
+          :staging_path => File.join(MANIFEST.staging_root, 'strings.yaml'),
+          :url        => [MANIFEST.url_root, 'strings.yaml'].join('/'),
           :build_task => 'build:strings',
           :ext        => 'yaml',
           :entry_type => :strings,

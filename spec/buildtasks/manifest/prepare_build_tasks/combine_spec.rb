@@ -34,18 +34,18 @@ describe "manifest:prepare_build_tasks:combine" do
     it "creates a combined stylesheet entry for each resource named in files" do
       # spot check...
       entry = entry_for 'stylesheet.css'
-      expected = entry_for('has_require.css', :entry_type => :css)
+      expected = entry_for('source/has_require.css', :entry_type => :css)
       entry.source_entries.should include(expected)
 
-      expected = entry_for('no_require.css', :entry_type => :css)
+      expected = entry_for('source/no_require.css', :entry_type => :css)
       entry.source_entries.should include(expected)
 
       # Test that sass file is included...
-      expected = entry_for('demo2.css', :entry_type => :css)
+      expected = entry_for('source/demo2.css', :entry_type => :css)
       entry.source_entries.should include(expected)
 
       entry = entry_for 'bar.css'
-      expected = entry_for('sc_resource.css', :entry_type => :css)
+      expected = entry_for('source/sc_resource.css', :entry_type => :css)
       entry.source_entries.should include(expected)
     end
     
@@ -82,7 +82,7 @@ describe "manifest:prepare_build_tasks:combine" do
 
         # get the expected set of ordered entries...based on contents of 
         # project...
-        expected = %w(a.css a/a.css a/b.css B.css b/a.css c.css)
+        expected = %w(source/a.css source/a/a.css source/a/b.css source/B.css source/b/a.css source/c.css)
 
         entry.ordered_entries.should_not be_nil
         filenames = entry.ordered_entries.map { |e| e.filename }
@@ -102,7 +102,7 @@ describe "manifest:prepare_build_tasks:combine" do
 
         # get the expected set of ordered entries...based on contents of 
         # project...
-        expected = %w(c.css a.css b.css)
+        expected = %w(source/c.css source/a.css source/b.css)
 
         entry.ordered_entries.should_not be_nil
         filenames = entry.ordered_entries.map { |e| e.filename }
@@ -146,14 +146,14 @@ describe "manifest:prepare_build_tasks:combine" do
     it "creates a combined JS entry for each resource named in files" do
       # spot check...
       entry = entry_for 'javascript.js'
-      expected = entry_for('has_require.js', :entry_type => :javascript)
+      expected = entry_for('source/has_require.js', :entry_type => :javascript)
       entry.source_entries.should include(expected)
 
-      expected = entry_for('no_require.js', :entry_type => :javascript)
+      expected = entry_for('source/no_require.js', :entry_type => :javascript)
       entry.source_entries.should include(expected)
 
       entry = entry_for 'bar.js'
-      expected = entry_for('sc_resource.js', :entry_type => :javascript)
+      expected = entry_for('source/sc_resource.js', :entry_type => :javascript)
       entry.source_entries.should include(expected)
     end
     
@@ -190,7 +190,7 @@ describe "manifest:prepare_build_tasks:combine" do
 
         # get the expected set of ordered entries...based on contents of 
         # project...
-        expected = %w(lproj/strings.js core.js utils.js 1.js a.js a/a.js a/b.js B.js b/a.js c.js)
+        expected = %w(source/lproj/strings.js source/core.js source/utils.js source/1.js source/a.js source/a/a.js source/a/b.js source/B.js source/b/a.js source/c.js)
 
         entry.ordered_entries.should_not be_nil
         filenames = entry.ordered_entries.map { |e| e.filename }
@@ -210,7 +210,7 @@ describe "manifest:prepare_build_tasks:combine" do
 
         # get the expected set of ordered entries...based on contents of 
         # project... note that we require 'd', which should match 'lproj/d'
-        expected = %w(c.js a.js lproj/d.js b.js)
+        expected = %w(source/c.js source/a.js source/lproj/d.js source/b.js)
 
         entry.ordered_entries.should_not be_nil
         filenames = entry.ordered_entries.map { |e| e.filename }

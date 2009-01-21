@@ -40,12 +40,13 @@ module SC
       return [] if required.nil?
       required.map do |filename|
         filename = filename.to_s.downcase.ext('')
-        entry = entries.find { |e| e.filename.to_s.downcase.ext('') == filename }
+        source_filename = "source/#{filename}"
+        entry = entries.find { |e| e.filename.to_s.downcase.ext('') == source_filename }
         
         # try localized version...
         if entry.nil? && !(filename =~ /^lproj\//)
-          filename = "lproj/#{filename}"
-          entry = entries.find { |e| e.filename.to_s.downcase.ext('') == filename }
+          source_filename = "source/lproj/#{filename}"
+          entry = entries.find { |e| e.filename.to_s.downcase.ext('') == source_filename }
         end
         
         entry

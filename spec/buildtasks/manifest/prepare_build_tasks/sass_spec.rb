@@ -50,6 +50,14 @@ describe "manifest:prepare_build_tasks:sass" do
       end
     end
     
+    it "adds 'source' to filename + build_path + url" do
+      @entries.each do |entry|
+        entry.filename.should =~ /^source\//
+        entry.build_path.should =~ /source/
+        entry.url.should =~ /source/
+      end
+    end
+      
     it "changes the filename + build_path + url ext to .css" do
       @entries.each do |entry|
         File.extname(entry.filename).should == '.css'

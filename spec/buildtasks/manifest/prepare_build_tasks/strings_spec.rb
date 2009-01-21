@@ -15,21 +15,22 @@ describe "manifest:prepare_build_tasks:Strings" do
     super('manifest:prepare_build_tasks:strings')
   end
 
-  it "should run setup as prereq" do
+  it "should run setup & javascript as prereq" do
     should_run("manifest:prepare_build_tasks:setup") { run_task }
+    should_run("manifest:prepare_build_tasks:javascript") { run_task }
   end
 
   it "should add strings entry if strings.js is found" do
     run_task
-    @manifest.entry_for('lproj/strings.js').should_not be_nil # precondition
-    @manifest.entry_for('lproj/strings.yaml', :hidden => true).should_not be_nil
+    @manifest.entry_for('source/lproj/strings.js').should_not be_nil # precondition
+    @manifest.entry_for('strings.yaml', :hidden => true).should_not be_nil
   end
 
   describe "transform entry" do
     
     before do
       run_task
-      @entry = @manifest.entry_for('lproj/strings.yaml', :hidden => true)
+      @entry = @manifest.entry_for('strings.yaml', :hidden => true)
     end
     
     it "should hide entry" do
@@ -44,8 +45,8 @@ describe "manifest:prepare_build_tasks:Strings" do
       @entry.source_entry.should_not be_hidden
     end
     
-    it "has lproj/strings.js as source entry" do
-      @entry.source_entry.filename.should == 'lproj/strings.js'
+    it "has source/lproj/strings.js as source entry" do
+      @entry.source_entry.filename.should == 'source/lproj/strings.js'
     end
     
     it "has ext of 'yaml'" do

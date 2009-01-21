@@ -46,6 +46,7 @@ describe "manifest:prepare_build_tasks:minify" do
 
     it "adds task when CONFIG.minify == true" do
       @target.config.minify = true
+      @target.config.minify_javascript = nil # assume not defined
       run_task
       should_have_minify_javascript_tasks
     end

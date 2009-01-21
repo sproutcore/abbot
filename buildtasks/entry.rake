@@ -17,6 +17,8 @@ namespace :entry do
     filename = ENTRY.filename
     raise "All entries must have a filename!" if filename.nil?
     
+    filename_parts = filename.split('/')
+    
     # If this is a composite entry, then the source_paths array should 
     # contain the staging_path from the source_entries.   The source_path
     # is simply the first source_paths.
@@ -29,13 +31,13 @@ namespace :entry do
     # Otherwise, the source_path is where we will pull from and source_paths
     # is simply the source_path in an array.
     else
-      ENTRY.source_path ||= File.join(MANIFEST.source_root, filename)
+      ENTRY.source_path ||= File.join(MANIFEST.source_root, filename_parts)
       ENTRY.source_paths ||= [ENTRY.source_path]
     end
     
     # Construct some easier paths if needed
-    ENTRY.build_path ||= File.join(MANIFEST.build_root, filename)
-    ENTRY.url ||= [MANIFEST.url_root, filename].join('/')
+    ENTRY.build_path ||= File.join(MANIFEST.build_root, filename_parts)
+    ENTRY.url ||= [MANIFEST.url_root, filename_parts].join('/')
     
     # Fill in a default build task
     ENTRY.build_task ||= 'build:copy'
@@ -48,7 +50,7 @@ namespace :entry do
     if ENTRY.build_task.to_s == 'build:copy'
       ENTRY.staging_path ||= ENTRY.source_path
     else
-      ENTRY.staging_path ||= MANIFEST.unique_staging_path(File.join(MANIFEST.staging_root, filename))
+      ENTRY.staging_path ||= MANIFEST.unique_staging_path(File.join(MANIFEST.staging_root, filename_parts))
     end
   end
   
