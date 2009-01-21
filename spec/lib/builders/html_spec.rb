@@ -125,6 +125,22 @@ describe SC::Builder::JavaScript do
         @builder.sc_resource('foo', :layout => 'bar')
         @builder.instance_variable_get('@layout').should == 'bar'
       end
+      
+      describe "exposes loc()" do
+        
+        it "maps passed string to local target strings.js, if present" do
+          @builder.loc('local_string').should eql('LOCAL STRING')
+        end
+        
+        it "maps passed string to required target strings.js, otherwise" do
+          @builder.loc('req_string').should eql('REQ STRING')
+        end
+        
+        it "accepts a language option to loc a different language (deprecated - included for backward compatibility)" do
+          @builder.loc('local_string', :language => :fr).should eql('LOCAL STRING FR')
+        end
+        
+      end
         
       
     end

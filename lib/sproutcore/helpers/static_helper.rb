@@ -121,12 +121,58 @@ module SC
         return ''
       end
 
+      # Returns a merged strings hash from all of the required bundles.  Used
+      # by loc()
+      #
+      # === Params
+      #  for_language:: the language you want the hash for
+      #
+      # === Returns
+      #  params hash
+      #
+      def strings_hash(for_language)
+        ret = (@strings_hashes ||= {})[for_language]
+        return ret unless ret.nil?
+        
+        # Need to generate hash. 
+        
+        # get the default manifest for the current target.  will be used to
+        # select other manifests.
+        m = (for_language == self.language) ? self.manifest : target.manifest_for(:language => for_language)
+        
+        # get all of the targets to merge...
+        ret = {}
+        targets = ([target] + target.expand_required_targets).reverse
+        targets.each do |t|
+          # get the manifest for the target
+          cur_manifest = (t == target) ? m : t.manifest_for(m.variation)
+          cur_manifest.build!
+          
+          # ...and find a strings entry, if there is one.
+          strings_entry = cur_manifest.entries(:hidden => true).find { |e| e.entry_type == :strings }
+          next if strings_entry.nil?
+
+          # then load the strings
+          strings_entry.stage!
+          next if !File.exist?(strings_entry.staging_path) 
+          strings_hash = YAML.load(File.read(strings_entry.staging_path)) 
+          next if strings_hash.nil? # could not load...
+
+          # if strings loaded, merge into ret...
+          ret = ret.merge(strings_hash)
+        end
+        
+        # save in cache.
+        @strings_hashes[for_language] = ret
+        return ret # done!
+      end
+        
+        
       # Localizes the passed string, using the optional passed options.
       def loc(string, opts = {})
         string = string.nil? ? '' : string.to_s
-        opts[:language] ||= language
-        opts[:platform] ||= platform
-        bundle.strings_hash(opts)[string] || string
+        language = opts[:language] || self.language
+        return strings_hash(language)[string] || string
       end
       
     end
