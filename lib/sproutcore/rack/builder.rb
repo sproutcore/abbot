@@ -98,7 +98,7 @@ module SC
         end
         
         # Now build entry and return a file object
-        build_path = entry.prepare!.build!.build_path
+        build_path = entry.build!.build_path
         unless File.file?(build_path) && File.readable?(build_path)
           return not_found("File could not build")
         end
