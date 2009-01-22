@@ -8,11 +8,13 @@ module SC
 
     def needed?
       return true if DST_PATH.nil? || SRC_PATHS.nil? # just try to build...
-      
+      return true if !File.exist?(DST_PATH)
       ret = false
-      dst_mtime = File.exist?(DST_PATH) ? File.mtime(DST_PATH) : EARLY
+      dst_mtime = File.mtime(DST_PATH)
       SRC_PATHS.each do |path|
-        timestamp = (path && File.exist?(path)) ? File.mtime(path) : EARLY
+        next if path.nil? # skip incase of bad src paths...
+        
+        timestamp = File.exist?(path) ? File.mtime(path) : EARLY
         ret = ret || (dst_mtime < timestamp)
         break if ret
       end

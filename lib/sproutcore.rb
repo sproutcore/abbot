@@ -109,6 +109,11 @@ module SproutCore
     @builtin_project ||= SC::Project.new(PATH)
   end
   
+  # Returns the current project, if defined.  This is normally only set 
+  # when you start sc-server in interactive mode.
+  def self.project; @project; end
+  def self.project=(project); @project = project; end
+  
 end  # module SC
 
 SC = SproutCore # alias

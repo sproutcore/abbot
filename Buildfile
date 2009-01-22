@@ -68,7 +68,9 @@ mode :debug do
     :minify_javascript => false,
     
     :build_prefix => 'tmp/debug/build',
-    :staging_prefix => 'tmp/debug/staging'
+    :staging_prefix => 'tmp/debug/staging',
+    
+    :serve_exceptions => true
     
 
 end

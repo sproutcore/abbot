@@ -81,6 +81,10 @@ module SC
       @entries.each { |entry| render_entry(entry) }
       
       # then finally compile the layout.
+      if self.layout_path.nil?
+        raise "html_builder could not find a layout file for #{@layout}" 
+      end
+      
       compile(SC::RenderEngine::Erubis.new(self), self.layout_path, :_final_)
       return @content_for__final_
     end
@@ -103,6 +107,10 @@ module SC
     #  self
     #
     def compile(render_engine, input_path, content_for_key = :resources)
+      if !File.exist?(input_path)
+        raise "html_builder could compile file at #{input_path} because the file could not be found" 
+      end
+      
       input = File.read(input_path)
       content_for content_for_key do
         _render_compiled_template( render_engine.compile(input) )

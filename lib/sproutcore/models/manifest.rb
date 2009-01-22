@@ -295,11 +295,11 @@ module SC
       # if no match was found, search the same manifests in required targets
       if ret.nil?
         seen = Set.new if seen.nil?
-        seen << self
-        target.expand_required_targets.each do |target|
-          next if seen.include?(target) # avoid recursion
-          
-          manifest = target.manifest_for(self.variation).build!
+        seen << self.target
+        self.target.expand_required_targets.each do |t|
+          next if seen.include?(t) # avoid recursion
+
+          manifest = t.manifest_for(self.variation).build!
           ret = manifest.find_entry(fragment, opts, seen)
           break unless ret.nil?
         end

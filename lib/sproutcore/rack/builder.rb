@@ -66,6 +66,8 @@ module SC
       def initialize(project)
         @project = project
         @last_reload_time = Time.now 
+        
+        puts "Builder: #{project.project_root} - #{project.targets.keys * ","}"
       end
       
       # Main entry point for this Rack application.  Returns 404 if no
@@ -100,7 +102,7 @@ module SC
         # Now build entry and return a file object
         build_path = entry.build!.build_path
         unless File.file?(build_path) && File.readable?(build_path)
-          return not_found("File could not build")
+          return not_found("File could not build (entry: #{entry.filename} - build_paht: #{build_path}")
         end
         
         SC.logger << " ~ Serving #{target.target_name.to_s.sub(/^\//,'')}:#{entry.filename}\n"
@@ -121,8 +123,9 @@ module SC
       
       # Invoked when a resource cannot be found for some reason
       def not_found(reason)
+        reason = "<html><body><p>#{reason}</p></body></html>"
         return [404, {
-          "Content-Type"   => "text/plain",
+          "Content-Type"   => "text/html",
           "Content-Length" => reason.size.to_s     
         }, reason]
       end
