@@ -1,3 +1,5 @@
+require 'thread'
+
 module SC
   module Rack
     
@@ -69,6 +71,10 @@ module SC
       # Main entry point for this Rack application.  Returns 404 if no
       # matching entry could be found in the project.
       def call(env)
+        mutex.synchronize { _call(env) }
+      end
+      
+      def _call(env)
         reload_project! # if needed
 
         # collect some standard info
@@ -76,11 +82,11 @@ module SC
         
         # look for a matching target
         target = target_for(url)
-        return [404, {}, "No matching target"] if target.nil?
+        return not_found("No matching target") if target.nil?
         
         # normalize url to resolve to entry & extract the language
         url, language = normalize_url(url, target)
-        return [404, {}, "Target requires language"] if language.nil?
+        return not_found("Target requires language") if language.nil?
         
         # lookup manifest
         language = language.to_s.downcase.to_sym # normalize
@@ -88,15 +94,16 @@ module SC
         
         # lookup entry by url
         unless entry = manifest.entries.find { |e| e.url == url }
-          return [404, {}, "No matching entry in target #{target.target_name}"]
+          return not_found("No matching entry in target")
         end
         
         # Now build entry and return a file object
-        build_path = entry.build!.build_path
+        build_path = entry.prepare!.build!.build_path
         unless File.file?(build_path) && File.readable?(build_path)
-          return [404, {}, "File could not build"]
+          return not_found("File could not build")
         end
         
+        SC.logger << " ~ Serving #{target.target_name.to_s.sub(/^\//,'')}:#{entry.filename}\n"
         [200, {
           "Last-Modified"  => File.mtime(build_path).httpdate,
           "Content-Type"   => ::Rack::Mime.mime_type(File.extname(build_path), 'text/plain'),
@@ -105,6 +112,20 @@ module SC
       end
       
       attr_reader :project
+      
+      protected
+      
+      # Mutex used to ensure project building and other important tasks
+      # are performed synchronously
+      def mutex; @mutex ||= Mutex.new; end
+      
+      # Invoked when a resource cannot be found for some reason
+      def not_found(reason)
+        return [404, {
+          "Content-Type"   => "text/plain",
+          "Content-Length" => reason.size.to_s     
+        }, reason]
+      end
       
       # Reloads the project if reloading is enabled.  At maximum this will
       # reload the project every 5 seconds.  
@@ -116,6 +137,7 @@ module SC
         return if (Time.now - @last_reload_time) < 5
         
         @last_reload_time = Time.now
+        
         @project.reload!
       end
       
