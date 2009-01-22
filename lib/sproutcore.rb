@@ -91,7 +91,7 @@ module SproutCore
   # compatibility reasons, :development and :debug are treated as being 
   # identical.
   def self.build_mode
-    ret = env.build_mode || :debug
+    ret = env.build_mode || :production
     ret = ret.to_sym unless ret.nil?
     ret = :debug if ret == :development # backwards compatibility
     ret

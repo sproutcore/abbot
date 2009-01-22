@@ -72,6 +72,10 @@ module SC
       new project_root, opts
     end
 
+    def reload!
+      @buildfile = @targets = nil
+    end
+    
     # The current buildfile for the project.  The buildfile is calculated by
     # merging any parent project buildfile with the contents of any 
     # buildfiles found in the current project.  Buildfiles include any file

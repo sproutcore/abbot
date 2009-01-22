@@ -65,7 +65,11 @@ mode :debug do
     :combine_javascript => false,
     :combine_stylesheets => false,
     
-    :minify_javascript => false
+    :minify_javascript => false,
+    
+    :build_prefix => 'tmp/debug/build',
+    :staging_prefix => 'tmp/debug/staging'
+    
 
 end
 

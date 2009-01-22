@@ -83,8 +83,8 @@ module SC
       SC.env.logfile = File.expand_path(options.logfile) if options.logfile
     end
 
-    def prepare_mode!
-      build_mode = (options.mode || options.environment || 'production').to_s.downcase.to_sym
+    def prepare_mode!(preferred_mode = 'production')
+      build_mode = (options.mode || options.environment || preferred_mode).to_s.downcase.to_sym
       SC.build_mode = build_mode
     end
 
