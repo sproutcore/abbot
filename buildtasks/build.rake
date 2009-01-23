@@ -59,5 +59,15 @@ namespace :build do
     
   end
   
+  desc "builds a unit test"
+  build_task :test do
+    SC::Builder::Test.build ENTRY, DST_PATH
+  end
+
+  desc "builds the unit test index, describing the installed unit tests"
+  build_task :test_index do
+    SC::Builder::TestIndex.build ENTRY, DST_PATH
+  end
+  
   
 end

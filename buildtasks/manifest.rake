@@ -149,7 +149,7 @@ namespace :manifest do
         MANIFEST.add_entry 'tests/-index.json',
           :composite      => true, 
           :source_entries => test_entries,
-          :build_task     => 'build:test:index.json',
+          :build_task     => 'build:test_index',
           :entry_type     => :resource
       end
     end
