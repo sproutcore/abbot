@@ -64,6 +64,7 @@ module SC
                      '--mode'           => :optional,
                      '--environment'    => :optional, # deprecated
                      '--logfile'        => :optional,
+                     '--build'          => :optional,
                      ['--verbose', '-v']      => false,
                      ['--very-verbose', '-V'] => false })
     def initialize(options, *args)
@@ -73,6 +74,7 @@ module SC
     def invoke(*args)
       prepare_logger!
       prepare_mode!
+      prepare_build_numbers!
       super
     end
       
@@ -88,6 +90,21 @@ module SC
       SC.build_mode = build_mode
     end
 
+    def prepare_build_numbers!
+      return if (numbers = options.build).nil?
+      numbers = numbers.split(',').map { |n| n.split(':') }
+      if numbers.size==1 && numbers.first.size==1
+        SC.env.build_number = numbers.first.first
+      else
+        hash = {}
+        numbers.each do |pair|
+          key = pair[0]
+          key = "/#{key}" if !(key =~ /^\//)
+          hash[key.to_sym] = pair[1]
+        end
+      end
+    end
+    
     # Find the project...
     attr_accessor :project
     def requires_project!

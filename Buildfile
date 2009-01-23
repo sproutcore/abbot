@@ -72,7 +72,11 @@ mode :debug do
     
     # debug settings for sc-server
     :serve_exceptions => true,
-    :reload_project   => true
+    :reload_project   => true,
+    
+    # set default build number in debug mode since caching is not used 
+    # anyway.
+    :build_number     => 'current'
     
 
 end
