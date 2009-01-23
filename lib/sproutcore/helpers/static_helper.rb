@@ -131,7 +131,8 @@ module SC
       # == Example
       #   <% sc_resource :foo, :layout => 'sproutcore:lib/index.html' %>
       #
-      def sc_resource(resource_name, opts = {})
+      def sc_resource(resource_name, opts = nil)
+        opts = opts.nil? ? (resource_name.kind_of?(Hash) ? resource_name : {}) : opts
         @layout = opts[:layout] if opts[:layout]
         return ''
       end

@@ -4,3 +4,7 @@ config :html_test,
   :layout   => 'lib/layout_template.rhtml'
   
 config :req_target_2, :required => [:req_target_1]
+
+config :test_test,
+  :test_layout   => 'lib/test_layout.rhtml'
+  

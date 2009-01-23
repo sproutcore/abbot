@@ -1,5 +1,5 @@
 require File.join(File.dirname(__FILE__), 'spec_helper')
-describe SC::Builder::JavaScript do
+describe SC::Builder::Html do
   
   include SC::SpecHelpers
   include SC::BuilderSpecHelper

@@ -126,7 +126,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
     
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css javascript sass combine minify html strings) #%w(tests image) 
+    task :all => %w(css javascript sass combine minify html strings tests) #%w(image) 
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -139,7 +139,7 @@ namespace :manifest do
       MANIFEST.entries.each do |entry|
         next unless entry.filename =~ /^tests\//
         test_entries << MANIFEST.add_transform(entry, 
-          :build_task => "build:test:#{entry.ext}",
+          :build_task => "build:test",
           :entry_type => :test,
           :ext        => :html)
       end
