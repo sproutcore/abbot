@@ -157,6 +157,17 @@ module SC
       build_to self.staging_path
     end
     
+    # Removes the build and staging files for this entry so the next 
+    # build will rebuild.
+    #
+    # === Returns
+    #  self
+    def clean!
+      FileUtils.rm(self.build_path) if File.exist?(self.build_path)
+      FileUtils.rm(self.staging_path) if File.exist?(self.staging_path)
+      return self 
+    end
+        
     private 
     
     def build_to(dst_path)

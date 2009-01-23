@@ -66,8 +66,6 @@ module SC
       def initialize(project)
         @project = project
         @last_reload_time = Time.now 
-        
-        puts "Builder: #{project.project_root} - #{project.targets.keys * ","}"
       end
       
       # Main entry point for this Rack application.  Returns 404 if no
@@ -99,13 +97,16 @@ module SC
           return not_found("No matching entry in target")
         end
         
+        # Clean the entry so it will rebuild if we are serving an index
+        entry.clean! if entry.filename =~ /index.html$/
+        
         # Now build entry and return a file object
         build_path = entry.build!.build_path
         unless File.file?(build_path) && File.readable?(build_path)
           return not_found("File could not build (entry: #{entry.filename} - build_paht: #{build_path}")
         end
         
-        SC.logger << " ~ Serving #{target.target_name.to_s.sub(/^\//,'')}:#{entry.filename}\n"
+        SC.logger.info "Serving #{target.target_name.to_s.sub(/^\//,'')}:#{entry.filename}"
         [200, {
           "Last-Modified"  => File.mtime(build_path).httpdate,
           "Content-Type"   => ::Rack::Mime.mime_type(File.extname(build_path), 'text/plain'),
@@ -145,13 +146,22 @@ module SC
       end
       
       def target_for(url)
-        project.targets.values.find do |target|
-          target.prepare!
 
-          # look for a url_root match...
-          (url =~ /^#{Regexp.escape target.url_root}/) ||
-          (url =~ /^#{Regexp.escape target.index_root}/)
+        # get targets
+        targets = project.targets.values.dup
+        targets.each { |t| t.prepare! }
+        
+        # split the url into parts.  pop parts until we find a matching 
+        # target.  This ensures that we end up with the deepest matching
+        # target.
+        url_parts = url.split '/'
+        ret = nil
+        while url_parts.size>0 && ret.nil?
+          url = url_parts.join '/'
+          ret = targets.find { |t| t.url_root == url || t.index_root == url }
+          url_parts.pop
         end
+        return ret 
       end
       
       # Helper method.  This will normalize a URL into one that can map 

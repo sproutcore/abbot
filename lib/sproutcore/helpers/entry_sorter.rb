@@ -24,12 +24,13 @@ module SC
         entries = entries.sort do |a,b| 
           (a.filename || '').to_s.downcase <=> (b.filename || '').to_s.downcase
         end
+        all_entries = entries.dup # needed for sort...
        
         # now process each entry to handle requires
         seen = [] 
         ret = [] 
         while cur = next_entry(entries)
-          add_entry_to_set(cur, ret, seen, entries)
+          add_entry_to_set(cur, ret, seen, entries, all_entries)
         end
       
         return ret
@@ -38,19 +39,27 @@ module SC
       protected
     
       # Converts a passed set of requires into entries
-      def required_entries(required, entries)
+      def required_entries(required, entries, requiring_entry, all_entries)
         return [] if required.nil?
         required.map do |filename|
           filename = filename.to_s.downcase.ext('')
           source_filename = "source/#{filename}"
-          entry = entries.find { |e| e.filename.to_s.downcase.ext('') == source_filename }
+          entry = all_entries.find do |e| 
+            e.filename.to_s.downcase.ext('') == source_filename
+          end
         
           # try localized version...
           if entry.nil? && !(filename =~ /^lproj\//)
             source_filename = "source/lproj/#{filename}"
-            entry = entries.find { |e| e.filename.to_s.downcase.ext('') == source_filename }
+            entry = all_entries.find do |e| 
+              e.filename.to_s.downcase.ext('') == source_filename
+            end
           end
         
+          if entry.nil?
+            SC.logger.warn "Could not find entry '#{filename}' required in #{requiring_entry.target.target_name.to_s.sub(/^\//,'')}:#{requiring_entry.filename} - entries: \n  #{entries.map { |e| e.filename } * "  \n"}"
+          end
+          
           entry
         end
       end
@@ -72,13 +81,14 @@ module SC
       end
       
       # Adds the specified entry to the ordered array, adding required first
-      def add_entry_to_set(entry, ret, seen, entries)
+      def add_entry_to_set(entry, ret, seen, entries, all_entries)
         return if seen.include?(entry)
 
         seen << entry
-        required_entries(entry.required, entries).each do |required|
+        req = required_entries(entry.required, entries, entry, all_entries)
+        req.each do |required|
           next if required.nil?
-          add_entry_to_set(required, ret, seen, entries)
+          add_entry_to_set(required, ret, seen, entries, all_entries)
         end
         ret << entry
       end    

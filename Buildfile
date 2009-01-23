@@ -70,7 +70,9 @@ mode :debug do
     :build_prefix => 'tmp/debug/build',
     :staging_prefix => 'tmp/debug/staging',
     
-    :serve_exceptions => true
+    # debug settings for sc-server
+    :serve_exceptions => true,
+    :reload_project   => true
     
 
 end
