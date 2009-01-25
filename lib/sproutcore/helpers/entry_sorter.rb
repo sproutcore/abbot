@@ -57,7 +57,7 @@ module SC
           end
         
           if entry.nil?
-            SC.logger.warn "Could not find entry '#{filename}' required in #{requiring_entry.target.target_name.to_s.sub(/^\//,'')}:#{requiring_entry.filename} - entries: \n  #{entries.map { |e| e.filename } * "  \n"}"
+            SC.logger.warn "Could not find entry '#{filename}' required in #{requiring_entry.target.target_name.to_s.sub(/^\//,'')}:#{requiring_entry.filename}"
           end
           
           entry

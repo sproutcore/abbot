@@ -73,6 +73,14 @@ module SC
         end
       end
     end
+
+    # Returns the expanded list of required targets for the passed target.
+    # This method can be overridden by subclasses to provide specific 
+    # config settings.
+    def expand_required_targets(target, opts = {})
+      opts[:debug] = target.config.load_debug
+      return target.expand_required_targets(opts)
+    end
     
     # Renders the html file, returning the resulting string which can be 
     # written to a file.

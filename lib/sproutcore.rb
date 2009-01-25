@@ -72,7 +72,7 @@ module SproutCore
     if env.logfile
       @logger = Logger.new env.logfile, 10, 1024000
     else
-      @logger = Logger.new STDERR
+      @logger = Logger.new $stderr
       
       # if we are logging to the screen, no reason to use a std loggin fmt
       @logger.formatter = lambda do |severity, time, progname, msg|

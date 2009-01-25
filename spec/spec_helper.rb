@@ -117,6 +117,7 @@ module SC
     
     # Captures a stdout/stdin/stderr stream for evaluation
     def capture(stream)
+      SC.instance_variable_set('@logger', nil)
       begin
         stream = stream.to_s
         eval "$#{stream} = StringIO.new"

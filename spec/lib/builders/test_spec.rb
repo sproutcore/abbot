@@ -31,6 +31,42 @@ describe SC::Builder::Test do
     entry_names.should == %w(tests/rhtml_test.rhtml)
   end
 
+  describe "adding test_required frameworks urls" do
+    
+    before do 
+      @builder = SC::Builder::Test.new(@qunit_entry)
+    end
+    
+    it "add stylesheets for test" do
+      # figure expected urls...
+      t = @project.target_for(:qunit)
+      url = t.manifest_for(:language => :en).build!.entry_for('stylesheet.css').url
+      url = /#{Regexp.escape url}/
+      
+      @target.config.combine_stylesheets = true 
+      @target.config.load_test = true 
+      result = @builder.stylesheets_for_client
+      result.should =~ url
+      
+      # also works for @import
+      result = @builder.stylesheets_for_client(:include_method => :import)
+      result.should =~ url
+    end
+    
+    it "adds javascript for test" do
+      # figure expected urls...
+      t = @project.target_for(:qunit)
+      url = t.manifest_for(:language => :en).build!.entry_for('javascript.js').url
+      url = /#{Regexp.escape url}/
+      
+      @target.config.combine_javascript = true 
+      @target.config.load_test = true
+      result = @builder.javascripts_for_client
+      result.should =~ url
+    end
+  end
+    
+    
   describe "layout_path" do
     
     before do 

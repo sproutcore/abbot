@@ -61,7 +61,7 @@ describe "manifest:prepare_build_tasks:tests" do
     it "assigns a build_task of build:test:EXTNAME (from source_entry)" do
       @entries.each do |entry|
         extname = File.extname(entry.source_entry.filename)[1..-1]
-        entry.build_task.to_s.should == "build:test:#{extname.downcase}"
+        entry.build_task.to_s.should == "build:test"
       end
     end
     
@@ -73,7 +73,7 @@ describe "manifest:prepare_build_tasks:tests" do
     
     entry.should_not be_nil
     entry.entry_type.should == :resource
-    entry.build_task.to_s.should == 'build:test:index.json'
+    entry.build_task.to_s.should == 'build:test_index'
 
     expected = @manifest.entries.reject { |e| e.entry_type != :test }
     entry.source_entries.size.should eql(expected.size)

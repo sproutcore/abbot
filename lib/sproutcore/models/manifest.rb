@@ -23,6 +23,13 @@ module SC
       @entries = []
     end
 
+    def inspect
+      opts = variation.dup
+      opts[:target] = target.target_name
+      desc = opts.keys.sort { |a,b| a.to_s <=> b.to_s }.map { |k| [k, opts[k]].join("=") }.join(" ")
+      "SC::Manifest(#{desc})"
+    end
+    
     # Invoked just before a manifest is built.  If you load a manifest file
     # this method will not be invoked.
     # === Returns

@@ -198,14 +198,14 @@ module SC
         # if no explicit language was passed.
         v = opts[:language] ? { :language => opts[:language] } : manifest.variation
         
-        targets = (t.expand_required_targets + [t])
+        targets = (expand_required_targets(t) + [t])
         targets.each do |t|
           # get the manifest for the target
           cur_manifest = t.manifest_for(v).build!
 
-          # get the stylesheet entry for it...
+          # get the stylesheet or js entry for it...
           entry = cur_manifest.entry_for entry_name
-          next if entry.nil? || !entry.composite? # no stylesheet...
+          next if entry.nil? || !entry.composite? # no stylesheet or js
           
           yield(t, entry)
         end

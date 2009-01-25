@@ -29,7 +29,7 @@ describe SC::Target, 'compute_build_number' do
     target.compute_build_number.should eql('foo')
   end
   
-  it "uses the config.build_numbers.target_name if specified and if config.build_number is not specified" do
+  it "uses the config.build_numbers.target_name if specified" do
     # add a build_numbers hash
     @project.buildfile.define! do
       config :all, :build_numbers => { '/sproutcore' => 'foo' }
@@ -49,14 +49,17 @@ describe SC::Target, 'compute_build_number' do
   
   it "generates a unique build number based on content if nothing is explicitly set" do
     target = @project.target_for(:sproutcore)
-    target.config.build_numbers.should be_nil # precondition
-    target.config.build_number.should be_nil # precondition
+    target.config.build_numbers = nil #precondition
+    target.config.build_number = nil  #precondition
     
     target.compute_build_number.should_not be_nil
   end
   
   it "changes its generated build number if contents of source files change" do
     target = @project.target_for(:sproutcore)
+    target.config.build_numbers = nil #precondition
+    target.config.build_number = nil  #precondition
+
     old_build_number = target.compute_build_number
     
     # write an extra file into target for testing
@@ -73,10 +76,13 @@ describe SC::Target, 'compute_build_number' do
   
     required = target.target_for(:desktop)
     required.should_not be_nil
+    required.config.build_numbers = nil #precondition
+    required.config.build_number = nil  #precondition
     
+    target.config.build_numbers = nil #precondition
+    target.config.build_number = nil  #precondition
     target.required_targets.should include(required) #precondition
     
-    target = @project.target_for(:sproutcore)
     old_build_number = target.compute_build_number
     
     # write an extra file into required target for testing -- changes number

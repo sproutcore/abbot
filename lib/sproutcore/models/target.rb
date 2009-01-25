@@ -45,7 +45,11 @@ module SC
     end
     
     attr_reader :project
-
+    
+    def inspect
+      "SC::Target(#{target_name})"
+    end
+    
     # Invoke this method to make sure the basic paths for the target have
     # been prepared.  This method is called on the target before it is 
     # returned from any call target_for().  It will invoke the target:prepare
@@ -112,27 +116,62 @@ module SC
     # Returns all of the targets required by this target.  This will use the
     # "required" config, resolving the target names using target_for().
     #
+    # You may pass some additional options in which will select the set
+    # of targets you want returned.
+    #
+    # === Options
+    #  :debug:: if true, config.debug_required will be included
+    #  :test::  if true, config.test_required will also be included
+    #
     # === Returns
     #  Array of Targets
     #
-    def required_targets
-      @required_targets ||= [config.required || []].flatten.compact.map { |target_name| target_for(target_name) }.compact
+    def required_targets(opts={})
+      key = [:debug, :test].map { |k| opts[k] ? k : nil }.compact.join('.')
+      ret = (@required_targets ||= {})[key]
+      return ret unless ret.nil?
+      
+      # compute
+      ret = [config.required || []]
+      if opts[:debug] && config.debug_required
+        ret << config.debug_required 
+      end
+      if opts[:test] && config.test_required
+        ret << config.test_required
+      end
+      ret = ret.flatten.compact.map do |n| 
+        if (t = target_for(n)).nil? 
+          SC.logger.warn "Could not find target #{n} that is required by #{target_name}"
+        end
+        t
+      end
+      ret = ret.compact.uniq
+      
+      @required_targets[key] = ret
+      return ret 
     end
 
     # Returns the expanded list of required targets, ordered as they actually
     # need to be loaded.
-    def expand_required_targets
-      _expand_required_targets([self])
+    #
+    # This method takes the same options as required_targets to select the 
+    # targets to include.
+    #
+    # === Returns
+    #  Array of targets
+    #
+    def expand_required_targets(opts ={})
+      _expand_required_targets(opts, [self])
     end
     
-    def _expand_required_targets(seen)
+    def _expand_required_targets(opts, seen)
       ret = []
-      required_targets.each do |target|
+      required_targets(opts).each do |target|
         next if seen.include?(target)
         seen << target # avoid loading again
         
         # add required targets, if not already seend...
-        target._expand_required_targets(seen).each do |required|
+        target._expand_required_targets(opts, seen).each do |required|
           ret << required
           seen << required
         end
@@ -170,13 +209,14 @@ module SC
     #
     def compute_build_number(seen=nil)
       
-      # Use config build number specifically for this target, if specified
-      build_number = config.build_number
-
-      # Otherwise, look for a global build_numbers hash and try that
-      if build_number.nil? && (build_numbers = config.build_numbers)
+      # Look for a global build_numbers hash and try that
+      if (build_numbers = config.build_numbers)
         build_number = build_numbers[target_name.to_s] || build_numbers[target_name.to_sym]
       end
+
+      # Otherwise, use config build number specifically for this target, if 
+      # specified
+      build_number ||= config.build_number 
 
       # Otherwise, actually compute a build number. 
       if build_number.nil?

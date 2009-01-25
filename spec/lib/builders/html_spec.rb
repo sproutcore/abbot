@@ -7,6 +7,10 @@ describe SC::Builder::Html do
   before do
     std_before :html_test
     
+    # most of these tests assume load_debug is turned off like it would be
+    # in production mode
+    @target.config.load_debug = false
+    
     # run std rules to run manifest.  Then verify preconditions to make sure
     # no other changes to the build system effect the ability of these tests
     # to run properly.
@@ -89,6 +93,22 @@ describe SC::Builder::Html do
       result.should_not =~ /req_target_2_sample/
     end
     
+  end
+  
+  describe "expand_required_targets helper" do
+    
+    it "returns the required targets for a typical target" do
+      @builder = SC::Builder::Html.new(@index_entry)
+      @builder.expand_required_targets(@target).should == @target.expand_required_targets
+    end
+    
+    it "include debug targets if load_debug is true" do
+      @builder = SC::Builder::Html.new(@index_entry)
+      @target.config.debug_required.should_not be_nil # precondition
+      
+      @target.config.load_debug = true
+      @builder.expand_required_targets(@target).should == @target.expand_required_targets(:debug => true)
+    end
   end
   
   # templates should expect to be able to access certain environmental 
@@ -221,7 +241,39 @@ describe SC::Builder::Html do
           result.should =~ /href=\"foo\"/
           result.should =~ /href=\"bar\"/
         end
-      
+        
+        it "adds stylesheet for debug if CONFIG.load_debug" do
+          # figure expected urls...
+          t = @project.target_for(:debug)
+          url = t.manifest_for(:language => :en).build!.entry_for('stylesheet.css').url
+          url = /#{Regexp.escape url}/
+          
+          @target.config.combine_stylesheets = true 
+          @target.config.load_debug = true 
+          result = @builder.stylesheets_for_client
+          result.should =~ url
+          
+          # also works for @import
+          result = @builder.stylesheets_for_client(:include_method => :import)
+          result.should =~ url
+        end
+
+        it "does NOT add stylesheet for test if CONFIG.load_test" do
+          # figure expected urls...
+          t = @project.target_for(:qunit)
+          url = t.manifest_for(:language => :en).build!.entry_for('stylesheet.css').url
+          url = /#{Regexp.escape url}/
+          
+          @target.config.combine_stylesheets = true 
+          @target.config.load_test = true 
+          result = @builder.stylesheets_for_client
+          result.should_not =~ url
+          
+          # also works for @import
+          result = @builder.stylesheets_for_client(:include_method => :import)
+          result.should_not =~ url
+        end
+          
       end
       
       describe "exposes javascript_for_client()" do
@@ -270,6 +322,30 @@ describe SC::Builder::Html do
           result = @builder.javascripts_for_client
           result.should =~ /src=\"foo\"/
           result.should =~ /src=\"bar\"/
+        end
+
+        it "adds link to debug JS if CONFIG.load_debug = true" do
+          # figure expected urls...
+          t = @project.target_for(:debug)
+          url = t.manifest_for(:language => :en).build!.entry_for('javascript.js').url
+          url = /#{Regexp.escape url}/
+          
+          @target.config.combine_javascript = true 
+          @target.config.load_debug = true
+          result = @builder.javascripts_for_client
+          result.should =~ url
+        end
+
+        it "does NOT add link to test, even if load_test is true" do
+          # figure expected urls...
+          t = @project.target_for(:qunit)
+          url = t.manifest_for(:language => :en).build!.entry_for('javascript.js').url
+          url = /#{Regexp.escape url}/
+          
+          @target.config.combine_javascript = true 
+          @target.config.load_test = true
+          result = @builder.javascripts_for_client
+          result.should_not =~ url
         end
       
       end

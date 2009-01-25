@@ -11,6 +11,13 @@ module SC
       @layout = @target.config.test_layout || 'lib/test.rhtml'
     end
     
+    # Always include any required test targets as well when loading unit 
+    # tests.
+    def expand_required_targets(target, opts = {})
+      opts[:test] = true
+      super(target, opts)
+    end
+    
     protected 
     
     def render_entry(entry)

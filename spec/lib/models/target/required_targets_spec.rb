@@ -41,4 +41,37 @@ describe SC::Target, 'required_targets' do
     target.required_targets.first.should eql(expected)
   end
   
+  it "should include any debug_required if passed :debug => true" do
+
+    expected = @project.target_for 'sproutcore/debug'
+    
+    # verify load_debug = false
+    target = @project.target_for 'sproutcore/desktop'
+    target.config.debug_required = 'sproutcore/debug'
+    target.required_targets().should_not include(expected)
+    target.required_targets(:debug => false).should_not include(expected)
+    target.required_targets(:debug => true).should include(expected)
+  end
+
+  it "should include any test_required if passed :test => true" do
+
+    expected = @project.target_for 'sproutcore/qunit'
+    
+    # verify load_debug = false
+    target = @project.target_for 'sproutcore/desktop'
+    target.config.test_required = 'sproutcore/qunit'
+    target.required_targets().should_not include(expected)
+    target.required_targets(:test => false).should_not include(expected)
+    target.required_targets(:test => true).should include(expected)
+  end
+  
+  it "should log a warning if a required test or debug target could not be found" do
+    target = @project.target_for :sproutcore
+    target.config.test_required = 'imaginary_foo'
+    target.config.debug_required = 'imaginary_bar'
+    
+    capture('stderr') { target.required_targets(:test => true) }.size.should_not == 0
+    capture('stderr') { target.required_targets(:debug => true) }.size.should_not == 0
+  end
+  
 end
