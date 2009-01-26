@@ -54,7 +54,9 @@ namespace :manifest do
   desc "hides structural files that do not belong in build include Buildfiles and debug or fixtures if turned off"
   task :hide_buildfiles => :catalog do
     # these directories are to be excluded unless CONFIG.load_"dirname" = true
-    dirnames = %w(debug tests fixtures).reject { |k| CONFIG["load_#{k}"] }
+    dirnames = %w(debug tests fixtures protocols).reject do |k| 
+      CONFIG["load_#{k}"]
+    end
 
     # loop through entries and hide those that do not below...
     MANIFEST.entries.each do |entry|
@@ -71,7 +73,7 @@ namespace :manifest do
       next if entry.localized? || entry.filename =~ /^.+\.lproj\/.+$/
       
       # allow if in tests, fixtures or debug as well...
-      next if entry.filename =~ /^(tests|fixtures|debug)\/.+$/
+      next if entry.filename =~ /^(tests|fixtures|debug|protocols)\/.+$/
       
       # or skip if ext not js
       entry.hide! if entry.ext != 'js'

@@ -107,11 +107,15 @@ module SC
         end
         
         SC.logger.info "Serving #{target.target_name.to_s.sub(/^\//,'')}:#{entry.filename}"
-        [200, {
+
+        # define response headers
+        file_size = File.size(build_path)
+        headers = {
           "Last-Modified"  => File.mtime(build_path).httpdate,
           "Content-Type"   => ::Rack::Mime.mime_type(File.extname(build_path), 'text/plain'),
-          "Content-Length" => File.size(build_path).to_s
-        }, File.open(build_path, 'rb')]
+          "Content-Length" => file_size.to_s
+        }
+        [200, headers, File.open(build_path, 'rb')]
       end
       
       attr_reader :project

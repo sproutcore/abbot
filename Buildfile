@@ -34,6 +34,9 @@ mode :all do
     # Do not include debug directory in built project
     :load_debug => false,
     
+    # Do not load protocols in production mode
+    :load_protocols => false,
+    
     # Do not build tests.
     :load_tests => false,
     
@@ -56,10 +59,11 @@ end
 mode :debug do
   config :all,
   
-    # in debug mode, load fixtures and debug code
-    :load_fixtures => true,
-    :load_debug    => true,
-    :load_tests    => true,
+    # in debug mode, load fixtures, debug, tests, and protocols
+    :load_fixtures  => true,
+    :load_debug     => true,
+    :load_tests     => true,
+    :load_protocols => true,
     
     # Do not combine javascript and stylesheet
     :combine_javascript => false,
