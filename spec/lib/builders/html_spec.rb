@@ -154,6 +154,25 @@ describe SC::Builder::Html do
       it "exposes current language as 'language'" do
         @builder.language.should == :en
       end
+      
+      it "exposes bundle_name & target_name" do
+        expected = @target.target_name.to_s.sub(/^\//,'')
+        @builder.target_name.should == expected
+        @builder.bundle_name.should == expected
+      end
+      
+      it "exposes title - titlizes target name, respects config.title" do
+        @target.config.title = nil
+        @builder.title.should == 'Html Test'
+        
+        @target.config.title = 'TEST'
+        @builder.title.should == "TEST"
+      end
+      
+      it "exposes config" do
+        @builder.config.should == @target.config
+      end
+      
     end
     
     # Static helper contains methods needed to generate a SproutCore app

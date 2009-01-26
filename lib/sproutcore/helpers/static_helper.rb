@@ -161,6 +161,9 @@ module SC
         return ret
       end
        
+      def title
+        target.config.title || target.target_name.to_s.sub(/^\//,'').gsub(/[-_\/]/,' ').split(' ').map { |x| x.capitalize }.join(' ')
+      end
       
       private 
 

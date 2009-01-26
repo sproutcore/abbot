@@ -26,7 +26,7 @@ module SC
         rescue
           buffer = nil
         end
-
+        
         if buffer.nil?
           block.call(*args).to_s
         else

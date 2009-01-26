@@ -37,6 +37,11 @@ module SC
     # manifest owning the current entry
     attr_reader :manifest
     
+    def target_name; target.target_name.to_s.sub(/^\//,''); end
+    alias_method :bundle_name, :target_name # backwards compat
+    
+    def config; target.config; end
+    
     # The entry for the layout we want to build.  this will be used to 
     # stage the layout if needed..
     def layout_entry
@@ -119,11 +124,16 @@ module SC
       if !File.exist?(input_path)
         raise "html_builder could compile file at #{input_path} because the file could not be found" 
       end
+
+      old_renderer = @renderer
+      @renderer = render_engine  # save for capture...
       
       input = File.read(input_path)
       content_for content_for_key do
         _render_compiled_template( render_engine.compile(input) )
       end
+      
+      @render = old_renderer
       return self
     end
 
