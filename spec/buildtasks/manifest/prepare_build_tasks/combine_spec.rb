@@ -11,8 +11,11 @@ describe "manifest:prepare_build_tasks:combine" do
   end
   
   def run_task
-    @manifest.prepare!
-    super('manifest:prepare_build_tasks:combine')
+    # capture any log warnings...
+    @msg = capture('stderr') {
+      @manifest.prepare!
+      super('manifest:prepare_build_tasks:combine')
+    }
   end
 
   it "should run setup, javascript, css, & sass as prereq" do

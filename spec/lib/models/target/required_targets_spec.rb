@@ -92,4 +92,28 @@ describe SC::Target, 'required_targets' do
     target.required_targets(:theme => true).should_not include(expected)
   end  
   
+  it "should only find targets with a target type of :theme for CONFIG.theme" do
+    # theme type
+    expected = @project.target_for 'sproutcore/standard_theme'
+    expected.target_type.should == :theme #precondition
+
+    target = @project.target_for :contacts
+    target.config.theme = 'sproutcore/standard_theme'
+    target.required_targets(:theme => true).should include(expected)
+    
+    # non-theme type
+    expected = @project.target_for 'sproutcore/costello'
+    expected.target_type.should_not == :theme #precondition
+
+    target = @project.target_for :calendar
+    target.config.theme = 'sproutcore/costello'
+    
+    # should warn!
+    result = nil
+    capture('stderr') { result = target.required_targets(:theme => true) }.size.should > 0
+    
+    # and should not include theme
+    result.should_not include(expected)
+  end
+  
 end

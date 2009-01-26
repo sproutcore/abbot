@@ -22,16 +22,17 @@ describe SC::Project, 'find_targets_for' do
     end
   end
   
-  it "should search recursively for apps, clients, and frameworks dirs with standard options -- also should ignore CaSeOfDir" do
+  it "should search recursively for apps, clients, themes, and frameworks dirs with standard options -- also should ignore CaSeOfDir" do
     
     project = SC::Project.new(target_path('standard'), :parent => builtin_project)
 
     # verify preconditions
     target_types = project.config.target_types
-    target_types.size.should eql(3)
+    target_types.size.should eql(4)
     target_types[:apps].should eql(:app)
     target_types[:clients].should eql(:app)
     target_types[:frameworks].should eql(:framework)
+    target_types[:themes].should eql(:theme)
     project.config.allow_nested_targets.should be_true
     
     # Note, this expectation assumes the fixtures in find_targets/standard has
@@ -44,7 +45,8 @@ describe SC::Project, 'find_targets_for' do
     #
     expect_targets project.targets, 
       :app => %w(/app1 /client1),
-      :framework => %w(/framework1 /framework2 /app1/framework1 /app1/framework2 /framework1/framework1)
+      :framework => %w(/framework1 /framework2 /app1/framework1 /app1/framework2 /framework1/framework1),
+      :theme => %w(/theme1 /theme2)
   end
   
   it "should find targets based on target_types hash, including overrides in  target Buildfiles" do

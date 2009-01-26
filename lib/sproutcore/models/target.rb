@@ -147,7 +147,15 @@ module SC
         ret << config.test_required
       end 
       if opts[:theme] && self.loads_theme? && config.theme
-        ret << config.theme
+        # verify theme is a theme target type - note that if no matching
+        # target is found, we'll just let this go through so the standard
+        # not found warning can show.
+        t = target_for(config.theme)
+        if t && t.target_type != :theme
+          SC.logger.warn "Target #{config.theme} was set as theme for #{target_name} but it is not a theme."
+        else
+          ret << config.theme
+        end
       end
       
       ret = ret.flatten.compact.map do |n| 

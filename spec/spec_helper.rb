@@ -117,7 +117,7 @@ module SC
     
     # Captures a stdout/stdin/stderr stream for evaluation
     def capture(stream)
-      SC.instance_variable_set('@logger', nil)
+      SC.instance_variable_set('@logger', nil) # reset 
       begin
         stream = stream.to_s
         eval "$#{stream} = StringIO.new"
@@ -126,7 +126,7 @@ module SC
       ensure 
         eval("$#{stream} = #{stream.upcase}")
       end
-
+      SC.instance_variable_set('@logger', nil) # reset again..
       result
     end
 

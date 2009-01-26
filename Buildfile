@@ -18,6 +18,7 @@ mode :all do
       :apps       => :app, 
       :clients    => :app, 
       :frameworks => :framework,
+      :themes     => :theme
     },
   
     # Allows the target to have other targets nested inside of it.  Override 

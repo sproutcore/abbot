@@ -70,7 +70,9 @@ describe SC::Manifest, 'entry_for' do
   end
   
   it "returns nil if no matching entry could be found" do
-    @manifest.entry_for('imaginary').should be_nil
+    result = nil
+    result = @manifest.entry_for('imaginary')
+    result.should be_nil # and not return entry
   end
   
   describe "can name entries in other targets by prefixing entry name with target:entry_name" do

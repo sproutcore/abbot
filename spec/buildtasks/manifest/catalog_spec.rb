@@ -21,7 +21,7 @@ describe "manifest:catalog" do
     filenames = Dir.glob(File.join(@target.source_root, '**','*'))
     filenames.reject! { |f| File.directory?(f) }
     filenames.map! { |f| f.sub(@target.source_root + '/', '') }
-    filenames.reject! { |f| f =~ /^(apps|frameworks)/ }
+    filenames.reject! { |f| f =~ /^(apps|frameworks|themes)/ }
           
     entries = @manifest.entries.dup # get entries to test...
     filenames.each do |filename|
