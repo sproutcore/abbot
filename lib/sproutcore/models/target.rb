@@ -127,18 +127,29 @@ module SC
     #  Array of Targets
     #
     def required_targets(opts={})
-      key = [:debug, :test].map { |k| opts[k] ? k : nil }.compact.join('.')
+      
+      # compute cache key for these options
+      key = [:debug, :test, :theme].map do |k| 
+        opts[k] ? k : nil 
+      end
+      key = key.compact.join('.')
+      
+      # Return cache value if found
       ret = (@required_targets ||= {})[key]
       return ret unless ret.nil?
       
-      # compute
-      ret = [config.required || []]
+      # else compute return value, respecting options
+      ret = [config.required]
       if opts[:debug] && config.debug_required
         ret << config.debug_required 
       end
       if opts[:test] && config.test_required
         ret << config.test_required
+      end 
+      if opts[:theme] && self.loads_theme? && config.theme
+        ret << config.theme
       end
+      
       ret = ret.flatten.compact.map do |n| 
         if (t = target_for(n)).nil? 
           SC.logger.warn "Could not find target #{n} that is required by #{target_name}"
@@ -151,6 +162,14 @@ module SC
       return ret 
     end
 
+    # Returns true if this target can load a theme.  Default returns true 
+    # only if the target_type == :app, but you can override this by setting
+    # the value yourself.
+    def loads_theme?;
+      ret = self[:loads_theme]
+      ret.nil? ? (target_type == :app) : ret
+    end
+    
     # Returns the expanded list of required targets, ordered as they actually
     # need to be loaded.
     #

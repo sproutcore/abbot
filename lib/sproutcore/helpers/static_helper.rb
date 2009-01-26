@@ -144,6 +144,24 @@ module SC
         return strings_hash(language)[string] || string
       end
       
+      # Returns the CSS class name dictated by the current theme.  You can
+      # also pass an optional default value to use if no theme is specified
+      # in the config.  The value returned here will use either the 
+      # theme_name set in the target's config or the theme_name set by the
+      # theme framework, if set.
+      def theme_name(opts ={})
+        ret = opts[:default] || 'sc-theme'
+        if target.config.theme_name
+          ret = target.config.theme_name
+        elsif target.config.theme
+          if theme_target = target.target_for(target.config.theme)
+            ret = theme_target.config.theme_name || ret
+          end
+        end
+        return ret
+      end
+       
+      
       private 
 
       # Returns a merged strings hash from all of the required bundles.  Used
@@ -211,6 +229,7 @@ module SC
         end
       end
         
+      
     end
 
   end

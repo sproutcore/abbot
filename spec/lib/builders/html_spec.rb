@@ -10,6 +10,7 @@ describe SC::Builder::Html do
     # most of these tests assume load_debug is turned off like it would be
     # in production mode
     @target.config.load_debug = false
+    @target.config.theme = nil
     
     # run std rules to run manifest.  Then verify preconditions to make sure
     # no other changes to the build system effect the ability of these tests
@@ -109,6 +110,16 @@ describe SC::Builder::Html do
       @target.config.load_debug = true
       @builder.expand_required_targets(@target).should == @target.expand_required_targets(:debug => true)
     end
+    
+    it "includes theme if theme is specified and target is app" do
+      @builder = SC::Builder::Html.new(@index_entry)
+      @target.config.theme = :sample_theme
+      
+      expected = @project.target_for :sample_theme
+      expected.should_not be_nil #precondition
+      @builder.expand_required_targets(@target).should include(expected)
+    end
+      
   end
   
   # templates should expect to be able to access certain environmental 
@@ -168,6 +179,29 @@ describe SC::Builder::Html do
         @builder.instance_variable_get('@layout').should == 'bar'
       end
       
+      describe "exposes theme_name()" do
+        
+        it "returns passed default value or 'sc-theme' if no theme is configd" do
+          @target.config.theme = nil # precondition
+          @builder.theme_name.should == 'sc-theme'
+          @builder.theme_name(:default => 'foo').should == 'foo'
+        end
+        
+        it "returns targets theme_name config if set" do
+          @target.config.theme = 'sample_theme'
+          @target.config.theme_name = "foo"
+          @builder.theme_name.should == 'foo'
+        end
+        
+        it "returns theme_name set in theme target if set and not overridden in app itself" do
+          @target.config.theme = 'sample_theme'
+          @target.config.theme_name = nil # precondition
+          
+          # this value is set in the sample_theme/Buildfile
+          @builder.theme_name.should == 'sample_theme_name'
+        end
+      end
+       
       describe "exposes loc()" do
         
         it "maps passed string to local target strings.js, if present" do

@@ -79,6 +79,7 @@ module SC
     # config settings.
     def expand_required_targets(target, opts = {})
       opts[:debug] = target.config.load_debug
+      opts[:theme] = true
       return target.expand_required_targets(opts)
     end
     

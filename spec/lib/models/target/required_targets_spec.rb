@@ -74,4 +74,22 @@ describe SC::Target, 'required_targets' do
     capture('stderr') { target.required_targets(:debug => true) }.size.should_not == 0
   end
   
+  it "should include any CONFIG.theme if passed :theme => true && target_type == :app" do
+    expected = @project.target_for 'sproutcore/standard_theme'
+    
+    target = @project.target_for :contacts
+    target.target_type.should == :app # precondition
+    target.config.theme = 'sproutcore/standard_theme'
+    target.required_targets().should_not include(expected)
+    target.required_targets(:theme => false).should_not include(expected)
+    target.required_targets(:theme => true).should include(expected)
+
+    target = @project.target_for :sproutcore
+    target.target_type.should_not == :app # precondition
+    target.config.theme = 'sproutcore/standard_theme'
+    target.required_targets().should_not include(expected)
+    target.required_targets(:theme => false).should_not include(expected)
+    target.required_targets(:theme => true).should_not include(expected)
+  end  
+  
 end

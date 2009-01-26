@@ -1,0 +1,1 @@
+config :all, :theme_name => 'sample_theme_name'

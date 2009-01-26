@@ -52,7 +52,11 @@ mode :all do
     :minify_css => false,
     
     # use the default layout defined in SproutCore
-    :layout    => 'sproutcore:lib/index.rhtml'
+    :layout => 'sproutcore:lib/index.rhtml',
+    
+    # name a framework to use as the theme.  will be included in required
+    # frameworks automatically if found.
+    :theme  => 'sproutcore/standard_theme'
 end
 
 
