@@ -112,7 +112,7 @@ module SC
         file_size = File.size(build_path)
         headers = {
           "Last-Modified"  => File.mtime(build_path).httpdate,
-          "Content-Type"   => ::Rack::Mime.mime_type(File.extname(build_path), 'text/plain'),
+          "Content-Type"   => mime_type(build_path),
           "Content-Length" => file_size.to_s
         }
         [200, headers, File.open(build_path, 'rb')]
@@ -195,6 +195,12 @@ module SC
         return [url, matched_language]
       end
       
+      # Returns the mime type.  Basically this is the Rack mime mapper with
+      # a few bug fixes.
+      def mime_type(build_path)
+        ext = File.extname(build_path)
+        (ext == '.js') ? 'text/javascript' : ::Rack::Mime.mime_type(ext, 'text/plain')
+      end
       
     end
     
