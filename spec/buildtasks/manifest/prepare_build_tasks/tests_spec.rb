@@ -6,7 +6,7 @@ describe "manifest:prepare_build_tasks:tests" do
   include SC::ManifestSpecHelpers
   
   before do
-    std_before
+    std_before #load real_world project
   end
 
   def run_task(load_tests=true)
@@ -30,8 +30,11 @@ describe "manifest:prepare_build_tasks:tests" do
     end
     source_entries.size.should > 0 # precondition
     
-    # final all test transform entries.
-    test_entries = entries.reject { |e| e.entry_type != :test }
+    # final all test transform entries - i.e. those working on single tests.
+    test_entries = entries.select do |e|
+      e.entry_type == :test && e.transform?
+    end
+    
     test_entries.size.should eql(source_entries.size) # 1 for each entry?
     test_entries.each do |entry|
       source_entries.should include(entry.source_entry)
@@ -41,6 +44,40 @@ describe "manifest:prepare_build_tasks:tests" do
     # none should be left...
     source_entries.size.should == 0
   end
+  
+  it "should create a composite entry for all tests" do
+    run_task
+    
+    # find all entries referencing original source...
+    entries = @manifest.entries(:hidden => true)
+    source_entries = entries.reject do |entry|
+      !(entry.original? && entry.filename =~ /^tests\//)
+    end
+    source_entries.sort! { |a,b| a.filename.to_s <=> b.filename.to_s }
+    
+    # find composite test entry
+    entry = @manifest.entry_for 'tests.html', :entry_type => :test
+    entry.should_not be_nil
+    found = entry.source_entries.sort { |a,b| a.filename.to_s <=> b.filename.to_s }
+    found.should == source_entries
+  end    
+
+  it "should create a composite entry for each nested directory" do
+    run_task
+    
+    # find all entries referencing original source...
+    entries = @manifest.entries(:hidden => true)
+    source_entries = entries.reject do |entry|
+      !(entry.original? && entry.filename =~ /^tests\/nested\//)
+    end
+    source_entries.sort! { |a,b| a.filename.to_s <=> b.filename.to_s }
+    
+    # find composite test entry
+    entry = @manifest.entry_for 'tests/nested.html', :entry_type => :test
+    entry.should_not be_nil
+    found = entry.source_entries.sort { |a,b| a.filename.to_s <=> b.filename.to_s }
+    found.should == source_entries
+  end    
 
   # check the format of each entry...
   describe "transform entry" do
@@ -58,7 +95,7 @@ describe "manifest:prepare_build_tasks:tests" do
       end
     end
     
-    it "assigns a build_task of build:test:EXTNAME (from source_entry)" do
+    it "assigns a build_task of build:test" do
       @entries.each do |entry|
         extname = File.extname(entry.source_entry.filename)[1..-1]
         entry.build_task.to_s.should == "build:test"
@@ -67,7 +104,7 @@ describe "manifest:prepare_build_tasks:tests" do
     
   end
   
-  it "should create a composite entry to generate a -index.json with test entries as source" do
+  it "should create a composite entry to generate a -index.json with test entries as source (excluding composite summary entries)" do
     run_task
     entry = @manifest.entry_for('tests/-index.json')
     
@@ -75,7 +112,10 @@ describe "manifest:prepare_build_tasks:tests" do
     entry.entry_type.should == :resource
     entry.build_task.to_s.should == 'build:test_index'
 
-    expected = @manifest.entries.reject { |e| e.entry_type != :test }
+    expected = @manifest.entries.select do |e| 
+      e.entry_type == :test && e.transform?
+    end
+    
     entry.source_entries.size.should eql(expected.size)
     entry.source_entries.each do |entry|
       expected.should include(entry)

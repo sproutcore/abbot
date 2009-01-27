@@ -138,12 +138,31 @@ namespace :manifest do
       
       # Generate test entries
       test_entries = []
+      entries_by_dirname = {} # for building composites...
       MANIFEST.entries.each do |entry|
         next unless entry.filename =~ /^tests\//
+
+        # Add transform
         test_entries << MANIFEST.add_transform(entry, 
           :build_task => "build:test",
           :entry_type => :test,
           :ext        => :html)
+          
+        # Strip off dirnames, saving each by dirname...
+        dirname = entry.filename
+        while (dirname = dirname.sub(/\/?[^\/]+$/,'')).size > 0
+          (entries_by_dirname[dirname] ||= []) << entry
+        end
+      end
+      
+      # Generate composite entries for each directory...
+      entries_by_dirname.each do |dirname, entries|
+        MANIFEST.add_composite "#{dirname}.html",
+          :build_task     => "build:test",
+          :entry_type     => :test,
+          :ext            => :html,
+          :source_entries => entries,
+          :hide_entries   => false
       end
       
       # Add summary entry

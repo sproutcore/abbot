@@ -38,7 +38,7 @@ module SC
       lines = readlines(entry.staging_path)
       lines.unshift %(<script type="text/javascript">\n)
       lines.push    %(</script>\n)
-      @content_for_final = lines.join("")
+      @content_for_final = (@content_for_final || '') + lines.join("")
     end
     
   end

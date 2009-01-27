@@ -13,6 +13,7 @@ describe SC::Builder::Test do
     @manifest.build!
     @qunit_entry = @manifest.entry_for('tests/qunit_test.html')
     @rhtml_entry   = @manifest.entry_for('tests/rhtml_test.html')
+    @summary_entry = @manifest.entry_for('tests.html')
   end
 
   after do
@@ -29,6 +30,11 @@ describe SC::Builder::Test do
     @rhtml_entry.should_not be_nil
     entry_names = @rhtml_entry.source_entries.map { |e| e.filename }.sort
     entry_names.should == %w(tests/rhtml_test.rhtml)
+    
+    # Verify summary entry - should have both bar & qunit & qunit2
+    @summary_entry.should_not be_nil
+    entry_names = @summary_entry.source_entries.map { |e| e.filename }.sort
+    entry_names.should == %w(tests/qunit_test.js tests/qunit_test2.js tests/rhtml_test.rhtml)
   end
 
   describe "adding test_required frameworks urls" do
@@ -106,6 +112,19 @@ describe SC::Builder::Test do
       result.should =~ /resources_test/
     end
       
+  end
+  
+  describe "render a summary entry" do
+    
+    it "should render composite with both sets of unit tests" do
+      result = SC::Builder::Test.new(@summary_entry).render
+      result.should =~ /layout/ # verify rendered layout
+      result.should =~ /\<script.*\>\s*qunit_test\s*\<\/script\>/ # verify js1
+      result.should =~ /\<script.*\>\s*qunit_test2\s*\<\/script\>/ # verify js2
+      result.should =~ /final_test/
+      result.should =~ /resources_test/
+    end
+    
   end
   
   it "should import the standard html API" do
