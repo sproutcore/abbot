@@ -85,7 +85,8 @@ mode :debug do
     
     # set default build number in debug mode since caching is not used 
     # anyway.
-    :build_number     => 'current'
+    :build_number     => 'current',
+    :use_query_cache_control => true # add query strings to control caching
     
 
 end

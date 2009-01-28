@@ -20,7 +20,7 @@ describe "manifest:prepare_build_tasks:tests" do
     should_run('manifest:localize') { run_task }
   end
   
-  it "should create a transform entry (with entry_type == :test) for every test entry" do
+  it "should create a transform entry (with entry_type == :test) for every test entry with a javascript transform entry in between" do
     run_task
     entries = @manifest.entries(:hidden => true)
   
@@ -37,8 +37,21 @@ describe "manifest:prepare_build_tasks:tests" do
     
     test_entries.size.should eql(source_entries.size) # 1 for each entry?
     test_entries.each do |entry|
-      source_entries.should include(entry.source_entry)
-      source_entries.delete(entry.source_entry) # avoid double counting
+
+      # if the source_entry is a javascript, then there should be a transform
+      # in between to handle things list static_url()
+      original = entry.source_entry
+      if original.ext == 'js'
+        original.should be_transform
+        original.build_task.should == 'build:javascript'
+        original = original.source_entry # get true original to test with...
+      end
+      
+      # get original and delete from found originals to make sure chain 
+      # exists...
+      original.should be_original # precondition
+      source_entries.should include(original)
+      source_entries.delete(original) # avoid double counting
     end
     
     # none should be left...
@@ -58,7 +71,13 @@ describe "manifest:prepare_build_tasks:tests" do
     # find composite test entry
     entry = @manifest.entry_for 'tests.html', :entry_type => :test
     entry.should_not be_nil
-    found = entry.source_entries.sort { |a,b| a.filename.to_s <=> b.filename.to_s }
+    
+    # get originals.  since some entries will be JS transforms, just walk 
+    # back...
+    originals = entry.source_entries.map do |entry|
+      entry.transform? ? entry.source_entry : entry
+    end
+    found = originals.sort { |a,b| a.filename.to_s <=> b.filename.to_s }
     found.should == source_entries
   end    
 
@@ -75,7 +94,10 @@ describe "manifest:prepare_build_tasks:tests" do
     # find composite test entry
     entry = @manifest.entry_for 'tests/nested.html', :entry_type => :test
     entry.should_not be_nil
-    found = entry.source_entries.sort { |a,b| a.filename.to_s <=> b.filename.to_s }
+    originals = entry.source_entries.map do |entry|
+      entry.transform? ? entry.source_entry : entry
+    end
+    found = originals.sort { |a,b| a.filename.to_s <=> b.filename.to_s }
     found.should == source_entries
   end    
 

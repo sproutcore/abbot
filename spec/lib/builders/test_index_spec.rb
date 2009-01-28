@@ -32,8 +32,9 @@ describe SC::Builder::Test do
     require 'json'
     File.exist?(dst_path).should be_true
     result = JSON.parse(File.read(dst_path))
-    result.size.should == 2
+    result.size.should == 3 #qunit_test, rhtml_test, qunit_test2
     result.each do |item|
+      next if item['filename'] =~ /qunit_test2/
       entry = (item['filename'] =~ /qunit_test/) ? @qunit_entry : @rhtml_entry
       item['filename'].should == entry.filename.ext('')
       item['url'].should == entry.url

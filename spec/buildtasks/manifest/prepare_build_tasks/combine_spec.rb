@@ -243,4 +243,23 @@ describe "manifest:prepare_build_tasks:combine" do
     end
   end
 
+  describe "Generates javascript-packed.js" do
+    
+    before do
+      @entry = entry_for('javascript-packed.js')
+    end
+    
+    it "should generate a javascript-packed.js entry" do
+      @entry.should_not be_nil
+    end
+    
+    it "should include javascript.js entries from other targets" do
+      @entry.source_entries.size.should > 0
+      @entry.source_entires.each do |entry|
+        entry.filename.should == 'javascript.js'
+      end
+    end
+    
+  end
+  
 end

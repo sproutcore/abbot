@@ -94,6 +94,16 @@ module SC
     # The owner target
     def target; @target ||= manifest.target; end
     
+    # Returns a timestamp for when this file was last changed.  This will
+    # reach back to the source entries, finding the latest original entry.
+    def timestamp
+      if composite?
+        source_entries.map { |e| e.timestamp }.max
+      else
+        File.exist?(source_path) ? File.mtime(source_path).to_i : 0
+      end
+    end
+    
     # Scans the source paths (first staging any source entries) for the 
     # passed regex.  Your block will be executed with each line that matched.
     # Returns the results of each block

@@ -142,7 +142,14 @@ namespace :manifest do
       MANIFEST.entries.each do |entry|
         next unless entry.filename =~ /^tests\//
 
-        # Add transform
+        # if this is a js file, add js transform first to handle sc_static()
+        # etc.
+        if entry.ext == 'js'
+          entry = MANIFEST.add_transform entry,
+            :build_task => 'build:javascript'
+        end
+        
+        # Add transform to build into test.
         test_entries << MANIFEST.add_transform(entry, 
           :build_task => "build:test",
           :entry_type => :test,
@@ -261,6 +268,19 @@ namespace :manifest do
           :entry_type      => :javascript,
           :combined        => true
       end
+      
+      # # Build packed JavaScript entry
+      # targets = TARGET.expand_required_targets + [TARGET]
+      # entries = targets.map do |target|
+      #   target.manifest_for(MANIFEST.varation).entry_for('javascript.js')
+      # end
+      # entries.compact!
+      # MANIFEST.add_composite 'javascript-packed.js',
+      #   :build_task        => 'build:combine',
+      #   :source_entries    => entries,
+      #   :hide_entries      => false,
+      #   :entry_type        => :javascript,
+      #   :combined          => true
       
     end
     

@@ -113,7 +113,8 @@ module SC
         headers = {
           "Last-Modified"  => File.mtime(build_path).httpdate,
           "Content-Type"   => mime_type(build_path),
-          "Content-Length" => file_size.to_s
+          "Content-Length" => file_size.to_s,
+          "Expires"        => Time.now.httpdate
         }
         [200, headers, File.open(build_path, 'rb')]
       end
