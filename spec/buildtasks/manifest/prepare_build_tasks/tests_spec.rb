@@ -123,7 +123,7 @@ describe "manifest:prepare_build_tasks:tests" do
         entry.build_task.to_s.should == "build:test"
       end
     end
-    
+        
   end
   
   it "should create a composite entry to generate a -index.json with test entries as source (excluding composite summary entries)" do

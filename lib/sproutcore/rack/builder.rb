@@ -61,6 +61,9 @@ module SC
     #
     class Builder
       
+      # used to set expires header.
+      TEN_YEARS = 10 * 364 * 24 * 60 * 60
+      
       # When you create a new builder, pass in one or more projects you want
       # the builder to monitor for changes.
       def initialize(project)
@@ -85,7 +88,7 @@ module SC
         return not_found("No matching target") if target.nil?
         
         # normalize url to resolve to entry & extract the language
-        url, language = normalize_url(url, target)
+        url, language, cacheable = normalize_url(url, target)
         return not_found("Target requires language") if language.nil?
         
         # lookup manifest
@@ -112,9 +115,10 @@ module SC
         file_size = File.size(build_path)
         headers = {
           "Last-Modified"  => File.mtime(build_path).httpdate,
+          "Etag"           => File.mtime(build_path).to_i.to_s,
           "Content-Type"   => mime_type(build_path),
           "Content-Length" => file_size.to_s,
-          "Expires"        => Time.now.httpdate
+          "Expires"        => (cacheable ? (Time.now + TEN_YEARS) : Time.now).httpdate
         }
         [200, headers, File.open(build_path, 'rb')]
       end
@@ -175,25 +179,52 @@ module SC
       # for all the different ways you can request an index.html file and 
       # convert it to a canonical form
       #
-      # ==== Params
-      # url<String>:: The URL
+      # Returns the normalized url, the language extracted from the url and
+      # a boolean indicating whether the url is considered cacheable or not.
+      # any url beginning with the target's url_root is considered cacheable
+      # and will therefore be returned with an expires <10years> header set.
+      #
+      # === Params
+      #  url:: the url to normalize
+      #  target:: the suspected target url
+      #
+      # === Returns
+      #  [normalized url, matched language, cacheable]
       #
       def normalize_url(url, target)
 
-        # Parse the URL
-        matched = url.match(/^#{Regexp.escape target.index_root}(\/([^\/\.]+))?(\/([^\/\.]+))?(\/|(\/index\.html))?$/)
+        cacheable = true 
+        
+        # match
+        # /foo - /foo/index.html
+        # /foo/en - /foo/en/index.html
+        # /foo/en/build_number - /foo/en/build_number/index.html
+        # /foo/en/CURRENT/resource-name
+        matched = url.match(/^#{Regexp.escape target.index_root}(\/([^\/\.]+))?(\/([^\/\.]+))?(\/(.*))?$/)
         unless matched.nil?
           matched_language = matched[2] || target.config.preferred_language
-          matched_build_number = matched[4] || target.build_number || 'current'
-          url = [target.url_root, 
-            matched_language, matched_build_number,
-            'index.html'] * '/'
+          
+          matched_build_number = matched[4]
+          if matched_build_number.blank? || matched_build_number == 'current'
+            matched_build_number = target.build_number
+          end
+          
+          resource_name = matched[6]
+          resource_name = 'index.html' if resource_name.blank?
+
+          # convert to url root based
+          url = [target.url_root, matched_language, matched_build_number, 
+                 resource_name] * '/'
+          cacheable = false # index_root based urls are not cacheable
+          
+        # otherwise, just get the language -- url_root-based urls must be 
+        # fully qualified
         else
           matched = url.match(/^#{Regexp.escape  target.url_root}\/([^\/\.]+)/)
           matched_language = matched ? matched[1] : nil
         end
 
-        return [url, matched_language]
+        return [url, matched_language, cacheable]
       end
       
       # Returns the mime type.  Basically this is the Rack mime mapper with

@@ -82,11 +82,16 @@ mode :debug do
     # debug settings for sc-server
     :serve_exceptions => true,
     :reload_project   => true,
+
+    # In debug mode, we want to simply compute the build number each time
+    # to ensure the latest version is always loaded.
+    :build_number     => nil,
     
-    # set default build number in debug mode since caching is not used 
-    # anyway.
-    :build_number     => 'current',
-    :use_query_cache_control => true # add query strings to control caching
+    # the fast build number method uses file mtimes.  It will work correctly
+    # on a single machine, but it may produce different build numbers from
+    # one machine to the next, so it should not be used in production mode 
+    # builds.
+    :compute_fast_builder_numbers => true
     
 
 end

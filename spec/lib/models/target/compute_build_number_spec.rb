@@ -47,68 +47,108 @@ describe SC::Target, 'compute_build_number' do
   end
     
   
-  it "generates a unique build number based on content if nothing is explicitly set" do
-    target = @project.target_for(:sproutcore)
-    target.config.build_numbers = nil #precondition
-    target.config.build_number = nil  #precondition
+  describe "accurate method to compute build number" do
     
-    target.compute_build_number.should_not be_nil
-  end
+    before do
+      @target = @project.target_for(:sproutcore)
+      @target.config.build_numbers = nil #precondition
+      @target.config.build_number = nil  #precondition
+      @target.config.compute_fast_build_numbers = false
+    end
+      
+    it "generates a unique build number based on content if nothing is explicitly set" do
+      @target.compute_build_number.should_not be_nil
+    end
   
-  it "changes its generated build number if contents of source files change" do
-    target = @project.target_for(:sproutcore)
-    target.config.build_numbers = nil #precondition
-    target.config.build_number = nil  #precondition
+    it "changes its generated build number if contents of source files change" do
+      old_build_number = @target.compute_build_number
+    
+      # write an extra file into target for testing
+      add_dummyfile(@target)
+    
+      # get new build number
+      new_build_number = @target.compute_build_number
+      new_build_number.should_not eql(old_build_number)
+    end
+  end
 
-    old_build_number = target.compute_build_number
+  describe "fast method to compute build number" do
     
-    # write an extra file into target for testing
-    add_dummyfile(target)
+    before do
+      @target = @project.target_for(:sproutcore)
+      @target.config.build_numbers = nil #precondition
+      @target.config.build_number = nil  #precondition
+      @target.config.compute_fast_build_numbers = true
+    end
     
-    # get new build number
-    new_build_number = target.compute_build_number
-    new_build_number.should_not eql(old_build_number)
+    it "uses faster method to compute build numbers" do
+      start = Time.now
+      20.times { @target.compute_build_number }
+      fast_time = Time.now - start
+
+      @target.config.compute_fast_build_numbers = false
+      start = Time.now
+      20.times { @target.compute_build_number }
+      accurate_time = Time.now - start
+      
+      fast_time.should < accurate_time
+    end
+        
+    it "generates a unique build number based on content if nothing is explicitly set" do
+      @target.compute_build_number.should_not be_nil
+    end
+  
+    it "changes its generated build number if contents of source files change" do
+      old_build_number = @target.compute_build_number
+    
+      # write an extra file into target for testing
+      add_dummyfile(@target)
+    
+      # get new build number
+      new_build_number = @target.compute_build_number
+      new_build_number.should_not eql(old_build_number)
+    end
   end
 
   it "changes generated build number if build number for a required target changes" do
     target = @project.target_for(:sproutcore)
     target.should_not be_nil
-  
+
     required = target.target_for(:desktop)
     required.should_not be_nil
     required.config.build_numbers = nil #precondition
     required.config.build_number = nil  #precondition
-    
+  
     target.config.build_numbers = nil #precondition
     target.config.build_number = nil  #precondition
     target.required_targets.should include(required) #precondition
-    
+  
     old_build_number = target.compute_build_number
-    
+  
     # write an extra file into required target for testing -- changes number
     add_dummyfile(required)
-    
+  
     # get new build number
     new_build_number = target.compute_build_number
     new_build_number.should_not eql(old_build_number)
   end
-  
+
   it "does not change generated build number if a nested target that is not required by target changes" do
     target = @project.target_for(:sproutcore)
     target.should_not be_nil
-  
+
     not_required = target.target_for(:mobile)
     not_required.should_not be_nil
-  
+
     #precondition
     target.expand_required_targets.should_not include(not_required) 
-    
+  
     target = @project.target_for(:sproutcore)
     old_build_number = target.compute_build_number
-    
+  
     # write an extra file into required target for testing -- changes number
     add_dummyfile(not_required)
-    
+  
     # get new build number
     new_build_number = target.compute_build_number
     new_build_number.should eql(old_build_number)

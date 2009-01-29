@@ -250,10 +250,25 @@ module SC
         require 'digest/md5'
 
         # No predefined build number was found, instead let's compute it!
-        digests = Dir.glob(File.join(source_root, '**', '*')).map do |path|
-          allowed = File.exists?(path) && !File.directory?(path)
-          allowed = allowed && !target_directory?(path)
-          allowed ? Digest::SHA1.hexdigest(File.read(path)) : nil
+        if config.compute_fast_build_numbers
+          # Note: this method is not good for production builds because it 
+          # depends on the file mtime, which can change from one machine to 
+          # the next.  It is faster though, which is better for use in
+          # development mode when you need to quickly calculate the build
+          # number for an asset.
+          digests = Dir.glob(File.join(source_root, '**', '*')).map do |path| 
+            File.mtime(path) 
+          end
+        else
+          # This method computes the build number based on the contents of the
+          # files.  It is not as fast as using an mtime, but it will remain
+          # constant from one machine to the next so it can be used when
+          # deploying across multiple build machines, etc.
+          digests = Dir.glob(File.join(source_root, '**', '*')).map do |path|
+            allowed = File.exists?(path) && !File.directory?(path)
+            allowed = allowed && !target_directory?(path)
+            allowed ? Digest::SHA1.hexdigest(File.read(path)) : nil
+          end
         end
         digests.compact!
 

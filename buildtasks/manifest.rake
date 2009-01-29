@@ -164,7 +164,8 @@ namespace :manifest do
       
       # Generate composite entries for each directory...
       entries_by_dirname.each do |dirname, entries|
-        MANIFEST.add_composite "#{dirname}.html",
+        filename = "#{dirname}.html"
+        MANIFEST.add_composite filename,
           :build_task     => "build:test",
           :entry_type     => :test,
           :ext            => :html,
