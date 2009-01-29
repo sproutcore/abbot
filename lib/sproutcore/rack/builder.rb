@@ -62,7 +62,7 @@ module SC
     class Builder
       
       # used to set expires header.
-      TEN_YEARS = 10 * 364 * 24 * 60 * 60
+      TEN_YEARS = 10 * 365 * 24 * 60 * 60
       
       # When you create a new builder, pass in one or more projects you want
       # the builder to monitor for changes.
