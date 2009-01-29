@@ -128,7 +128,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
     
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css javascript sass combine minify html strings tests) #%w(image) 
+    task :all => %w(css javascript sass combine minify html strings tests packed) 
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -270,20 +270,40 @@ namespace :manifest do
           :combined        => true
       end
       
-      # # Build packed JavaScript entry
-      # targets = TARGET.expand_required_targets + [TARGET]
-      # entries = targets.map do |target|
-      #   target.manifest_for(MANIFEST.varation).entry_for('javascript.js')
-      # end
-      # entries.compact!
-      # MANIFEST.add_composite 'javascript-packed.js',
-      #   :build_task        => 'build:combine',
-      #   :source_entries    => entries,
-      #   :hide_entries      => false,
-      #   :entry_type        => :javascript,
-      #   :combined          => true
-      
     end
+
+    desc "adds a packed entry including javascript.js from required targets"
+    task :packed => %w(setup combine) do
+
+      # don't add packed entries for apps.
+      if TARGET.target_type != :app
+        # Handle JavaScript version.  get all required targets and find their
+        # javascript.js.  Build packed js from that.
+        targets = TARGET.expand_required_targets + [TARGET]
+        entries = targets.map do |target|
+          m = target.manifest_for(MANIFEST.variation).build!
+        
+          # need to find the version that is not minified
+          entry = m.entry_for('javascript.js')
+          entry = entry.source_entry while entry && entry.minified?
+          entry
+        end
+      
+        entries.compact!
+        MANIFEST.add_composite 'javascript-packed.js',
+          :build_task        => 'build:combine',
+          :source_entries    => entries,
+          :hide_entries      => false,
+          :entry_type        => :javascript,
+          :combined          => true,
+          :ordered_entries   => entries, # orderd by load order
+          :targets           => targets,
+          :packed            => true
+      
+        # TODO: Do the same for stylesheets here.
+      end      
+    end
+    task :minify => :packed # IMPORTANT: don't want minified version
     
     desc "create a builder task for all sass files to create css files"
     task :sass => :setup do
@@ -372,7 +392,8 @@ namespace :manifest do
             MANIFEST.add_transform entry, 
               :build_task => 'build:minify:css',
               :entry_type => :css,
-              :minified   => true
+              :minified   => true,
+              :packed     => entry.packed? # carry forward
           end
               
         when :javascript
@@ -380,7 +401,8 @@ namespace :manifest do
             MANIFEST.add_transform entry, 
               :build_task => 'build:minify:javascript',
               :entry_type => :javascript,
-              :minified   => true
+              :minified   => true,
+              :packed     => entry.packed? # carry forward
           end
         end
       end

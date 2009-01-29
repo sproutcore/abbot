@@ -13,6 +13,7 @@ module SC
     def build(dst_path)
       lines = []
       entries = entry.ordered_entries || entry.source_entries
+      
       entries.each do |entry|
         src_path = entry.stage!.staging_path
         next unless File.exist?(src_path)

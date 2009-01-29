@@ -24,6 +24,21 @@ module SC
       # Get the manifests to build
       manifests = build_manifests(targets)
 
+      # First clean all manifests
+      # Do this before building so we don't accidentally erase already build
+      # nested targets.
+      if SC.env.clean
+        manifests.each do |manifest|
+          build_root = manifest.target.build_root
+          info "Cleaning #{build_root}"
+          FileUtils.rm_r(build_root) if File.directory?(build_root)
+          
+          staging_root = manifest.target.staging_root
+          info "Cleaning #{staging_root}"
+          FileUtils.rm_r(staging_root) if File.directory?(staging_root)
+        end
+      end
+          
       # Now build entries for each manifest...
       manifests.each do |manifest|
         
@@ -44,17 +59,6 @@ module SC
         # if there are entries to build, log and build
         if entries.size > 0
           info "Building entries for #{manifest.target.target_name}:#{manifest.language}..."
-          
-          # if clean is enabled, first delete the build_root & staging_root 
-          # dir for the target.
-          if SC.env.clean
-            build_root = manifest.target.build_root
-            info "Cleaning #{build_root}"
-            FileUtils.rm_r(build_root) if File.directory?(build_root)
-            
-            staging_root = manifest.target.staging_root
-            info "Cleaning #{staging_root}"
-          end
           
           entries.each do |entry|
             info "  #{entry.filename} -> #{entry.build_path}"

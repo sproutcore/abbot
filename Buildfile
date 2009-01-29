@@ -57,7 +57,9 @@ mode :all do
     
     # name a framework to use as the theme.  will be included in required
     # frameworks automatically if found.
-    :theme  => 'sproutcore/standard_theme'
+    :theme  => 'sproutcore/standard_theme',
+    
+    :use_packed => true
 end
 
 
@@ -91,7 +93,9 @@ mode :debug do
     # on a single machine, but it may produce different build numbers from
     # one machine to the next, so it should not be used in production mode 
     # builds.
-    :compute_fast_builder_numbers => true
+    :compute_fast_builder_numbers => true,
+    
+    :use_packed => false
     
 
 end

@@ -83,7 +83,7 @@ module SC
         # collect urls from entries
         urls = []
         combine_javascript = t.config.combine_javascript
-        combined_entries(t, opts, 'javascript.js') do |cur_target, cur_entry|
+        combined_entries(t, opts, 'javascript.js', 'javascript-packed.js') do |cur_target, cur_entry|
           
           # include either the entry URL or URL of ordered entries
           # depending on setup
@@ -213,14 +213,36 @@ module SC
         return ret # done!
       end
 
-      def combined_entries(t, opts, entry_name, &block)
+      # Find all of the combined entries.
+      def combined_entries(t, opts, entry_name, packed_entry_name=nil, &block)
         
         # choose manifest variant.  default to current manifest variant 
         # if no explicit language was passed.
         v = opts[:language] ? { :language => opts[:language] } : manifest.variation
         
-        targets = (expand_required_targets(t) + [t])
-        targets.each do |t|
+        # choose which targets to include packed and unpacked
+        targets = expand_required_targets(t)
+        if t.config.use_packed && packed_entry_name # must pass to activate
+          packed, unpacked = SC::PackedOptimizer.optimize(targets)
+          unpacked << t # always use unpacked for main target
+        else
+          packed = []
+          unpacked = targets + [t] # always use unpacked
+        end
+        
+        # deal with packed targets...
+        packed.each do |t|
+          # get the manifest for the target
+          cur_manifest = t.manifest_for(v).build!
+          
+          # get the stylesheet or js entry for it...
+          entry = cur_manifest.entry_for packed_entry_name
+          next if entry.nil? || !entry.composite? # no stylesheet or js
+          
+          yield(t, entry)
+        end
+
+        unpacked.each do |t|
           # get the manifest for the target
           cur_manifest = t.manifest_for(v).build!
 
@@ -231,7 +253,7 @@ module SC
           yield(t, entry)
         end
       end
-        
+
       
     end
 

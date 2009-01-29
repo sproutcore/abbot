@@ -159,7 +159,12 @@ module SC
       # If include required was specified, merge in all required bundles as 
       # well.
       if options['include-required']
-        targets.each { |target| targets += target.expand_required_targets }
+        targets.each do |target| 
+          targets += target.expand_required_targets :theme => true,
+           :debug => target.config.load_debug,
+           :tests => target.config.load_tests
+        end
+        
         targets = targets.flatten.uniq.compact
       end
       
