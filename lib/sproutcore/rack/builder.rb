@@ -74,39 +74,51 @@ module SC
       # Main entry point for this Rack application.  Returns 404 if no
       # matching entry could be found in the project.
       def call(env)
-        mutex.synchronize { _call(env) }
-      end
-      
-      def _call(env)
-        reload_project! # if needed
+        
+        # define local variables so they will survive the mutext contexts 
+        # below...
+        ret = url = target = language = cacheable = manifest = entry = nil
+        build_path = nil
+        
+        project_mutex.synchronize do 
+          reload_project! # if needed
 
-        # collect some standard info
-        url = env['PATH_INFO']
+          # collect some standard info
+          url = env['PATH_INFO']
+      
+          # look for a matching target
+          target = target_for(url)
+          ret = not_found("No matching target") if target.nil?
+      
+          # normalize url to resolve to entry & extract the language
+          if ret.nil?
+            url, language, cacheable = normalize_url(url, target)
+            ret = not_found("Target requires language") if language.nil?
+          end
+      
+          # lookup manifest
+          if ret.nil?
+            language = language.to_s.downcase.to_sym # normalize
+            manifest = target.manifest_for(:language => language).build!
+      
+            # lookup entry by url
+            unless entry = manifest.entries.find { |e| e.url == url }
+              ret = not_found("No matching entry in target")
+            end
+          end
+        end
+        return ret unless ret.nil? # exit if error occurred...
+
+        build_mutex.synchronize do
+          # Clean the entry so it will rebuild if we are serving an html file
+          entry.clean! if entry.filename =~ /.html$/
         
-        # look for a matching target
-        target = target_for(url)
-        return not_found("No matching target") if target.nil?
-        
-        # normalize url to resolve to entry & extract the language
-        url, language, cacheable = normalize_url(url, target)
-        return not_found("Target requires language") if language.nil?
-        
-        # lookup manifest
-        language = language.to_s.downcase.to_sym # normalize
-        manifest = target.manifest_for(:language => language).build!
-        
-        # lookup entry by url
-        unless entry = manifest.entries.find { |e| e.url == url }
-          return not_found("No matching entry in target")
+          # Now build entry and return a file object
+          build_path = entry.build!.build_path
         end
         
-        # Clean the entry so it will rebuild if we are serving an html file
-        entry.clean! if entry.filename =~ /.html$/
-        
-        # Now build entry and return a file object
-        build_path = entry.build!.build_path
         unless File.file?(build_path) && File.readable?(build_path)
-          return not_found("File could not build (entry: #{entry.filename} - build_paht: #{build_path}")
+          return not_found("File could not build (entry: #{entry.filename} - build_path: #{build_path}")
         end
         
         SC.logger.info "Serving #{target.target_name.to_s.sub(/^\//,'')}:#{entry.filename}"
@@ -126,10 +138,13 @@ module SC
       attr_reader :project
       
       protected
+
+      # Mutex used while updating the project and retrieving the entry to
+      # build.
+      def project_mutex; @project_mutex ||= Mutex.new; end
       
-      # Mutex used to ensure project building and other important tasks
-      # are performed synchronously
-      def mutex; @mutex ||= Mutex.new; end
+      # Mutex used while building an entry...
+      def build_mutex; @build_mutex ||= Mutex.new; end
       
       # Invoked when a resource cannot be found for some reason
       def not_found(reason)
