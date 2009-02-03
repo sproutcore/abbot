@@ -26,17 +26,18 @@ module SC
     end
     
     def build_css(dst_path)
-      lines = readlines(entry.source_path)
-      options = {
-        :preserveComments => false,
-        :preserveNewlines => false,
-        :preserveSpaces => true,
-        :preserveColors => false,
-        :skipMisc => false
-      }
-      output = SC::Helper::CSSPacker.new.compress(lines.join, options)
-      writelines dst_path, [output]
-    end
+      	yui_root = File.expand_path(File.join(LIBPATH, '..', 'vendor', 'yui-compressor'))
+	    jar_path = File.join(yui_root, 'yuicompressor-2.4.2.jar')
+	    FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
+	    filecompress = "java -jar " + jar_path + " --charset utf-8 " + entry.source_path + " -o " + dst_path
+	    SC.logger.info  'Compressing CSS with YUI .... '+ dst_path
+	    SC.logger.debug `#{filecompress}`
+
+	    if $?.exitstatus != 0
+	      SC.logger.fatal("!!!!YUI compressor failed, please check that your css code is valid.")
+	      SC.logger.fatal("!!!!Failed compressing CSS... "+ dst_path)
+	    end    
+	end
     
     # Minify some javascript by invoking the YUI compressor.
     def build_javascript(dst_path)

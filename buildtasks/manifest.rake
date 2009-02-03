@@ -300,10 +300,42 @@ namespace :manifest do
           :targets           => targets,
           :packed            => true
       
-        # TODO: Do the same for stylesheets here.
       end      
     end
     task :minify => :packed # IMPORTANT: don't want minified version
+    
+    desc "adds a packed entry including stylesheet.css from required targets"
+    task :packed => %w(setup combine) do
+
+      # don't add packed entries for apps.
+      if TARGET.target_type != :app
+        # Handle CSS version.  get all required targets and find their
+        # stylesheet.css.  Build packed css from that.
+        targets = TARGET.expand_required_targets + [TARGET]
+        entries = targets.map do |target|
+          m = target.manifest_for(MANIFEST.variation).build!
+        
+          # need to find the version that is not minified
+          entry = m.entry_for('stylesheet.css')
+          entry = entry.source_entry while entry && entry.minified?
+          entry
+        end
+      
+        entries.compact!
+        MANIFEST.add_composite 'stylesheet-packed.css',
+          :build_task        => 'build:combine',
+          :source_entries    => entries,
+          :hide_entries      => false,
+          :entry_type        => :css,
+          :combined          => true,
+          :ordered_entries   => entries, # orderd by load order
+          :targets           => targets,
+          :packed            => true
+      
+      end      
+    end
+    task :minify => :packed # IMPORTANT: don't want minified version
+    
     
     desc "create a builder task for all sass files to create css files"
     task :sass => :setup do

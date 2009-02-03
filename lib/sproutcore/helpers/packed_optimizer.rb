@@ -1,4 +1,4 @@
-module SC
+module SC::Helpers
   
   # Given a set of targets, this can determine the optimial mix of loading
   # packed targets vs individual targets to yield the smaller number of 
