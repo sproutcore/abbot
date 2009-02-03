@@ -87,13 +87,14 @@ mode :debug do
 
     # In debug mode, we want to simply compute the build number each time
     # to ensure the latest version is always loaded.
-    :build_number     => nil,
-    
-    # the fast build number method uses file mtimes.  It will work correctly
-    # on a single machine, but it may produce different build numbers from
-    # one machine to the next, so it should not be used in production mode 
-    # builds.
-    :compute_fast_builder_numbers => true,
+    :build_number     => :current,
+
+    # Instructs the URL builders to include a timestamp token at the end of 
+    # urls.  This option is only useful in development mode since browsers
+    # will respect the timestamp token as a way to unique the url.  This
+    # should not be used in production as some proxies on the internet do
+    # not respect tokens.
+    :timestamp_urls  =>  true,
     
     :use_packed => false
     

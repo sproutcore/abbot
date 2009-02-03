@@ -9,6 +9,7 @@ describe SC::Builder::Stylesheet do
     
     # add fake image entry for sc_static tests..
     @manifest.add_entry 'icons/image.png'
+    @target.config.timestamp_urls = false
   end
 
 
@@ -40,6 +41,22 @@ describe SC::Builder::Stylesheet do
       next if line.size == 1
       line.should_not =~ /(static_url|sc_static)/
       line.should =~ /url\('.+'\)/ # important MUST have some url...
+    end
+  end
+
+  it "static_url() and sc_static() respects config.timestamp_urls" do
+    @target.config.timestamp_urls = false
+    lines = run_builder 'sc_static.css'
+    lines.each do |line|
+      next if line.size == 1
+      line.should_not =~ /url\('.+\?.+'\)/ # important MUST have some url...
+    end
+
+    @target.config.timestamp_urls = true
+    lines = run_builder 'sc_static.css'
+    lines.each do |line|
+      next if line.size == 1
+      line.should =~ /url\('.+\?.+'\)/ # important MUST have some url...
     end
   end
   

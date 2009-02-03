@@ -104,6 +104,15 @@ module SC
       end
     end
     
+    # Returns a URL with a possible timestamp token appended to the end of 
+    # the entry if the target's timestamp_url config is set.  Otherwise
+    # returns the URL itself.
+    def cacheable_url
+      ret = self.url
+      ret = [ret, self.timestamp].join('?') if target.config.timestamp_urls
+      return ret
+    end
+    
     # Scans the source paths (first staging any source entries) for the 
     # passed regex.  Your block will be executed with each line that matched.
     # Returns the results of each block

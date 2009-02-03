@@ -11,6 +11,12 @@ describe SC::Builder::Html do
     # in production mode
     @target.config.load_debug = false
     @target.config.theme = nil
+    @target.config.timestamp_urls = false
+    
+    # make sure all targets have the same settings...
+    @target.expand_required_targets.each do |t|
+      t.config.timestamp_urls = false
+    end
     
     # run std rules to run manifest.  Then verify preconditions to make sure
     # no other changes to the build system effect the ability of these tests
@@ -193,6 +199,14 @@ describe SC::Builder::Html do
         @builder.sc_static('fr.png', :language => :fr).should =~ /french-icons\/fr.png/
       end
       
+      it "respects the timestamp_url option for static_url()" do
+        @target.config.timestamp_urls = false
+        @builder.static_url('icons/image').should_not =~ /\?.+$/
+        
+        @target.config.timestamp_urls = true
+        @builder.static_url('icons/image').should =~ /\?.+$/
+      end
+      
       it "accepts sc_resource(rsrc_name, opts).  :layout opt may be used to set layout.  otherwise this is scanned for during manifest building" do
         @builder.sc_resource('foo', :layout => 'bar')
         @builder.instance_variable_get('@layout').should == 'bar'
@@ -294,6 +308,43 @@ describe SC::Builder::Html do
           result.should =~ /href=\"foo\"/
           result.should =~ /href=\"bar\"/
         end
+        
+        describe "timestamp_urls support" do
+          
+          def test_timestamps(should_have)
+            result = @builder.stylesheets_for_client
+            matches = 0
+            result.scan(/href=\"([^\"]+)\"/) do |m|
+              m=m.first # look @ match...
+              matches += 1 
+              if should_have
+                m.should =~ /\?.+$/
+              else
+                m.should_not =~ /\?.+$/
+              end
+            end
+            matches.should > 0 # should match some urls...
+          end
+          
+          it "does NOT timestamp to all urls if timestamp_urls is false" do
+            # simulate having timestamp_urls set true in the root buildfile
+            @target.config.timestamp_urls = false # preconditon
+            @target.expand_required_targets.each do |t|
+              t.config.timestamp_urls = false
+            end
+            test_timestamps false
+          end
+        
+          it "does timestamp all urls if timestamp_urls is true" do
+            # simulate having timestamp_urls set true in the root buildfile
+            @target.config.timestamp_urls = true # precondition
+            @target.expand_required_targets.each do |t|
+              t.config.timestamp_urls = true
+            end
+            test_timestamps true
+          end
+        end
+          
         
         it "adds stylesheet for debug if CONFIG.load_debug" do
           # figure expected urls...
@@ -399,6 +450,40 @@ describe SC::Builder::Html do
           @target.config.load_test = true
           result = @builder.javascripts_for_client
           result.should_not =~ url
+        end
+
+        describe "timestamp_urls support" do
+          
+          def test_timestamps(should_have)
+            result = @builder.javascripts_for_client
+            matches = 0
+            result.scan(/src=\"([^\"]+)\"/) do |m|
+              matches += 1 
+              m = m.first # look @ match
+              if should_have
+                m.should =~ /\?.+$/
+              else
+                m.should_not =~ /\?.+$/
+              end
+            end
+            matches.should > 0 # should match some urls...
+          end
+          
+          it "does NOT timestamp to all urls if timestamp_urls is false" do
+            @target.config.timestamp_urls = false # preconditon
+            @target.expand_required_targets.each do |t|
+              t.config.timestamp_urls = false
+            end
+            test_timestamps false
+          end
+        
+          it "does timestamp all urls if timestamp_urls is true" do
+            @target.config.timestamp_urls = true # precondition
+            @target.expand_required_targets.each do |t|
+              t.config.timestamp_urls = true
+            end
+            test_timestamps true
+          end
         end
       
       end

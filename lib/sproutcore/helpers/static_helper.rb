@@ -35,9 +35,9 @@ module SC
           # include either the entry URL or URL of ordered entries
           # depending on setup
           if combine_stylesheets
-            urls << cur_entry.url
+            urls << cur_entry.cacheable_url
           else
-            urls += cur_entry.ordered_entries.map { |e| e.url }
+            urls += cur_entry.ordered_entries.map { |e| e.cacheable_url }
           end
           
           # add any stylesheet libs from the target
@@ -88,9 +88,9 @@ module SC
           # include either the entry URL or URL of ordered entries
           # depending on setup
           if combine_javascript
-            urls << cur_entry.url
+            urls << cur_entry.cacheable_url
           else
-            urls += cur_entry.ordered_entries.map { |e| e.url }
+            urls += cur_entry.ordered_entries.map { |e| e.cacheable_url }
           end
           
           # add any stylesheet libs from the target
@@ -120,7 +120,7 @@ module SC
         end
         
         entry = m.find_entry(resource_name)
-        entry.nil? ? '' : entry.url
+        entry.nil? ? '' : entry.cacheable_url
       end
       alias_method :static_url, :sc_static
 

@@ -56,7 +56,7 @@ module SC
       def replace_static_url(line)
         line.gsub(/(sc_static|static_url)\(\s*['"](.+)['"]\s*\)/) do | rsrc |
           static_entry = entry.manifest.find_entry($2)
-          static_url(static_entry.nil? ? '' : static_entry.url)
+          static_url(static_entry.nil? ? '' : static_entry.cacheable_url)
         end
       end
 

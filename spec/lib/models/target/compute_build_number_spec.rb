@@ -53,47 +53,8 @@ describe SC::Target, 'compute_build_number' do
       @target = @project.target_for(:sproutcore)
       @target.config.build_numbers = nil #precondition
       @target.config.build_number = nil  #precondition
-      @target.config.compute_fast_build_numbers = false
     end
       
-    it "generates a unique build number based on content if nothing is explicitly set" do
-      @target.compute_build_number.should_not be_nil
-    end
-  
-    it "changes its generated build number if contents of source files change" do
-      old_build_number = @target.compute_build_number
-    
-      # write an extra file into target for testing
-      add_dummyfile(@target)
-    
-      # get new build number
-      new_build_number = @target.compute_build_number
-      new_build_number.should_not eql(old_build_number)
-    end
-  end
-
-  describe "fast method to compute build number" do
-    
-    before do
-      @target = @project.target_for(:sproutcore)
-      @target.config.build_numbers = nil #precondition
-      @target.config.build_number = nil  #precondition
-      @target.config.compute_fast_build_numbers = true
-    end
-    
-    it "uses faster method to compute build numbers" do
-      start = Time.now
-      20.times { @target.compute_build_number }
-      fast_time = Time.now - start
-
-      @target.config.compute_fast_build_numbers = false
-      start = Time.now
-      20.times { @target.compute_build_number }
-      accurate_time = Time.now - start
-      
-      fast_time.should < accurate_time
-    end
-        
     it "generates a unique build number based on content if nothing is explicitly set" do
       @target.compute_build_number.should_not be_nil
     end
