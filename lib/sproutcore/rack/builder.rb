@@ -106,16 +106,17 @@ module SC
               ret = not_found("No matching entry in target")
             end
           end
-        end
-        return ret unless ret.nil? # exit if error occurred...
 
-        build_mutex.synchronize do
-          # Clean the entry so it will rebuild if we are serving an html file
-          entry.clean! if entry.filename =~ /.html$/
+          if ret.nil?
+            # Clean the entry so it will rebuild if we are serving an html 
+            # file
+            entry.clean! if entry.filename =~ /.html$/
         
-          # Now build entry and return a file object
-          build_path = entry.build!.build_path
+            # Now build entry and return a file object
+            build_path = entry.build!.build_path
+          end
         end
+        return ret unless ret.nil?
         
         unless File.file?(build_path) && File.readable?(build_path)
           return not_found("File could not build (entry: #{entry.filename} - build_path: #{build_path}")

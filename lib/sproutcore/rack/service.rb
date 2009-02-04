@@ -90,7 +90,7 @@ module SC
         # Now put it behind some useful general optimizers...
         @app = ::Rack::Recursive.new(@app)
         @app = ::Rack::ConditionalGet.new(@app)
-        @app = ::Rack::Deflater.new(@app)
+        #@app = ::Rack::Deflater.new(@app)
         
       end
       
