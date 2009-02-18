@@ -49,18 +49,14 @@ module SC
           if no_body_method.include?(http_method)
             response = http.send(http_method, http_path, headers)
           else
-            # TODO: Where is the Rack env body?
-            # http_body = request.raw_post
-            # puts env.to_yaml
-            # response = http.send(http_method, http_path, http_body, headers)
+          	http_body = env['rack.input'].gets || ''
+            response = http.send(http_method, http_path, http_body, headers)
           end
         end
-        
-        return [404, {}, "not found"] if response.nil?
          
         status = response.code # http status code
         
-        SC.logger << "~ PROXY: #{status} #{url} -> http://#{http_host}:#{http_port}#{http_path}\n"
+        SC.logger << "~ PROXY: #{http_method.upcase} #{status} #{url} -> http://#{http_host}:#{http_port}#{http_path}\n"
         
         # display and construct specific response headers
         response_headers = {}
