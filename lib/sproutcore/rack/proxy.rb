@@ -36,8 +36,9 @@ module SC
           headers[key] = value
         end
         
-        http_host = proxy[:to].split(':').first()
-        http_port = proxy[:to].split(':').last()
+        http_host, http_port = proxy[:to].split(':')
+        http_port = '80' if http_port.nil?
+        
         # proxy_url.gsub!(/([\/|\~])/) { |e| '\\' << e } # TODO: escape any / or ~ in proxy_url what else should be escaped?
         # TODO: how do I replace part of url with proxy_url?
         http_path = url.delete('~')
@@ -60,7 +61,7 @@ module SC
         
         # display and construct specific response headers
         response_headers = {}
-        ignore_headers = ['transfer-encodeing', 'keep-alive', 'connection'] 
+        ignore_headers = ['transfer-encoding', 'keep-alive', 'connection'] 
         response.each do |key, value|
           next if ignore_headers.include?(key.downcase)
           # If this is a cookie, strip out the domain.  This technically may
