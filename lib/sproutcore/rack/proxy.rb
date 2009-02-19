@@ -39,10 +39,13 @@ module SC
         http_host, http_port = proxy[:to].split(':')
         http_port = '80' if http_port.nil?
         
-        # proxy_url.gsub!(/([\/|\~])/) { |e| '\\' << e } # TODO: escape any / or ~ in proxy_url what else should be escaped?
-        # TODO: how do I replace part of url with proxy_url?
-        http_path = url.delete('~')
-        http_path << '?' << params if params.size > 0
+        if proxy[:url]
+          url = url.sub(/^#{Regexp.escape proxy_url}/, proxy[:url])
+        end
+        
+        http_path = [url]
+        http_path << params if params && params.size>0
+        http_path = http_path.join('?')
          
         response = nil
         no_body_method = %w(delete get copy head move options trace) 
