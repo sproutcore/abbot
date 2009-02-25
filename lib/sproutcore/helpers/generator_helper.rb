@@ -9,7 +9,7 @@ module SC
 
     def copy_files(files, destination)
       require 'erubis'
-      
+
       files.each do |x|
         dest = destination + "/" + x.gsub(/(.*\/templates\/)/, '')
         copy(x, dest)
@@ -20,13 +20,12 @@ module SC
       # set up which instance names we will be looking for and replacing
       # used in templates/ file_structure to replace file locations with the instance names
       # these instance names must be entered with an underscore before and after (for instance _file_path_ )
-      instance_names = ['file_path', 'class_path', 'target_name', 'language_name', 'class_name', 
-        'method_name', 'subclass_name', 'subclass_nameplural', 'mvc_name']
+      instance_names = %w(file_path class_path target_name language_name class_name method_name subclass_name subclass_nameplural mvc_name)
         
       instance_names.each do |x|
         instance_name = "_#{x}_"
         if string_to_replace.include? instance_name
-          instance_string_value = eval("@#{x}").to_s
+          instance_string_value = instance_variable_get("@#{x}").to_s
           if instance_string_value!=''
             string_to_replace.gsub!(instance_name, instance_string_value) 
           end
@@ -73,7 +72,6 @@ module SC
         if !File.directory?(File.join(cpath))
           FileUtils.mkdir_p File.join(cpath)
           info "Created directory #{File.join(cpath)}"
-          puts "\tcreate\t#{File.join(cpath)}"
         end
       end
     end
@@ -87,11 +85,12 @@ module SC
         return
       end
       
-      if (to[-1,1]=='/' && !File.directory?(to)) || !File.directory?(File.dirname(to))
-        # first build directory structure if needed
-        build_directories(to)
-      elsif File.exist?(to)
-        puts "\texists\t#{to}"
+      # Create any parent directories
+      dirname = to =~ /\/$/ ? to : File.dirname(to)
+      FileUtils.mkdir_p dirname
+
+      if File.exist?(to) && !File.directory?(to)
+        warn "File already exists at #{to} -- skipping"
       elsif !File.directory?(from)
         # copy file by reading file contents, parse it through Erubis
         # and then write it to the destination
@@ -101,20 +100,18 @@ module SC
         file = File.new(to, "w")
         file.write eruby.result(binding())
 
-        info "Copied file #{from} to #{to}"
-        
-        puts "\tcreate\t#{to}"
+        SC.logger << " ~ Copied file #{from.sub(/^#{Regexp.escape SC::GENPATH}/,'')} to #{to}\n"
       end
     end
     
     def puts_content_of_file(template, type)
       file_location = File.join(SC::GENPATH, template, type)
       if !File.exists?(file_location) 
-        puts "Could not find #{type} file at #{file_location}"
-        return
+        fatal! "Could not find #{type} file at #{file_location}"
       end
       file_text = File.read(file_location)
-      puts file_text
+      SC.logger << file_text
+      SC.logger << "\n"
     end
 
     def append_to_class_name!
@@ -165,14 +162,14 @@ module SC
           required_pwd.each do |x|
             if File.directory?(x) 
               @target_root = File.join(x, @target_root)
-              puts "Found possible target location at #{@target_root}. For more precision use --target"
+              info "Found possible target location at #{@target_root}. For more precision use --target"
               found_dir = YES
               break
             end
             
             if File.directory?(File.join('..', x))
               @target_root = File.join(File.join('..', x), @target_root)
-              puts "Found possible target location at #{@target_root}. For more precision use --target"
+              info "Found possible target location at #{@target_root}. For more precision use --target"
               found_dir = YES
               break
             end
@@ -181,7 +178,7 @@ module SC
         end
         
         if !found_dir
-          raise "The current directory '#{current_pwd}' is not a required present working directory: '#{required_pwd.join('\' or \'')}'."
+          fatal! "The current directory '#{current_pwd}' is not a required present working directory: '#{required_pwd.join('\' or \'')}'."
         end
         
       end

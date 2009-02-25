@@ -8,6 +8,16 @@ module SC
     
     include SC::GeneratorHelper
     
+    def show_help(generator=nil, exists=NO)
+      warn("There is no #{@generator} generator") if generator && !exists
+      if generator && exists
+        puts_content_of_file(generator, 'USAGE')
+      else
+        SC.logger << "Available generators:\n  #{generators.join("\n  ").gsub(/\//, '') }\n"
+        SC.logger << "Type sc-gen generator --help for specific generator usage\n"
+      end
+    end
+    
     desc "sc-gen generator Namespace[.ClassName] [--target=TARGET_NAME] [--filename=FILE_NAME]", 
       "Generates SproutCore components"
     
@@ -17,34 +27,21 @@ module SC
                              :target => :optional))
       
     def gen(*arguments)
+      return show_help if arguments.empty?
       
-      if arguments.empty?
-        puts "sc-gen generator Namespace[.ClassName] [--target=TARGET_NAME] [--filename=FILE_NAME]"
-        if options[:help]
-          # show all installed generators
-          puts "Available generators:\t\n\t#{generators.join("\n\t").gsub(/\//, '') }"
-          puts "Type sc-gen generator --help for specific generator usage"
-        end
-        return
-      end
-      
+      # backwards compatibility case: client is a synonym for 'app'
       @generator = arguments[0]=='client' ? 'app' : arguments[0]
       generator_dir = File.join(SC::GENPATH, @generator, 'templates')
       
-      if !File.exists?(generator_dir)
-        puts "There is no #{@generator} generator"
-        puts "Available generators:\t\n\t#{generators.join("\n\t").gsub(/\//, '') }"
-        return
-      end
-      
-      if options[:help] 
-        puts_content_of_file(@generator, 'USAGE')
-        return
-      end
+      return show_help(@generator, false) if !File.exists?(generator_dir)
+      return show_help(@generator, true) if options[:help]
       
       # Buildfile inclusion
+      #  -- NOTE: the generator system uses a custom configuration of 
+      #  buildfiles and build rules that is separate from the regular build
+      #  system.
       buildfile_location = File.join(SC::GENPATH, @generator, "Buildfile")
-      info "Loading build file: " + buildfile_location
+      info "Loading generator build file: " + buildfile_location
       
       @buildfile = SC::Buildfile.load(buildfile_location)
       @target_root = @buildfile.config_for('/templates')[:root_dir]
@@ -83,12 +80,12 @@ module SC
         check_requirement_pwd
         check_requirement_root_dir
       rescue RuntimeError => error_message
-        puts error_message
-        puts "For specific help on how to use this generator, type: sc-gen #{@generator} --help"
-        return
+        warn "For specific help on how to use this generator, type: sc-gen #{@generator} --help"
+        fatal! error_message
       end
       
       info "Target root: " + @target_root
+      
       # get list of template files to copy
       files = template_files(true, true, generator_dir, true)
       
