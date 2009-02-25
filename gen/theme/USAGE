@@ -1,0 +1,13 @@
+theme - Create a new SproutCore theme.
+
+USAGE:
+
+  sc-gen theme ThemeName [--filename=FILENAME] [--target=TARGET_NAME]
+
+DISCUSSION:
+
+This generator will create a new SproutCore theme for a particular project.  You should pass as the first parameter your ThemeName you want to create.  For example:
+
+sc-gen theme Todos
+
+defines a new theme called Todos in the file themes/todos/ .

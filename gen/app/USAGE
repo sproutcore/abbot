@@ -1,0 +1,13 @@
+app - Create a new SproutCore application target.
+
+USAGE:
+
+  sc-gen app AppName [--filename=FILENAME] [--target=TARGET_NAME]
+
+DISCUSSION:
+
+This generator will create a new SproutCore application for a particular project.  You should pass as the first parameter your AppName you want to create.  For example:
+
+sc-gen app Todos
+
+defines a new application called Todos in the file apps/todos/ .

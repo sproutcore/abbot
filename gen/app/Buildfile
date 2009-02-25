@@ -1,0 +1,4 @@
+# default behavior for a template is to just copy the contents of the
+# templates directory to the end destination. Add any additional configs here.
+config :templates,
+  :root_dir   => 'apps/_file_path_'

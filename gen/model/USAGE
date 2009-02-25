@@ -1,0 +1,15 @@
+model - Create a new model class in your SproutCore app.
+
+USAGE:
+
+  sc-gen model AppName.ClassName [--filename=FILENAME] [--target=TARGET_NAME]
+
+DISCUSSION:
+
+This generator will create a new SproutCore model file in your app.  You should pass as the first parameter your AppName.ClassName combination you want to create.  For example:
+
+sc-gen model Todos.Task
+
+defines a new class called Todos.Task in the file apps/todos/models/task.js .
+
+In addition to creating a model class, this will also create a stub for you to add Fixture data.  This is a convenient way to preload your application with data while you develop the client but have not yet connected to your server.

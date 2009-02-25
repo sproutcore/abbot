@@ -1,0 +1,12 @@
+test - Create a new SproutCore unit test.
+
+USAGE:
+  sc-gen app AppName.ClassName[.methodName] [--filename=FILENAME] [--target=TARGET_NAME]
+
+DISCUSSION:
+
+This generator will create a new SproutCore unit test for a particular application.  You should pass as the first parameter as AppName.ClassName, for example:
+
+sc-gen test Todos.Task
+
+defines a new unit test called Todos.Task in the file apps/todos/tests/models/task.js .

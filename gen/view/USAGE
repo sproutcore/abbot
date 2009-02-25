@@ -1,0 +1,13 @@
+model - Create a new controller class in your SproutCore app.
+
+USAGE:
+
+  sc-gen controller AppName.ClassNameController [--filename=FILENAME] [--target=TARGET_NAME]
+
+DISCUSSION:
+
+This generator will create a new SproutCore controller file in your app.  You should pass as the first parameter your AppName.ClassNameController combination you want to create.  For example:
+
+sc-gen controller Todos.TaskController
+
+defines a new class called Todos.TaskController in the file apps/todos/controllers/task.js .

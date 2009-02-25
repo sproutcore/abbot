@@ -1,0 +1,13 @@
+framework - Create a new SproutCore framework.
+
+USAGE:
+
+  sc-gen framework FrameworkName [--filename=FILENAME] [--target=TARGET_NAME]
+
+DISCUSSION:
+
+This generator will create a new SproutCore framework for a particular project.  You should pass as the first parameter your FrameworkName you want to create.  For example:
+
+sc-gen framework Todos
+
+defines a new framework called Todos in the file frameworks/todos/ .
