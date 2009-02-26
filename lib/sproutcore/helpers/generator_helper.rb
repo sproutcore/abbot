@@ -7,7 +7,11 @@ module SC
   # directory into a target location.
   module GeneratorHelper
 
-    # parse the first argument given in the command line and set the necessary instance variables
+    # Parses the first argument given in the command line and set the necessary 
+    # instance variables
+    #
+    # === Params
+    #  name:: string of passed in argument from cli (for instance Todos.Task)
     def assign_names!(name)
       # @name_as_passed is the appname/classname combination and should never be changed 
       @name_as_passed = name.freeze
@@ -22,16 +26,26 @@ module SC
       end
     end
     
+    # Will strip out Controller or View from the class name
     # TODO: move to Controller/View Buildfile as task?
+    #
+    # === Params
+    #  name:: string of class name (for instance Task in Todos.Task)
+    #
+    # === Returns
+    #  The stripped down string
     def strip_name(name) 
       return name.downcase.gsub('controller', '').gsub('view', '')
     end
 
     # Extract modules from filesystem-style or JavaScript-style path:
-    #   todos/task
-    #   Todos.Task
-    # produce the same results.
-    
+    # todos/task and Todos.Task - will produce the same results
+    #
+    # === Params
+    #  name:: string of passed in first argument from cli (for instance Todos.Task)
+    #
+    # === Returns
+    #  An array of components derived from the string
     def extract_modules(name)
       modules       = name.include?('/') ? name.split('/') : name.split('.')
       class_name    = strip_name(modules[1] ? modules[1] : name).camel_case
@@ -47,19 +61,33 @@ module SC
       [file_path, namespace, class_name, method_name, modules.size]
     end
 
+    # Will copy files from one location to another and strip out anything
+    # that precedes and includes /templates in the destination path
+    #
+    # === Params
+    #  files:: array containing file paths to copy
+    #  destination:: string of where to copy the files to
     def copy_files(files, destination)
       require 'erubis'
-
       files.each do |x|
         dest = destination + "/" + x.gsub(/(.*\/templates\/)/, '')
         copy(x, dest)
       end
     end
-    
+
+    # Will look if a string contains any of the predefined instance variable names
+    # and replace them with their values. This is mostly used for templates/ file_structure
+    # These instance names must be entered with an underscore before and after 
+    # (for instance _file_path_ )
+    #
+    # === Params
+    #  string_to_replace:: string that might contain instance variables to replace
+    #  destination:: boolean to make the instance variable snake_case . default YES
+    #  
+    # === Returns
+    #  The string replaced with the instance variable value(s)
     def replace_with_instance_names!(string_to_replace, snake_case=YES)
-      # set up which instance names we will be looking for and replacing
-      # used in templates/ file_structure to replace file locations with the instance names
-      # these instance names must be entered with an underscore before and after (for instance _file_path_ )
+      
       instance_names = %w(file_path target_name language_name namespace_with_class_name method_name class_name mvc_type)
       
       instance_names.each do |x|
@@ -76,10 +104,24 @@ module SC
       string_to_replace
     end
 
+    # Finds a list of available generators (based on templates/ directory)
+    #
+    # === Returns
+    #  An array containing the strings of all available generators
     def generators
       template_files(true, false, SC::GENPATH, false)
     end
-
+    
+    # Creates a list of all files and directories inside a given directory
+    #
+    # === Params
+    #  directories:: boolean to include directories or not
+    #  sub_directories:: boolean to include sub directories
+    #  cur_dir:: string with path of where to start
+    #  directories:: boolean to include full gen path or not
+    #  
+    # === Returns
+    #  An array containing path strings of template files
     def template_files(directories=false, sub_directories=false, cur_dir=nil, include_base=false)
 
       ret = []
@@ -105,6 +147,10 @@ module SC
       return ret
     end
 
+    # Builds all directories up to the path given
+    #
+    # === Params
+    #  path:: the directory path that you need constructed
     def build_directories(path)
       parts = path.split('/')
       cpath = []
@@ -117,7 +163,13 @@ module SC
         end
       end
     end
-    
+  
+    # Copies a specific file from one location to another
+    # Before writing copy to disk, it will pass through Erubis
+    #
+    # === Params
+    #  from:: string of path to copy from
+    #  to:: string of path to copy to
     def copy(from, to)
       replace_with_instance_names!(to, YES)
       # if to still contains unfilled instance placeholders ignore this file
@@ -145,9 +197,14 @@ module SC
         SC.logger << " ~ Created #{to}\n"
       end
     end
-    
-    def prints_content_of_file(template, type)
-      file_location = File.join(SC::GENPATH, template, type)
+
+    # Will output a given file to SC.logger (typically to stdout)
+    #
+    # === Params
+    #  generator:: string of which generator to look in
+    #  type:: string of file name to use (typically README or USAGE)
+    def prints_content_of_file(generator, type)
+      file_location = File.join(SC::GENPATH, generator, type)
       if !File.exists?(file_location) 
         fatal! "Could not find #{type} file at #{file_location}"
       end
@@ -156,6 +213,9 @@ module SC
       SC.logger << "\n"
     end
 
+    # Will append a string to @namespace_with_class_name if one is given in the
+    # :class_name_append Buildfile config (typically Controller or View)
+    # Will not append if user has already specified the appended string
     def append_to_class_name!
       append_string = @buildfile.config_for('/templates')[:class_name_append]
       if(append_string)
@@ -163,8 +223,21 @@ module SC
       end
     end
     
-    # requirements as defined in the Buildfile for each template
+    # Will append a string to @file_path if one is given in the
+    # :file_path_append Buildfile config (typically Language)
+    # Will not append if user has already specified the appended string
+    def append_to_file_path!
+      append_string = @buildfile.config_for('/templates')[:file_path_append]
+      if(append_string)
+        @file_path = @file_path + append_string unless @file_path.include?(append_string)
+        # TODO: this should be moved to Language Buildfile as a task and/or config
+        @target_directory = '.'
+      end
+    end
     
+    # Checks if there is a :required_class_nesting_depth config in Buildfile
+    # that will require a certain nesting depth
+    # Example: mvc generators require nesting depth of one (for instance Todos.Task)
     def check_requirement_class_nesting_depth
       # check if there is a nesting requirement (typically for mvc generators)
       nesting_requirement = @buildfile.config_for('/templates')[:required_class_nesting_depth]
@@ -174,8 +247,10 @@ module SC
       end
     end
     
+    # Checks if there is a :required_root_dir config in Buildfile
+    # that will require a certain root dir to be present
+    # Example: mvc generators require the presence of an apps directory
     def check_requirement_root_dir
-      # check if there is a root_dir requirement (typically for mvc templates)
       root_dir_requirement = @buildfile.config_for('/templates')[:required_root_dir]
 
       if root_dir_requirement && root_dir_requirement==YES && !File.directory?(@target_directory)
@@ -184,15 +259,17 @@ module SC
       end
     end
     
+    # Checks if there is a :required_pwd config in Buildfile
+    # that will require the user to be in a specific working directory
+    # Even if we are not in the required pwd, this method will still try to:
+    # - check if we can find the required_pwd in the pwd or go up one level to find it
+    # - only do this check if we are operating on a relative path
     def check_requirement_pwd
-      # check if there is a required pwd
+      # look up the :required_pwd config array
       required_pwd = @buildfile.config_for('/templates')[:required_pwd]
       current_pwd = Dir.pwd.split('/')[-1]
       
       if required_pwd && !required_pwd.include?(current_pwd) && @custom_target==nil
-        # before raising an error:
-        # - check if we can find the required_pwd in the pwd or go up one level to find it
-        # - only do this check if we are operating on a relative path
         found_dir = NO
         
         if @target_directory[0,1]!='/' 
@@ -222,12 +299,16 @@ module SC
     end
 
     # Returns the base class name, which is the first argument or a default.
+    # === Returns
+    #  @namespace or if not present typically SC.Object
     def base_class_name(default_base_class_name = 'SC.Object')
       @namespace || default_base_class_name
     end
     
-    # used for determining test location for the test generator
+    # Determines test location for the test generator
     # TODO: move to Buildfile as task?
+    # === Returns
+    #  models, views or controllers depending on the first cli argument passed
     def mvc_type
        if @name_as_passed.downcase.include?('controller') 
         return 'controllers'

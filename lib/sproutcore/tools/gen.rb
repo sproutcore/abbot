@@ -2,10 +2,27 @@ require File.join(SC::LIBPATH, 'sproutcore', 'helpers', 'generator_helper')
 
 module SC
   
+  # Generates components for SproutCore. The generator allows the user
+  # to quickly set up a SproutCore framework using any of the built in templates
+  # such as the project itself, apps, models, views, controllers and more
+  # 
+  # The template files will be copied to their target location and also be parsed
+  # through the Erubis templating system. Template file paths can contain instance 
+  # variables in the form of _class_name_ which in turn would be the value of 
+  # @class_name once generated.
+  # 
+  # To develop a new generator, you can add it to the sproutcore/gen/ directory
+  # with the following file structure:
+  #    gen/
+  #      <generator_name>/   - singular directory name of the generator
+  #         Buildfile        - contains all configuration options and build tasks
+  #         README           - prints when generator is done
+  #         templates/       - contains all the files you want to generate
+  #         USAGE            - prints when user gives sc-gen <generator_name> --help
+  # 
   GENPATH = File.join(SC::LIBPATH, "..", "gen")
   
   class Tools
-    
     include SC::GeneratorHelper
     
     def show_help(generator=nil, exists=NO)
@@ -46,7 +63,6 @@ module SC
       @buildfile = SC::Buildfile.load(buildfile_location)
       @target_directory = @buildfile.config_for('/templates')[:root_dir]
       
-      class_name_append = @buildfile.config_for('/templates')[:class_name_append].to_s
       assign_names!(arguments[1])
       
       if options[:filename]
@@ -56,6 +72,7 @@ module SC
       
       replace_with_instance_names!(@target_directory)
       append_to_class_name!
+      append_to_file_path!
       
       debug "@namespace: " + @namespace.to_s
       debug "@class_name: " + @class_name.to_s

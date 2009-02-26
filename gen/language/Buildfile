@@ -1,0 +1,12 @@
+# default behavior for a template is to just copy the contents of the
+# templates directory to the end destination. Add any additional configs here.
+config :templates,
+  :root_dir   => '_file_path_',
+# If required_root_dir==YES you can set the message to display if requirement fails
+  :required_root_dir_message  	=> 'To generate a language you need an application first. For usage, try: sc-gen app --help',
+# specify what the current pwd (present working directory) should be
+# if this is not found sc-gen will try to go up or down one level to find
+# a suitable location
+  :required_pwd 				=> ['apps', 'frameworks', 'themes', 'clients'],
+# what to append to the classname (will not happen if it is specified by the user)
+  :file_path_append			=> '.lproj'
