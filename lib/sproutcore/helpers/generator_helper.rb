@@ -7,6 +7,46 @@ module SC
   # directory into a target location.
   module GeneratorHelper
 
+    # parse the first argument given in the command line and set the necessary instance variables
+    def assign_names!(name)
+      # @name_as_passed is the appname/classname combination and should never be changed 
+      @name_as_passed = name.freeze
+      @file_path, @namespace, @class_name, @method_name, @class_nesting_depth = extract_modules(@name_as_passed)
+
+      @mvc_type = mvc_type if @generator=='test'
+      
+      if @namespace.empty?
+        @namespace_with_class_name = @class_name
+      else
+        @namespace_with_class_name = "#{@namespace}.#{@class_name}"
+      end
+    end
+    
+    # TODO: move to Controller/View Buildfile as task?
+    def strip_name(name) 
+      return name.downcase.gsub('controller', '').gsub('view', '')
+    end
+
+    # Extract modules from filesystem-style or JavaScript-style path:
+    #   todos/task
+    #   Todos.Task
+    # produce the same results.
+    
+    def extract_modules(name)
+      modules       = name.include?('/') ? name.split('/') : name.split('.')
+      class_name    = strip_name(modules[1] ? modules[1] : name).camel_case
+      # method_name would be extracted from for instance Todos.Task.methodName for generators that allow it
+      method_name   = modules[2]
+      modules.pop
+      
+      # file_path will be overridden if --filename is specified
+      # if there is no class_name, use @name_as_passed
+      file_path     = modules.first ? modules.first.snake_case : name.snake_case
+      namespace     = modules.map { |m| m.camel_case }.join('.')
+      
+      [file_path, namespace, class_name, method_name, modules.size]
+    end
+
     def copy_files(files, destination)
       require 'erubis'
 
@@ -16,18 +56,19 @@ module SC
       end
     end
     
-    def replace_with_instance_names!(string_to_replace)
+    def replace_with_instance_names!(string_to_replace, snake_case=YES)
       # set up which instance names we will be looking for and replacing
       # used in templates/ file_structure to replace file locations with the instance names
       # these instance names must be entered with an underscore before and after (for instance _file_path_ )
-      instance_names = %w(file_path class_path target_name language_name class_name method_name subclass_name subclass_nameplural mvc_name)
-        
+      instance_names = %w(file_path target_name language_name namespace_with_class_name method_name class_name mvc_type)
+      
       instance_names.each do |x|
         instance_name = "_#{x}_"
         if string_to_replace.include? instance_name
           instance_string_value = instance_variable_get("@#{x}").to_s
+          instance_string_value = instance_string_value.snake_case if snake_case
           if instance_string_value!=''
-            string_to_replace.gsub!(instance_name, instance_string_value) 
+            string_to_replace.gsub!(instance_name, instance_string_value)
           end
         end
       end
@@ -46,8 +87,9 @@ module SC
         next if (x == '.' || x == '..' || x == '.svn' || x[0,1]=='.')
 
         # UGLY warning: special hard coded rule for test template - ignore if method_name is not specified
-        next if @generator=='test' && @method_name && x=='_subclass_name_.js'
-        next if @generator=='test' && !@method_name && x=='_subclass_name_'
+        # TODO: move to Buildfile as task?
+        next if @generator=='test' && @method_name && x=='_class_name_.js'
+        next if @generator=='test' && !@method_name && x=='_class_name_'
 
         dir = File.join(cur_dir,x)
         add_dir = (include_base ? dir : dir.gsub(SC::GENPATH + "/", ""))
@@ -77,11 +119,10 @@ module SC
     end
     
     def copy(from, to)
-      
-      replace_with_instance_names!(to)
+      replace_with_instance_names!(to, YES)
       # if to still contains unfilled instance placeholders ignore this file
-      if to.rindex(/\_.*?\_/)!=nil
-        debug "Ignored #{from} as it was #{to}"
+      if to.rindex(/\_.*?[^\/]\_/)!=nil
+        debug "Ignored #{from} since #{to} still contains placeholder(s)"
         return
       end
       
@@ -100,11 +141,12 @@ module SC
         file = File.new(to, "w")
         file.write eruby.result(binding())
 
-        SC.logger << " ~ Copied file #{from.sub(/^#{Regexp.escape SC::GENPATH}/,'')} to #{to}\n"
+        debug "Copied file #{from.sub(/^#{Regexp.escape SC::GENPATH}/,'')} to #{to}"
+        SC.logger << " ~ Created #{to}\n"
       end
     end
     
-    def puts_content_of_file(template, type)
+    def prints_content_of_file(template, type)
       file_location = File.join(SC::GENPATH, template, type)
       if !File.exists?(file_location) 
         fatal! "Could not find #{type} file at #{file_location}"
@@ -117,13 +159,8 @@ module SC
     def append_to_class_name!
       append_string = @buildfile.config_for('/templates')[:class_name_append]
       if(append_string)
-        @class_name = @class_name + append_string unless class_name.include?(append_string)
+        @namespace_with_class_name = @namespace_with_class_name + append_string unless @class_name.include?(append_string)
       end
-    end
-
-    # Convert the Ruby version of the class name to a JavaScript version.
-    def client_class_name
-      @class_name
     end
     
     # requirements as defined in the Buildfile for each template
@@ -141,9 +178,9 @@ module SC
       # check if there is a root_dir requirement (typically for mvc templates)
       root_dir_requirement = @buildfile.config_for('/templates')[:required_root_dir]
 
-      if root_dir_requirement && root_dir_requirement==YES && !File.directory?(@target_root)
+      if root_dir_requirement && root_dir_requirement==YES && !File.directory?(@target_directory)
         root_dir_requirement_message = @buildfile.config_for('/templates')[:required_root_dir_message]
-        raise "The directory #{@target_root} is missing. #{root_dir_requirement_message}"
+        raise "The directory #{@target_directory} is missing. #{root_dir_requirement_message}"
       end
     end
     
@@ -158,18 +195,18 @@ module SC
         # - only do this check if we are operating on a relative path
         found_dir = NO
         
-        if @target_root[0,1]!='/' 
+        if @target_directory[0,1]!='/' 
           required_pwd.each do |x|
             if File.directory?(x) 
-              @target_root = File.join(x, @target_root)
-              info "Found possible target location at #{@target_root}. For more precision use --target"
+              @target_directory = File.join(x, @target_directory)
+              info "Found possible target location at #{@target_directory}. For more precision use --target"
               found_dir = YES
               break
             end
             
             if File.directory?(File.join('..', x))
-              @target_root = File.join(File.join('..', x), @target_root)
-              info "Found possible target location at #{@target_root}. For more precision use --target"
+              @target_directory = File.join(File.join('..', x), @target_directory)
+              info "Found possible target location at #{@target_directory}. For more precision use --target"
               found_dir = YES
               break
             end
@@ -186,86 +223,19 @@ module SC
 
     # Returns the base class name, which is the first argument or a default.
     def base_class_name(default_base_class_name = 'SC.Object')
-      @class_nesting || default_base_class_name
-    end
-
-    # Checks whether the proper file structure exists to generate files
-    def file_structure_exists?
-      has_path_and_filename? && target_directory_exists?
+      @namespace || default_base_class_name
     end
     
-    # Checks whether the target directory for a generated file exists
-    def target_directory_exists?
-      File.exists?("#{Dir.pwd}/clients/#{File.dirname(args[0])}")
-    end
-    
-    # Checks that file generation was in the format client_name/file_name
-    def has_path_and_filename?
-      !(File.dirname(args[0]) == '.')
-    end
-    
-    def mvc_name
-      if @name.include?('Controller') 
+    # used for determining test location for the test generator
+    # TODO: move to Buildfile as task?
+    def mvc_type
+       if @name_as_passed.downcase.include?('controller') 
         return 'controllers'
-      elsif @name.include?('View') 
+      elsif @name_as_passed.downcase.include?('view') 
         return 'views'
       else 
         return 'models'
       end
-    end
-        
-    ###################
-    # Borrowed from Rails NamedBase
-
-    attr_reader   :name, :class_name, :subclass_name
-    attr_reader   :class_path, :file_path, :class_nesting, :class_nesting_depth
-
-    def assign_names!(name)
-      
-      @name = name
-      base_name, @class_path, @file_path, @class_nesting, @method_name, @class_nesting_depth = extract_modules(@name)
-      @class_name_without_nesting = inflect_names(base_name)
-      
-      @subclass_name = @class_name_without_nesting.snake_case
-      # TODO: make this is an intelligent pluralizer
-      @subclass_nameplural = @class_name_without_nesting.snake_case + 's'
-      # used for determining test location
-      @mvc_name = mvc_name
-      
-      if @class_nesting.empty?
-        @class_name = @class_name_without_nesting
-      else
-        @class_name = "#{@class_nesting}.#{@class_name_without_nesting}"
-      end
-    end
-    
-    def strip_name(name) 
-      return name.gsub('Controller', '').gsub('View', '')
-    end
-
-    # Extract modules from filesystem-style or ruby-style path:
-    #   good/fun/stuff
-    #   Good::Fun::Stuff
-    # produce the same results.
-    def extract_modules(name)
-      modules       = name.include?('/') ? name.split('/') : name.split('.')
-      base_name     = modules[1] ? modules[1] : name
-      method_name   = modules[2]
-      modules.pop
-
-      class_path    = modules.first ? modules.first.snake_case : name.snake_case
-      stripped_name = strip_name(name)
-      file_path     = class_path
-      class_nesting = modules.map { |m| m.camel_case }.join('.')
-      
-      [base_name, class_path, file_path, class_nesting, method_name, modules.size]
-    end
-
-    def inflect_names(name)
-      name = strip_name(name)
-      camel  = name.camel_case
-      under  = camel.snake_case
-      camel
     end
 
   end

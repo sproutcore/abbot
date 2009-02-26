@@ -11,7 +11,7 @@ module SC
     def show_help(generator=nil, exists=NO)
       warn("There is no #{@generator} generator") if generator && !exists
       if generator && exists
-        puts_content_of_file(generator, 'USAGE')
+        prints_content_of_file(generator, 'USAGE')
       else
         SC.logger << "Available generators:\n  #{generators.join("\n  ").gsub(/\//, '') }\n"
         SC.logger << "Type sc-gen generator --help for specific generator usage\n"
@@ -44,7 +44,7 @@ module SC
       info "Loading generator build file: " + buildfile_location
       
       @buildfile = SC::Buildfile.load(buildfile_location)
-      @target_root = @buildfile.config_for('/templates')[:root_dir]
+      @target_directory = @buildfile.config_for('/templates')[:root_dir]
       
       class_name_append = @buildfile.config_for('/templates')[:class_name_append].to_s
       assign_names!(arguments[1])
@@ -54,24 +54,21 @@ module SC
         @file_path = options[:filename]
       end
       
-      replace_with_instance_names!(@target_root)
+      replace_with_instance_names!(@target_directory)
       append_to_class_name!
       
+      debug "@namespace: " + @namespace.to_s
       debug "@class_name: " + @class_name.to_s
-      debug "@subclass_name: " + @subclass_name.to_s
-      debug "@subclass_nameplural: " + @subclass_nameplural.to_s
-      debug "@mvc_name: " + @mvc_name.to_s
-      debug "@class_path: " + @class_path.to_s
-      debug "@file_path: " + @file_path.to_s
-      debug "@class_nesting: " + @class_nesting.to_s
+      debug "@namespace_with_class_name: " + @namespace_with_class_name.to_s
       debug "@class_nesting_depth: " + @class_nesting_depth.to_s
-      debug "@class_name_without_nesting: " + @class_name_without_nesting.to_s
-      debug "base_class_name: " + base_class_name
+      debug "@file_path: " + @file_path.to_s
+      debug "@mvc_type: " + @mvc_type.to_s
+      debug "base_class_name(): " + base_class_name
       
       if options[:target] && @generator!='project'
-        # prepend the target_root with whatever is passed as --target
+        # prepend the target_directory with whatever is passed as --target
         @custom_target = YES
-        @target_root = options[:target]
+        @target_directory = options[:target]
       end
       
       begin
@@ -84,15 +81,15 @@ module SC
         fatal! error_message
       end
       
-      info "Target root: " + @target_root
+      info "target_directory: " + @target_directory
       
       # get list of template files to copy
       files = template_files(true, true, generator_dir, true)
       
       # copy files and parse them through Erubis in one swoop
-      copy_files(files, @target_root)
+      copy_files(files, @target_directory)
 
-      puts_content_of_file(@generator, 'README')
+      prints_content_of_file(@generator, 'README')
       
     end
     
