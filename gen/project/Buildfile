@@ -2,3 +2,4 @@
 # templates directory to the end destination. Add any additional configs here.
 config :templates,
   :root_dir   => '_file_path_'
+  

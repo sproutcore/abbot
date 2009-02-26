@@ -1,17 +1,14 @@
-<%% # ========================================================================
-   # <%= @class_name %> Unit Test
-   # ========================================================================
-%>
-<script>
+// ==========================================================================
+// <%= class_name %> Unit Test
+// copyright ©<%= Time.now.year %> My Company, Inc.
+// ==========================================================================
 
-Test.context("<%= @class_name %>",{
+module("<%= class_name %>");
 
-  "TODO: Add your own tests here": function() {
-    true.shouldEqual(true) ;
-  }
+// TODO: Replace with real unit test for <%= class_name %>
+test("test description", function() {
+  var expected = "test";
+  var result   = "test";
+  equals(result, expected, "test should equal test");
+});
 
-}) ;
-
-if (window.main && (appMain = main)) main = null ;
-
-</script>

@@ -1,5 +1,6 @@
 // ==========================================================================
-// <%= @class_name %> English Strings
+// <%= class_name %> - mainPage
+// copyright ©<%= Time.now.year %> My Company, Inc.
 // ==========================================================================
 
 // Place strings you want to localize here.  In your app, use the key and
@@ -8,6 +9,6 @@
 // how your UI will look and you'll notice right away when something needs a
 // localized string added to this file!
 //
-Object.extend(String.English,{
+SC.stringsFor('English', {
   // "_String Key": "Localized String"
 }) ;
