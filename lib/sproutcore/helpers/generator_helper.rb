@@ -7,8 +7,9 @@ module SC
   # directory into a target location.
   module GeneratorHelper
 
-    attr_reader :class_name, :namespace, :file_path, :method_name, :namespace_with_class_name
-
+    attr_reader :class_name, :namespace, :file_path, :method_name, :namespace_with_class_name, 
+      :class_nesting_depth, :files_generated
+    
     # Parses the first argument given in the command line and set the 
     # necessary instance variables
     #
