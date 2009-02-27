@@ -1,5 +1,5 @@
 // ==========================================================================
-// <%= @class_name %> - mainPage
+// <%= class_name %> - mainPage
 // copyright ©<%= Time.now.year %> My Company, Inc.
 // ==========================================================================
 
@@ -9,6 +9,6 @@
 // how your UI will look and you'll notice right away when something needs a
 // localized string added to this file!
 //
-SC.stringsFor('<%= @class_name %>', {
+SC.stringsFor('<%= class_name %>', {
   // "_String Key": "Localized String"
 }) ;

@@ -1,11 +1,11 @@
 // ==========================================================================
-// <%= @class_name %> Fixtures
+// <%= class_name %> Fixtures
 // copyright ©<%= Time.now.year %> My Company, Inc.
 // ==========================================================================
 
 require('core') ;
 
-<%= @namespace %>.FIXTURES = <%= @namespace %>.FIXTURES.concat([
+<%= namespace %>.FIXTURES = <%= namespace %>.FIXTURES.concat([
 
   // TODO: Add your data fixtures here.
   // All fixture records must have a unique guid and a type matching the
