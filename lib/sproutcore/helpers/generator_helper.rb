@@ -7,8 +7,8 @@ module SC
   # directory into a target location.
   module GeneratorHelper
 
-    # Parses the first argument given in the command line and set the necessary 
-    # instance variables
+    # Parses the first argument given in the command line and set the 
+    # necessary instance variables
     #
     # === Params
     #  name:: string of passed in argument from cli (for instance Todos.Task)
@@ -42,7 +42,8 @@ module SC
     # todos/task and Todos.Task - will produce the same results
     #
     # === Params
-    #  name:: string of passed in first argument from cli (for instance Todos.Task)
+    #  name:: string of passed in first argument from cli (for instance 
+    #    Todos.Task)
     #
     # === Returns
     #  An array of components derived from the string
@@ -75,14 +76,16 @@ module SC
       end
     end
 
-    # Will look if a string contains any of the predefined instance variable names
-    # and replace them with their values. This is mostly used for templates/ file_structure
-    # These instance names must be entered with an underscore before and after 
-    # (for instance _file_path_ )
+    # Will look if a string contains any of the predefined instance variable 
+    # names and replace them with their values. This is mostly used for 
+    # templates/ file_structure.  These instance names must be entered with an 
+    # underscore before and after (for instance _file_path_ )
     #
     # === Params
-    #  string_to_replace:: string that might contain instance variables to replace
-    #  destination:: boolean to make the instance variable snake_case . default YES
+    #  string_to_replace:: string that might contain instance variables to 
+    #    replace
+    #  destination:: boolean to make the instance variable snake_case . 
+    #    default YES
     #  
     # === Returns
     #  The string replaced with the instance variable value(s)
@@ -213,8 +216,8 @@ module SC
       SC.logger << "\n"
     end
 
-    # Will append a string to @namespace_with_class_name if one is given in the
-    # :class_name_append Buildfile config (typically Controller or View)
+    # Will append a string to @namespace_with_class_name if one is given in 
+    # the :class_name_append Buildfile config (typically Controller or View)
     # Will not append if user has already specified the appended string
     def append_to_class_name!
       append_string = @buildfile.config_for('/templates')[:class_name_append]
@@ -262,7 +265,8 @@ module SC
     # Checks if there is a :required_pwd config in Buildfile
     # that will require the user to be in a specific working directory
     # Even if we are not in the required pwd, this method will still try to:
-    # - check if we can find the required_pwd in the pwd or go up one level to find it
+    # - check if we can find the required_pwd in the pwd or go up one level to 
+    #   find it
     # - only do this check if we are operating on a relative path
     def check_requirement_pwd
       # look up the :required_pwd config array
