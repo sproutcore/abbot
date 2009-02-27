@@ -72,6 +72,7 @@ module SC
     #  destination:: string of where to copy the files to
     def copy_files(files, destination)
       require 'erubis'
+      @files_generated = 0
       files.each do |x|
         dest = destination + "/" + x.gsub(/(.*\/templates\/)/, '')
         copy(x, dest)
@@ -165,6 +166,7 @@ module SC
         if !File.directory?(File.join(cpath))
           FileUtils.mkdir_p File.join(cpath)
           info "Created directory #{File.join(cpath)}"
+          @files_generated += 1
         end
       end
     end
@@ -177,11 +179,6 @@ module SC
     #  to:: string of path to copy to
     def copy(from, to)
       replace_with_instance_names!(to, YES)
-      # if to still contains unfilled instance placeholders ignore this file
-      if to.rindex(/\_.*?[^\/]\_/)!=nil
-        debug "Ignored #{from} since #{to} still contains placeholder(s)"
-        return
-      end
       
       # Create any parent directories
       dirname = to =~ /\/$/ ? to : File.dirname(to)
@@ -200,6 +197,8 @@ module SC
 
         debug "Copied file #{from.sub(/^#{Regexp.escape SC::GENPATH}/,'')} to #{to}"
         SC.logger << " ~ Created #{to}\n"
+        
+        @files_generated += 1
       end
     end
 

@@ -2,6 +2,6 @@
 # templates directory to the end destination. Add any additional configs here.
 config :templates,
   :root_dir   			=> '_file_path_/tests/_mvc_type_',
-# array of directories where the current pwd (present working directory) should be
-# if not found sc-gen will try to go up or down one level to find a suitable location
+  # array of directories where the current pwd (present working directory) should be
+  # if not found sc-gen will try to go up or down one level to find a suitable location
   :required_pwd 		=> ['apps', 'frameworks', 'themes', 'clients']

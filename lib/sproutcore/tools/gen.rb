@@ -107,7 +107,8 @@ module SC
       # copy files and parse them through Erubis in one swoop
       copy_files(files, @target_directory)
 
-      prints_content_of_file(@generator, 'README')
+      # only print README if files were actually generated
+      prints_content_of_file(@generator, 'README') if @files_generated!=0
       
     end
     
