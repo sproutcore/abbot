@@ -77,6 +77,7 @@ module SC
       debug "@namespace: " + @namespace.to_s
       debug "@class_name: " + @class_name.to_s
       debug "@namespace_with_class_name: " + @namespace_with_class_name.to_s
+      debug "@method_name: " + @method_name.to_s
       debug "@class_nesting_depth: " + @class_nesting_depth.to_s
       debug "@file_path: " + @file_path.to_s
       debug "@mvc_type: " + @mvc_type.to_s

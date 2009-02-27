@@ -1,5 +1,5 @@
 // ==========================================================================
-// <%= @namespace %>.<%= @method_name %> Unit Test
+// <%= namespace %>.<%= namespacemethod_name %> Unit Test
 // ==========================================================================
 
 require('core');
@@ -10,7 +10,7 @@ require('core');
   @version 0.1
 */
 
-Test.context("<%= @namespace %>.<%= @method_name %>",{
+Test.context("<%= namespace %>.<%= namespacemethod_name %>",{
 
   "TODO: Add your own tests here": function() {
     true.shouldEqual(true) ;

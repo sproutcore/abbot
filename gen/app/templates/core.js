@@ -1,5 +1,5 @@
 // ==========================================================================
-// <%= @class_name %>
+// <%= class_name %>
 // copyright ©<%= Time.now.year %> My Company, Inc.
 // ==========================================================================
 
@@ -9,10 +9,10 @@
   
   @extends SC.Object
 */
-<%= @class_name %> = SC.Object.create(
-  /** @scope <%= @class_name %>.prototype */ {
+<%= class_name %> = SC.Object.create(
+  /** @scope <%= class_name %>.prototype */ {
 
-  APP_NAME: '<%= @class_name %>',
+  APP_NAME: '<%= class_name %>',
   VERSION: '0.1.0',
 
   // This is your application store.  All of your model data should be loaded

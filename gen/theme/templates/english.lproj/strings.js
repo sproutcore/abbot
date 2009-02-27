@@ -1,5 +1,5 @@
 // ==========================================================================
-// <%= @class_name %> English Strings
+// <%= class_name %> English Strings
 // ==========================================================================
 
 // Place strings you want to localize here.  In your app, use the key and

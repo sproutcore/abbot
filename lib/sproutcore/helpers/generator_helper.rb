@@ -7,6 +7,8 @@ module SC
   # directory into a target location.
   module GeneratorHelper
 
+    attr_reader :class_name, :namespace, :file_path, :method_name, :namespace_with_class_name
+
     # Parses the first argument given in the command line and set the necessary 
     # instance variables
     #
@@ -35,7 +37,7 @@ module SC
     # === Returns
     #  The stripped down string
     def strip_name(name) 
-      return name.downcase.gsub('controller', '').gsub('view', '')
+      return name.snake_case.downcase.gsub('controller', '').gsub('view', '')
     end
 
     # Extract modules from filesystem-style or JavaScript-style path:
@@ -50,7 +52,7 @@ module SC
       modules       = name.include?('/') ? name.split('/') : name.split('.')
       class_name    = strip_name(modules[1] ? modules[1] : name).camel_case
       # method_name would be extracted from for instance Todos.Task.methodName for generators that allow it
-      method_name   = modules[2]
+      method_name   = modules[2] ? Extlib::Inflection.camelize(modules[2], false) : nil
       modules.pop
       
       # file_path will be overridden if --filename is specified
@@ -304,7 +306,7 @@ module SC
     def base_class_name(default_base_class_name = 'SC.Object')
       @namespace || default_base_class_name
     end
-    
+        
     # Determines test location for the test generator
     # TODO: move to Buildfile as task?
     # === Returns
