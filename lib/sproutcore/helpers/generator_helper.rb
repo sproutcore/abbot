@@ -16,7 +16,8 @@ module SC
     # === Params
     #  name:: string of passed in argument from cli (for instance Todos.Task)
     def assign_names!(name)
-      # @name_as_passed is the appname/classname combination and should never be changed 
+      # @name_as_passed is the appname/classname combination and should never 
+      # be changed 
       @name_as_passed = name.freeze
       @file_path, @namespace, @class_name, @method_name, @class_nesting_depth = extract_modules(@name_as_passed)
 
@@ -53,7 +54,8 @@ module SC
     def extract_modules(name)
       modules       = name.include?('/') ? name.split('/') : name.split('.')
       class_name    = strip_name(modules[1] ? modules[1] : name).camel_case
-      # method_name would be extracted from for instance Todos.Task.methodName for generators that allow it
+      # method_name would be extracted from for instance Todos.Task.methodName 
+      # for generators that allow it
       method_name   = modules[2] ? Extlib::Inflection.camelize(modules[2], false) : nil
       modules.pop
       
@@ -135,7 +137,8 @@ module SC
       Dir.foreach(cur_dir) do |x|
         next if (x == '.' || x == '..' || x == '.svn' || x[0,1]=='.')
 
-        # UGLY warning: special hard coded rule for test template - ignore if method_name is not specified
+        # UGLY warning: special hard coded rule for test template - ignore if 
+        # method_name is not specified
         # TODO: move to Buildfile as task?
         next if @generator=='test' && @method_name && x=='_class_name_.js'
         next if @generator=='test' && !@method_name && x=='_class_name_'
@@ -235,14 +238,16 @@ module SC
       append_string = @buildfile.config_for('/templates')[:file_path_append]
       if(append_string)
         @file_path = @file_path + append_string unless @file_path.include?(append_string)
-        # TODO: this should be moved to Language Buildfile as a task and/or config
+        # TODO: this should be moved to Language Buildfile as a task and/or 
+        # config
         @target_directory = '.'
       end
     end
     
     # Checks if there is a :required_class_nesting_depth config in Buildfile
     # that will require a certain nesting depth
-    # Example: mvc generators require nesting depth of one (for instance Todos.Task)
+    # Example: mvc generators require nesting depth of one (for instance 
+    # Todos.Task)
     def check_requirement_class_nesting_depth
       # check if there is a nesting requirement (typically for mvc generators)
       nesting_requirement = @buildfile.config_for('/templates')[:required_class_nesting_depth]

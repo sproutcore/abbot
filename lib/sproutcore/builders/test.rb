@@ -34,10 +34,13 @@ module SC
       end
     end
     
+    # Renders an individual test into a script tag.  Also places the test 
+    # into its own closure so that globals defined by one test will not 
+    # conflict with any others.
     def render_jstest(entry)
       lines = readlines(entry.staging_path)
-      lines.unshift %(<script type="text/javascript">\n)
-      lines.push    %(</script>\n)
+      lines.unshift %(<script type="text/javascript">\n(function() {\n)
+      lines.push    %(\n})();\n</script>\n)
       @content_for_final = (@content_for_final || '') + lines.join("")
     end
     
