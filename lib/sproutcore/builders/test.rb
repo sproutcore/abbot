@@ -34,6 +34,8 @@ module SC
       end
     end
     
+    def default_content_for_key; :body; end
+    
     # Renders an individual test into a script tag.  Also places the test 
     # into its own closure so that globals defined by one test will not 
     # conflict with any others.
