@@ -7,7 +7,8 @@ module SC
   # directory into a target location.
   module GeneratorHelper
 
-    attr_reader :class_name, :namespace, :file_path, :method_name, :namespace_with_class_name
+    attr_reader :class_name, :namespace, :file_path, :method_name, :namespace_with_class_name, 
+      :class_nesting_depth, :files_generated
     
     # Parses the first argument given in the command line and set the 
     # necessary instance variables
@@ -15,7 +16,8 @@ module SC
     # === Params
     #  name:: string of passed in argument from cli (for instance Todos.Task)
     def assign_names!(name)
-      # @name_as_passed is the appname/classname combination and should never be changed 
+      # @name_as_passed is the appname/classname combination and should never 
+      # be changed 
       @name_as_passed = name.freeze
       @file_path, @namespace, @class_name, @method_name, @class_nesting_depth = extract_modules(@name_as_passed)
 
@@ -52,7 +54,9 @@ module SC
     def extract_modules(name)
       modules       = name.include?('/') ? name.split('/') : name.split('.')
       class_name    = strip_name(modules[1] ? modules[1] : name).camel_case
-      # method_name would be extracted from for instance Todos.Task.methodName for generators that allow it
+
+      # method_name would be extracted from for instance Todos.Task.methodName 
+      # for generators that allow it
       method_name   = modules[2] ? Extlib::Inflection.camelize(modules[2], false) : nil
       modules.pop
       
@@ -72,6 +76,7 @@ module SC
     #  destination:: string of where to copy the files to
     def copy_files(files, destination)
       require 'erubis'
+      @files_generated = 0
       files.each do |x|
         dest = destination + "/" + x.gsub(/(.*\/templates\/)/, '')
         copy(x, dest)
@@ -133,7 +138,8 @@ module SC
       Dir.foreach(cur_dir) do |x|
         next if (x == '.' || x == '..' || x == '.svn' || x[0,1]=='.')
 
-        # UGLY warning: special hard coded rule for test template - ignore if method_name is not specified
+        # UGLY warning: special hard coded rule for test template - ignore if 
+        # method_name is not specified
         # TODO: move to Buildfile as task?
         next if @generator=='test' && @method_name && x=='_class_name_.js'
         next if @generator=='test' && !@method_name && x=='_class_name_'
@@ -165,6 +171,7 @@ module SC
         if !File.directory?(File.join(cpath))
           FileUtils.mkdir_p File.join(cpath)
           info "Created directory #{File.join(cpath)}"
+          @files_generated += 1
         end
       end
     end
@@ -177,11 +184,6 @@ module SC
     #  to:: string of path to copy to
     def copy(from, to)
       replace_with_instance_names!(to, YES)
-      # if to still contains unfilled instance placeholders ignore this file
-      if to.rindex(/\_.*?[^\/]\_/)!=nil
-        debug "Ignored #{from} since #{to} still contains placeholder(s)"
-        return
-      end
       
       # Create any parent directories
       dirname = to =~ /\/$/ ? to : File.dirname(to)
@@ -200,6 +202,8 @@ module SC
 
         debug "Copied file #{from.sub(/^#{Regexp.escape SC::GENPATH}/,'')} to #{to}"
         SC.logger << " ~ Created #{to}\n"
+        
+        @files_generated += 1
       end
     end
 
@@ -235,14 +239,16 @@ module SC
       append_string = @buildfile.config_for('/templates')[:file_path_append]
       if(append_string)
         @file_path = @file_path + append_string unless @file_path.include?(append_string)
-        # TODO: this should be moved to Language Buildfile as a task and/or config
+        # TODO: this should be moved to Language Buildfile as a task and/or 
+        # config
         @target_directory = '.'
       end
     end
     
     # Checks if there is a :required_class_nesting_depth config in Buildfile
     # that will require a certain nesting depth
-    # Example: mvc generators require nesting depth of one (for instance Todos.Task)
+    # Example: mvc generators require nesting depth of one (for instance 
+    # Todos.Task)
     def check_requirement_class_nesting_depth
       # check if there is a nesting requirement (typically for mvc generators)
       nesting_requirement = @buildfile.config_for('/templates')[:required_class_nesting_depth]

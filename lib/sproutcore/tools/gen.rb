@@ -83,7 +83,7 @@ module SC
       debug "@mvc_type: " + @mvc_type.to_s
       debug "base_class_name(): " + base_class_name
       
-      if options[:target] && @generator!='project'
+      if options[:target]
         # prepend the target_directory with whatever is passed as --target
         @custom_target = YES
         @target_directory = options[:target]
@@ -107,7 +107,10 @@ module SC
       # copy files and parse them through Erubis in one swoop
       copy_files(files, @target_directory)
 
-      prints_content_of_file(@generator, 'README')
+      debug "#{@files_generated} files generated"
+
+      # only print README if files were actually generated
+      prints_content_of_file(@generator, 'README') if @files_generated!=0
       
     end
     

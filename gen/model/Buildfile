@@ -2,13 +2,13 @@
 # templates directory to the end destination. Add any additional configs here.
 config :templates,
   :root_dir   					=> '_file_path_',
-# specify if you require root_dir to be already present
-# For instance, in the case of views/controllers you want ensure there is an existing app)
+  # specify if you require root_dir to be already present
+  # For instance, in the case of views/controllers you want ensure there is an existing app)
   :required_root_dir  			=> YES,
-# If required_root_dir==YES you can set the message to display if requirement fails
+  # If required_root_dir==YES you can set the message to display if requirement fails
   :required_root_dir_message  	=> 'To generate a model you need an application first. For usage, try: sc-gen app --help',
-# array of directories where the current pwd (present working directory) should be
-# if not found sc-gen will try to go up or down one level to find a suitable location
+  # array of directories where the current pwd (present working directory) should be
+  # if not found sc-gen will try to go up or down one level to find a suitable location
   :required_pwd 				=> ['apps', 'frameworks', 'themes', 'clients'],
-# set nesting depth range requirement
+  # set nesting depth range requirement
   :required_class_nesting_depth => 1

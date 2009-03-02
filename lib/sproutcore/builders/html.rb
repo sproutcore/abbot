@@ -107,6 +107,8 @@ module SC
       writelines dst_path, [self.render]
     end
     
+    def default_content_for_key; :resources; end
+    
     # Loads the passed input file and then hands it to the render_engine 
     # instance to compile th file.  the results will be targeted at the
     # @content_for_resources area by default unless you pass an optional
@@ -120,7 +122,9 @@ module SC
     # === Returns
     #  self
     #
-    def compile(render_engine, input_path, content_for_key = :resources)
+    def compile(render_engine, input_path, content_for_key = nil)
+      content_for_key = self.default_content_for_key if content_for_key.nil?
+      
       if !File.exist?(input_path)
         raise "html_builder could compile file at #{input_path} because the file could not be found" 
       end
