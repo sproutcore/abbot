@@ -98,7 +98,7 @@ describe SC::Builder::Test do
     it "should render html including JS inside a script tag for final content" do
       result = SC::Builder::Test.new(@qunit_entry).render
       result.should =~ /layout/ # verify rendered layout
-      result.should =~ /\<script.*\>\s*qunit_test\s*\<\/script\>/ # verify js
+      result.should =~ /\<script.*\>.*qunit_test.*\<\/script\>/m # verify js
     end
       
   end
@@ -109,7 +109,7 @@ describe SC::Builder::Test do
       result = SC::Builder::Test.new(@rhtml_entry).render
       result.should =~ /layout/ # verify rendered layout
       result.should =~ /final_test/
-      result.should =~ /resources_test/
+      result.should_not =~ /resources_test/ # resources div no longer included
     end
       
   end
@@ -119,10 +119,10 @@ describe SC::Builder::Test do
     it "should render composite with both sets of unit tests" do
       result = SC::Builder::Test.new(@summary_entry).render
       result.should =~ /layout/ # verify rendered layout
-      result.should =~ /\<script.*\>\s*qunit_test\s*\<\/script\>/ # verify js1
-      result.should =~ /\<script.*\>\s*qunit_test2\s*\<\/script\>/ # verify js2
+      result.should =~ /\<script.*\>.*qunit_test.*\<\/script\>/m # verify js1
+      result.should =~ /\<script.*\>.*qunit_test2.*\<\/script\>/m # verify js2
       result.should =~ /final_test/
-      result.should =~ /resources_test/
+      result.should_not =~ /resources_test/ # resources div no longer included
     end
     
   end
