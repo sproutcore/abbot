@@ -133,6 +133,8 @@ module SC
       
     # Find one or more targets with the passed target names
     def find_targets(*targets)
+      
+      debug "finding targets with names: '#{targets * "','"}'"
       requires_project!
       
       # If targets are specified, find the targets project or parents...
