@@ -52,52 +52,59 @@ module SC
   #
   class Generator < HashStruct
     
-    # the root path of the generator source
-    #attr_reader :generator_root
-    
-    # the name of the generator
-    #attr_reader :generator_name
-
     # the target project to build in or nil if no target provided
-    attr_reader :target_project
+    attr_reader :project
 
+    ################################################
+    ## SETUP
+    ##
+    
     # Creates a new generator.  Expects you to pass at least a generator name
-    # and additional options.
+    # and additional options including the current target project.  This will
+    # search for a generator source directory in the target project and any
+    # parent projects.  The source directory must live inside a folder called
+    # "gen" or "generators".  The source directory must contain a Buildfile 
+    # and a templates directory to be considered a valid generator.
     #
-    # When you create a generator instance, the object will look for a 
-    # directory named "sc_generators/generator_name" or 
-    # "generators/generator_name" in a target project. You can pass the
-    # project the generator should search if you want.  If you do not pass a
-    # target project, the generator will look in the target project instead.
+    # If no valid generator can be found matching the generator name, this 
+    # method will return null
     #
-    # If the generator is not found in the target project, it will look in any
-    # parent projects as well, usually ending in the builtin project anyway.
-    #
-    def initialize(generator_name, opts = {})
-      @target_project = opts[:target_project]
-      self[:generator_name] = generator_name
-      @buildfile = nil
-
-      # Find the root path for this generator and all of its assets.
-      project = @target_project || SC.builtin_project
-      until project.nil?
-        'generators sc_generators gen'.each do |dirname|
-          generator_root = File.join(project.project_root, dirname, generator_name)
-          break if File.directory?(generator_root)
-          generator_root = nil
+    def self.load(generator_name, opts={})
+      
+      # get the project to search and look for the generator
+      project = opts[:target_project] || SC.builtin_project
+      path = ret = nil
+      
+      # attempt to discover the the generator
+      while project && path.nil?
+        %w(generators sc_generators gen).each do |dirname|
+          path = File.join(project.project_root, dirname, generator_name)
+          if File.directory?(path)
+            has_buildfile = File.exists?(path / 'Buildfile')
+            has_templates = File.directory?(path / 'templates')
+            break if has_buildfile && has_templates
+          end
+          path = nil
         end
         project = project.parent_project
       end
-      if generator_root.nil?
-        raise "Could not find generator named: #{generator_name}"
-      else
-        self.generator_root = generator_root
-      end
       
-      # Process other options
-      self.arguments = opts[:arguments]
-      self.target_name = opts[:target_name]
-      self.filename = opts[:filename]
+      # Create project if possible
+      ret = self.new(generator_name, opts.merge(:generator_root => path, :target_project => project)) if path
+      return ret 
+    end  
+      
+    def initialize(generator_name, opts = {})
+      super()
+      
+      @target_project = opts[:target_project]
+      @buildfile = nil
+
+      # copy standard options
+      self.generator_name = generator_name
+      %w(generator_root arguments target_name filename).each do |key|
+        self[key] = opts[key] || opts[key.to_sym]
+      end
       
     end
     
@@ -138,16 +145,118 @@ module SC
       return @config ||= buildfile.config_for(:templates, SC.build_mode).merge(SC.env)
     end
     
+    # Prepares the generator state by parsing any passed arguments and then
+    # invokes the 'generator:prepare' task from the Buildfile, if one exists.
+    # Once a generator has been prepared, you can then build it.
     def prepare!
       return self if @is_prepared
       @is_prepared = true
+
+      parse_arguments!
+      if target_name && target_project
+        self.target = target_project.target_for(target_name)
+      end
       
-      # Perform standard processing...
-      
-      # Execute build task
-      buildfile.invoke 'generator:prepare'
-      
+      # Execute prepare task
+      buildfile.invoke 'generator:prepare', :generator => self
       return self
+    end
+
+    # Executes the generator based on the current config options.  Raises an 
+    # exception if anything failed during the build.  This will copy each 
+    # file from the source, processing it with the rhtml template.
+    def build!
+      prepare! # if needed
+      buildfile.invoke 'generator:build', :generator => self
+      return self 
+    end
+
+    # Converts a string to snake case.  This method will accept any variation
+    # of camel case or snake case and normalize it into a format that can be
+    # converted back and forth to camel case.  
+    #
+    # === Examples
+    # 
+    #   snake_case("FooBar")           #=> "foo_bar"
+    #   snake_case("HeadlineCNNNews")  #=> "headline_cnn_news"
+    #   snake_case("CNN")              #=> "cnn"
+    #   snake_case("innerHTML")        #=> "inner_html"
+    #   snake_case("Foo_Bar")          #=> "foo_bar"
+    #
+    # === Params
+    #
+    #  str:: the string to snake case
+    #
+    def snake_case(str='') 
+      str = str.gsub(/([^A-Z_])([A-Z][^A-Z]?)/,'\1_\2') # most cases
+      str = str.gsub(/([^_])([A-Z][^A-Z])/,'\1_\2') # HeadlineCNNNews
+      str.downcase
+    end
+    
+    ABBREVIATIONS = %w(html css xml)
+    
+    # Converts a string to CamelCase.  If you pass false for the second param
+    # then the first letter will be lower case rather than upper.  This will
+    # first snake_case the passed string.  This version differs from the 
+    # standard camel_case provided by extlib by supporting a few standard
+    # abbreviations that are always make upper case.
+    #
+    # === Examples
+    #
+    #  camel_case("foo_bar")                #=> "FooBar"
+    #  camel_case("headline_cnn_news")      #=> "HeadlineCnnNews"
+    #  camel_case("html_formatter")     #=> "HTMLFormatter"
+    #  
+    # === Params
+    # 
+    #  str:: the string to camel case
+    #  capitalize:: capitalize first character if true (def: true)
+    #
+    def camel_case(str, capitalize=true)
+      str = snake_case(str) # normalize
+      str.gsub(capitalize ? /(\A|_+)([^_]+)/ : /(_+)([^_]+)/) do 
+        ABBREVIATIONS.include?($2) ? $2.upcase : $2.capitalize
+      end
+    end
+    
+    protected
+    
+    # Standardized parsing of arguments.  This will accept an argument that
+    # is either a class name or a path name and generate both a class name and
+    # a pathname from it.
+    #
+    def parse_arguments!
+      name  = (self.arguments || [])[1]
+      parts = name.include?('/') ? name.split('/') : name.split('.')
+
+      # method_name would be extracted from for instance Todos.Task.methodName 
+      # for generators that allow it
+      if parts[2] && self.method_name.nil?
+        self.method_name = camel_case(parts[2], false)
+      end
+
+      # target_name is first part snake_cased, unless already defined
+      if parts[0] && self.target_name.nil?
+        self.target_name = snake_case(parts[0]) 
+      end
+      
+      # namespace is first part CamelCases if defined.  Otherwise use 
+      # target_name if defined
+      if (parts[0] || self.target_name) && self.namespace.nil?
+        self.namespace = camel_case(parts[0] || self.target_name)
+      end 
+
+      # filename is second part snake_cased, unless already defined
+      if parts[1] && self.filename.nil?
+        self.filename = snake_case(parts[1])
+      end
+      
+      # class_name is second part CamcelCased if defined.  Otherwise use 
+      # filename if defined.
+      if (parts[1] || self.filename) && self.class_name.nil?
+        self.class_name = camel_case(parts[1] || self.filename)
+      end
+      
     end
     
   end

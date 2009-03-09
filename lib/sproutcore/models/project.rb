@@ -108,6 +108,10 @@ module SC
       return @config ||= buildfile.config_for(:all, SC.build_mode).merge(SC.env)
     end
 
+    ################################################
+    ## TARGETS
+    ##
+
     # A hash of the known targets for this project, including any targets
     # inherited from a parent project.  Each target is stored in the hash
     # by target_name.
@@ -223,6 +227,18 @@ module SC
         end # Dir.glob
       end # target_type.each
       return self
+    end 
+    
+    ################################################
+    ## GENERATOR SUPPORT
+    ##
+    
+    # Attempts to discover and load a generator with the specified name from
+    # the current project.  If the generator cannot be found, this method will
+    # return nil.
+    def generator_for(generator_name, opts={})
+      opts[:project] = self
+      return SC::Generator.load(generator_name, opts)
     end 
     
     private 

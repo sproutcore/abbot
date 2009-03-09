@@ -208,6 +208,14 @@ module SC
       set_kernel_consts consts # clear constants
     end
 
+    # Returns true if the buildfile has the named task defined
+    #
+    # === Params
+    #  task_name:: the full name of the task, including namespaces
+    def has_task?(task_name)
+      !self[task_name.to_s].nil?
+    end
+    
     ################################################
     # RAKE SUPPORT
     #

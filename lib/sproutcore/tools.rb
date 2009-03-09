@@ -71,6 +71,9 @@ module SC
       super
     end
     
+    # This is the core entry method used to run every tool.  Extend this
+    # method with any standard preprocessing you want all tools to do before
+    # they do their specific thing.
     def invoke(*args)
       prepare_logger!
       prepare_mode!
@@ -78,18 +81,25 @@ module SC
       super
     end
       
+    # Make the options hash a HashStruct so that we can access each variable
+    # as a method
     def options; @tool_options ||= HashStruct.new(super); end
     
+    # Configure the expected log level and log target.  Handles the --verbose,
+    # --very-verbose and --logfile options
     def prepare_logger!
       SC.env.log_level = options['very-verbose'] ? :debug : (options.verbose ? :info : :warn)
       SC.env.logfile = File.expand_path(options.logfile) if options.logfile
     end
 
+    # Configure the current build mode.  Handles the --mode and --environment
+    # options.  (--environment is provided for backwards compatibility)
     def prepare_mode!(preferred_mode = 'production')
       build_mode = (options.mode || options.environment || preferred_mode).to_s.downcase.to_sym
       SC.build_mode = build_mode
     end
 
+    # Configure the current build numbers.  Handles the --build option.
     def prepare_build_numbers!
       return if (numbers = options.build).nil?
       numbers = numbers.split(',').map { |n| n.split(':') }
@@ -104,21 +114,29 @@ module SC
         end
       end
     end
+
+    ################################################
+    ## HELPER METHODS 
+    ##
     
-    # Find the project...
-    attr_accessor :project
-    def requires_project!
-      
-      return @project unless @project.nil?
-      
+    # The current project.  This is discovered based on the passed --project
+    # option or based on the current working directory.  If no project can be
+    # found, this method will always return null.
+    def project
+      return @project if @discovered_project # cache - @project may be nil
+      @discovered_project = true
+
       ret = nil
       project_path = options.project || options.library
-      if project_path.nil? # attempt to autodiscover
+
+      # if no project_path is named explicitly, attempt to autodiscover from
+      # working dir.  If none is found, just set project to nil
+      if project_path.nil?
         debug "No project path specified.  Searching for projects in #{Dir.pwd}"
         ret = SC::Project.load_nearest_project Dir.pwd, :parent => SC.builtin_project
-        if ret.nil?
-          fatal!("You do not appear to be inside of a project.  Try changing to your project directory or make sure your project as a Buildfile or sc-config")
-        end
+        
+      # if project path is specified, look there.  If no project is found 
+      # die with a fatal exception.
       else
         debug "Project path specified at #{project_path}"
         ret = SC::Project.load File.expand_path(project_path), :parent => SC.builtin_project
@@ -130,8 +148,20 @@ module SC
       info "Loaded project at: #{ret.project_root}"
       @project = ret
     end
+       
+    # Attempts to discover the current project.  If no project can be found
+    # throws a fatal exception.  Use this method at the top of your tool 
+    # method if you require a project to run.
+    def requires_project!
+      ret = project
+      if ret.nil?
+        fatal!("You do not appear to be inside of a project.  Try changing to your project directory or make sure your project as a Buildfile or sc-config")
+      end
+      return ret 
+    end
       
-    # Find one or more targets with the passed target names
+    # Find one or more targets with the passed target names in the current 
+    # project.  Requires a project to function.
     def find_targets(*targets)
       
       debug "finding targets with names: '#{targets * "','"}'"
@@ -228,6 +258,16 @@ module SC
       return manifests
     end
     
+    # Logs the contents of the passed file path to the logger
+    def log_file(path)
+      if !File.exists?(path) 
+        warn "Could not display #{File.basename(path)} at #{File.dirname(path)} because it does not exist."
+      end
+      file_text = File.read(path)
+      SC.logger << file_text
+      SC.logger << "\n"
+    end
+      
     ################################################
     ## MAIN ENTRYPOINT
     ##

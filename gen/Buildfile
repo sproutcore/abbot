@@ -1,0 +1,12 @@
+# This is the root buildfile shared by all generators.  It defines the basic
+# built-in tasks needed for all generators to function.
+
+namespace :generator do
+  
+  desc "prepares the generator by performing any added pre-processing"
+  task :prepare 
+  
+  desc "builds the generator, copying files to the build root"
+  task :build
+  
+end

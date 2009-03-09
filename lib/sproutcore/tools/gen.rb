@@ -25,14 +25,19 @@ module SC
   class Tools
     include SC::GeneratorHelper
     
-    def show_help(generator=nil, exists=NO)
-      warn("There is no #{@generator} generator") if generator && !exists
-      if generator && exists
-        prints_content_of_file(generator, 'USAGE')
+    def show_help(generator_name=nil, generator=nil)
+      if generator_name
+        if generator.nil?
+          warn("There is no #{generator_name} generator") 
+        else
+          log_file(generator.generator_root / 'USAGE')
+        end
       else
-        SC.logger << "Available generators:\n  #{generators.join("\n  ").gsub(/\//, '') }\n"
-        SC.logger << "Type sc-gen generator --help for specific generator usage\n"
+        SC.logger << "Available generators:\n"
+        SC.logger << SC::Generator.installed_generators_for(project)
+        SC.logger << "\nType sc-gen GENERATOR --help for specific usage\n"
       end
+      return 0
     end
     
     desc "sc-gen generator Namespace[.ClassName] [--target=TARGET_NAME] [--filename=FILE_NAME]", 
@@ -47,12 +52,40 @@ module SC
       return show_help if arguments.empty?
       
       # backwards compatibility case: client is a synonym for 'app'
-      @generator = arguments[0]=='client' ? 'app' : arguments[0]
-      generator_dir = File.join(SC::GENPATH, @generator, 'templates')
+      name = arguments[0]=='client' ? 'app' : arguments[0]
       
-      return show_help(@generator, false) if !File.exists?(generator_dir)
-      return show_help(@generator, true) if options[:help]
+      # Load generator
+      generator_project = self.project || SC.builtin_project
+      generator = generator_project.generator_for name,
+        :arguments =>   arguments,
+        :filename  =>   options[:filename],
+        :target_name => options[:target]
+
+      # if no generator could be found, or if we just asked to show help,
+      # just return the help...
+      return show_help(name, generator) if generator.nil? || options[:help] 
       
+      begin
+        # Prepare generator and then log some debug info
+        generator.prepare!
+        info "Loading generator Buildfile at: #{generator.buildfile.path}"
+      
+        debug "GENERATOR SETTINGS"
+        generator.each { |k,v| debug("#{k}: #{v}") }
+        
+        # Now, run the generator
+        generator.build!
+        
+      rescue Exception => error_message
+        warn "For specific help on how to use this generator, type: sc-gen #{name} --help"
+        fatal! error_message
+      end
+
+      log_file(generator.generator_root / "README")
+      return 0
+    end
+    
+    def dummy2
       # Buildfile inclusion
       #  -- NOTE: the generator system uses a custom configuration of 
       #  buildfiles and build rules that is separate from the regular build
