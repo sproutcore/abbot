@@ -63,6 +63,20 @@ module SC
     ## SETUP
     ##
     
+    # Discover all installed generators for a particular project.
+    def self.installed_generators_for(project)
+      ret = []
+      while project 
+        %w(generators sc_generators gen).each do |dirname|
+          Dir.glob(project.project_root / dirname / '**').each do |path|
+            ret << File.basename(path) if File.directory?(path)
+          end
+        end
+        project = project.parent_project
+      end
+      return ret.uniq.compact.sort
+    end
+    
     # Creates a new generator.  Expects you to pass at least a generator name
     # and additional options including the current target project.  This will
     # search for a generator source directory in the target project and any
