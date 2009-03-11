@@ -1,5 +1,3 @@
-require File.join(SC::LIBPATH, 'sproutcore', 'helpers', 'generator_helper')
-
 module SC
   
   # Generates components for SproutCore. The generator allows the user
@@ -23,7 +21,6 @@ module SC
   GENPATH = File.join(SC::LIBPATH, "..", "gen")
   
   class Tools
-    include SC::GeneratorHelper
     
     def show_help(generator_name=nil, generator=nil)
       if generator_name

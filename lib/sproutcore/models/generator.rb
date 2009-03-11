@@ -362,6 +362,7 @@ module SC
         output = eruby.result(binding())
         
         unless self.dry_run
+          FileUtils.mkdir_p(File.dirname(dst_path))
           file = File.new(dst_path, 'w')
           file.write output
           file.close
