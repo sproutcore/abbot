@@ -62,7 +62,7 @@ module SC
     class Builder
       
       # used to set expires header.
-      TEN_YEARS = 10 * 365 * 24 * 60 * 60
+      ONE_YEAR = 365 * 24 * 60 * 60
       
       # When you create a new builder, pass in one or more projects you want
       # the builder to monitor for changes.
@@ -131,7 +131,7 @@ module SC
           "Etag"           => File.mtime(build_path).to_i.to_s,
           "Content-Type"   => mime_type(build_path),
           "Content-Length" => file_size.to_s,
-          "Expires"        => (cacheable ? (Time.now + TEN_YEARS) : Time.now).httpdate
+          "Expires"        => (cacheable ? (Time.now + ONE_YEAR) : Time.now).httpdate
         }
         [200, headers, File.open(build_path, 'rb')]
       end
@@ -162,12 +162,11 @@ module SC
         # don't reload if no project or is disabled
         return if @project.nil? || !@project.config.reload_project
         
-        # reload at most every 5 sec
-        return if (Time.now - @last_reload_time) < 5
-        
+        # reload after a delay of 5 sec
+        reload_delay = (Time.now - @last_reload_time)
         @last_reload_time = Time.now
         
-        @project.reload!
+        @project.reload! if reload_delay > 5
       end
       
       def target_for(url)
