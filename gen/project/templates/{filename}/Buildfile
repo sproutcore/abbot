@@ -1,1 +1,6 @@
-#the buildfile
+# ===========================================================================
+# Project:   <%= namespace %>
+# Copyright: ©<%= Time.now.year %> My Company, Inc.
+# ===========================================================================
+
+# Add initial buildfile information here

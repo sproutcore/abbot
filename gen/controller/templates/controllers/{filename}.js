@@ -1,6 +1,6 @@
 // ==========================================================================
-// <%= namespace_instance_name %> 
-// copyright ©<%= Time.now.year %> My Company, Inc.
+// Project:   <%= namespace_instance_name %>
+// Copyright: ©<%= Time.now.year %> My Company, Inc.
 // ==========================================================================
 /*globals <%= namespace %> */
 

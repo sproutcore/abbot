@@ -1,6 +1,6 @@
 // ==========================================================================
-// <%= namespace_class_name %> Fixtures
-// copyright ©<%= Time.now.year %> My Company, Inc.
+// Project:   <%= namespace_class_name %> Fixtures
+// Copyright: ©<%= Time.now.year %> My Company, Inc.
 // ==========================================================================
 /*globals <%= namespace %> */
 

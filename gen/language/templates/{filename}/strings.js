@@ -1,6 +1,6 @@
 // ==========================================================================
-// <%= namespace %> Strings
-// copyright ©<%= Time.now.year %> My Company, Inc.
+// Project:   <%= namespace %> Strings
+// Copyright: ©<%= Time.now.year %> My Company, Inc.
 // ==========================================================================
 
 // Place strings you want to localize here.  In your app, use the key and

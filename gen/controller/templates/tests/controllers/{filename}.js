@@ -1,6 +1,6 @@
 // ==========================================================================
-// <%= namespace_instance_name %> Unit Test
-// copyright ©<%= Time.now.year %> My Company, Inc.
+// Project:   <%= namespace_instance_name %> Unit Test
+// Copyright: ©<%= Time.now.year %> My Company, Inc.
 // ==========================================================================
 /*globals <%= namespace %> module test ok equals same stop start */
 

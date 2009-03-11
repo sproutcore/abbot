@@ -1,6 +1,6 @@
 // ==========================================================================
-// <%= namespace %>
-// copyright ©<%= Time.now.year %> My Company, Inc.
+// Project:   <%= namespace %>
+// Copyright: ©<%= Time.now.year %> My Company, Inc.
 // ==========================================================================
 /*globals <%= namespace %> */
 
@@ -11,7 +11,7 @@
   @extends SC.Object
 */
 <%= namespace %> = SC.Object.create(
-  /** @scope <%= class_name %>.prototype */ {
+  /** @scope <%= namespace %>.prototype */ {
 
   NAMESPACE: '<%= namespace %>',
   VERSION: '0.1.0',

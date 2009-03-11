@@ -1,6 +1,6 @@
 // ==========================================================================
-// <%= namespace %> - mainPage
-// copyright ©<%= Time.now.year %> My Company, Inc.
+// Project:   <%= namespace %> Strings
+// Copyright: ©<%= Time.now.year %> My Company, Inc.
 // ==========================================================================
 /*globals <%= namespace %> */
 
