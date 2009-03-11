@@ -1,7 +1,8 @@
 // ==========================================================================
-// <%= class_name %> - mainPage
+// <%= namespace %> - mainPage
 // copyright ©<%= Time.now.year %> My Company, Inc.
 // ==========================================================================
+/*globals <%= namespace %> */
 
 // Place strings you want to localize here.  In your app, use the key and
 // localize it using "key string".loc().  HINT: For your key names, use the
@@ -9,6 +10,6 @@
 // how your UI will look and you'll notice right away when something needs a
 // localized string added to this file!
 //
-SC.stringsFor('<%= class_name %>', {
+SC.stringsFor('English', {
   // "_String Key": "Localized String"
 }) ;

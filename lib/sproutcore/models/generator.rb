@@ -1,3 +1,5 @@
+require 'extlib'
+
 module SC
   
   # A generator is a special kind of project that can process some input 
@@ -53,8 +55,10 @@ module SC
   class Generator < HashStruct
     
     # the target project to build in or nil if no target provided
-    attr_reader :project
+    attr_reader :target_project
 
+    attr_reader :logger
+    
     ################################################
     ## SETUP
     ##
@@ -72,7 +76,7 @@ module SC
     def self.load(generator_name, opts={})
       
       # get the project to search and look for the generator
-      project = opts[:target_project] || SC.builtin_project
+      target_project = project = opts[:target_project] || SC.builtin_project
       path = ret = nil
       
       # attempt to discover the the generator
@@ -90,23 +94,32 @@ module SC
       end
       
       # Create project if possible
-      ret = self.new(generator_name, opts.merge(:generator_root => path, :target_project => project)) if path
+      ret = self.new(generator_name, opts.merge(:source_root => path, :target_project => target_project)) if path
       return ret 
     end  
       
     def initialize(generator_name, opts = {})
       super()
       
-      @target_project = opts[:target_project]
+      @target_project = opts[:target_project] || opts['target_project']
+      @logger = opts[:logger] || opts['logger'] || SC.logger 
       @buildfile = nil
 
-      # copy standard options
-      self.generator_name = generator_name
-      %w(generator_root arguments target_name filename).each do |key|
-        self[key] = opts[key] || opts[key.to_sym]
+      # delete special options
+      %w(target_project logger).each do |key|
+        opts.delete(key)
+        opts.delete(key.to_sym)
       end
       
+      # copy any remaining options onto generator
+      opts.each { |key, value| self[key] = value }
+      self.generator_name = generator_name
+      
     end
+
+    ################################################
+    ## Buildfile
+    ##
     
     # The current buildfile for the generator.  The buildfile is calculated by
     # merging the buildfile for the generator with the default generator 
@@ -128,7 +141,7 @@ module SC
       end
       
       # Then try to load the buildfile for the generator
-      path = File.join(generator_root, 'Buildfile')
+      path = File.join(source_root, 'Buildfile')
       @buildfile.load!(path)
       
       return @buildfile
@@ -144,6 +157,10 @@ module SC
     def config
       return @config ||= buildfile.config_for(:templates, SC.build_mode).merge(SC.env)
     end
+
+    ################################################
+    ## MAIN ENTRYPOINTS
+    ##    
     
     # Prepares the generator state by parsing any passed arguments and then
     # invokes the 'generator:prepare' task from the Buildfile, if one exists.
@@ -153,11 +170,23 @@ module SC
       @is_prepared = true
 
       parse_arguments!
-      if target_name && target_project
+      
+      has_project = target_project && target_project != SC.builtin_project 
+      if target_name && has_project && target.nil?
         self.target = target_project.target_for(target_name)
       end
+
+      # Attempt to build a reasonable default build_root.  Usually this should
+      # be the target path, but if a target can't be found, use the project 
+      # path.  If a project is not found or the target project is the builtin
+      # project, then use the current working directory
+      if target
+        self.build_root = target.source_root
+      else 
+        self.build_root = has_project ? target_project.project_root : Dir.pwd
+      end
       
-      # Execute prepare task
+      # Execute prepare task - give the generator a chance to fixup defaults
       buildfile.invoke 'generator:prepare', :generator => self
       return self
     end
@@ -169,6 +198,178 @@ module SC
       prepare! # if needed
       buildfile.invoke 'generator:build', :generator => self
       return self 
+    end
+
+    ################################################
+    ## LOGGING
+    ##
+    
+    # Helper method.  Call this when an acception occurs that is fatal due to
+    # a problem with the user.
+    def fatal!(description)
+      raise description
+    end
+    
+    # Helper method.  Call this when you want to log an info message.  Logs to
+    # the standard logger.
+    def info(description); logger.info(description); end
+    
+    # Helper method.  Call this when you want to log a debug message.
+    def debug(description); logger.debug(description); end
+    
+    # Log this when you need to issue a warning.
+    def warn(description); logger.warn(description); end
+    
+    
+    # Logs the pass file to the logger after first processing it with Erubis.
+    # This is the code helper method used to log out USAGE and README files.
+    #
+    # === Params
+    #  src_path:: the file path for the logger
+    #  a_logger:: optional logger to use.  defaults to builtin logger
+    #
+    # === Returns
+    #  self
+    #
+    def log_file(src_path, a_logger = nil)
+      a_logger = self.logger if a_logger.nil?
+      if !File.exists?(src_path)
+        warn "Could not find #{File.basename(src_path)} in generator source"
+      else
+        require 'erubis'
+        a_logger << Erubis::Eruby.new(File.read(src_path)).result(binding()) 
+        a_logger << "\n"
+      end
+      return self 
+    end
+    
+    # Logs the README file in the source_root if found or logs a warning.
+    def log_readme(a_logger=nil)
+      src_path = self.source_root / "README"
+      log_file(src_path, a_logger)
+    end
+    
+    # Logs the USAGE file in the source_root if found or logs a warning.
+    def log_usage(a_logger=nil)
+      src_path = self.source_root / 'USAGE'
+      log_file(src_path, a_logger)
+    end
+
+    ################################################
+    ## UTILITY METHODS
+    ##    
+
+    # Returns the full namespace and class name if both are defined.
+    def namespace_class_name
+      [self.namespace, self.class_name].compact.join '.'
+    end
+
+    # Returns the full namespace and object name if both are defined.
+    def namespace_instance_name
+      [self.namespace, self.instance_name].compact.join '.'
+    end
+    
+    # Verifies that the passed array of keys are defined on the object.  If
+    # you pass an optional block, the block will be invoked for each key so
+    # you can validate the value as well.  Otherwise, this will raise an error
+    # if any of the properties are nil.
+    def requires!(*properties)
+      properties.flatten.each do |key_name|
+        value = self.send(key_name)
+        is_ok = !value.nil?
+        is_ok = yield(key_name, value) if block_given? && is_ok
+        unless is_ok
+          fatal!("This generator requires a #{Extlib::Inflection.humanize key_name}")
+        end
+      end
+      return self
+    end
+    
+    # Converts a path with optional template variables into a regular path
+    # by looking up said variables on the receiver.  Variables in the pathname
+    # must appear inside of a pair of {}. (Like the Amazon Search URL spec)
+    def expand_path(path)
+      path = path.gsub(/\{(.*?)\}/) { self.send($1) || $1 }
+      File.expand_path path
+    end
+    
+    # Calls your block for each file and directory in the source template
+    # passing the expanded source path and the expanded destination directory
+    #
+    # Expects you to include a block with the following signature:
+    #
+    #  block |filename, src_path, dst_path|
+    #
+    #  filename:: the filename relative to the source directory
+    #  src_path:: the full path to the source
+    #  dst_path:: the full destination path
+    #
+    # === Param
+    #  source_dir:: optional source directory.  Defaults to templates
+    #  build_dir::  optional build directory.  Defaults to build_root
+    # === Returns 
+    #  self
+    #
+    def each_template(source_dir = nil, build_dir=nil) 
+      source_dir = self.source_root / 'templates' if source_dir.nil?
+      build_dir = self.build_root if build_dir.nil?
+      
+      Dir.glob(source_dir / '**' / '*').each do |src_path|
+        filename = src_path.sub(source_dir / '', '')
+        dst_path = build_dir / filename
+        yield(filename, src_path, dst_path) if block_given?
+      end
+      return self
+    end
+    
+    # Copies from source to destination, running the contents through ERB
+    # if the file appears to be a text file.  The destination file must not
+    # exist or else a warning will be logged.
+    #
+    # === Returns
+    #  true if copied successfully.  false otherwise
+    #
+    def copy_file(src_path, dst_path) 
+
+      # interpolate dst_path to include any variables
+      dst_path = expand_path(dst_path)
+      
+      src_filename = src_path.sub(self.source_root / '', '')
+      dst_filename = dst_path.sub(self.build_root / '', '')
+      ret = true 
+
+      # if the source path does not exist, just log a warning and return
+      if !File.exist? src_path
+        warn "Did not copy #{src_filename} because the source does not exist."
+        ret = false
+        
+      # when copying a directory just make the dir if needed
+      elsif File.directory?(src_path)
+        logger << " ~ Created directory at #{dst_filename}\n" if !File.exist?(dst_path)
+        FileUtils.mkdir_p(dst_path) unless self.dry_run
+        
+      # if destination already exists, just log warning
+      elsif File.exist?(dst_path) && !self.force
+        warn "Did not overwrite #{dst_filename} because it already exists."
+        ret = false
+        
+      # process file through erubis and copy
+      else
+        require 'erubis'
+        
+        input = File.read(src_path)
+        eruby = ::Erubis::Eruby.new input
+        output = eruby.result(binding())
+        
+        unless self.dry_run
+          file = File.new(dst_path, 'w')
+          file.write output
+          file.close
+        end
+        
+        logger << " ~ Created file at #{dst_filename}\n"
+      end
+      return ret 
     end
 
     # Converts a string to snake case.  This method will accept any variation
@@ -255,6 +456,12 @@ module SC
       # filename if defined.
       if (parts[1] || self.filename) && self.class_name.nil?
         self.class_name = camel_case(parts[1] || self.filename)
+      end
+      
+      # object_name is class name with first letter lower case.  Used in case
+      # the template wants to define an instance instead of class.
+      if self.class_name && self.instance_name.nil?
+        self.instance_name = self.class_name.sub(/^(.)/) { |x| x.downcase }
       end
       
     end

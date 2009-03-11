@@ -1,11 +1,12 @@
 // ==========================================================================
-// <%= class_name %> Unit Test
+// <%= namespace_instance_name %> Unit Test
 // copyright ©<%= Time.now.year %> My Company, Inc.
 // ==========================================================================
+/*globals <%= namespace %> module test ok equals same stop start */
 
-module("<%= class_name %>");
+module("<%= namespace_instance_name %>");
 
-// TODO: Replace with real unit test for <%= class_name %>
+// TODO: Replace with real unit test for <%= namespace_instance_name %>
 test("test description", function() {
   var expected = "test";
   var result   = "test";

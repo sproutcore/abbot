@@ -1,17 +1,18 @@
-# default behavior for a template is to just copy the contents of the
-# templates directory to the end destination. Add any additional steps here.
-config :templates,
-  :root_dir   					=> '_file_path_',
-  # specify if you require root_dir to be already present
-  # For instance, in the case of views/controllers you want ensure there is an existing app)
-  :required_root_dir  			=> YES,
-  # If required_root_dir==YES you can set the message to display if requirement fails
-  :required_root_dir_message  	=> 'To generate a view you need an application first. For usage, try: sc-gen app --help',
-  # specify what the current pwd (present working directory) should be
-  # if this is not found sc-gen will try to go up or down one level to find
-  # a suitable location
-  :required_pwd 				=> ['apps', 'frameworks', 'themes', 'clients'],
-  # set nesting depth range requirement
-  :required_class_nesting_depth => 1,
-  # what to append to the classname (will not happen if it is specified by the user)
-  :class_name_append			=> 'View'
+# ==========================================================================
+# Generator: View
+# Copyright: ©2006-2009 Sprout Systems, Inc. and contributors
+#            portions copyright ©2009 Apple, Inc.
+# ==========================================================================
+
+namespace :generator do
+
+  # - Verify required properties are present
+  # - Accept second argument as base class
+  # - If file name ends in "_view", strip it off
+  task :prepare do
+    GENERATOR.requires! :target_project, :target, :namespace, :class_name
+    GENERATOR.base_class_name ||= GENERATOR.arguments[2]
+    GENERATOR.filename = GENERATOR.filename.sub(/_view$/,'')
+  end
+  
+end

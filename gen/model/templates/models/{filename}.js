@@ -1,20 +1,19 @@
 // ==========================================================================
-// <%= class_name %>
+// <%= namespace_class_name %>
 // copyright ©<%= Time.now.year %> My Company, Inc.
 // ==========================================================================
-
-require('core');
+/*globals <%= namespace %> */
 
 /** @class
 
   (Document your Model here)
 
-  @extends <%= base_class_name 'SC.Record' %>
+  @extends <%= base_class_name || 'SC.Record' %>
   @author AuthorName
   @version 0.1
 */
-<%= class_name %> = <%= base_class_name 'SC.Record' %>.extend(
-/** @scope <%= class_name %>.prototype */ {
+<%= namespace_class_name %> = <%= base_class_name || 'SC.Record' %>.extend(
+/** @scope <%= namespace_class_name %>.prototype */ {
 
   // TODO: Add your own code here.
 

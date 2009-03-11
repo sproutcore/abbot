@@ -237,7 +237,7 @@ module SC
     # the current project.  If the generator cannot be found, this method will
     # return nil.
     def generator_for(generator_name, opts={})
-      opts[:project] = self
+      opts[:target_project] = self
       return SC::Generator.load(generator_name, opts)
     end 
     

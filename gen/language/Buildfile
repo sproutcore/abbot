@@ -1,12 +1,26 @@
-# default behavior for a template is to just copy the contents of the
-# templates directory to the end destination. Add any additional configs here.
-config :templates,
-  :root_dir   => '_file_path_',
-  # If required_root_dir==YES you can set the message to display if requirement fails
-  :required_root_dir_message  	=> 'To generate a language you need an application first. For usage, try: sc-gen app --help',
-  # specify what the current pwd (present working directory) should be
-  # if this is not found sc-gen will try to go up or down one level to find
-  # a suitable location
-  :required_pwd 				=> ['apps', 'frameworks', 'themes', 'clients'],
-  # what to append to the classname (will not happen if it is specified by the user)
-  :file_path_append			=> '.lproj'
+# ==========================================================================
+# Generator: Language
+# Copyright: ©2006-2009 Sprout Systems, Inc. and contributors
+#            portions copyright ©2009 Apple, Inc.
+# ==========================================================================
+
+namespace :generator do
+
+  # First argument must be the namespace.  Second argument should be the 
+  # language we want to add.  Generate a filename (foo.lproj) and language
+  # name.
+  task :prepare do
+    long_languages = %w(english french german italian spanish japanese)
+    if language = GENERATOR.arguments[2]
+      if long_languages.include?(language.downcase)
+        GENERATOR.language = language.downcase.capitalize
+        GENERATOR.filename = language.downcase + '.lproj'
+      else
+        GENERATOR.language = language.gsub('_', '-') 
+        GENERATOR.filename = language.gsub('-', '_') + '.lproj'
+      end
+    end
+    GENERATOR.requires! :target_project, :target, :language, :filename
+  end
+  
+end

@@ -145,7 +145,7 @@ module SC
         end
       end
       
-      info "Loaded project at: #{ret.project_root}"
+      info "Loaded project at: #{ret.project_root}" unless ret.nil?
       @project = ret
     end
        

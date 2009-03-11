@@ -1,9 +1,8 @@
 // ==========================================================================
-// <%= class_name %> Fixtures
+// <%= namespace_class_name %> Fixtures
 // copyright ©<%= Time.now.year %> My Company, Inc.
 // ==========================================================================
-
-require('core') ;
+/*globals <%= namespace %> */
 
 <%= namespace %>.FIXTURES = <%= namespace %>.FIXTURES.concat([
 

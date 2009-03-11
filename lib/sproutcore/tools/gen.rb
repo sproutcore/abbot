@@ -30,7 +30,7 @@ module SC
         if generator.nil?
           warn("There is no #{generator_name} generator") 
         else
-          log_file(generator.generator_root / 'USAGE')
+          generator.log_usage
         end
       else
         SC.logger << "Available generators:\n"
@@ -44,9 +44,11 @@ module SC
       "Generates SproutCore components"
     
     method_options(
-      MANIFEST_OPTIONS.merge(:help => :optional,
-                             :filename => :optional,
-                             :target => :optional))
+      MANIFEST_OPTIONS.merge(:help       => :optional,
+                             :filename   => :optional,
+                             :target     => :optional,
+                             '--dry-run' => false,
+                             :force      => false))
       
     def gen(*arguments)
       return show_help if arguments.empty?
@@ -57,9 +59,11 @@ module SC
       # Load generator
       generator_project = self.project || SC.builtin_project
       generator = generator_project.generator_for name,
-        :arguments =>   arguments,
-        :filename  =>   options[:filename],
-        :target_name => options[:target]
+        :arguments   => arguments,
+        :filename    => options[:filename],
+        :target_name => options[:target],
+        :dry_run     => options['dry-run'],
+        :force       => options[:force]
 
       # if no generator could be found, or if we just asked to show help,
       # just return the help...
@@ -68,9 +72,9 @@ module SC
       begin
         # Prepare generator and then log some debug info
         generator.prepare!
-        info "Loading generator Buildfile at: #{generator.buildfile.path}"
+        info "Loading generator Buildfile at: #{generator.buildfile.loaded_paths.last}"
       
-        debug "GENERATOR SETTINGS"
+        debug "\nSETTINGS"
         generator.each { |k,v| debug("#{k}: #{v}") }
         
         # Now, run the generator
@@ -78,10 +82,11 @@ module SC
         
       rescue Exception => error_message
         warn "For specific help on how to use this generator, type: sc-gen #{name} --help"
-        fatal! error_message
+        fatal! error_message.to_s
       end
 
-      log_file(generator.generator_root / "README")
+      SC.logger << "\n"
+      generator.log_readme
       return 0
     end
     

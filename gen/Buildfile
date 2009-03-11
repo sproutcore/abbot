@@ -7,6 +7,10 @@ namespace :generator do
   task :prepare 
   
   desc "builds the generator, copying files to the build root"
-  task :build
+  task :build do
+    GENERATOR.each_template do |filename, src_path, dst_path|
+      GENERATOR.copy_file src_path, dst_path
+    end
+  end
   
 end
