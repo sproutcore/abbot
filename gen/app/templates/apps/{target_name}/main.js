@@ -17,7 +17,7 @@
   // The default code here will load the fixtures you have defined.
   // Comment out the preload line and add something to refresh from the server
   // when you are ready to pull data from your server.
-  <%= namespace %>.store.preload(<%= class_name %>.FIXTURES) ;
+  <%= namespace %>.store.preload(<%= namespace %>.FIXTURES) ;
 
   // Step 2: Instantiate Your Views
   // The default code here will make the mainPane for your application visible

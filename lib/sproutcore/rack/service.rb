@@ -102,9 +102,12 @@ module SC
 
         # setup some conditional items...
         config = project.config
-        apps << SC::Rack::TestRunner.new(project) if config.serve_test_runner
-        apps << SC::Rack::Docs.new(project) if config.serve_docs
-        apps << SC::Rack::Proxy.new(project) if project.buildfile.proxies.size > 0
+        #if config.serve_test_runner || config.serve_docs
+          apps << SC::Rack::Dev.new(project) 
+        #end
+        if project.buildfile.proxies.size > 0
+          apps << SC::Rack::Proxy.new(project) 
+        end
 
         # Add builder for the project itself
         apps  << SC::Rack::Builder.new(project)

@@ -31,7 +31,7 @@ module SC
         # collect urls from entries
         urls = []
         combine_stylesheets = t.config.combine_stylesheets
-        combined_entries(t, opts, 'stylesheet.css', 'stylesheet-packed.js') do |cur_target, cur_entry|
+        combined_entries(t, opts, 'stylesheet.css', 'stylesheet-packed.css') do |cur_target, cur_entry|
           # include either the entry URL or URL of ordered entries
           # depending on setup
           if combine_stylesheets
