@@ -110,7 +110,7 @@ module SC
           if ret.nil?
             # Clean the entry so it will rebuild if we are serving an html 
             # file
-            entry.clean! if entry.filename =~ /.html$/
+            entry.clean! if entry.filename =~ /index.html$/
         
             # Now build entry and return a file object
             build_path = entry.build!.build_path
