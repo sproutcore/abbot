@@ -115,7 +115,12 @@ module SC
             # Now build entry and return a file object
             build_path = entry.build!.build_path
           end
+
+          # Update last reload time.  This way if any other requests are
+          # waiting, they won't rebuild their manifest.
+          @last_reload_time = Time.now
         end
+
         return ret unless ret.nil?
         
         unless File.file?(build_path) && File.readable?(build_path)
@@ -164,9 +169,11 @@ module SC
         
         # reload after a delay of 5 sec
         reload_delay = (Time.now - @last_reload_time)
-        @last_reload_time = Time.now
         
-        @project.reload! if reload_delay > 5
+        if reload_delay > 5
+          SC.logger.info "Rebuilding project manifest"
+          @project.reload!
+        end
       end
       
       def target_for(url)
