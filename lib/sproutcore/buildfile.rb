@@ -451,6 +451,10 @@ module SC
         Kernel.const_reset(const_key, value)
       end
       
+      # Also, save env.  Used mostly for logging
+      ret['TASK_ENV'] = Kernel.const_get('TASK_ENV') rescue nil
+      Kernel.const_reset('TASK_ENV', env)
+      
       return ret
     end
       

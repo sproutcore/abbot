@@ -34,6 +34,9 @@ module SC
     # from the invoke_count if the task was invoked but was not needed.
     attr_reader :execute_count
     
+    # Various options you can set on the task to control log level, etc.
+    attr_reader :task_options
+    
     # Return task name
     def to_s
       name
@@ -79,6 +82,7 @@ module SC
       @scope = app.current_scope
       @arg_names = nil
       @invoke_count = @execute_count = 0
+      @task_options = {}
     end
 
     # Enhance a task with prerequisites or actions.  Returns self.
@@ -143,7 +147,21 @@ module SC
       unless invocation_chain.already_invoked?(self)
         invocation_chain = InvocationChain.append(self, invocation_chain)
         @lock.synchronize do
-          SC.logger.debug "** Invoke #{name} #{format_trace_flags}"
+          
+          # Use logging options to decide what to output
+          # one of :env, :name, :none
+          log_opt = task_options[:log] || :env
+          if [:name, :env].include?(log_opt)
+            SC.logger.debug "invoke ~ #{name} #{format_trace_flags}"
+          end
+          
+          if log_opt == :env
+            TASK_ENV.each do |key, value|
+              next if %w(config task_env).include?(key.to_s.downcase)
+              SC.logger.debug "  #{key} = #{value.inspect}"
+            end
+          end
+          
           invocation_chain = invoke_prerequisites(task_args, invocation_chain)
           @invoke_count += 1
           execute(task_args) if needed?
@@ -176,11 +194,7 @@ module SC
     def execute(args=nil)
       @execute_count += 1
       args ||= EMPTY_TASK_ARGS
-      if SC.env.dryrun
-        SC.logger.info "** Execute (dry run) #{name}"
-        return
-      end
-      SC.logger.debug "** Execute #{name}"
+      return if SC.env.dryrun
 
       @actions.each do |act|
         case act.arity
@@ -211,6 +225,12 @@ module SC
       add_comment(comment) if comment && ! comment.empty?
     end
 
+    # Add task options.
+    def add_options(task_options)
+      return if !task_options
+      @task_options = task_options
+    end
+    
     # Writing to the comment attribute is the same as adding a description.
     def comment=(description)
       add_description(description)

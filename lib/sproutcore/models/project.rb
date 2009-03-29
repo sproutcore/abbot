@@ -35,6 +35,10 @@ module SC
     # Parent project this project shoud inherit build rules and targets from
     attr_reader :parent_project 
     
+    def inspect
+      "SC::Project(#{File.basename(project_root || '')})"
+    end
+    
     # When a new project is created, you may optionally pass either a 
     # :parent option or a :paths options.  If you pass the paths option, then
     # this class will search the paths for projects and initialize them as

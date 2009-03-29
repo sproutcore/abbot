@@ -6,6 +6,8 @@ module SC
     attr_accessor :last_description
     alias :last_comment :last_description    # Backwards compatibility
 
+    attr_accessor :last_task_options
+    
     def initialize
       super
       @tasks = Hash.new
@@ -28,6 +30,7 @@ module SC
       task = intern(task_class, task_name)
       task.set_arg_names(arg_names) unless arg_names.empty?
       task.add_description(@last_description)
+      task.add_options(@last_task_options)
       @last_description = nil
       task.enhance(deps, &block)
       task

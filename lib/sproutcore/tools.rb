@@ -119,6 +119,11 @@ module SC
     ## HELPER METHODS 
     ##
     
+    # Set the current project.  This is used mostly for unit testing.
+    def project=(a_project)
+      @project = a_project
+    end
+    
     # The current project.  This is discovered based on the passed --project
     # option or based on the current working directory.  If no project can be
     # found, this method will always return null.

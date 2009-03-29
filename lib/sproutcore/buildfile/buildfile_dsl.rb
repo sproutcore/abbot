@@ -87,6 +87,18 @@ module SC
         last_description = description
       end
 
+      # Describe options on the next rake task.
+      #
+      # Example:
+      #   options :log => :env|:name|:none
+      #   task :test => [:build]
+      #     runtests
+      #   end
+      #
+      def task_options(opts)
+        last_task_options = opts
+      end
+
       # Scope any config statements inside the passed block to the named mode.
       # Normally if you call a config statement outside of a mode block, it will
       # scope to all modes. 

@@ -43,6 +43,10 @@ module SC
     
     def prepared?; @is_prepared || false; end
     
+    def inspect 
+      "SC::ManifestEntry(#{filename}, build_task=>#{self.build_task}, entry_type=>#{self.entry_type}, is_hidden=>#{self.hidden?})"
+    end
+    
     def to_hash(opts={})
       ret = super()
       if ret[:source_entries]

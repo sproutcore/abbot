@@ -13,6 +13,7 @@ namespace :entry do
   #
   # With this task in place, you can build an entry by simply providing a 
   # filename and, optionally a source_path or source_entries.
+  task_options :log => :none # no logging -- too much detail
   task :prepare do
     filename = ENTRY.filename
     raise "All entries must have a filename!" if filename.nil?
