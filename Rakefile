@@ -12,6 +12,11 @@ end
 ensure_in_path 'lib'
 require 'sproutcore'
 
+depend_on 'extlib'
+depend_on 'rack'
+depend_on 'erubis'
+depend_on 'json_pure'
+
 task :default => 'spec:specdoc'
 
 PROJ.name = 'sproutcore'
@@ -22,5 +27,6 @@ PROJ.version = SC::VERSION
 PROJ.rubyforge.name = 'sproutcore'
 PROJ.ruby_opts = []
 PROJ.spec.opts << '--color'
+PROJ.exclude << '^coverage/' << '\.gitignore' << '\.gitmodules'
 
 # EOF
