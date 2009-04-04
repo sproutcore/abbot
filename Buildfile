@@ -1,3 +1,13 @@
+# ===========================================================================
+# Project:   Abbot - SproutCore Build Tools
+# Copyright: ©2009 Apple, Inc.
+#            portions copyright @2006-2009 Sprout Systems, Inc.
+#            and contributors
+# ===========================================================================
+
+# Default buildfile loaded by all projects.  Any options you put into your 
+# project buildfile will override these defaults.
+
 # Import all build tasks
 import *Dir.glob(File.join(File.dirname(current_path), 'buildtasks', '**', '*.rake'))
 
@@ -96,8 +106,9 @@ mode :debug do
     # not respect tokens.
     :timestamp_urls  =>  true,
     
+    # Do not pack javascripts in development mode, we want each file to 
+    # load independently.
     :use_packed => false
-    
 
 end
 

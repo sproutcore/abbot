@@ -1,3 +1,10 @@
+# ===========================================================================
+# Project:   Abbot - SproutCore Build Tools
+# Copyright: ©2009 Apple, Inc.
+#            portions copyright @2006-2009 Sprout Systems, Inc.
+#            and contributors
+# ===========================================================================
+
 module SC
   
   # A HashStruct is a type of hash that can also be accessed as a structed

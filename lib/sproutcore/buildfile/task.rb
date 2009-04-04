@@ -1,3 +1,10 @@
+# ===========================================================================
+# Project:   Abbot - SproutCore Build Tools
+# Copyright: ©2009 Apple, Inc.
+#            portions copyright @2006-2009 Sprout Systems, Inc.
+#            and contributors
+# ===========================================================================
+
 module SC
   
   # Buildfile tasks are rake tasks with a few extras added to support 

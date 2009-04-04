@@ -1,3 +1,10 @@
+# ===========================================================================
+# Project:   Abbot - SproutCore Build Tools
+# Copyright: ©2009 Apple, Inc.
+#            portions copyright @2006-2009 Sprout Systems, Inc.
+#            and contributors
+# ===========================================================================
+
 module SC
   
   # Defines a build target in a project.  A build target is a component that

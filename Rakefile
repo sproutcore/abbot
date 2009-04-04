@@ -2,6 +2,7 @@
 # Project:   Abbot - SproutCore Build Tools
 # Copyright: ©2009 Apple, Inc.
 #            portions copyright @2006-2009 Sprout Systems, Inc.
+#            and contributors
 # ===========================================================================
 
 # This Rakefile is used to build and distribute the SproutCore Gem.  It

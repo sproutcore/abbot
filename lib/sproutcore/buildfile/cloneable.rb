@@ -1,3 +1,10 @@
+# ===========================================================================
+# Project:   Abbot - SproutCore Build Tools
+# Copyright: ©2009 Apple, Inc.
+#            portions copyright @2006-2009 Sprout Systems, Inc.
+#            and contributors
+# ===========================================================================
+
 module SC
   
   # Mixing for creating easily cloned objects.  Borrowed from Rake 0.8.3
