@@ -4,3 +4,4 @@
 # ===========================================================================
 
 # Add initial buildfile information here
+config :all, :required => :sproutcore
