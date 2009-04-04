@@ -12,10 +12,10 @@ end
 ensure_in_path 'lib'
 require 'sproutcore'
 
-depend_on 'extlib'
-depend_on 'rack'
-depend_on 'erubis'
-depend_on 'json_pure'
+depend_on 'extlib', ">= 0.9.9"
+depend_on 'rack', '>= 0.9.1'
+depend_on 'erubis', ">= 2.6.2"
+depend_on 'json_pure', ">= 2.4.2"
 
 task :default => 'spec:specdoc'
 
