@@ -10,7 +10,7 @@ describe SC::Project, 'targets' do
     # the tests for merging from tests of finding targets...
     test_project = Class.new(SC::Project) do
       def find_targets_for(root_path, root_name, config)
-        self.add_target :base1, :dummy_type
+        self.add_target :base1, :dummy_type, { :source_root => "foo" }
       end
     end
     parent = test_project.new fixture_path('buildfiles', 'empty_project')
@@ -19,7 +19,11 @@ describe SC::Project, 'targets' do
     # targets from the parent...
     project = SC::Project.new fixture_path('buildfiles', 'empty_project'), :parent => parent
     project.targets.size.should eql(1)
-    project.targets['base1'].target_name.should eql(:base1)
+    
+    t = project.targets['base1']
+    t.target_name.should == :base1
+    t.target_type.should == :dummy_type
+    t.source_root.should  == "foo"
   end
   
   # We want to test this because find_targets_for() is a callback we expect

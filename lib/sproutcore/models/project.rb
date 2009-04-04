@@ -251,7 +251,7 @@ module SC
     # is how we inherit inherit targets from a parent project.
     def dup_targets(to_dup)
       to_dup.each do | target_name, target |
-        add_target target.target_name, target
+        add_target target_name, target.target_type, target.to_hash
       end
     end
         
