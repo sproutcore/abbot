@@ -1,3 +1,6 @@
 [submodule "lib/thor"]
 	path = lib/thor
 	url = git://github.com/sproutit/thor.git
+[submodule "frameworks/sproutcore"]
+	path = frameworks/sproutcore
+	url = git://github.com/sproutit/sproutcore.git

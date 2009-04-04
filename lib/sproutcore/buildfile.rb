@@ -171,6 +171,7 @@ module SC
     #  self
     
     def load!(filename=nil, buildfile_names=nil)
+      
       # If a directory is passed, look for any buildfile and load them...
       if File.directory?(filename)
         
