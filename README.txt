@@ -1,47 +1,86 @@
-sproutcore
-    by Charles Jolley
-    http://github.com/sproutit/sproutcore
+sproutcore - abbot
+    by Charles Jolley and contributors
+    http://www.sproutcore.com
+    http://github.com/sproutit/sproutcore-abbot
 
 == DESCRIPTION:
 
-SC is a build system for creating static pages on the web.  You can supply
-SC with a collection of JavaScript, HTML, CSS and image files and it will 
-combine the files into a bundle of files that are optimized for output on the
-web.
+SproutCore is a platform for building native look-and-feel applications on 
+the web.  This Ruby library includes a copy of the SproutCore JavaScript 
+framework as well as a Ruby-based build system called Abbot.
 
-SC consists of several tools that all work together:
+Abbot is a build system for creating static web content.  You can supply Abbot with a collection of JavaScript, HTML, CSS and image files and it will 
+combine the files into a bundle that are optimized for efficient, cached 
+deliver directly from your server or using a CDN.
 
-- Bundle Filter: This system can generate a manifest of the content a bundle should contain when built including all of the rules that should be followed to actually build each entry.  You can write custom filters to modify this manifest, effecting the output.
+Some of the benefits of using Abbot versus assembling your own content 
+include:
 
-- JavaScript Builder: This tool can take a number of input files and combine them to produce a single output JavaScript, possibly minifying and performing other optimizations.
+ * Easy maintenance.  Organize your source content in a way that is useful for 
+   you without impacting performance on loaded apps.
+ 
+ * Automatically versioned URLs. Serve content with long expiration dates
+   while Abbot handles the cache invalidation for you.
+ 
+ * Dependency management.  Divide your code into frameworks; load 3rd party
+   libraries.  Abbot will make sure everything loads in the correct order.
+   
+ * Packing.  Combines JavaScript and CSS into single files to minimize the
+   number of resources you download for each page.
+  
+Although Abbot is intended primarily for building Web applications that 
+use the SproutCore JavaScript framework, you can also use it to efficiently build any kind of static web content, even if SproutCore is not involved.
 
-- HTML Builder: This tool can take a number of input files and build an output HTML file.
+Abbot can be used both directly from the command line or as a ruby library. 
+  
+== USING ABBOT WITH SPROUTCORE:
 
-- CSS Builder: ditto for CSS
+This gem includes both the Abbot build tools and a copy of the SproutCore
+JavaScript framework.  You can use built-in commands to create, develop, 
+build, and deploy SproutCore-based applications.
 
-- Copier: copies files...
+== KNOWN LIMITATIONS:
 
-== FEATURES/PROBLEMS:
-
-* FIXME (list of features or problems)
+* Currently does not support sites using relative-links.  You must specify
+  the absolute path you expect built targets to be hosted as.  
 
 == SYNOPSIS:
 
-  FIXME (code sample of usage)
+To create a new project:
+
+  sc-init my_app
+  
+To test said project:
+
+  cd my_app
+  sc-server
+  open http://localhost:4020/my_app (in web browser)
+  
+Write code, refresh, debug.  Once you are ready to deploy, build your static
+output using:
+
+  cd my_app
+  sc-build my_app -rc
+  
+Copy the resulting files found in my_app/tmp/build to your server and you are
+deployed!
 
 == REQUIREMENTS:
 
-* FIXME (list of requirements)
+* Ruby 1.8.6 or later.  Ruby 1.9 is currently untested
+* extlib 0.9.9 or later
+* rack 0.9.1 or later
+* erubis 2.6.2 or later
+* json_pure 1.1.0 or later
 
 == INSTALL:
 
-* FIXME (sudo gem install, anything else)
+sudo gem install sproutcore
 
 == LICENSE:
 
-(The MIT License)
-
-Copyright (c) 2008 FIXME (different license?)
+Copyright (c) 2009 Apple, Inc.  
+Portions copyright (c) 2006-2009 Sprout Systems, Inc. and contributors
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

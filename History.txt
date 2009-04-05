@@ -1,4 +1,7 @@
-== 1.0.0 / 2008-12-08
 
-* 1 major enhancement
-  * Birthday!
+== 1.0.0.a1 / 2009-04-04
+
+Brand new version of build tools.  The line (Abbot) is built on a Rake-like
+tasks system instead of using integrated Ruby code.  It also incorporates a
+suite of over 300 unit tests to verify the build operation under lots of 
+different configurations
