@@ -4,40 +4,32 @@
 // ==========================================================================
 /*globals <%= namespace %> */
 
-<%= namespace %>.FIXTURES = <%= namespace %>.FIXTURES.concat([
+sc_require('models/<%= filename.ext('') %>');
+
+<%= namespace_class_name %>.FIXTURES = [
 
   // TODO: Add your data fixtures here.
-  // All fixture records must have a unique guid and a type matching the
-  // name of your contact.  See the example below.
+  // All fixture records must have a unique primary key (default 'guid').  See 
+  // the example below.
 
   // { guid: 1,
-  //   type: 'Contact',
   //   firstName: "Michael",
-  //   lastName: "Scott"
-  // },
+  //   lastName: "Scott" },
   //
   // { guid: 2,
-  //   type: 'Contact',
   //   firstName: "Dwight",
-  //   lastName: "Schrute"
-  // },
+  //   lastName: "Schrute" },
   //
   // { guid: 3,
-  //   type: 'Contact',
   //   firstName: "Jim",
-  //   lastName: "Halpert"
-  // },
+  //   lastName: "Halpert" },
   //
   // { guid: 4,
-  //   type: 'Contact',
   //   firstName: "Pam",
-  //   lastName: "Beesly"
-  // },
+  //   lastName: "Beesly" },
   //
   // { guid: 5,
-  //   type: 'Contact',
   //   firstName: "Ryan",
-  //   lastName: "Howard"
-  // }
+  //   lastName: "Howard" }
 
-]);
+];
