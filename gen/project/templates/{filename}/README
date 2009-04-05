@@ -2,3 +2,6 @@
 Project:   <%= namespace %>
 Copyright: ©<%= Time.now.year %> My Company, Inc.
 =============================================================================
+
+TODO: Describe Your Project
+

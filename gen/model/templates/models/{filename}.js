@@ -9,7 +9,6 @@
   (Document your Model here)
 
   @extends <%= base_class_name || 'SC.Record' %>
-  @author AuthorName
   @version 0.1
 */
 <%= namespace_class_name %> = <%= base_class_name || 'SC.Record' %>.extend(
