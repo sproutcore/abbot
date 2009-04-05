@@ -217,11 +217,16 @@ module SC
 
     # Wraps around find_targets but raises an exception if no target is 
     # specified.
-    def requires_targets!(*targets)
-      targets = find_targets(*targets)
-      if targets.size == 0
+    def requires_targets!(*target_names)
+      if target_names.size == 0
         fatal! "You must specify a target with this command" 
       end
+
+      targets = find_targets(*target_names)
+      if targets.size == 0
+        fatal! "No targets matching #{target_names * ","} were found."
+      end
+      
       targets
     end
     
