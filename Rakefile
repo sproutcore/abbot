@@ -45,7 +45,7 @@ PROJ.version = SC::VERSION
 PROJ.rubyforge.name = 'sproutcore'
 PROJ.ruby_opts = []
 PROJ.spec.opts << '--color'
-PROJ.exclude << '^coverage/' << '\.gitignore' << '\.gitmodules'
+PROJ.exclude << '^coverage/' << '\.gitignore' << '\.gitmodules' << ".DS_Store"
 
 # For development builds add timestamp to the version number to auto-version 
 # development gems.
