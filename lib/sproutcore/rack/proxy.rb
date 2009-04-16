@@ -79,7 +79,7 @@ module SC
           # cookies, but those services should not be doing that anyway...
           value.gsub!(/domain=[^\;]+\;? ?/,'') if key.downcase == 'set-cookie'
           # Location headers should rewrite the hostname if it is included.
-          value.gsub!(/^http:\/\/#{http_host}(:[0-9]+)?\//, "http://#{request.host}/") if key.downcase == 'location'
+          value.gsub!(/^http:\/\/#{http_host}(:[0-9]+)?\//, "http://#{http_host}/") if key.downcase == 'location'
           
           SC.logger << "   #{key}: #{value}\n"
           response_headers[key] = value
