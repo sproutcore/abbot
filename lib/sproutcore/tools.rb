@@ -179,10 +179,20 @@ module SC
       debug "finding targets with names: '#{targets * "','"}'"
       requires_project!
       
+      # Filter out any empty target names.  Sometimes this happens when 
+      # processing arguments.
+      targets.reject! { |x| x.nil? || x.size == 0 }
+      
       # If targets are specified, find the targets project or parents...
       if targets.size > 0
         targets = targets.map do |target_name|
-          ret = project.target_for(target_name)
+          begin
+            ret = project.target_for(target_name)
+          rescue Exception => e
+            SC.logger.fatal("Exception when searching for target #{target_name}.  Perhaps your Buildfile is configured wrong?")
+            raise e
+          end
+          
           if ret.nil?
             fatal! "No target named #{target_name} could be found in project"
           else
