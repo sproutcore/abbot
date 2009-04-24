@@ -46,6 +46,10 @@ module SC
         http_host, http_port = proxy[:to].split(':')
         http_port = '80' if http_port.nil?
         
+        # added 4/23/09 per Charles Jolley, corrects problem
+        # when making requests to virtual hosts
+        headers['HOST'] = "#{http_host}:#{http_port}"
+        
         if proxy[:url]
           url = url.sub(/^#{Regexp.escape proxy_url}/, proxy[:url])
         end
