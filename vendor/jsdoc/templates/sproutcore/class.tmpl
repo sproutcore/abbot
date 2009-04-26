@@ -1,0 +1,674 @@
+{!
+  rowClass = 'even';
+  function resetRowClass() { rowClass = 'even'; };
+
+  function nextRowClass() {
+    var ret = rowClass ;
+    rowClass = (rowClass == 'even') ? 'odd' : 'even' ;
+    return ret ;
+  } ;
+
+  function summarize(desc) {
+    if (typeof desc != "undefined")
+      return desc.match(/([\w\W]+?\.)[^a-z0-9]/i)? RegExp.$1 : desc;
+  };
+
+  function htmlize(desc, stripSummary) {
+    if (stripSummary === undefined) stripSummary = true;
+    if (stripSummary) {
+      var summary = summarize(desc);
+      desc = (summary && summary.length > 0) ? desc.slice(summary.length, desc.length) : desc ;
+    }
+
+    return superTextile(desc);
+  };
+
+  function constantText(p) {
+    return '<code><span class="type">' + (p.type||"Object") + '</span>' + ' <span class="name">' + p.name + '</span></code>' ; 
+  };
+
+  function propertyText(p) {
+    var ret = '';
+    
+    ret += (p.isStatic || !p.memberOf) ? '+' : '-' ;
+    ret += '&nbsp;(';
+    ret += (p.isPrivate) ? 'private&nbsp;' : '';
+    ret += p.type || 'Object' ;
+    ret += ') ' + p.name ;
+
+	if(p.isReadOnly)
+	{
+		ret += ' [R/O]';
+	}
+    else
+	{
+		ret += ' [R/W]';
+	}
+
+    return '<code>' + ret + '</code>' ; 
+  };
+
+  function isUsefulParam(param) {
+    if (!param) return false ;
+    if (param.type && param.type.length > 0) return true ;
+    if (param.desc && param.desc.length > 0) return true ;
+    return false ;
+  } ;
+
+  function hasUsefulParams(params) {
+    if (!params || !params.length) return false ;
+    var idx = params.length;
+    while(--idx >= 0) {
+      var param = params[idx] ;
+      if (isUsefulParam(param)) return true ;
+    }
+    return false ;
+  };
+
+  function relativeSrcPath(path) {
+    var parts = path.split('/') ;
+
+    var rootIndex = parts.indexOf('frameworks') ;
+    if (rootIndex < 0) rootIndex = parts.indexOf('clients') ;
+
+    if (rootIndex < 0) {
+      return parts[parts.length - 2] ;
+
+    } else {
+      return parts.slice(rootIndex, parts.length).join('/') ;
+    }
+  };
+
+!}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset={+IO.encoding+}" />
+		<meta name="generator" content="JsDoc Toolkit" />
+		{! Link.base = "../"; /* all generated links will be relative to this */ !}
+		<title>JsDoc Reference - {+data.alias+}</title>
+
+		<style type="text/css">
+			{+include("static/default.css")+}
+		</style>
+	</head>
+
+	<body class="sc-doc">
+		
+		<div id="content">
+
+		  <h1>
+		    {!
+		      var classType = "";
+
+		      if (data.isBuiltin()) {
+		        classType += "Built-In ";
+		      }
+
+		      if (data.isNamespace) {
+		        if (data.is('FUNCTION')) {
+		          classType += "Function ";
+		        }
+		        classType += "Namespace ";
+		      }
+		      else {
+		        classType += "Class ";
+		      }
+		    !}
+		    {+classType+}{+data.alias+}
+		  </h1>
+
+		  <table class="summary">
+		  {! resetRowClass(); !}
+
+		  <if test="data.deprecated">
+		    <tr class="{+ nextRowClass() +}">
+		      <td class="label">Deprecated:</td>
+		      <td class="value">
+		        {+htmlize(thisClass.deprecated.desc)+}
+		      </td>
+		    </tr>
+		  </if>
+
+		  <if test="data.augments.length">
+		    <tr class="{+ nextRowClass() +}">
+		      <td class="label">Extends:</td>
+		      <td class="value">
+		        {+
+		          data.augments
+		          .sort()
+		          .map(
+		            function($) { return new Link().toSymbol($); }
+		          )
+		          .join(", ")
+		        +}
+		      </td>
+		    </tr>
+		  </if>
+
+		  <if test="!data.isBuiltin()">
+		    <tr class="{+ nextRowClass() +}">
+		      <td class="label">Defined in:</td>
+		      <td class="value">{+new Link().toSrc(data.srcFile).withText(relativeSrcPath(data.srcFile))+}</td>
+		    </tr>
+		  </if>
+
+		  <if test="data.since">
+		    <tr class="{+ nextRowClass() +}">
+		      <td class="label">Availability:</td>
+		      <td class="value">
+		        since {+data.since+}
+		      </td>
+		    </tr>
+		  </if>
+
+		  <if test="data.version">
+		    <tr class="{+ nextRowClass() +}">
+		      <td class="label">Version:</td>
+		      <td class="value">{+data.version+}</td>
+		    </tr>
+		  </if>
+		
+		  <if test="data.author">
+		    <tr class="{+ nextRowClass() +}">
+		      <td class="label">Author:</td>
+		      <td class="value">{+data.author+}</td>
+		    </tr>
+		  </if>
+
+		  <if test="data.copyright">
+		    <tr class="{+ nextRowClass() +}">
+		      <td class="label">Copyright:</td>
+		      <td class="value">{+data.copyright+}</td>
+		    </tr>
+		  </if>
+
+		  </table>
+
+		  <if test="data.classDesc">
+			<h2>
+				Overview
+			</h2>   
+			<div class="description">
+		      {+htmlize(data.classDesc, false)+}
+		    </div>
+		  </if>
+		
+<!-- ============================== properties summary ===================== -->
+			<if test="data.properties.length">
+			    {! 
+					var allProps = data.properties.filter(function($){return $.memberOf == data.alias && !$.isNamespace}).sort(makeSortby("commonTask"));
+					
+					var commonTasks = {};
+					var uncommonTasks = [];
+					var currentKey = '';
+					var commonLen = 0;
+					for(var k=0; k<allProps.length; k++)
+					{
+						if(!allProps[k].commonTask)
+						{
+							uncommonTasks.push(allProps[k]);
+							continue;
+						}
+						if(allProps[k].commonTask != currentKey)
+						{
+							currentKey = allProps[k].commonTask;
+							commonTasks[currentKey] = [];
+							commonLen++;
+						}
+						commonTasks[currentKey].push(allProps[k]);
+					}
+
+					var ownConstants = allProps.filter(function($){return $.isConstant}).sort(makeSortby("name")); 
+					uncommonTasks.sort(makeSortby("name"));
+					
+					allProps.sort(makeSortby("name"));
+				!}
+				
+			    <if test="ownConstants.length">
+			      <div class="field-summary summary">
+			        <h2>Constants</h2>
+			        <ul>
+			        <for each="member" in="ownConstants">
+			          <li>
+			            {+new Link().toSymbol(member.alias).withText(constantText(member))+}
+			            <if test="member.desc">
+			              <div class="description">{+resolveLinks(summarize(member.desc))+}</div>
+			            </if>
+			          </li>
+			        </for>
+			        </ul>
+			      </div>
+			    </if>
+				
+				{!
+					if(commonLen > 0)	
+					{
+						
+						!}
+						
+					    <if test="uncommonTasks.length">
+					      <div class="field-summary summary">
+					        <h2>General Property Summary</h2>
+					        <ul>
+					        <for each="member" in="uncommonTasks">
+					          <if test="!(member.isConstant)">
+					            <li>
+					              {+new Link().toSymbol(member.alias).withText(propertyText(member))+}
+					              <if test="member.desc">
+					                <div class="description">{+resolveLinks(summarize(member.desc))+}</div>
+					              </if>
+					            </li>
+					          </if>
+					        </for>
+					        </ul>
+					      </div>
+					    </if>
+						
+
+							{!
+								for(var key in commonTasks)
+								{
+									commonTasks[key].sort(makeSortby("name"));
+									var props = commonTasks[key];
+							!}
+
+							      <div class="field-summary summary">
+							        <h2>Common Properties For '{! output+=key; !}'</h2>
+							        <ul>
+							        <for each="member" in="props">
+							          <if test="!(member.isConstant)">
+							            <li>
+							              {+new Link().toSymbol(member.alias).withText(propertyText(member))+}
+							              <if test="member.desc">
+							                <div class="description">{+resolveLinks(summarize(member.desc))+}</div>
+							              </if>
+							            </li>
+							          </if>
+							        </for>
+							        </ul>
+							      </div>
+
+						{!
+
+								}
+						}
+						else
+						{
+						
+						!}
+
+					    <if test="uncommonTasks.length">
+					      <div class="field-summary summary">
+					        <h2>Property Summary</h2>
+					        <ul>
+					        <for each="member" in="uncommonTasks">
+					          <if test="!(member.isConstant)">
+					            <li>
+					              {+new Link().toSymbol(member.alias).withText(propertyText(member))+}
+					              <if test="member.desc">
+					                <div class="description">{+resolveLinks(summarize(member.desc))+}</div>
+					              </if>
+					            </li>
+					          </if>
+					        </for>
+					        </ul>
+					      </div>
+					    </if>
+
+						{!
+						
+					}
+				!}
+
+
+			  <if test="data.inheritsFrom.length">
+			    <dl class="inheritsList">
+			    {!
+			      var borrowedMembers = data.properties.filter(function($) {return $.memberOf != data.alias});
+
+			      var contributers = [];
+			      borrowedMembers.map(function($) {if (contributers.indexOf($.memberOf) < 0) contributers.push($.memberOf)});
+			      for (var i = 0, l = contributers.length; i < l; i++) {
+			        output +=
+			          "<dt>Properties borrowed from class "+new Link().toSymbol(contributers[i])+": </dt>"
+			          +
+			          "<dd>" +
+			          borrowedMembers
+			          .filter(
+			            function($) { return $.memberOf == contributers[i] }
+			          )
+			          .sort(makeSortby("name"))
+			          .map(
+			            function($) { return new Link().toSymbol($.alias).withText($.name) }
+			          )
+			          .join(", ")
+			          +
+			          "</dd>";
+			      }
+			    !}
+			    </dl>
+			  </if>
+
+			</if>
+
+		  <if test="data.methods.length">
+		    {! 
+				var allMethods = data.methods.filter(function($){return $.memberOf == data.alias && !$.isNamespace}).sort(makeSortby("commonTask"));
+				
+				var commonTasks = {};
+				var uncommonTasks = [];
+				var currentKey = '';
+				var commonLen = 0;
+				for(var k=0; k<allMethods.length; k++)
+				{
+					if(!allMethods[k].commonTask)
+					{
+						uncommonTasks.push(allMethods[k]);
+						continue;
+					}
+					if(allMethods[k].commonTask != currentKey)
+					{
+						currentKey = allMethods[k].commonTask;
+						commonTasks[currentKey] = [];
+						commonLen++;
+					}
+					commonTasks[currentKey].push(allMethods[k]);
+				}
+				uncommonTasks.sort(makeSortby("name"));
+				
+				allMethods.sort(makeSortby("name"));
+
+				if(commonLen > 0)	
+				{
+					
+					!}
+					
+				    <if test="uncommonTasks.length">
+				      <div class="field-summary summary">
+				        <h2>General Method Summary</h2>
+				        <ul>
+				          <for each="method" in="uncommonTasks">
+				            <li>
+				              <a href="#{+method.alias+}">
+		<code class="type"><if test="method.isStatic||!method.memberOf">+</if><if test="!(method.isStatic||!method.memberOf)">-</if>&nbsp;<if test="method.isPrivate">private&nbsp;</if><if test="method.returns.length"><for each="ret" in="method.returns">({+ret.type+})</for></if><if test="method.returns.length == 0">(void)</if>  {+method.name+}{+makeSignature(method.params)+}</code>
+				              </a>
+				              <if test="method.desc">
+				                <div class="description">{+resolveLinks(summarize(method.desc))+}</div>
+				              </if>
+				            </li>
+				          </for>
+				        </ul>
+				      </div>
+				    </if>
+					
+
+						{!
+							for(var key in commonTasks)
+							{
+								commonTasks[key].sort(makeSortby("name"));
+								var methods = commonTasks[key];
+						!}
+
+						      <div class="field-summary summary">
+						        <h2>Common Methods For '{! output+=key; !}'</h2>
+						        <ul>
+						        <for each="method" in="methods">
+						            <li>
+						              <a href="#{+method.alias+}">
+				<code class="type"><if test="method.isStatic||!method.memberOf">+</if><if test="!(method.isStatic||!method.memberOf)">-</if>&nbsp;<if test="method.isPrivate">private&nbsp;</if><if test="method.returns.length"><for each="ret" in="method.returns">({+ret.type+})</for></if><if test="method.returns.length == 0">(void)</if>  {+method.name+}{+makeSignature(method.params)+}</code>
+						              </a>
+						              <if test="method.desc">
+						                <div class="description">{+resolveLinks(summarize(method.desc))+}</div>
+						              </if>
+						            </li>
+						        </for>
+						        </ul>
+						      </div>
+
+					{!
+
+							}
+					}
+					else
+					{
+					
+					!}
+
+				    <if test="allMethods.length">
+				      <div class="method-summary summary">
+				        <h2>Method Summary</h2>
+				        <ul>
+				          <for each="method" in="allMethods">
+				            <li>
+				              <a href="#{+method.alias+}">
+		<code class="type"><if test="method.isStatic||!method.memberOf">+</if><if test="!(method.isStatic||!method.memberOf)">-</if>&nbsp;<if test="method.isPrivate">private&nbsp;</if><if test="method.returns.length"><for each="ret" in="method.returns">({+ret.type+})</for></if><if test="method.returns.length == 0">(void)</if>  {+method.name+}{+makeSignature(method.params)+}</code>
+				              </a>
+				              <if test="method.desc">
+				                <div class="description">{+resolveLinks(summarize(method.desc))+}</div>
+				              </if>
+				            </li>
+				          </for>
+				        </ul>
+				      </div>
+				    </if>
+
+					{!
+					
+				}
+			!}
+			
+
+		    <if test="data.inheritsFrom.length">
+		      <dl class="inheritsList">
+		      {!
+		        var borrowedMembers = data.methods.filter(function($) {return $.memberOf != data.alias});
+		        var contributers = [];
+		        borrowedMembers.map(function($) {if (contributers.indexOf($.memberOf) < 0) contributers.push($.memberOf)});
+		        for (var i = 0, l = contributers.length; i < l; i++) {
+		          output +=
+		            "<dt>Methods borrowed from class "+new Link().toSymbol(contributers[i])+": </dt>"
+		            +
+		            "<dd>" +
+		            borrowedMembers
+		            .filter(
+		              function($) { return $.memberOf == contributers[i] }
+		            )
+		            .sort(makeSortby("name"))
+		            .map(
+		              function($) { return new Link().toSymbol($.alias).withText($.name) }
+		            )
+		            .join(", ")
+		            +
+		            "</dd>";
+		        }
+
+		      !}
+		      </dl>
+		    </if>
+		  </if>
+		
+		<!-- ============================== field details ========================== -->    
+		  <if test="defined(allProps) && allProps.length">
+		    <div class="field-detail detail">
+		      <a name="field_detail"><h2>Property Details</h2></a> 
+		      <for each="property" in="allProps">
+		        <if test="!(property.isConstant)">
+		          <!-- One single method detail entry -->
+		          <div class="field">
+		            <a name="{+Link.symbolNameToLinkName(property)+}"></a> 
+			          <div class="field">
+			            <a name="{+Link.symbolNameToLinkName(property)+}"></a> 
+			            <h3>{+property.name+}
+
+						<if test="property.isReadOnly == true">
+							[R/O]
+						</if>	
+						<if test="property.isReadOnly == false">
+							[R/W]
+						</if>	
+
+					</h3>
+		            <p class="summary">{+summarize(property.desc)+}</p>
+
+		            <if test="property.deprecated">
+		              <p class="deprecated">Deprecated {+property.deprecated+}</p>
+		            </if>
+
+		            <p class="signature">
+		              <if test="property.isStatic||!property.memberOf">+</if>
+		              <if test="!(property.isStatic||!property.memberOf)">-</if>
+		              &nbsp;
+		              <span class="type">
+		                <if test="property.isPrivate">private&nbsp;</if>
+		                {+(property.type||"Object")+}
+		              </span>
+		              <span class="name">{+property.name+}</span>
+		            </p>
+
+			          <if test="property.binding.length">
+			            <for each="bind" in="property.binding">
+			              <p class="parameter">
+			                <strong>Bound To: </strong><span class="type">{+bind+}</span>
+			              </p>
+			            </for>
+			          </if>
+
+			          <if test="property.defaultValue">
+			              <p class="parameter">
+			                <strong>Default Value: </strong> <span class="type">{+property.defaultValue+}</span>
+			              </p>
+			          </if>
+
+					{!
+						if(property.desc.split('.').length > 2)
+						{
+
+							output+= "<h5>Discussion</h5>";
+							output+= '<div class="description">'+htmlize(property.desc)+'</div>';
+
+						}
+					!}
+
+
+		            <if test="property.since">
+		              <h5>Availability</h5>  
+		              <div class="since">since {+property.since+}</div>
+		            </if>
+		          </div>
+					<hr/>
+		        </if>
+		      </for>
+		    </div>
+		  </if>
+		
+<!-- ============================== method details ========================= -->		
+			<if test="defined(allMethods) && allMethods.length">
+				<h2>
+					Method Detail
+				</h2>
+				<for each="method" in="allMethods">
+			        <div class="method detail">
+			          <a name="{+method.alias+}"></a> 
+			          <h3>{+method.name+}()
+				
+				
+						<if test="method.commonTask">
+							-  {+method.commonTask+}
+						</if>	
+				
+				</h3>
+			          <p class="summary">{+summarize(method.desc)+}</p>
+
+			          <if test="method.deprecated">
+			            <p class="deprecated">Deprecated {+method.deprecated+}</p>
+			          </if>
+
+			            <p class="signature">
+			              <if test="method.isStatic||!method.memberOf">+</if>
+			              <if test="!(method.isStatic||!method.memberOf)">-</if>
+			              &nbsp;
+			              <span class="type">
+			                <if test="method.isPrivate">private&nbsp;</if>
+			                ({+(method.type||"void")+})
+			              </span>
+			              <span class="name">{+method.name+}</span> <span class="params">{+makeSignature(method.params)+}</span>
+			            </p>
+
+
+			          <!-- METHOD PARAMETERS START -->
+			          <if test="hasUsefulParams(method.params)">
+			            <h5>Parameters</h5>
+			            <for each="param" in="method.params">
+			            <if test="isUsefulParam(param)">
+			              <p class="parameter">
+								<if test="param.type"><span class="type">({+param.type+})</span></if><span class="name">{+param.name+}</span>
+			              <if test="param.desc">
+			              <span class="desc">{+resolveLinks(param.desc)+}</span>
+			              </if>
+						</p>
+			            </if>
+			            </for>
+			          </if> 
+			          <!-- METHOD PARAMETERS END -->
+
+			          <!-- ADDITIONAL ATTRIBUTES START -->
+			          <if test="method.returns.length">
+			            <h5>Returns</h5>
+			            <for each="ret" in="method.returns">
+			              <p class="parameter">
+			                <if test="ret.type"><span class="type">({+ret.type+})</span></if>
+			                <span class="desc">{+resolveLinks(ret.desc)+}</span> 
+			              </p>
+			            </for>
+			          </if>
+
+			          <if test="method.observes.length">
+			            <h5>Observes</h5>
+			            <for each="obs" in="method.observes">
+			              <p class="parameter">
+			                <span class="type">{+obs+}</span>
+			              </p>
+			            </for>
+			          </if>
+
+			          <if test="method.exceptions.length">
+			          <h5>Throws Exceptions</h5>
+			            <for each="ex" in="method.exceptions">
+			              <p class="parameter">
+			                <if test="ex.type"><span class="type">({+ex.type+})</span></if> 
+			                <span class="desc">{+resolveLinks(ex.desc)+}</span>
+			              </p>
+			            </for>
+			          </if>
+			          <!-- ADDITIONAL ATTRIBUTES  END -->
+
+					{!
+						if(method.desc.split('.').length > 2)
+						{
+
+							output+= "<h5>Discussion</h5>";
+							output+= '<div class="description">'+htmlize(method.desc)+'</div>';
+							
+						}
+					!}
+
+			          <if test="method.since">
+			            <h5>Availability</h5>  
+			            <div class="since">since {+method.since+}</div>
+			          </if>
+			        </div>
+					<hr/>
+				</for>
+			</if>
+		</div>
+		
+<!-- ============================== footer ================================= -->
+		<div class="fineprint" style="clear:both">
+			<if test="JSDOC.opt.D.copyright">&copy;{+JSDOC.opt.D.copyright+}<br /></if>
+			Documentation generated by <a href="http://www.jsdoctoolkit.org/" target="_blank">JsDoc Toolkit</a> {+JSDOC.VERSION+} on {+new Date()+}
+		</div>
+	</body>
+</html>
