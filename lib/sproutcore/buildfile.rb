@@ -194,6 +194,7 @@ module SC
         old_path = @current_path
         @current_path = filename
         loaded_paths << filename # save loaded paths
+        SC.logger.debug "Loading buildfile at #{filename}"
         define!(File.read(filename)) if filename && File.exist?(filename)
         @current_path = old_path
       end
