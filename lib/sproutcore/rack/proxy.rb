@@ -39,9 +39,13 @@ module SC
         headers = {}
         env.each do |key, value|
           next unless key =~ /^HTTP_/
-          key = key.gsub(/^HTTP_/,'')
+          key = key.gsub(/^HTTP_/,'').downcase.sub(/^\w/){|l| l.upcase}.gsub(/_(\w)/){|l| "-#{$1.upcase}"} # remove HTTP_, dasherize and titleize
           headers[key] = value
         end
+        
+        # Rack documentation says CONTENT_TYPE and CONTENT_LENGTH aren't prefixed by HTTP_
+        headers['Content-Type'] = env['CONTENT_TYPE'] if env['CONTENT_TYPE']
+        headers['Content-Length'] = env['CONTENT_LENGTH'] if env['CONTENT_LENGTH']
         
         http_host, http_port = proxy[:to].split(':')
         http_port = '80' if http_port.nil?
