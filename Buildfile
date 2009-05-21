@@ -87,7 +87,7 @@ mode :debug do
     :combine_stylesheets => true,
     
     :minify_javascript => false,
-	:minify_css => true,
+	:minify_css => false,
     
     :build_prefix => 'tmp/debug/build',
     :staging_prefix => 'tmp/debug/staging',

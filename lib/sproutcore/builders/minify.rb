@@ -36,7 +36,7 @@ module SC
       	yui_root = File.expand_path(File.join(LIBPATH, '..', 'vendor', 'yui-compressor'))
 	    jar_path = File.join(yui_root, 'yuicompressor-2.4.2.jar')
 	    FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
-	    filecompress = "java -jar " + jar_path + " --charset utf-8 " + entry.source_path + " -o " + dst_path
+	    filecompress = "java -jar " + jar_path + " --charset utf-8 --line-break 0 --nomunge --preserve-semi --disable-optimizations " + entry.source_path + " -o " + dst_path
 	    SC.logger.info  'Compressing CSS with YUI .... '+ dst_path
 	    SC.logger.debug `#{filecompress}`
 
@@ -51,7 +51,7 @@ module SC
       yui_root = File.expand_path(File.join(LIBPATH, '..', 'vendor', 'yui-compressor'))
       jar_path = File.join(yui_root, 'yuicompressor-2.4.2.jar')
       FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
-      filecompress = "java -jar " + jar_path + " --charset utf-8 " + entry.source_path + " -o " + dst_path
+      filecompress = "java -jar " + jar_path + " --charset utf-8 --line-break 80 " + entry.source_path + " -o " + dst_path
       SC.logger.info  'Compressing with YUI .... '+ dst_path
       SC.logger.debug `#{filecompress}`
       
