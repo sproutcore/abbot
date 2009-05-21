@@ -60,7 +60,7 @@ mode :all do
     
     # by default do not minify javacript or stylesheets
     :minify => true,
-    :minify_css => false,
+    :minify_css => true,
     
     # use the default layout defined in SproutCore
     :layout => 'sproutcore:lib/index.rhtml',
@@ -84,9 +84,10 @@ mode :debug do
     
     # Do not combine javascript and stylesheet
     :combine_javascript => false,
-    :combine_stylesheets => false,
+    :combine_stylesheets => true,
     
     :minify_javascript => false,
+	:minify_css => true,
     
     :build_prefix => 'tmp/debug/build',
     :staging_prefix => 'tmp/debug/staging',
