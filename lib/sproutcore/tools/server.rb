@@ -11,6 +11,7 @@ module SC
     
     desc "server", "Starts the development server"
     method_options  :daemonize => false,
+                    :pid       => :optional,
                     :port      => :optional,
                     :host      => :optional,
                     :irb       => false
