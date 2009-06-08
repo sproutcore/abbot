@@ -52,7 +52,7 @@ module SC
         
         # added 4/23/09 per Charles Jolley, corrects problem
         # when making requests to virtual hosts
-        headers['HOST'] = "#{http_host}:#{http_port}"
+        headers['Host'] = "#{http_host}:#{http_port}"
         
         if proxy[:url]
           url = url.sub(/^#{Regexp.escape proxy_url}/, proxy[:url])
