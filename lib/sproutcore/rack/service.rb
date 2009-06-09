@@ -84,6 +84,7 @@ module SC
         end
         
         SC.logger << "Starting server at http://#{opts[:Host] || '0.0.0.0'}:#{opts[:Port]} in #{SC.build_mode} mode\n"
+        SC.logger << "To quit sc-server, press Control-C\n"
         server.run app, opts
       end
         
