@@ -21,7 +21,7 @@ module SC
         url = env['PATH_INFO']
         
         @proxies.each do |proxy, value|
-          if url.match(proxy.to_s)
+          if url.match(/^#{Regexp.escape(proxy.to_s)}/)
             return handle_proxy(value, proxy.to_s, env)
           end
         end
