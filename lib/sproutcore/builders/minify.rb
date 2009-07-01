@@ -109,7 +109,7 @@ module SC
                 end
                 file.close
               rescue => err
-                SC.logger.error "Could not read the line the actual line from the file:  #{err}"
+                SC.logger.error "Could not read the actual line from the file:  #{err}"
               end
             
               if !outputted_line
