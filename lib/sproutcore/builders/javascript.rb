@@ -44,10 +44,6 @@ module SC
           SC.logger.warn "\nWARNING: Calling sc_super() with arguments is DEPRECATED. Please use sc_super() only.\n\n"
           line = line.gsub(/sc_super\((.+?)\)/, 'arguments.callee.base.apply(this, \1)')
         end
-
-        # Process me_transition
-        m = line.match(/(.*)me_transition\((.+)\)(.*)/)
-        line = m ? "#{m[1]}(this[this.stateKey] = (#{m[2]}), Me.EVT_TRANSITION_RES)#{m[3]}\n" : line
       end
 
       # and finally rewrite static_url
