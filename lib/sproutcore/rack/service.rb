@@ -15,6 +15,8 @@ module SC
     #
     class Service
       
+      cattr_accessor :filesystem
+      
       # Convenience method to start the rack service as a server.  You must
       # pass at least a :project => foo, or :projects => [foo, bar] option
       # to this method, but you may also pass a number of other config optios
@@ -52,7 +54,10 @@ module SC
             server = ::Rack::Handler::WEBrick
           end
         end
-
+        
+        opts[:Filesystem] ||= opts[:filesystem] || false # allow either case
+        self.filesystem = opts[:Filesystem]
+        
         projects = opts.delete(:projects) || [opts.delete(:project)].compact
         app = self.new(*projects)
         
@@ -125,6 +130,10 @@ module SC
         if config.serve_public
           pubdir = File.join(project.project_root, 'public')
           apps  << ::Rack::File.new(pubdir) if File.directory?(pubdir)
+        end
+        
+        if self.filesystem
+          apps << SC::Rack::Filesystem.new(project)
         end
         
         # Wrap'em in a cascade if needed.  This will return the first

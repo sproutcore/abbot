@@ -10,11 +10,12 @@ module SC
   class Tools
     
     desc "server", "Starts the development server"
-    method_options  :daemonize => false,
-                    :pid       => :optional,
-                    :port      => :optional,
-                    :host      => :optional,
-                    :irb       => false
+    method_options  :daemonize  => false,
+                    :pid        => :optional,
+                    :port       => :optional,
+                    :host       => :optional,
+                    :irb        => false,
+                    :filesystem => false
     def server
       prepare_mode!('debug') # set mode again, using debug as default
       

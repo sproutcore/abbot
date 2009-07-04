@@ -9,7 +9,7 @@ require 'json'
 
 module SC
   module Rack
-
+    
     # Hosts general dev environment-related JSON assets.
     class Dev
       
