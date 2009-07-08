@@ -253,14 +253,34 @@ module SC
       if (languages = options.languages).nil?
         languages = targets.map { |t| t.installed_languages }
       else
-        languages = languages.split(':').map { |l| l.to_sym }
+        languages = languages.split(',').map { |l| l.to_sym }
       end
       languages.flatten.uniq.compact
+    end
+    
+    # Discovers build numbers requested for the build and sets them in the
+    # in the env if needed.
+    def find_build_numbers(*targets)
+      if options['build-numbers']
+        numbers = {}
+        options['build-numbers'].split(',').each do |pair|
+          pair = pair.split(':')
+          if pair.length < 2
+            fatal! "Could not parse build numbers! #{options['build-numbers']}"
+          end
+          numbers["/#{pair[0]}"] = pair[1]
+        end
+        SC.env.build_numbers = numbers
+        SC.logger.info "Using build numbers: #{numbers.map { |k,v| "#{k}: #{v}" }.join(',')}"
+      end
     end
     
     # Core method to process command line options and then build a manifest.
     # Shared by sc-manifest, sc-build and sc-docs commands.
     def build_manifests(*targets)
+      
+      # setup build numbers
+      find_build_numbers(*targets)
       
       requires_project! # get project
       targets = find_targets(*targets) # get targets

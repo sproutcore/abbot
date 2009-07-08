@@ -16,6 +16,7 @@ module SC
                          :format        => :optional,
                          :output        => :output,
                          :all           => false,
+                         ['--build-numbers', '-B'] => :optional,
                          ['--include-required', '-r'] => false }
                      
     desc "manifest [TARGET..]", "Generates a manifest for the specified targets"
