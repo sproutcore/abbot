@@ -13,12 +13,21 @@ namespace :target do
   task :prepare do
 
     # use url_root config or merge url_prefix + target_name
-    TARGET.url_root = CONFIG.url_root || 
-      [nil, CONFIG.url_prefix, TARGET.target_name].join('/').gsub(/\/+/,'/')
+    if (TARGET.url_root = CONFIG.url_root).nil? 
+      url = [nil, CONFIG.url_prefix, TARGET.target_name].join('/')
+      url = url.gsub(/([^:])\/+/,'\1/').gsub(/^\/+/,'/') # remove extra //
+      url = url[1..-1] if url.match(/^\/[^\/]+:\/\//) # look for protocol
+      TARGET.url_root = url
+    end
+    
     
     # use index_root config or merge index_prefix + target_name
-    TARGET.index_root = CONFIG.index_root || 
-      [nil, CONFIG.index_prefix, TARGET.target_name].join('/').gsub(/\/+/, '/')
+    if (TARGET.index_root = CONFIG.index_root).nil? 
+      url = [nil, CONFIG.index_prefix, TARGET.target_name].join('/')
+      url = url.gsub(/([^:])\/+/,'\1/').gsub(/^\/+/,'/') # remove extra //
+      url = url[1..-1] if url.match(/^\/[^\/]+:\/\//) # look for protocol
+      TARGET.index_root = url
+    end
 
     # Split all of these paths in case we are on windows...
     TARGET.build_root = File.expand_path(CONFIG.build_root || 

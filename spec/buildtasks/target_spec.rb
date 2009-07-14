@@ -48,7 +48,7 @@ describe "namespace :target" do
       @target.url_root.should eql("/sproutcore")
     end
 
-    it "should collapse an nil url_prefix" do
+    it "should collapse a nil url_prefix" do
       @target.config.url_root.should be_nil # precondition
       @target.config.url_prefix = nil
 
@@ -56,6 +56,37 @@ describe "namespace :target" do
       @target.url_root.should eql("/sproutcore")
     end
 
+    it "should collapse a starting /" do
+      @target.config.url_root.should be_nil # precondition
+      @target.config.url_prefix = '/foo'
+      
+      run_task
+      @target.url_root.should eql('/foo/sproutcore')
+    end
+    
+    it "should not add / if prefix begins with http://" do
+      @target.config.url_root.should be_nil # precondition
+      @target.config.url_prefix = "http://foo.com/blah"
+      
+      run_task
+      @target.url_root.should eql('http://foo.com/blah/sproutcore')
+    end
+
+    it "should not add / if prefix begins with https://" do
+      @target.config.url_root.should be_nil # precondition
+      @target.config.url_prefix = "https://foo.com/blah"
+      
+      run_task
+      @target.url_root.should eql('https://foo.com/blah/sproutcore')
+    end
+
+    it "should not add / if prefix begins with foobar://" do
+      @target.config.url_root.should be_nil # precondition
+      @target.config.url_prefix = "foobar://foo.com/blah"
+      
+      run_task
+      @target.url_root.should eql('foobar://foo.com/blah/sproutcore')
+    end    
 
     ### INDEX_ROOT -- used to compute the URLs used to access index files
     it "uses config.index_root if present" do
@@ -86,6 +117,31 @@ describe "namespace :target" do
       run_task
       @target.index_root.should eql("/sproutcore")
     end
+
+    it "should not add / if prefix begins with http://" do
+      @target.config.index_root.should be_nil # precondition
+      @target.config.index_prefix = "http://foo.com/blah"
+      
+      run_task
+      @target.index_root.should eql('http://foo.com/blah/sproutcore')
+    end
+
+    it "should not add / if prefix begins with https://" do
+      @target.config.index_root.should be_nil # precondition
+      @target.config.index_prefix = "https://foo.com/blah"
+      
+      run_task
+      @target.index_root.should eql('https://foo.com/blah/sproutcore')
+    end
+
+    it "should not add / if prefix begins with foobar://" do
+      @target.config.index_root.should be_nil # precondition
+      @target.config.index_prefix = "foobar://foo.com/blah"
+      
+      run_task
+      @target.index_root.should eql('foobar://foo.com/blah/sproutcore')
+    end    
+
 
     ### BUILD_ROOT -- Used to compute the root location for building files
     it "uses config.build_root if present, expanded" do
