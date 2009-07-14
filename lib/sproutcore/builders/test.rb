@@ -48,7 +48,8 @@ module SC
     # conflict with any others.
     def render_jstest(entry)
       lines = readlines(entry.staging_path)
-      lines.unshift %[<script type="text/javascript">\nif (typeof SC !== "undefined") SC.mode = "TEST_MODE";\n(function() {\n]
+      pathname = entry.staging_path.gsub(/^.+\/staging\//,'').gsub(/"/, '\"')
+      lines.unshift %[<script type="text/javascript">\nif (typeof SC !== "undefined") {\n  SC.mode = "TEST_MODE";\n  SC.filename = "#{pathname}"; \n}\n(function() {\n]
       lines.push    %[\n})();\n</script>\n]
       @content_for_final = (@content_for_final || '') + lines.join("")
     end
