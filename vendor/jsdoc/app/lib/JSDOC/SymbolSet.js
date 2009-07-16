@@ -185,19 +185,25 @@ JSDOC.SymbolSet.prototype.resolveMemberOf = function() {
 JSDOC.SymbolSet.prototype.resolveAugments = function() {
 	for (var p in this._index) {
 		var symbol = this.getSymbol(p);
-		
 		if (symbol.alias == "_global_" || symbol.is("FILE")) continue;
 		JSDOC.SymbolSet.prototype.walk.apply(this, [symbol]);
 	}
 }
 
 JSDOC.SymbolSet.prototype.walk = function(symbol) {
+
 	var augments = symbol.augments;
 	for(var i = 0; i < augments.length; i++) {
 		var contributer = this.getSymbol(augments[i]);
 		if (contributer) {
-			if (contributer.augments.length) {
-				JSDOC.SymbolSet.prototype.walk.apply(this, [contributer]);
+			if (contributer.augments.length > 1) {
+        /** This is a quick sanity check to make sure we 
+            don't try and augment ourselves. */
+        if(contributer.alias === symbol.alias) {
+          LOG.warn("Cannot augment "+contributer.alias+" with "+symbol.alias+". Circular reference.");
+        } else {
+          JSDOC.SymbolSet.prototype.walk.apply(this, [contributer]);
+        }
 			}
 			
 			symbol.inheritsFrom.push(contributer.alias);
