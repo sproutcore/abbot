@@ -84,6 +84,71 @@ module SC
         fix_double_escape(html_escape(html.to_s))
       end
 
+      # Simple link_to can wrap a passed string with a link to a specified 
+      # target or static asset.  If you pass a block then the block will be
+      # invoked and its resulting content linked.  You can also pass 
+      # :popup, :title, :id, :class, and :style
+      def link_to(content, opts=nil, &block)
+        if block_given?
+          concat(link_to(capture(&block), content), block.binding);
+          return ''
+        end
+
+        if !content.instance_of?(String) && opts.nil?
+          opts = content
+          content = nil
+        end
+        
+        opts = { :href => opts } if opts.instance_of? String
+        opts = HashStruct.new(opts)
+        html_attrs = HashStruct.new
+        is_target = false
+        
+        if opts.href
+          html_attrs.href = opts.href
+        elsif opts.target
+
+          is_target = (target.target_name.to_sym == "/#{opts.target.to_s}".to_sym)
+
+          # supply title if needed
+          if content.nil?
+            cur_target = is_target ? target : target.target_for(opts.target)
+            content = title(cur_target) if cur_target
+            content = opts.target if content.nil?
+          end
+                    
+          # if current==false, then don't link if current target matches
+          if !opts.current.nil? && (opts.current==false) && is_target
+            return %(<span class="anchor current">#{content}</span>)
+          end
+
+          html_attrs.href = sc_target(opts.target, :language => opts.language)
+        elsif opts.static
+          html_attrs.href = sc_static(opts.static, :language => opts.language)
+        end
+        
+        if opts.popup
+          popup = opts.popup
+          html_attrs.target = popup.instance_of?(String) ? popup : '_blank'
+        end
+        
+        %w[title id class style].each do |key|
+          html_attrs[key] = opts[key] if opts[key]
+        end
+        
+        # add "current" class name
+        if is_target
+          html_attrs[:class] = [html_attrs[:class], 'current'].compact.join(' ')
+        end
+        
+        ret = ["<a "]
+        html_attrs.each { |k,v| ret << [k,'=','"',v,'" '].join('') }
+        ret << '>'
+        ret << content
+        ret << '</a>'
+        return ret.join('')
+      end
+          
       private
         def content_tag_string(name, content, options)
           tag_options = options ? tag_options(options) : ""

@@ -130,7 +130,14 @@ module SC
     #  self
     #
     def compile(render_engine, input_path, content_for_key = nil)
-      content_for_key = self.default_content_for_key if content_for_key.nil?
+      
+      if content_for_key.nil?
+        if @in_partial
+          content_for_key = :_partial_ 
+        else
+          content_for_key = self.default_content_for_key 
+        end
+      end
       
       if !File.exist?(input_path)
         raise "html_builder could compile file at #{input_path} because the file could not be found" 
@@ -140,6 +147,7 @@ module SC
       @renderer = render_engine  # save for capture...
       
       input = File.read(input_path)
+      
       content_for content_for_key do
         _render_compiled_template( render_engine.compile(input) )
       end
@@ -149,6 +157,25 @@ module SC
     end
 
     private
+    
+    # Renders an entry as a partial.  This will insert the results inline
+    # instead of into a content div.
+    def render_partial(entry) 
+
+      # save off
+      old_partial = @content_for__partial_
+      old_in_partial = @in_partial
+
+      @content_for__partial_ = ''
+      @in_partial = true
+      render_entry(entry)
+      ret = @content_for__partial_
+      @content_for__partial_ = old_partial
+      @in_partial = old_in_partial
+      
+      return ret
+      
+    end
     
     # Renders a single entry.  The entry will be staged and then its 
     # render task will be executed.

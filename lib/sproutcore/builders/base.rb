@@ -61,9 +61,20 @@ module SC
 
       # Handles occurances of sc_static() or static_url()
       def replace_static_url(line)
-        line.gsub(/(sc_static|static_url)\(\s*['"](.+)['"]\s*\)/) do | rsrc |
+        line.gsub(/(sc_static|static_url|sc_target)\(\s*['"](.+)['"]\s*\)/) do | rsrc |
+          entry_name = $2
+          entry_name = "#{$2}:index.html" if $1 == 'sc_target'
           static_entry = entry.manifest.find_entry($2)
-          static_url(static_entry.nil? ? '' : static_entry.cacheable_url)
+          
+          if static_entry.nil?
+            url = ''
+          elsif $1 == 'sc_target'
+            url = static_entry.friendly_url || static_entry.cacheable_url
+          else
+            url = static_entry.cacheable_url 
+          end
+            
+          static_url(url)
         end
       end
 

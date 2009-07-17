@@ -299,34 +299,39 @@ module SC
         target_name = '/' + fragment[0..(split_index-1)] if split_index>0
         fragment    = fragment[(split_index+1)..-1] # remove colon
       end
-
+      
+      # find the current manifest
+      if target_name
+        cur_target = self.target.target_for(target_name) || self.target
+        cur_manifest = cur_target.manifest_for(self.variation).build!
+      else
+        cur_manifest = self
+      end
+      
       extname = File.extname(fragment)
       rootname = fragment.sub(/#{extname}$/, '')
 
       # look on our own target only if target is named
-      if target_name.nil? || (self.target.target_name==target_name)
-        ret = entries(:hidden => opts[:hidden]).reject do |entry|
-          if entry.has_options?(opts)
-            entry_extname = File.extname(entry.filename)
-            entry_rootname = entry.filename.sub(/#{entry_extname}$/,'')
-            ext_match = (extname.nil? || extname.size == 0) || (entry_extname == extname)
-          else
-            ext_match = false
-          end
-        
-          !(ext_match && (/#{rootname}$/ =~ entry_rootname))
+      ret = cur_manifest.entries(:hidden => opts[:hidden]).reject do |entry|
+        if entry.has_options?(opts)
+          entry_extname = File.extname(entry.filename)
+          entry_rootname = entry.filename.sub(/#{entry_extname}$/,'')
+          ext_match = (extname.nil? || extname.size == 0) || (entry_extname == extname)
+        else
+          ext_match = false
         end
-        
-        ret = ret.first
+      
+        !(ext_match && (/#{rootname}$/ =~ entry_rootname))
       end
+      
+      ret = ret.first
         
       # if no match was found, search the same manifests in required targets
       if ret.nil?
         seen = Set.new if seen.nil?
-        seen << self.target
-        self.target.expand_required_targets.each do |t|
+        seen << cur_manifest.target
+        cur_manifest.target.expand_required_targets.each do |t|
           next if seen.include?(t) # avoid recursion
-          next if target_name && (t.target_name.to_sym != target_name.to_sym)
 
           manifest = t.manifest_for(self.variation).build!
           ret = manifest.find_entry(fragment, opts, seen)

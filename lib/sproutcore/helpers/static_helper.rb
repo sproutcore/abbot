@@ -115,8 +115,26 @@ module SC
         urls.join("\n")
       end
 
+      # Attempts to render the named entry as a partial
+      #
+      # === Options
+      #  language:: the language to use. defaults to current
+      #
+      def partial(resource_name, opts = {})
+        resource_name = resource_name.to_s
+        m = self.manifest
+        if opts[:language]
+          m = target.manifest_for(:language => opts[:language]).build! 
+        end
+
+        entry = m.find_entry(resource_name, :hidden => true, :entry_type => :html)
+        return entry.nil? ? '' : render_partial(entry) 
+      end
+        
       # Returns the URL for the named resource
       def sc_static(resource_name, opts = {})
+        
+        resource_name = resource_name.to_s
         
         # determine which manifest to search.  if a language is explicitly
         # specified, lookup manifest for that language.  otherwise use 
@@ -127,10 +145,19 @@ module SC
         end
         
         entry = m.find_entry(resource_name)
-        entry.nil? ? '' : entry.cacheable_url
+        return '' if entry.nil?
+        return entry.friendly_url if opts[:friendly] && entry.friendly_url
+        return entry.cacheable_url
       end
       alias_method :static_url, :sc_static
 
+      # Returns the URL of the named target's index.html, if it has one
+      def sc_target(resource_name, opts = {})
+        opts[:friendly] = true
+        resource_name = "#{resource_name}:index.html"
+        sc_static(resource_name, opts)
+      end
+      
       # Allows you to specify HTML resource this html template should be
       # merged into.   Optionally also specify the layout file to use when
       # building this resource.
@@ -168,8 +195,9 @@ module SC
         return ret
       end
        
-      def title
-        target.config.title || target.target_name.to_s.sub(/^\//,'').gsub(/[-_\/]/,' ').split(' ').map { |x| x.capitalize }.join(' ')
+      def title(cur_target=nil)
+        cur_target = self.target if cur_target.nil?
+        cur_target.config.title || cur_target.target_name.to_s.sub(/^\//,'').gsub(/[-_\/]/,' ').split(' ').map { |x| x.capitalize }.join(' ')
       end
       
       private 

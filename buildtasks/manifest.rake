@@ -369,7 +369,7 @@ namespace :manifest do
       entries.each do |entry|
         entry.entry_type = :html
         entry.resource = 'index'
-        
+
         entry.render_task = case entry.ext
         when 'rhtml':
           'render:erubis'
@@ -379,13 +379,21 @@ namespace :manifest do
           'render:haml'
         end
         
-        # use a custom scan method since discover_build_directives! is too
-        # general...
-        
-        entry.scan_source(/<%\s*sc_resource\(?\s*['"](.+)['"]\s*\)?/) do |m|
-          entry.resource = m[0].ext ''
+        # items beginning with an underscore are partials.  do not build
+        if entry.filename =~ /^_/
+          entry.hide!
+          entry.is_partial = true
+
+        # not a partial
+        else
+          # use a custom scan method since discover_build_directives! is too
+          # general...
+          entry.scan_source(/<%\s*sc_resource\(?\s*['"](.+)['"]\s*\)?/) do |m|
+            entry.resource = m[0].ext ''
+          end
+          (entries_by_resource[entry.resource] ||= []) << entry
         end
-        (entries_by_resource[entry.resource] ||= []) << entry
+        
       end
       
       # even if no resource was found for the index.html, add one anyway if 
@@ -398,13 +406,27 @@ namespace :manifest do
       entries_by_resource.each do |resource_name, entries|
         resource_name = resource_name.ext('html')
         is_index = resource_name == 'index.html'
+        
+        # compute the friendly_url assuming normal install process
+        friendly_url = [TARGET.index_root]
+        m_language = MANIFEST.language.to_sym
+        t_preferred = (TARGET.config.preferred_language || :en).to_sym
+        if is_index
+          friendly_url << m_language.to_s unless t_preferred == m_language
+        else
+          friendly_url << m_language.to_s
+          friendly_url << resource_name
+        end
+        friendly_url = friendly_url.join('/')
+        
         MANIFEST.add_composite resource_name,
           :entry_type => :html,
           :combined => true,
           :build_task => 'build:html',
           :source_entries => entries,
           :hidden     =>  !TARGET.loadable? && is_index,
-          :include_required_targets => TARGET.loadable? && is_index
+          :include_required_targets => TARGET.loadable? && is_index,
+          :friendly_url => friendly_url
       end
     end
     
