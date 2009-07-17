@@ -27,6 +27,7 @@ mode :all do
     :target_types => { 
       :apps       => :app, 
       :clients    => :app, 
+      :pages      => :app, # used for static pages with your site
       :frameworks => :framework,
       :themes     => :theme
     },
