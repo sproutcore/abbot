@@ -28,7 +28,7 @@ describe SC::Project, 'find_targets_for' do
 
     # verify preconditions
     target_types = project.config.target_types
-    target_types.size.should eql(4)
+    target_types.size.should eql(5) # also :pages - not tested here
     target_types[:apps].should eql(:app)
     target_types[:clients].should eql(:app)
     target_types[:frameworks].should eql(:framework)
