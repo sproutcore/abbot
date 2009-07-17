@@ -88,6 +88,8 @@ module SC
       return self
     end
     
+    def built?; @is_built; end
+    
     # Resets the manifest entries.  this is called before a build is 
     # performed. This will reset only the entries, none of the other props.
     #
@@ -289,29 +291,42 @@ module SC
     #
     def find_entry(fragment, opts = {}, seen=nil)
       
-      extname = File.extname(fragment)
-      rootname = fragment.sub(/#{extname}$/, '')
-      entry_extname = entry_rootname = nil
-
-      ret = entries(:hidden => opts[:hidden]).reject do |entry|
-        if entry.has_options?(opts)
-          entry_extname = File.extname(entry.filename)
-          entry_rootname = entry.filename.sub(/#{entry_extname}$/,'')
-          ext_match = (extname.nil? || extname.size == 0) || (entry_extname == extname)
-        else
-          ext_match = false
-        end
-        !(ext_match && (/#{rootname}$/ =~ entry_rootname))
+      entry_extname = entry_rootname = ret = target_name = nil
+      
+      # optionally you can specify an explicit target name
+      split_index = fragment.index(':') # find first index
+      unless split_index.nil?
+        target_name = '/' + fragment[0..(split_index-1)] if split_index>0
+        fragment    = fragment[(split_index+1)..-1] # remove colon
       end
 
-      ret = ret.first
+      extname = File.extname(fragment)
+      rootname = fragment.sub(/#{extname}$/, '')
 
+      # look on our own target only if target is named
+      if target_name.nil? || (self.target.target_name==target_name)
+        ret = entries(:hidden => opts[:hidden]).reject do |entry|
+          if entry.has_options?(opts)
+            entry_extname = File.extname(entry.filename)
+            entry_rootname = entry.filename.sub(/#{entry_extname}$/,'')
+            ext_match = (extname.nil? || extname.size == 0) || (entry_extname == extname)
+          else
+            ext_match = false
+          end
+        
+          !(ext_match && (/#{rootname}$/ =~ entry_rootname))
+        end
+        
+        ret = ret.first
+      end
+        
       # if no match was found, search the same manifests in required targets
       if ret.nil?
         seen = Set.new if seen.nil?
         seen << self.target
         self.target.expand_required_targets.each do |t|
           next if seen.include?(t) # avoid recursion
+          next if target_name && (t.target_name.to_sym != target_name.to_sym)
 
           manifest = t.manifest_for(self.variation).build!
           ret = manifest.find_entry(fragment, opts, seen)

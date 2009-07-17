@@ -26,8 +26,9 @@ describe SC::Manifest, 'entry_for' do
       
     # add an entry to shared for one later test also...
     @shared_man = @project.target_for(:shared).manifest_for(:language => :en)
-    @shared_man.prepare!
+    @shared_man.build! #important - build before adding entries
     @shared_man.add_entry 'shared/foo.png'
+    @shared_man.add_entry 'images/foo.png'
   end
     
   def should_find(find_str, expected_filename)
@@ -37,48 +38,60 @@ describe SC::Manifest, 'entry_for' do
   end
   
   it "matches exact path from url_root" do
-    should_find('images/foo.png', 'images/foo.png')
-  end
-  
-  it "returns first match based on order added, regardless of url depth" do
-    should_find('foo.png', 'images/foo.png')
-  end
-  
-  it "will match any extension if no extension is provided" do
-    should_find('images/sprites/foo', 'images/sprites/foo.png')
-  end
-  
-  it "will match first match if no extension is provided" do
-    should_find('images/foo', 'images/foo.png')
-  end
-
-  it "providing extension can force match" do
-    should_find('foo.gif', 'images/foo.gif')
-  end
-  
-  it "prefers to match files with no extension over those with extension if no ext is provided" do
-    should_find('foo', 'foo')
-  end
-  
-  it "will match only visible unless :hidden => true" do
-    @manifest.find_entry('hidden/bite.png').should be_nil
-    @manifest.find_entry('hidden/bite.png', :hidden => true).should_not be_nil
-  end
-  
-  it "will also match based on additional passed options" do
-    entry = @manifest.find_entry('bark/bite.png', :foo => :bar)
-    entry.should_not be_nil
-    entry.foo.should == :bar
+      should_find('images/foo.png', 'images/foo.png')
+    end
     
-    entry = @manifest.find_entry('bark/bite.png', :foo => :foo)
-    entry.should_not be_nil
-    entry.foo.should == :foo
-  end
+    it "returns first match based on order added, regardless of url depth" do
+      should_find('foo.png', 'images/foo.png')
+    end
+    
+    it "will match any extension if no extension is provided" do
+      should_find('images/sprites/foo', 'images/sprites/foo.png')
+    end
+    
+    it "will match first match if no extension is provided" do
+      should_find('images/foo', 'images/foo.png')
+    end
+  
+    it "providing extension can force match" do
+      should_find('foo.gif', 'images/foo.gif')
+    end
+    
+    it "prefers to match files with no extension over those with extension if no ext is provided" do
+      should_find('foo', 'foo')
+    end
+    
+    it "will match only visible unless :hidden => true" do
+      @manifest.find_entry('hidden/bite.png').should be_nil
+      @manifest.find_entry('hidden/bite.png', :hidden => true).should_not be_nil
+    end
+    
+    it "will also match based on additional passed options" do
+      entry = @manifest.find_entry('bark/bite.png', :foo => :bar)
+      entry.should_not be_nil
+      entry.foo.should == :bar
+      
+      entry = @manifest.find_entry('bark/bite.png', :foo => :foo)
+      entry.should_not be_nil
+      entry.foo.should == :foo
+    end
   
   it "will search required targets if the requested resource is not found in current manifest" do
     entry = @manifest.find_entry('shared/foo')
     entry.should_not be_nil
     entry.manifest.should == @shared_man # verify came from other manifest...
+  end
+  
+  it "will match a specific target if named" do
+    entry = @manifest.find_entry('shared:images/foo')
+    entry.should_not be_nil
+    entry.manifest.should == @shared_man
+  end
+  
+  it "will match any target if empty target is named" do
+    entry = @manifest.find_entry(':images/foo')
+    entry.should_not be_nil
+    entry.manifest.should == @manifest
   end
   
 end
