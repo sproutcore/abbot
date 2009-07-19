@@ -29,17 +29,20 @@ namespace :target do
       TARGET.index_root = url
     end
 
+    url_prefix = CONFIG.url_prefix
+    url_prefix = url_prefix.gsub(/^[^\/]+:\/\/[^\/]+\//,'')
+    
     # Split all of these paths in case we are on windows...
     TARGET.build_root = File.expand_path(CONFIG.build_root || 
       File.join(PROJECT.project_root.to_s, 
         (CONFIG.build_prefix || '').to_s.split('/'), 
-        (CONFIG.url_prefix || '').to_s.split('/'), 
+        (url_prefix || '').to_s.split('/'), 
         TARGET.target_name.to_s.split('/')))
         
     TARGET.staging_root = File.expand_path(CONFIG.staging_root ||
       File.join(PROJECT.project_root.to_s, 
         (CONFIG.staging_prefix || '').to_s.split('/'), 
-        (CONFIG.url_prefix || '').to_s.split('/'), 
+        (url_prefix || '').to_s.split('/'), 
         TARGET.target_name.to_s))
       
     TARGET.build_number = TARGET.compute_build_number
