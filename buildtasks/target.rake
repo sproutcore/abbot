@@ -30,7 +30,7 @@ namespace :target do
     end
 
     url_prefix = CONFIG.url_prefix
-    url_prefix = url_prefix.gsub(/^[^\/]+:\/\/[^\/]+\//,'')
+    url_prefix = url_prefix.gsub(/^[^\/]+:\/\/[^\/]+\//,'') if url_prefix
     
     # Split all of these paths in case we are on windows...
     TARGET.build_root = File.expand_path(CONFIG.build_root || 

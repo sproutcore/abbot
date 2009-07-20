@@ -241,7 +241,10 @@ module SC
     # === Returns
     #  A build number string
     #
-    def compute_build_number(seen=nil)
+    def compute_build_number(seen=nil, opts = {})
+
+      # reset cache if forced to recompute
+      build_number = nil if opts[:force]
       
       # Look for a global build_numbers hash and try that
       if (build_numbers = config.build_numbers)
@@ -272,10 +275,16 @@ module SC
         # causing infinite loops.  Normally this should not be necessary, but
         # we put this here to gaurd against misconfigured projects
         seen ||= []
-        required_targets.each do |ct|
+        
+        _targets = required_targets(:theme => true).sort do |a,b|
+          (a.target_name||'').to_s <=> (b.target_name||'').to_s
+        end
+        
+        _targets.each do |ct|
           next if seen.include?(ct)
+          ct.prepare!
           seen << ct
-          digests << (ct.build_number || ct.compute_build_number(seen))
+          digests << ct.compute_build_number(seen, :force => true)
         end
 
         # Finally digest the complete string - tada! build number
