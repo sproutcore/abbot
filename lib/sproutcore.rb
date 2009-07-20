@@ -125,6 +125,19 @@ module SproutCore
   def self.project; @project; end
   def self.project=(project); @project = project; end
   
+  # Attempts to load a project for the current working directory or from the
+  # passed directory location.  Returns nil if no project could be detected.
+  # This is just a shorthand for creating a Project object.  It is useful 
+  # when using the build tools as a Ruby library
+  def self.load_project(path = nil, opts = {})
+    path = File.expand_path(path.nil? ? Dir.pwd : path)
+    if FalseClass === opts[:discover]
+      SC::Project.load path, :parent => SC.builtin_project
+    else # attempt to autodiscover unless disabled
+      SC::Project.load_nearest_project path, :parent => SC.builtin_project
+    end
+  end
+    
 end  # module SC
 
 SC = SproutCore # alias
