@@ -29,7 +29,7 @@ module SC
       end
       
       # Get the manifests to build
-      manifests = build_manifests(targets)
+      manifests = build_manifests(*targets)
 
       # First clean all manifests
       # Do this before building so we don't accidentally erase already build
