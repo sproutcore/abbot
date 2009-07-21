@@ -26,10 +26,10 @@ require 'sproutcore'
 ## DEPENDENCIES
 ##
 
-depend_on 'extlib', ">= 0.9.9"
 depend_on 'rack', '>= 0.9.1'
-depend_on 'erubis', ">= 2.6.2"
 depend_on 'json_pure', ">= 1.1.0"
+depend_on 'extlib', ">= 0.9.9"
+depend_on 'erubis', ">= 2.6.2"
 
 ################################################
 ## PROJECT DESCRIPTION
