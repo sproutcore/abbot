@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{sproutcore}
-  s.version = "1.0.0.20090720202429"
+  s.version = "1.0.0.20090721125122"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sprout Systems, Inc.  Apple, Inc. and contributors"]
-  s.date = %q{2009-07-20}
+  s.date = %q{2009-07-21}
   s.description = %q{SproutCore is a platform for building native look-and-feel applications on 
 the web.  This Ruby library includes a copy of the SproutCore JavaScript 
 framework as well as a Ruby-based build system called Abbot.
@@ -48,23 +48,23 @@ use the SproutCore JavaScript framework, you can also use it to efficiently buil
     s.specification_version = 3
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<extlib>, [">= 0.9.9"])
       s.add_runtime_dependency(%q<rack>, [">= 0.9.1"])
-      s.add_runtime_dependency(%q<erubis>, [">= 2.6.2"])
       s.add_runtime_dependency(%q<json_pure>, [">= 1.1.0"])
-      s.add_development_dependency(%q<bones>, [">= 2.4.2"])
+      s.add_runtime_dependency(%q<extlib>, [">= 0.9.9"])
+      s.add_runtime_dependency(%q<erubis>, [">= 2.6.2"])
+      s.add_development_dependency(%q<bones>, [">= 2.5.1"])
     else
-      s.add_dependency(%q<extlib>, [">= 0.9.9"])
       s.add_dependency(%q<rack>, [">= 0.9.1"])
-      s.add_dependency(%q<erubis>, [">= 2.6.2"])
       s.add_dependency(%q<json_pure>, [">= 1.1.0"])
-      s.add_dependency(%q<bones>, [">= 2.4.2"])
+      s.add_dependency(%q<extlib>, [">= 0.9.9"])
+      s.add_dependency(%q<erubis>, [">= 2.6.2"])
+      s.add_dependency(%q<bones>, [">= 2.5.1"])
     end
   else
-    s.add_dependency(%q<extlib>, [">= 0.9.9"])
     s.add_dependency(%q<rack>, [">= 0.9.1"])
-    s.add_dependency(%q<erubis>, [">= 2.6.2"])
     s.add_dependency(%q<json_pure>, [">= 1.1.0"])
-    s.add_dependency(%q<bones>, [">= 2.4.2"])
+    s.add_dependency(%q<extlib>, [">= 0.9.9"])
+    s.add_dependency(%q<erubis>, [">= 2.6.2"])
+    s.add_dependency(%q<bones>, [">= 2.5.1"])
   end
 end
