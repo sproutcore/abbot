@@ -60,16 +60,36 @@ task :init do
   `git submodule update --init`
 end
 
-desc "write VERSION file, adding a date timestamp.  usually do not run"
-task :write_version do
-  path = ROOT_PATH / 'VERSION'
+desc "updates the VERSION file, bumbing the build rev if the current commit has changed"
+task :update_version => 'git:collect_commit' do
+
+  path = ROOT_PATH / 'VERSION.yaml'
+ 
+  require 'yaml'
+ 
+  # first, load the current yaml if possible
+  major = 1
+  minor = 0
+  build = 99
+  rev   = '-0-'
+  
+  if File.exist?(path)
+    yaml = YAML.load_file(path)
+    major = yaml['major'] || yaml[:major] || major
+    minor = yaml['minor'] || yaml[:minor] || minor
+    build = yaml['patch'] || yaml[:patch] || build
+    rev   = yaml['commit'] || yaml[:commit] || rev
+  end
+ 
+  build += 1 if rev != COMMIT_ID  #increment if needed
+  rev = COMMIT_ID
+  
   puts "write version => #{path}"
-  f = File.open(path, 'w')
-
-  version = ENV['VERSION'] || "#{SC::VERSION}.#{Time.now.strftime("%Y%m%d%H%M%S")}" 
-
-  f.write(version)
-  f.close
+  File.open(path, 'w+') do |f|
+    YAML.dump({ 
+      :major => major, :minor => minor, :patch => build, :commit => rev 
+    }, f)
+  end
 end
 
 def fixup_gemspec
@@ -109,6 +129,18 @@ namespace :git do
       $stderr.puts "\nFATAL: Cannot complete task with changes pending."
       $stderr.puts "       Commit your changes to git to continue.\n\n"
       exit(1)
+    end
+  end
+  
+  desc "Collects the current SHA1 commit hash into COMMIT_ID"
+  task :collect_commit do
+    log = `git log HEAD^..HEAD`
+    COMMIT_ID = log.split("\n").first.match(/commit ([\w]+)/).to_a[1]
+    if COMMIT_ID.empty?
+      $stderr.puts "\nFATAL: Cannot discover current commit id"
+      exit(1)
+    else
+      $stdout.puts "COMMIT_ID = #{COMMIT_ID}"
     end
   end
   
