@@ -466,7 +466,7 @@ namespace :manifest do
     desc "adds a loc strings entry that generates a yaml file server-side functions can use" 
     task :strings => %w(setup javascript) do
       # find the lproj/strings.js file...
-      if entry = MANIFEST.entry_for('source/lproj/strings.js')
+      if entry = (MANIFEST.entry_for('source/lproj/strings.js') || MANIFEST.entry_for('source/lproj/strings.js', :hidden => true))
         MANIFEST.add_transform entry, 
           :filename   => 'strings.yaml',
           :build_path => File.join(MANIFEST.build_root, 'strings.yaml'),
