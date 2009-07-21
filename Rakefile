@@ -50,5 +50,46 @@ PROJ.exclude << '^coverage/' << '\.gitignore' << '\.gitmodules' << ".DS_Store"
 # For development builds add timestamp to the version number to auto-version 
 # development gems.
 PROJ.version += ".#{Time.now.strftime("%Y%m%d%H%M%S")}" if !ENV['VERSION'] 
+
+#VERSION = SC::VERSION
+
+require 'jeweler'
+
+Jeweler::Tasks.new do |gemspec|
+  gemspec.name = 'sproutcore'
+  gemspec.authors = 'Sprout Systems, Inc.  Apple, Inc. and contributors'
+  gemspec.email = 'contact@sproutcore.com'
+  gemspec.homepage = 'http://www.sproutcore.com/sproutcore'
+  gemspec.summary = "SproutCore is a platform for building native look-and-feel applications on  the web"
   
+  gemspec.add_dependency 'rack', '>= 0.9.1'
+  gemspec.add_dependency 'json_pure', ">= 1.1.0"
+  gemspec.add_dependency 'extlib', ">= 0.9.9"
+  gemspec.add_dependency 'erubis', ">= 2.6.2"
+  gemspec.add_development_dependency 'bones', ">= 2.5.1"
+  gemspec.rubyforge_project = "sproutcore"
+  gemspec.files.exclude *%w[^coverage/ .gitignore .gitmodules .DS_Store]
+  
+  #gemspec.rubyforge.name = 'sproutcore'
+  #gemspec.ruby_opts = []
+  #gemspec.spec.opts << '--color'
+  #gemspec.exclude << '^coverage/' << '\.gitignore' << '\.gitmodules' << ".DS_Store"
+
+  # For development builds add timestamp to the version number to auto-version 
+  # development gems.
+end
+  
+task :write_version do
+  path = File.join(File.dirname(__FILE__), 'VERSION')
+  puts "write version => #{path}"
+  f = File.open(path, 'w')
+  
+  version = ENV['VERSION'] || "#{SC::VERSION}.#{Time.now.strftime("%Y%m%d%H%M%S")}" 
+  
+  f.write(version)
+  f.close
+end
+
+task 'gemspec:generate' => :write_version
+
 # EOF
