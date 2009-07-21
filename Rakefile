@@ -100,6 +100,20 @@ task :clean do
   `rm #{ROOT_PATH / '*.gem'}`
 end
 
+namespace :git do
+  
+  desc "verifies there are no pending changes to commit to git"
+  task :verify_clean do
+    result = `cd #{ROOT_PATH}; git status`
+    if !(result =~ /nothing to commit \(working directory clean\)/)
+      $stderr.puts "\nFATAL: Cannot complete task with changes pending."
+      $stderr.puts "       Commit your changes to git to continue.\n\n"
+      exit(1)
+    end
+  end
+  
+end
+
 # Write a new version everytime we generate
 task 'gemspec:generate' => :write_version
 
