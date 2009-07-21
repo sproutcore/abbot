@@ -5,55 +5,28 @@
 #            and contributors
 # ===========================================================================
 
-# This Rakefile is used to build and distribute the SproutCore Gem.  It
-# requires the "bones" gem to provide the rake tasks needed for release.
+# Rakefile used to build the SproutCore Gem.  Requires Jeweler to function.
+
+ROOT_PATH = File.dirname(__FILE__)
 
 ################################################
-## LOAD BONES
+## LOAD DEPENDENCIES
 ##
 begin
-  require 'bones'
-  Bones.setup
-rescue LoadError
-  puts "WARN: bones gem is required to build SproutCore Gem"
-  #load 'tasks/setup.rb'
+  require 'jeweler'
+  require 'extlib'
+
+  $:.unshift(ROOT_PATH / 'lib')
+  require 'sproutcore'
+
+rescue LoadError => e
+  $stderr.puts "WARN: some required gems are not installed (try rake init to setup)"
 end
 
-ensure_in_path 'lib'
-require 'sproutcore'
-
-################################################
-## DEPENDENCIES
-##
-
-depend_on 'rack', '>= 0.9.1'
-depend_on 'json_pure', ">= 1.1.0"
-depend_on 'extlib', ">= 0.9.9"
-depend_on 'erubis', ">= 2.6.2"
 
 ################################################
 ## PROJECT DESCRIPTION
 ##
-
-task :default => 'spec:specdoc'
-
-PROJ.name = 'sproutcore'
-PROJ.authors = 'Sprout Systems, Inc.  Apple, Inc. and contributors'
-PROJ.email = 'contact@sproutcore.com'
-PROJ.url = 'http://www.sproutcore.com/sproutcore'
-PROJ.version = SC::VERSION
-PROJ.rubyforge.name = 'sproutcore'
-PROJ.ruby_opts = []
-PROJ.spec.opts << '--color'
-PROJ.exclude << '^coverage/' << '\.gitignore' << '\.gitmodules' << ".DS_Store"
-
-# For development builds add timestamp to the version number to auto-version 
-# development gems.
-PROJ.version += ".#{Time.now.strftime("%Y%m%d%H%M%S")}" if !ENV['VERSION'] 
-
-#VERSION = SC::VERSION
-
-require 'jeweler'
 
 Jeweler::Tasks.new do |gemspec|
   gemspec.name = 'sproutcore'
@@ -66,30 +39,68 @@ Jeweler::Tasks.new do |gemspec|
   gemspec.add_dependency 'json_pure', ">= 1.1.0"
   gemspec.add_dependency 'extlib', ">= 0.9.9"
   gemspec.add_dependency 'erubis', ">= 2.6.2"
-  gemspec.add_development_dependency 'bones', ">= 2.5.1"
+  gemspec.add_development_dependency 'jeweler', ">= 1.0.1"
   gemspec.rubyforge_project = "sproutcore"
   gemspec.files.exclude *%w[^coverage/ .gitignore .gitmodules .DS_Store]
+  gemspec.extra_rdoc_files.include *%w[History.txt README.txt]
   
-  #gemspec.rubyforge.name = 'sproutcore'
-  #gemspec.ruby_opts = []
-  #gemspec.spec.opts << '--color'
-  #gemspec.exclude << '^coverage/' << '\.gitignore' << '\.gitmodules' << ".DS_Store"
-
-  # For development builds add timestamp to the version number to auto-version 
-  # development gems.
+  gemspec.description = File.read(ROOT_PATH / 'README.txt')
 end
+
+################################################
+## CORE TASKS
+##
   
+desc "performs an initial setup on the tools.  Installs gems, init submodules"
+task :init do
+  $stdout.puts "Installing gems (may ask for password)"
+  `sudo gem install rack jeweler json_pure extlib erubis`
+  
+  $stdout.puts "Setup submodules"
+  `git submodule update --init`
+end
+
+desc "write VERSION file, adding a date timestamp.  usually do not run"
 task :write_version do
-  path = File.join(File.dirname(__FILE__), 'VERSION')
+  path = ROOT_PATH / 'VERSION'
   puts "write version => #{path}"
   f = File.open(path, 'w')
-  
+
   version = ENV['VERSION'] || "#{SC::VERSION}.#{Time.now.strftime("%Y%m%d%H%M%S")}" 
-  
+
   f.write(version)
   f.close
 end
 
+def fixup_gemspec
+  from_path = ROOT_PATH / 'sproutcore.gemspec'
+  to_path = ROOT_PATH / 'sproutcore-abbot.gemspec'
+  
+  if File.exists?(from_path)
+    FileUtils.rm(to_path) if File.exists?(to_path)
+    FileUtils.move(from_path, to_path)
+  end
+end
+
+# Extend install to cleanup the generate and cleanup the gemspec afterwards
+task :build => 'gemspec:generate' do
+  fixup_gemspec
+end
+
+# Extend gemspec to rename afterware
+task :gemspec do
+  
+  fixup_gemspec
+end
+
+desc "cleanup the pkg dir" 
+task :clean do
+  path = ROOT_PATH / 'pkg'
+  FileUtils.rm_r(path) if File.directory?(path)
+  `rm #{ROOT_PATH / '*.gem'}`
+end
+
+# Write a new version everytime we generate
 task 'gemspec:generate' => :write_version
 
 # EOF
