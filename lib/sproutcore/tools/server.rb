@@ -39,6 +39,7 @@ module SC
         ARGV.clear # do not pass onto IRB
         IRB.start
       else
+        SC.logger << "SproutCore v#{SC::VERSION} Development Server\n"
         SC::Rack::Service.start(options.merge(:project => project))
       end
     end
