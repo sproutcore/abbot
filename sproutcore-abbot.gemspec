@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{sproutcore}
-  s.version = "1.0.125"
+  s.version = "1.0.126"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sprout Systems, Inc.  Apple, Inc. and contributors"]
-  s.date = %q{2009-07-21}
+  s.date = %q{2009-07-22}
   s.description = %q{sproutcore - abbot
     by Charles Jolley and contributors
     http://www.sproutcore.com
@@ -1004,38 +1004,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "lib/thor/spec/util_spec.rb",
      "lib/thor/task.thor",
      "lib/thor/thor.gemspec",
-     "lib/thor/thor/.autotest",
-     "lib/thor/thor/CHANGELOG.rdoc",
-     "lib/thor/thor/LICENSE",
-     "lib/thor/thor/README.markdown",
-     "lib/thor/thor/Rakefile",
-     "lib/thor/thor/Thorfile",
-     "lib/thor/thor/bin/rake2thor",
-     "lib/thor/thor/bin/thor",
-     "lib/thor/thor/lib/thor.rb",
-     "lib/thor/thor/lib/thor/error.rb",
-     "lib/thor/thor/lib/thor/options.rb",
-     "lib/thor/thor/lib/thor/ordered_hash.rb",
-     "lib/thor/thor/lib/thor/runner.rb",
-     "lib/thor/thor/lib/thor/task.rb",
-     "lib/thor/thor/lib/thor/task_hash.rb",
-     "lib/thor/thor/lib/thor/tasks.rb",
-     "lib/thor/thor/lib/thor/tasks/package.rb",
-     "lib/thor/thor/lib/thor/util.rb",
-     "lib/thor/thor/script/destroy",
-     "lib/thor/thor/script/generate",
-     "lib/thor/thor/spec/fixtures/task.thor",
-     "lib/thor/thor/spec/options_spec.rb",
-     "lib/thor/thor/spec/ordered_hash_spec.rb",
-     "lib/thor/thor/spec/spec.opts",
-     "lib/thor/thor/spec/spec_helper.rb",
-     "lib/thor/thor/spec/task_spec.rb",
-     "lib/thor/thor/spec/tasks_spec.rb",
-     "lib/thor/thor/spec/thor_runner_spec.rb",
-     "lib/thor/thor/spec/thor_spec.rb",
-     "lib/thor/thor/spec/util_spec.rb",
-     "lib/thor/thor/task.thor",
-     "lib/thor/thor/thor.gemspec",
      "spec/buildtasks/build/copy_spec.rb",
      "spec/buildtasks/build/spec_helper.rb",
      "spec/buildtasks/manifest/catalog_spec.rb",
