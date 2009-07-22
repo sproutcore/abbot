@@ -170,6 +170,8 @@ task :build => 'gemspec:generate' do
   fixup_gemspec
 end
 
+task "gemspec:generate" => 'git:verify_clean'
+
 # Extend gemspec to rename afterware
 task :gemspec do
   
