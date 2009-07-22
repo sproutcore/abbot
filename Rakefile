@@ -187,11 +187,19 @@ namespace :git do
   
   desc "verifies there are no pending changes to commit to git"
   task :verify_clean do
-    result = `cd #{ROOT_PATH}; git status`
-    if !(result =~ /nothing to commit \(working directory clean\)/)
-      $stderr.puts "\nFATAL: Cannot complete task with changes pending."
-      $stderr.puts "       Commit your changes to git to continue.\n\n"
-      exit(1)
+    %w(abbot frameworks/sproutcore lib/thor).each do |repo_name|
+      if repo_name == 'abbot'
+        path = ROOT_PATH
+      else
+        path = File.join(repo_name.split('/').unshift(ROOT_PATH))
+      end
+
+      result = `cd #{path}; git status`
+      if !(result =~ /nothing to commit \(working directory clean\)/)
+        $stderr.puts "\nFATAL: Cannot complete task: changes are still pending in the '#{repo_name}' repository."
+        $stderr.puts "       Commit your changes to git to continue.\n\n"
+        exit(1)
+      end
     end
   end
   
