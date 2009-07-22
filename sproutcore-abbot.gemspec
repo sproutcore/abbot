@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{sproutcore}
-  s.version = "1.0.109"
+  s.version = "1.0.118"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sprout Systems, Inc.  Apple, Inc. and contributors"]
@@ -123,6 +123,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "README.txt",
      "Rakefile",
      "Todo.txt",
+     "VERSION.yml",
      "bin/sc-build",
      "bin/sc-build-number",
      "bin/sc-gen",

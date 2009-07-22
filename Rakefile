@@ -10,7 +10,7 @@
 ROOT_PATH = File.dirname(__FILE__)
 
 # files to ignore changes in
-IGNORE_CHANGES = %w[.gitignore .gitmodules .DS_Store sproutcore-abbot.gemspec VERSION.yml ^pkg ^tmp ^coverage]
+IGNORE_CHANGES = %w[.gitignore .gitmodules .DS_Store .gemspec VERSION.yml ^pkg ^tmp ^coverage]
 
 ################################################
 ## LOAD DEPENDENCIES
@@ -98,6 +98,7 @@ task :hash_content do
   paths.each do |path|
     mtime = File.mtime(path)
     mtime = mtime.nil? ? 0 : mtime.to_i
+    puts "detected file change: #{path.gsub(ROOT_PATH,'')}" if mtime > hash_date
     cur_date = mtime if mtime > cur_date
   end
   
@@ -158,7 +159,7 @@ def fixup_gemspec
   
   if File.exists?(from_path)
     FileUtils.rm(to_path) if File.exists?(to_path)
-    FileUtils.move(from_path, to_path)
+    FileUtils.cp(from_path, to_path)
   end
 end
 
