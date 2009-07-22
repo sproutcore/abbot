@@ -7,3 +7,4 @@ tmp
 log
 doc
 *.gem
+.hashinfo.yml

@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{sproutcore}
-  s.version = "1.0.20090721155704"
+  s.version = "1.0.109"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sprout Systems, Inc.  Apple, Inc. and contributors"]
@@ -123,7 +123,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "README.txt",
      "Rakefile",
      "Todo.txt",
-     "VERSION",
      "bin/sc-build",
      "bin/sc-build-number",
      "bin/sc-gen",
@@ -575,24 +574,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "vendor/jsdoc/jsrun.jar",
      "vendor/jsdoc/t/TestDoc.js",
      "vendor/jsdoc/t/runner.js",
-     "vendor/jsdoc/templates/jsdoc/allclasses.tmpl",
-     "vendor/jsdoc/templates/jsdoc/allfiles.tmpl",
-     "vendor/jsdoc/templates/jsdoc/class.tmpl",
-     "vendor/jsdoc/templates/jsdoc/index.tmpl",
      "vendor/jsdoc/templates/jsdoc/publish.js",
      "vendor/jsdoc/templates/jsdoc/static/default.css",
      "vendor/jsdoc/templates/jsdoc/static/header.html",
      "vendor/jsdoc/templates/jsdoc/static/index.html",
-     "vendor/jsdoc/templates/jsdoc/symbol.tmpl",
-     "vendor/jsdoc/templates/sproutcore/allclasses.tmpl",
-     "vendor/jsdoc/templates/sproutcore/allfiles.tmpl",
-     "vendor/jsdoc/templates/sproutcore/class.tmpl",
-     "vendor/jsdoc/templates/sproutcore/index.tmpl",
      "vendor/jsdoc/templates/sproutcore/publish.js",
      "vendor/jsdoc/templates/sproutcore/static/default.css",
      "vendor/jsdoc/templates/sproutcore/static/header.html",
      "vendor/jsdoc/templates/sproutcore/static/index.html",
-     "vendor/jsdoc/templates/sproutcore/symbol.tmpl",
      "vendor/jsdoc/test.js",
      "vendor/jsdoc/test/addon.js",
      "vendor/jsdoc/test/anon_inner.js",

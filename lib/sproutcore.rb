@@ -7,6 +7,7 @@
 require 'rubygems'
 require 'logger'
 require 'extlib'
+require 'yaml'
 
 $KCODE = 'u'
 require 'jcode'
@@ -15,12 +16,18 @@ require 'jcode'
 YES = true
 NO = false
 
+
 module SproutCore
 
   # :stopdoc:
-  VERSION = '1.0.0'
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
+  
+  VERSION_PATH = PATH / 'VERSION.yml'
+  VERSION_INFO = YAML.load_file(VERSION_PATH)
+  
+  VERSION = [VERSION_INFO[:major], VERSION_INFO[:minor], VERSION_INFO[:patch]].join('.')
+  
   # :startdoc:
 
   # Returns the version string for the library.
@@ -121,6 +128,7 @@ module SproutCore
 end  # module SC
 
 SC = SproutCore # alias
+
 
 SC.require_all_libs_relative_to(__FILE__)
 %w(buildfile models helpers deprecated builders render_engines tools rack).each do |dir|

@@ -9,6 +9,9 @@
 
 ROOT_PATH = File.dirname(__FILE__)
 
+# files to ignore changes in
+IGNORE_CHANGES = %w[.gitignore .gitmodules .DS_Store sproutcore-abbot.gemspec VERSION.yml ^pkg ^tmp ^coverage]
+
 ################################################
 ## LOAD DEPENDENCIES
 ##
@@ -41,7 +44,7 @@ Jeweler::Tasks.new do |gemspec|
   gemspec.add_dependency 'erubis', ">= 2.6.2"
   gemspec.add_development_dependency 'jeweler', ">= 1.0.1"
   gemspec.rubyforge_project = "sproutcore"
-  gemspec.files.exclude *%w[^coverage/ .gitignore .gitmodules .DS_Store]
+  gemspec.files.exclude *%w[^coverage/ .gitignore .gitmodules .DS_Store tmp]
   gemspec.extra_rdoc_files.include *%w[History.txt README.txt]
   
   gemspec.description = File.read(ROOT_PATH / 'README.txt')
@@ -60,10 +63,67 @@ task :init do
   `git submodule update --init`
 end
 
-desc "updates the VERSION file, bumbing the build rev if the current commit has changed"
-task :update_version => 'git:collect_commit' do
+desc "computes the current hash of the code.  used to autodetect build changes"
+task :hash_content do
+  
+  require 'yaml'
+  require 'digest/md5'
 
-  path = ROOT_PATH / 'VERSION.yaml'
+  ignore = IGNORE_CHANGES.map do |x| 
+    if x =~ /^\^/
+      /^#{Regexp.escape(ROOT_PATH / x[1..-1])}/
+    else
+      /#{Regexp.escape(x)}/
+    end
+  end
+
+  # First, get the hashinfo if it exists.  use this to decide if we need to
+  # rehash
+  hashinfo_path = ROOT_PATH / '.hashinfo.yml'
+  hash_date = 0
+  hash_digest = nil
+  
+  if File.exist?(hashinfo_path)
+    yaml = YAML.load_file(hashinfo_path)
+    hash_date = yaml['date'] || yaml[:date] || hash_date
+    hash_digest = yaml['digest'] || yaml[:digest] || hash_digest
+  end
+  
+  # paths to search  
+  paths = Dir.glob(File.join(ROOT_PATH, '**', '*')).reject do |path|
+    File.directory?(path) || (ignore.find { |i| path =~ i })
+  end
+  
+  cur_date = 0
+  paths.each do |path|
+    mtime = File.mtime(path)
+    mtime = mtime.nil? ? 0 : mtime.to_i
+    cur_date = mtime if mtime > cur_date
+  end
+  
+  if hash_digest.nil? || (cur_date != hash_date) 
+    digests = paths.map do |path|
+      Digest::SHA1.hexdigest(File.read(path))
+    end
+    digests.compact!
+    hash_digest = Digest::SHA1.hexdigest(digests.join)
+  end
+  hash_date = cur_date
+  
+  # write cache
+  File.open(hashinfo_path, 'w+') do |f|
+    YAML.dump({ :date => hash_date, :digest => hash_digest }, f)
+  end
+
+  # finally set the hash
+  CONTENT_HASH = hash_digest
+  puts "CONTENT_HASH = #{CONTENT_HASH}"
+end
+  
+desc "updates the VERSION file, bumbing the build rev if the current commit has changed"
+task :update_version => 'hash_content' do
+
+  path = ROOT_PATH / 'VERSION.yml'
  
   require 'yaml'
  
@@ -78,16 +138,16 @@ task :update_version => 'git:collect_commit' do
     major = yaml['major'] || yaml[:major] || major
     minor = yaml['minor'] || yaml[:minor] || minor
     build = yaml['patch'] || yaml[:patch] || build
-    rev   = yaml['commit'] || yaml[:commit] || rev
+    rev   = yaml['digest'] || yaml[:digest] || rev
   end
  
-  build += 1 if rev != COMMIT_ID  #increment if needed
-  rev = COMMIT_ID
+  build += 1 if rev != CONTENT_HASH  #increment if needed
+  rev = CONTENT_HASH
   
-  puts "write version => #{path}"
+  puts "write version #{[major, minor, build].join('.')} => #{path}"
   File.open(path, 'w+') do |f|
     YAML.dump({ 
-      :major => major, :minor => minor, :patch => build, :commit => rev 
+      :major => major, :minor => minor, :patch => build, :digest => rev 
     }, f)
   end
 end
@@ -147,6 +207,6 @@ namespace :git do
 end
 
 # Write a new version everytime we generate
-task 'gemspec:generate' => :write_version
+task 'gemspec:generate' => :update_version
 
 # EOF
