@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{sproutcore}
-  s.version = "1.0.20090721145279"
+  s.version = "1.0.20090721145280"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sprout Systems, Inc.  Apple, Inc. and contributors"]
@@ -148,37 +148,6 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/datastore/tests/system/store/retrieveRecord.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/store/writeDataHash.js",
      "frameworks/sproutcore/frameworks/debug/core.js",
-     "frameworks/sproutcore/frameworks/deprecated/core.js",
-     "frameworks/sproutcore/frameworks/deprecated/lib/button_views.rb",
-     "frameworks/sproutcore/frameworks/deprecated/lib/collection_view.rb",
-     "frameworks/sproutcore/frameworks/deprecated/lib/core_views.rb",
-     "frameworks/sproutcore/frameworks/deprecated/lib/form_views.rb",
-     "frameworks/sproutcore/frameworks/deprecated/lib/index.rhtml",
-     "frameworks/sproutcore/frameworks/deprecated/lib/menu_views.rb",
-     "frameworks/sproutcore/frameworks/deprecated/server/rails_server.js",
-     "frameworks/sproutcore/frameworks/deprecated/server/rest_server.js",
-     "frameworks/sproutcore/frameworks/deprecated/server/server.js",
-     "frameworks/sproutcore/frameworks/deprecated/system/animator.js",
-     "frameworks/sproutcore/frameworks/deprecated/system/binding.js",
-     "frameworks/sproutcore/frameworks/deprecated/system/browser.js",
-     "frameworks/sproutcore/frameworks/deprecated/system/classic_responder.js",
-     "frameworks/sproutcore/frameworks/deprecated/system/event.js",
-     "frameworks/sproutcore/frameworks/deprecated/system/globals.js",
-     "frameworks/sproutcore/frameworks/deprecated/system/misc.js",
-     "frameworks/sproutcore/frameworks/deprecated/system/node_descriptor.js",
-     "frameworks/sproutcore/frameworks/deprecated/system/object.js",
-     "frameworks/sproutcore/frameworks/deprecated/system/path_module.js",
-     "frameworks/sproutcore/frameworks/deprecated/system/string.js",
-     "frameworks/sproutcore/frameworks/deprecated/tests/application/application.rhtml",
-     "frameworks/sproutcore/frameworks/deprecated/tests/views/classic_view/clippingFrame.rhtml",
-     "frameworks/sproutcore/frameworks/deprecated/tests/views/classic_view/frame.rhtml",
-     "frameworks/sproutcore/frameworks/deprecated/tests/views/classic_view/isVisibleInWindow.rhtml",
-     "frameworks/sproutcore/frameworks/deprecated/tests/views/collection/base.rhtml",
-     "frameworks/sproutcore/frameworks/deprecated/tests/views/collection/incremental_rendering.rhtml",
-     "frameworks/sproutcore/frameworks/deprecated/tests/views/collection/source_list_rendering.rhtml",
-     "frameworks/sproutcore/frameworks/deprecated/tests/views/popup_button.rhtml",
-     "frameworks/sproutcore/frameworks/deprecated/tests/views/text_field.rhtml",
-     "frameworks/sproutcore/frameworks/deprecated/views/collection.js",
      "frameworks/sproutcore/frameworks/designer/coders/design.js",
      "frameworks/sproutcore/frameworks/designer/coders/localization.js",
      "frameworks/sproutcore/frameworks/designer/coders/object.js",
