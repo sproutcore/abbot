@@ -44,15 +44,15 @@ Jeweler::Tasks.new do |gemspec|
   gemspec.add_dependency 'erubis', ">= 2.6.2"
   gemspec.add_development_dependency 'jeweler', ">= 1.0.1"
   gemspec.rubyforge_project = "sproutcore"
-  gemspec.files.include *%w[.htaccess lib/thor/**/* frameworks/sproutcore/**/* gen/*/templates]
+  gemspec.extra_rdoc_files.include *%w[History.txt README.txt]
+    
+  gemspec.files.include *%w[.htaccess lib/thor/**/* frameworks/sproutcore/**/*]
   gemspec.files.exclude *%w[^coverage/ .gitignore .gitmodules .DS_Store tmp .hashinfo .svn .git]
   
   # Exclude as many files as possible to reduce the size of the gemspec
   # working around a bug with github
   gemspec.files.exclude *%w[spec .graffle frameworks/sproutcore/themes/standard_theme/Source]
   gemspec.test_files.exclude *%w[spec]
-  
-  gemspec.extra_rdoc_files.include *%w[History.txt README.txt]
   
   #gemspec.description = File.read(ROOT_PATH / 'README.txt')
 end
@@ -175,7 +175,7 @@ task :build => 'gemspec:generate' do
   fixup_gemspec
 end
 
-task "gemspec:generate" => 'git:verify_clean'
+#task "gemspec:generate" => 'git:verify_clean'
 
 # Extend gemspec to rename afterware
 task :gemspec do
