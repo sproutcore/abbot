@@ -308,9 +308,9 @@ module SC
     
     # Converts a path with optional template variables into a regular path
     # by looking up said variables on the receiver.  Variables in the pathname
-    # must appear inside of a pair of {}. (Like the Amazon Search URL spec)
+    # must appear inside of a pair of @@.
     def expand_path(path)
-      path = path.gsub(/\{(.*?)\}/) { self.send($1) || $1 }
+      path = path.gsub(/@(.*?)@/) { self.send($1) || $1 }
       File.expand_path path
     end
     
