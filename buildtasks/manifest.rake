@@ -22,6 +22,10 @@ namespace :manifest do
     MANIFEST.staging_root = File.join(TARGET.staging_root, 
       MANIFEST.language.to_s, TARGET.build_number.to_s)
       
+    # cache_root is target.cache_root + language + build_number
+    MANIFEST.cache_root = File.join(TARGET.cache_root, 
+      MANIFEST.language.to_s, TARGET.build_number.to_s)
+      
     # url_root
     MANIFEST.url_root = 
       [TARGET.url_root, MANIFEST.language, TARGET.build_number].join('/')

@@ -44,6 +44,13 @@ namespace :target do
         (CONFIG.staging_prefix || '').to_s.split('/'), 
         (url_prefix || '').to_s.split('/'), 
         TARGET.target_name.to_s))
+
+    # cache is used to store intermediate files
+    TARGET.cache_root = File.expand_path(CONFIG.cache_root ||
+      File.join(PROJECT.project_root.to_s, 
+        (CONFIG.cache_prefix || '').to_s.split('/'), 
+        (url_prefix || '').to_s.split('/'), 
+        TARGET.target_name.to_s))
       
     TARGET.build_number = TARGET.compute_build_number
     

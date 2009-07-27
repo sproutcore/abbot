@@ -17,9 +17,10 @@ mode :all do
     # REQUIRED CONFIGS 
     # You will not usually need to override these configs, but the code 
     # assumes they will be present, so you must support them.
-    :build_prefix => 'tmp/build',
+    :build_prefix   => 'tmp/build',
     :staging_prefix => 'tmp/staging',
-    :url_prefix    => 'static',
+    :cache_prefix   => 'tmp/cache',
+    :url_prefix     => 'static',
   
     # Defines the directories that may contain targets, and maps them to a 
     # target type.  When a project tries to find all of the targets in a 
@@ -112,7 +113,6 @@ mode :debug do
     # Do not pack javascripts in development mode, we want each file to 
     # load independently.
     :use_packed => false
-
 end
 
 

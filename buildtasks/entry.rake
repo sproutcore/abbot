@@ -53,6 +53,9 @@ namespace :entry do
     else
       ENTRY.staging_path ||= MANIFEST.unique_staging_path(File.join(MANIFEST.staging_root, filename_parts))
     end
+    
+    ENTRY.cache_path = MANIFEST.unique_cache_path(File.join(MANIFEST.cache_root, filename_parts))
+    
   end
   
 end

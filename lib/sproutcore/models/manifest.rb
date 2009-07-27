@@ -215,6 +215,10 @@ module SC
       end
       opts.staging_path ||= unique_staging_path(staging_path)
       
+      # generate a unique cache path from the staging page.  just sub the 
+      # staging root for the cache root
+      opts.cache_path ||= unique_cache_path(entry.cache_path)
+      
       # copy other useful entries
       opts.source_entry   = entry
       opts.source_entries = [entry]
@@ -345,6 +349,16 @@ module SC
     # path.
     def unique_staging_path(path)
       paths = entries(:hidden => true).map { |e| e.staging_path }
+      while paths.include?(path)
+        path = path.sub(/(__\$[0-9]+)?(\.\w+)?$/,"__$#{next_staging_uuid}\\2")
+      end
+      return path
+    end
+
+    # Finds a unique cache path starting with the root proposed staging
+    # path.
+    def unique_cache_path(path)
+      paths = entries(:hidden => true).map { |e| e.cache_path }
       while paths.include?(path)
         path = path.sub(/(__\$[0-9]+)?(\.\w+)?$/,"__$#{next_staging_uuid}\\2")
       end
