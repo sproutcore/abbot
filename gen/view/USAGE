@@ -1,13 +1,13 @@
-model - Create a new controller class in your SproutCore app.
+view - Create a new view class in your SproutCore app.
 
 USAGE:
 
-  sc-gen controller AppName.ClassNameController [--filename=FILENAME] [--target=TARGET_NAME]
+  sc-gen view AppName.NewView [--filename=FILENAME] [--target=TARGET_NAME]
 
 DISCUSSION:
 
-This generator will create a new SproutCore controller file in your app.  You should pass as the first parameter your AppName.ClassNameController combination you want to create.  For example:
+This generator will create a new SproutCore view in your app.  You should pass as the first parameter your AppName.NewView combination you want to create.  For example:
 
-sc-gen controller Todos.TaskController
+sc-gen view Todos.TaskView
 
-defines a new class called Todos.TaskController in the file apps/todos/controllers/task.js .
+defines a new class called Todos.TaskView in the file apps/todos/views/task.js .
