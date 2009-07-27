@@ -1,0 +1,16 @@
+#  ==========================================================================
+#  Project:   <%= namespace %> Buildfile
+#  Copyright: ©<%= Time.now.year %> My Company, Inc.
+#  ==========================================================================
+
+# You can use to buildfile to add a custom page title, set environment 
+# variables, and require any specific JavaScript or other libraries you want
+# to use.  
+#
+# The default configuration just sets the page title and also requires 
+# SproutCore-Mini (a smaller version of SproutCore)
+#
+config :<%= target_name %>, 
+  :required => ['sproutcore/mini'],
+  :title    => '<%= target_name.split('_').map { |x| x.capitalize }.join(" ") %>'
+  

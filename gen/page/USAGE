@@ -1,0 +1,15 @@
+page - Create a new SproutCore page target.
+
+USAGE:
+
+  sc-gen page PageName [--filename=FILENAME] [--target=TARGET_NAME]
+
+DISCUSSION:
+
+*IMPORTANT:* This generator does not create a page design (e.g. main_page.js) in an app.  Use "sc-gen design" instead.
+
+This generator will create a new SproutCore page for a particular project.  A page is much like an app but you will often place primarily static content here.  You should pass as the first parameter your PageName you want to create.  For example:
+
+sc-gen page NotFound
+
+defines a new page called NotFound in the file pages/not_found/.
