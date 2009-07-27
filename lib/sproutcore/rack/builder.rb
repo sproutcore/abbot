@@ -171,18 +171,70 @@ module SC
       # Reloads the project if reloading is enabled.  At maximum this will
       # reload the project every 5 seconds.  
       def reload_project!
+        
+        monitor_project!
+        
         # don't reload if no project or is disabled
         return if @project.nil? || !@project.config.reload_project
         
-        # reload after a delay of 5 sec
-        reload_delay = (Time.now - @last_reload_time)
-        
-        if reload_delay > 5
+        if @project_did_change
+          @project_did_change = false
           SC.logger.info "Rebuilding project manifest"
           @project.reload!
         end
       end
+
+      def monitor_project!
+        if !@should_monitor
+          @should_monitor = true
+          @project_root = @project.project_root
+          
+          # collect initial info on project
+          files = Dir.glob(@project_root / '**' / '*')
+          # follow 1-level of symlinks
+          files += Dir.glob(@project_root / '**' / '*' / '**' / '*')
+          tmp_path = /^#{Regexp.escape(@project_root / 'tmp')}/
+          files.reject! { |f| f =~ tmp_path }
+          files.reject! { |f| File.directory?(f) }
+          
+          @project_file_count = files.size
+          @project_mtime = files.map { |x| File.mtime(x).to_i }.max
+          
+          Thread.new do 
+            while @should_monitor
+              
+              # only need to start scanning again 2 seconds after the last 
+              # request was serviced. 
+              reload_delay = (Time.now - @last_reload_time)
+              if reload_delay > 2
+                files = Dir.glob(@project_root / '**' / '*')
+                # follow 1-level of symlinks
+                files += Dir.glob(@project_root / '**' / '*' / '**' / '*')
+                tmp_path = /^#{Regexp.escape(@project_root / 'tmp')}/
+                files.reject! { |f| f =~ tmp_path }
+                files.reject! { |f| File.directory?(f) }
+
+                cur_file_count = files.size
+                cur_mtime = files.map { |x| File.mtime(x).to_i }.max
+              
+                if (@project_file_count != cur_file_count) || (@project_mtime != cur_mtime)
+                  SC.logger.info "Detected project change.  Will rebuild manifest"
+                  @project_did_change = true
+                  @project_file_count = cur_file_count
+                  @project_mtime = cur_mtime
+                end
+              end
+              
+              sleep(5)
+            end
+          end
+        end
+      end
       
+      def stop_monitor!
+        @should_monitor = false
+      end
+              
       def target_for(url)
 
         # get targets
