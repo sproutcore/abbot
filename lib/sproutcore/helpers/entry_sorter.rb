@@ -29,7 +29,22 @@ module SC
       def sort(entries)
         # first sort entries by filename - ignoring case
         entries = entries.sort do |a,b| 
-          (a.filename || '').to_s.downcase <=> (b.filename || '').to_s.downcase
+          a = (a.filename || '').to_s.downcase
+          b = (b.filename || '').to_s.downcase
+
+          # lproj/foo_page.js and main.js are loaded last
+          a_kind = (a =~ /lproj\/.+_page\.js$/) ? 1 : -1
+          a_kind = 2 if a =~ /main.js$/
+
+          b_kind = (b =~ /lproj\/.+_page\.js$/) ? 1 : -1
+          b_kind = 2 if b =~ /main.js$/
+          
+          if a_kind != b_kind
+            a_kind <=> b_kind
+          else
+            a <=> b
+          end
+          
         end
         all_entries = entries.dup # needed for sort...
        
