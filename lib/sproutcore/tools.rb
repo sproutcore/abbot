@@ -259,7 +259,7 @@ module SC
     end
     
     # Core method to process command line options and then build a manifest.
-    # Shared by sc-manifest and sc-build commands.
+    # Shared by sc-manifest, sc-build and sc-docs commands.
     def build_manifests(*targets)
       
       requires_project! # get project

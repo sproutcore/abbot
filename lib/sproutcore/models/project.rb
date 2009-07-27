@@ -27,7 +27,7 @@ module SC
   #
   # When you load a project, here is what happens:
   #
-  # 1. Kocate and load Buildfiles, if any are found
+  # 1. Locate and load Buildfiles, if any are found
   # 2. Run project_type:target:find for all targets defined for the project.  
   #    this will locate and define the targets for the project
   # 3. If you request a build of a particular resource, a manifest will be
@@ -265,6 +265,3 @@ module SC
   end
   
 end
-
-
-  

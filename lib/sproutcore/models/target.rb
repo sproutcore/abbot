@@ -172,7 +172,7 @@ module SC
         t
       end
       ret = ret.compact.uniq
-      
+
       @required_targets[key] = ret
       return ret 
     end
@@ -396,6 +396,70 @@ module SC
       
       # None found
       return nil
+    end
+
+    ######################################################
+    # BUILD DOCS METHODS
+    #
+
+    # Creates all of the documentation for the target.
+
+    def build_docs!(build_root=nil)
+      if(target_type == :framework ||
+         target_type == :app)
+        file_list = []
+        doc_targets = []
+
+        manifests.map do |manifest|
+          doc_targets.concat manifest.target.required_targets
+          if SC.env.build_required
+            doc_targets.concat manifest.target.expand_required_targets
+          end
+          doc_targets.push project.target_for(manifest.target.target_name)
+        end
+
+        doc_manifests = []
+        # Now fetch the manifests to build.  One per target/language
+        doc_manifests = doc_targets.map do |target|
+          languages = target.installed_languages
+          languages.map { |l| target.manifest_for :language => l }
+        end
+        doc_manifests.flatten!
+
+        doc_manifests.map do |manifest|
+          manifest.build!
+          entry = manifest.entry_for("javascript.js")
+          entry.source_entries.each do |source|
+            source.ordered_entries.each do |file|
+              file_list.push file.source_path
+            end
+          end
+        end
+
+        file_list = file_list.uniq
+
+        SC.logger.info "Building #{target_name} docs at #{build_root}"
+
+        FileUtils.mkdir_p(build_root)
+
+        jsdoc_root = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'vendor', 'jsdoc'))
+        jar_path = File.join(jsdoc_root, 'jsrun.jar')
+        runjs_path = File.join(jsdoc_root, 'app', 'run.js')
+        #template_path = File.join(jsdoc_root, 'templates', 'sproutcore')
+        template_path = File.join(jsdoc_root, 'templates', 'jsdoc')
+
+        # wrap files in quotes...
+        # Note: using -server gives an approx. 25% speed boost over -client (the default)
+        js_doc_cmd = %(java -server -Djsdoc.dir="#{jsdoc_root}" -jar "#{jar_path}" "#{runjs_path}" -t="#{template_path}" -d="#{build_root}" "#{ file_list * '" "' }" -v)
+
+        SC.logger.info "File Manifest:\r\n #{file_list.to_yaml}"
+        puts "Generating docs: #{target_name}\r\nPlease be patient this could take awhile..."
+        SC.logger.debug `#{js_doc_cmd}`
+        puts "Finished."
+      else
+        SC.logger.info "#{target_name} is not of type framework or app. Skipping."
+        SC.logger.info "#{target_name} is of type #{target_type}."
+      end
     end
     
   end
