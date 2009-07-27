@@ -94,7 +94,7 @@ module SC
           
           # include either the entry URL or URL of ordered entries
           # depending on setup
-          if combine_javascript
+          if cur_target.config.combine_javascript
             urls << cur_entry.cacheable_url
           else
             urls += cur_entry.ordered_entries.map { |e| e.cacheable_url }
