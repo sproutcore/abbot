@@ -1,0 +1,10 @@
+design - Create a new page design for your SproutCore app.  
+
+USAGE:
+
+  sc-gen design AppName.designName [--filename=FILENAME] [--target=TARGET_NAME]
+
+DISCUSSION:
+
+This generator will create a new SproutCore page design, similar to the main_page design that comes with all new apps.
+

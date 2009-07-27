@@ -1,0 +1,23 @@
+# ==========================================================================
+# Generator: Controller
+# Copyright: ©2006-2009 Sprout Systems, Inc. and contributors
+#            portions copyright ©2009 Apple, Inc.
+# ==========================================================================
+
+namespace :generator do
+
+  # - Verify required properties are present
+  # - Accept second argument as base class
+  # - If file name end in "_design" strip it off.
+  # - Make sure filename ends in _page.
+  task :prepare do
+    GENERATOR.requires! :target_project, :target, :namespace, :class_name
+    GENERATOR.base_class_name ||= GENERATOR.arguments[2]
+    
+    filename = GENERATOR.filename.sub(/_design$/,'')
+    filename = "#{filename}_page" unless filename =~ /_page$/
+    GENERATOR.filename = filename
+      
+  end
+  
+end
