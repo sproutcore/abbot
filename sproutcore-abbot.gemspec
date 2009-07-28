@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{sproutcore}
-  s.version = "1.0.20090721145281"
+  s.version = "1.0.20090721145282"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sprout Systems, Inc.  Apple, Inc. and contributors"]
@@ -263,6 +263,7 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/desktop/tests/views/disclosure/ui.js",
      "frameworks/sproutcore/frameworks/desktop/tests/views/grid/methods.js",
      "frameworks/sproutcore/frameworks/desktop/tests/views/grid/ui.js",
+     "frameworks/sproutcore/frameworks/desktop/tests/views/list/render.js",
      "frameworks/sproutcore/frameworks/desktop/tests/views/list/rowDelegate.js",
      "frameworks/sproutcore/frameworks/desktop/tests/views/list/rowHeightForContentIndex.js",
      "frameworks/sproutcore/frameworks/desktop/tests/views/list/rowOffsetForContentIndex.js",
@@ -446,6 +447,7 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/foundation/tests/validators/date.js",
      "frameworks/sproutcore/frameworks/foundation/tests/validators/number.js",
      "frameworks/sproutcore/frameworks/foundation/tests/validators/password.js",
+     "frameworks/sproutcore/frameworks/foundation/tests/validators/validator.js",
      "frameworks/sproutcore/frameworks/foundation/tests/views/container/methods.js",
      "frameworks/sproutcore/frameworks/foundation/tests/views/container/ui.js",
      "frameworks/sproutcore/frameworks/foundation/tests/views/image/ui.js",
@@ -492,6 +494,7 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/foundation/views/label.js",
      "frameworks/sproutcore/frameworks/foundation/views/text_field.js",
      "frameworks/sproutcore/frameworks/foundation/views/view.js",
+     "frameworks/sproutcore/frameworks/mini/license.js",
      "frameworks/sproutcore/frameworks/mobile/english.lproj/core.css",
      "frameworks/sproutcore/frameworks/mobile/lib/index.rhtml",
      "frameworks/sproutcore/frameworks/mobile/system/root_responder.js",
@@ -661,6 +664,10 @@ Gem::Specification.new do |s|
      "gen/controller/USAGE",
      "gen/controller/templates/controllers/@filename@.js",
      "gen/controller/templates/tests/controllers/@filename@.js",
+     "gen/design/Buildfile",
+     "gen/design/README",
+     "gen/design/USAGE",
+     "gen/design/templates/english.lproj/@filename@.js",
      "gen/framework/Buildfile",
      "gen/framework/README",
      "gen/framework/USAGE",
@@ -676,6 +683,14 @@ Gem::Specification.new do |s|
      "gen/model/templates/fixtures/@filename@.js",
      "gen/model/templates/models/@filename@.js",
      "gen/model/templates/tests/models/@filename@.js",
+     "gen/page/Buildfile",
+     "gen/page/README",
+     "gen/page/USAGE",
+     "gen/page/templates/pages/@target_name@/Buildfile",
+     "gen/page/templates/pages/@target_name@/core.js",
+     "gen/page/templates/pages/@target_name@/english.lproj/body.css",
+     "gen/page/templates/pages/@target_name@/english.lproj/body.rhtml",
+     "gen/page/templates/pages/@target_name@/english.lproj/strings.js",
      "gen/project/Buildfile",
      "gen/project/INIT",
      "gen/project/README",
