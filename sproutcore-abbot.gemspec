@@ -2,13 +2,13 @@
 
 Gem::Specification.new do |s|
   s.name = %q{sproutcore}
-  s.version = "1.0.20090721145280"
+  s.version = "1.0.20090721145281"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sprout Systems, Inc.  Apple, Inc. and contributors"]
-  s.date = %q{2009-07-23}
+  s.date = %q{2009-07-28}
   s.email = %q{contact@sproutcore.com}
-  s.executables = ["sc-build", "sc-build-number", "sc-gen", "sc-init", "sc-manifest", "sc-server", "sproutcore"]
+  s.executables = ["sc-build", "sc-build-number", "sc-docs", "sc-gen", "sc-init", "sc-manifest", "sc-server", "sproutcore"]
   s.extra_rdoc_files = [
     "History.txt",
      "README.txt",
@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
      "VERSION.yml",
      "bin/sc-build",
      "bin/sc-build-number",
+     "bin/sc-docs",
      "bin/sc-gen",
      "bin/sc-init",
      "bin/sc-manifest",
@@ -33,6 +34,14 @@ Gem::Specification.new do |s|
      "buildtasks/manifest.rake",
      "buildtasks/render.rake",
      "buildtasks/target.rake",
+     "doc_templates/jsdoc/publish.js",
+     "doc_templates/jsdoc/static/default.css",
+     "doc_templates/jsdoc/static/header.html",
+     "doc_templates/jsdoc/static/index.html",
+     "doc_templates/sproutcore/publish.js",
+     "doc_templates/sproutcore/static/default.css",
+     "doc_templates/sproutcore/static/header.html",
+     "doc_templates/sproutcore/static/index.html",
      "frameworks/sproutcore/Buildfile",
      "frameworks/sproutcore/HISTORY",
      "frameworks/sproutcore/README",
@@ -735,6 +744,7 @@ Gem::Specification.new do |s|
      "lib/sproutcore/tools.rb",
      "lib/sproutcore/tools/build.rb",
      "lib/sproutcore/tools/build_number.rb",
+     "lib/sproutcore/tools/docs.rb",
      "lib/sproutcore/tools/gen.rb",
      "lib/sproutcore/tools/init.rb",
      "lib/sproutcore/tools/manifest.rb",
@@ -855,14 +865,6 @@ Gem::Specification.new do |s|
      "vendor/jsdoc/jsrun.jar",
      "vendor/jsdoc/t/TestDoc.js",
      "vendor/jsdoc/t/runner.js",
-     "vendor/jsdoc/templates/jsdoc/publish.js",
-     "vendor/jsdoc/templates/jsdoc/static/default.css",
-     "vendor/jsdoc/templates/jsdoc/static/header.html",
-     "vendor/jsdoc/templates/jsdoc/static/index.html",
-     "vendor/jsdoc/templates/sproutcore/publish.js",
-     "vendor/jsdoc/templates/sproutcore/static/default.css",
-     "vendor/jsdoc/templates/sproutcore/static/header.html",
-     "vendor/jsdoc/templates/sproutcore/static/index.html",
      "vendor/jsdoc/test.js",
      "vendor/jsdoc/test/addon.js",
      "vendor/jsdoc/test/anon_inner.js",
