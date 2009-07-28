@@ -12,33 +12,42 @@ module SC
   class Tools
 
     desc "sc-docs [TARGET..]", "Generates JSDoc's for specified targets."
-    method_options(:entries => :optional,
-                   :clean => false,
-                   '-r' => false)
+    method_options(:entries  => :optional,
+                   :clean    => true,
+                   :language => :optional,
+                   :template => :optional,
+                   ['--include-required', '-r'] => false)
     def docs(*targets)
 
       SC.env.build_prefix   = options.buildroot if options.buildroot
       SC.env.clean          = options.clean
-      SC.env.build_required = options.r
+      SC.env.build_required = options['include-required']
+      SC.env.language       = options.language
+      SC.env.template_name  = options.template
 
-      manifests = build_manifests(targets)
+      # Find all the targets
+      targets = find_targets(*targets)
+      targets.each do |target|
+        project_root = target.project.project_root
+        build_root = project_root / 'tmp' / 'docs' / target.target_name.to_s  
 
-      # First clean all manifests
-      # Do this before building docs so we don't accidentally erase already
-      # built nested targets docs.
-      
-      manifests.each do |manifest|
-        target = manifest.target
-        build_root = target.project.project_root + "/tmp/docs#{target.target_name}"
-        if target.target_type == :framework ||
-            target.target_type == :app
+        if [:framework, :app].include?(target.target_type)
           if SC.env.clean
             SC.logger.info "Cleaning #{build_root}"
             FileUtils.rm_r(build_root) if File.directory?(build_root)
           end
-        end
-        target.build_docs!(build_root)
-      end
-    end
-  end
-end
+          
+          target.build_docs!(:build_root => build_root,
+            :language => SC.env.language,
+            :required => SC.env.build_required,
+            :template => SC.env.template_name,
+            :logger   => SC.logger)
+        else
+          SC.logger.info "#{target.target_name} is not of type framework or app. Skipping."
+          SC.logger.info "#{target.target_name} is of type #{target.target_type}."
+          
+        end # if [:framework, :app]
+      end # targets.each
+    end # def docs
+  end # class Tools
+end # module SC

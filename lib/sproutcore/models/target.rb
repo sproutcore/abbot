@@ -403,63 +403,103 @@ module SC
     #
 
     # Creates all of the documentation for the target.
+    # 
+    # === Options
+    #
+    #  :build_root:: the root path to place built documentation
+    #  :language::   the language to build.  defaults to preferred lang
+    #  :required::   include required targets.  defaults to true
+    def build_docs!(opts ={})
 
-    def build_docs!(build_root=nil)
-      if(target_type == :framework ||
-         target_type == :app)
-        file_list = []
-        doc_targets = []
+      build_root   = opts[:build_root] || nil
+      language     = opts[:language] || self.config.preferred_language || :en
+      logger       = opts[:logger] || SC.logger
+      template_name = opts[:template] || 'jsdoc'
+      use_required = opts[:required]
+      use_required = true if use_required.nil? 
+      
+      # collect targets to build
+      doc_targets = [self]
+      doc_targets += self.expand_required_targets if use_required
 
-        manifests.map do |manifest|
-          doc_targets.concat manifest.target.required_targets
-          if SC.env.build_required
-            doc_targets.concat manifest.target.expand_required_targets
-          end
-          doc_targets.push project.target_for(manifest.target.target_name)
-        end
+      # convert targets to manifests so we can get alll files
+      doc_manifests = doc_targets.map do |target| 
+        target.manifest_for(:language => language)
+      end
 
-        doc_manifests = []
-        # Now fetch the manifests to build.  One per target/language
-        doc_manifests = doc_targets.map do |target|
-          languages = target.installed_languages
-          languages.map { |l| target.manifest_for :language => l }
-        end
-        doc_manifests.flatten!
+      # Collect all source entries, in the order they should be loaded
+      file_list = []
+      doc_manifests.each do |manifest|
+        entry = manifest.build!.entry_for('javascript.js')
+        next if entry.nil?
 
-        doc_manifests.map do |manifest|
-          manifest.build!
-          entry = manifest.entry_for("javascript.js")
-          entry.source_entries.each do |source|
-            source.ordered_entries.each do |file|
-              file_list.push file.source_path
+        # loop over entries, collecting their source entries until we get
+        # back to the original source files.  Since we expand these entries
+        # in their proper load order this should give us something suitable
+        # to hand to jsdoc.
+        entries = entry.ordered_entries || entry.source_entries
+        while entries && entries.size>0
+          new_entries = []
+          entries.each do |cur_entry|
+            sources = cur_entry.ordered_entries || cur_entry.source_entries
+            if sources
+              new_entries += sources
+            elsif entry.filename =~ /\.js$/
+              file_list << cur_entry.source_path
             end
           end
+          entries = new_entries
         end
-
-        file_list = file_list.uniq
-
-        SC.logger.info "Building #{target_name} docs at #{build_root}"
-
-        FileUtils.mkdir_p(build_root)
-
-        jsdoc_root = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'vendor', 'jsdoc'))
-        jar_path = File.join(jsdoc_root, 'jsrun.jar')
-        runjs_path = File.join(jsdoc_root, 'app', 'run.js')
-        #template_path = File.join(jsdoc_root, 'templates', 'sproutcore')
-        template_path = File.join(jsdoc_root, 'templates', 'jsdoc')
-
-        # wrap files in quotes...
-        # Note: using -server gives an approx. 25% speed boost over -client (the default)
-        js_doc_cmd = %(java -server -Djsdoc.dir="#{jsdoc_root}" -jar "#{jar_path}" "#{runjs_path}" -t="#{template_path}" -d="#{build_root}" "#{ file_list * '" "' }" -v)
-
-        SC.logger.info "File Manifest:\r\n #{file_list.to_yaml}"
-        puts "Generating docs: #{target_name}\r\nPlease be patient this could take awhile..."
-        SC.logger.debug `#{js_doc_cmd}`
-        puts "Finished."
-      else
-        SC.logger.info "#{target_name} is not of type framework or app. Skipping."
-        SC.logger.info "#{target_name} is of type #{target_type}."
       end
+
+      file_list = file_list.uniq # remove duplicates
+
+      logger.info "Building #{target_name} docs at #{build_root}"
+      FileUtils.mkdir_p(build_root)
+
+      # Prepare jsdoc opts
+      jsdoc_root    = SC::PATH / 'vendor' / 'jsdoc'
+      jar_path      = jsdoc_root / 'jsrun.jar'
+      runjs_path    = jsdoc_root / 'app' / 'run.js'
+      
+      # look for a directory matching the template name
+      cur_project = self.project
+      has_template = false
+      while cur_project 
+        template_path = cur_project.project_root / 'doc_templates' / template_name
+        has_template = File.directory?(template_path)
+        cur_project = has_template ? nil : cur_project.parent_project
+      end
+
+      if !has_template
+        cur_project = self.project
+        has_template = false
+        while cur_project 
+          template_path = cur_project.project_root / template_name
+          has_template = File.directory?(template_path)
+          cur_project = has_template ? nil : cur_project.parent_project
+        end
+      end
+      throw("could not find template named #{template_name}") if !has_template
+
+      # wrap files in quotes...
+      # Note: using -server gives an approx. 25% speed boost over -client 
+      # (the default)
+      js_doc_cmd = %(java -server -Djsdoc.dir="#{jsdoc_root}" -jar "#{jar_path}" "#{runjs_path}" -t="#{template_path}" -d="#{build_root}" "#{ file_list * '" "' }" -v)
+
+      logger.info "File Manifest:\r\n"
+      file_list.each { |file_path| logger.info(file_path) }
+      
+      puts "Generating docs for #{self.target_name}\r\nPlease be patient this could take awhile..."
+      
+      # use pipe so that we can immediately log output as it happens
+      IO.popen(js_doc_cmd) do |pipe|
+        while line = pipe.gets
+          logger.info line.sub(/\n$/,'')
+        end
+      end
+
+      puts "Finished."
     end
     
   end
