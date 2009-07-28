@@ -168,11 +168,14 @@ function publish(symbolSet) {
   publish.conf = {  // trailing slash expected for dirs
     ext: ".html",
     outDir: JSDOC.opt.d || SYS.pwd+"../out/jsdoc/",
-    templatesDir: SYS.pwd+"../templates/sproutcore/",
+    templatesDir: JSDOC.opt.t || SYS.pwd+"../templates/sproutcore/",
     symbolsDir: "symbols/",
     srcDir: "symbols/src/"
   };
   
+  if (!publish.conf.templatesDir.match(/\/$/)) {
+    publish.conf.templatesDir += '/'; // add trailing slash
+  }
   
   if (JSDOC.opt.s && defined(Link) && Link.prototype._makeSrcLink) {
     Link.prototype._makeSrcLink = function(srcFilePath) {
@@ -226,13 +229,22 @@ function publish(symbolSet) {
   publish.classesIndex = classesTemplate.process(classes);
   
   try {
-    var classesindexTemplate = new JSDOC.JsPlate(publish.conf.templatesDir+"index.tmpl");
+    var classesindexTemplate = new JSDOC.JsPlate(publish.conf.templatesDir+"classes-json.tmpl");
   }
   catch(e) { print(e.message); quit(); }
   
   var classesIndex = classesindexTemplate.process(classes);
   // IO.saveFile(publish.conf.outDir, "index"+publish.conf.ext, classesIndex);
-  IO.saveFile(publish.conf.outDir, "classes.js", classesIndex);
+  IO.saveFile(publish.conf.outDir, "classes.json", classesIndex);
+  classesindexTemplate = classesIndex = null;
+
+  try {
+    var classesindexTemplate = new JSDOC.JsPlate(publish.conf.templatesDir+"index.tmpl");
+  }
+  catch(e) { print(e.message); quit(); }
+  
+  var classesIndex = classesindexTemplate.process(classes);
+  IO.saveFile(publish.conf.outDir, "index"+publish.conf.ext, classesIndex);
   classesindexTemplate = classesIndex = classes = null;
   
   try {

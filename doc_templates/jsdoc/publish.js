@@ -2,11 +2,15 @@ function publish(symbolSet) {
 	publish.conf = {  // trailing slash expected for dirs
 		ext: ".html",
 		outDir: JSDOC.opt.d || SYS.pwd+"../out/jsdoc/",
-		templatesDir: SYS.pwd+"../templates/jsdoc/",
+		templatesDir: JSDOC.opt.t || SYS.pwd+"../doc_templates/jsdoc/",
 		symbolsDir: "symbols/",
 		srcDir: "symbols/src/"
 	};
-	
+
+  if (!publish.conf.templatesDir.match(/\/$/)) {
+    publish.conf.templatesDir += '/'; // add trailing slash
+  }
+  	
 	
 	if (JSDOC.opt.s && defined(Link) && Link.prototype._makeSrcLink) {
 		Link.prototype._makeSrcLink = function(srcFilePath) {
