@@ -1,6 +1,6 @@
 # ===========================================================================
 # Project:   Abbot - SproutCore Build Tools
-# Copyright: ©2009 Apple, Inc.
+# Copyright: ©2009 Apple Inc.
 #            portions copyright @2006-2009 Sprout Systems, Inc.
 #            and contributors
 # ===========================================================================
@@ -33,7 +33,7 @@ end
 
 Jeweler::Tasks.new do |gemspec|
   gemspec.name = 'sproutcore'
-  gemspec.authors = 'Sprout Systems, Inc.  Apple, Inc. and contributors'
+  gemspec.authors = 'Sprout Systems, Inc.  Apple Inc. and contributors'
   gemspec.email = 'contact@sproutcore.com'
   gemspec.homepage = 'http://www.sproutcore.com/sproutcore'
   gemspec.summary = "SproutCore is a platform for building native look-and-feel applications on  the web"

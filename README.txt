@@ -79,7 +79,7 @@ sudo gem install sproutcore
 
 == LICENSE:
 
-Copyright (c) 2009 Apple, Inc.  
+Copyright (c) 2009 Apple Inc.  
 Portions copyright (c) 2006-2009 Sprout Systems, Inc. and contributors
 
 Permission is hereby granted, free of charge, to any person obtaining

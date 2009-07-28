@@ -1,6 +1,6 @@
 # ===========================================================================
 # SC::Target Buildtasks
-# copyright 2008, Sprout Systems, Inc. and Apple, Inc. all rights reserved
+# copyright 2008, Sprout Systems, Inc. and Apple Inc. all rights reserved
 # ===========================================================================
 
 # Tasks invoked to actually render a single HTML file.  Works much like a 

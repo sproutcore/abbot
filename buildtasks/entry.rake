@@ -1,6 +1,6 @@
 # ===========================================================================
 # SC::ManifestEntry Buildtasks
-# copyright 2008, Sprout Systems, Inc. and Apple, Inc. all rights reserved
+# copyright 2008, Sprout Systems, Inc. and Apple Inc. all rights reserved
 # ===========================================================================
 
 # Tasks invoked while building ManifestEntry objects.  You can override these 

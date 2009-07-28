@@ -1,7 +1,7 @@
 # ==========================================================================
 # Generator: View
 # Copyright: ©2006-2009 Sprout Systems, Inc. and contributors
-#            portions copyright ©2009 Apple, Inc.
+#            portions copyright ©2009 Apple Inc.
 # ==========================================================================
 
 namespace :generator do
