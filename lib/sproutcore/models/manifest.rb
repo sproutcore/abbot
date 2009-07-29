@@ -57,7 +57,7 @@ module SC
     end
 
     def prepared?; @is_prepared || false; end
-    
+
     # Returns the options that select the current variation.  The current 
     # implementation is hardcoded to return the language, but this may be 
     # generalized in the future.

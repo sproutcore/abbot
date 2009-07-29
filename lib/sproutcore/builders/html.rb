@@ -98,6 +98,7 @@ module SC
     # Renders the html file, returning the resulting string which can be 
     # written to a file.
     def render
+      
       # render each entry...
       @entries.each { |entry| render_entry(entry) }
       

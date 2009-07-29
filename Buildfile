@@ -72,7 +72,13 @@ mode :all do
     # frameworks automatically if found.
     :theme  => 'sproutcore/standard_theme',
     
-    :use_packed => true
+    :use_packed => true,
+    
+    # if set to true then the index.html will build into the global language
+    # and target directory.  This can interfere with deploying multiple builds
+    # at one but it is more convenient.
+    :overwrite_current => false
+    
 end
 
 

@@ -422,15 +422,36 @@ namespace :manifest do
           friendly_url << resource_name
         end
         friendly_url = friendly_url.join('/')
+
+        is_pref_lang = (MANIFEST.language == CONFIG.preferred_language)
+        is_hidden = !TARGET.loadable? && is_index
+        overwrite_current = CONFIG.overwrite_current
         
-        MANIFEST.add_composite resource_name,
-          :entry_type => :html,
-          :combined => true,
-          :build_task => 'build:html',
-          :source_entries => entries,
-          :hidden     =>  !TARGET.loadable? && is_index,
-          :include_required_targets => TARGET.loadable? && is_index,
-          :friendly_url => friendly_url
+        # index.html entries get generated three times.  Once for inside the
+        # build dir, once for the language and once for the entire target name
+        # Note that you must generate an index.html entry for all three even
+        # if you won't actually use it because other index.html entries may
+        # reference it 
+        (is_index ? 3 : 1).times do |rep_cnt|
+          
+          MANIFEST.add_composite resource_name,
+            :entry_type => :html,
+            :combined => true,
+            :build_task => 'build:html',
+            :source_entries => entries, # make independent
+            :hidden     =>  is_hidden,
+            :include_required_targets => TARGET.loadable? && is_index,
+            :friendly_url => friendly_url,
+            :is_index   => is_index
+            
+          # if this is the index, setup next rep
+          if is_index
+            resource_name = File.join('..', resource_name)
+            is_hidden = true if !TARGET.loadable? || !overwrite_current
+            is_hidden = true if (rep_cnt>=2) && !is_pref_lang
+          end
+        end
+        
       end
     end
     

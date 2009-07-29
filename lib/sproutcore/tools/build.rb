@@ -62,7 +62,7 @@ module SC
             is_allowed
           end
         end
-        
+
         # if there are entries to build, log and build
         if entries.size > 0
           info "Building entries for #{manifest.target.target_name}:#{manifest.language}..."
