@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{sproutcore}
-  s.version = "1.0.20090721145285"
+  s.version = "1.0.20090721145286"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sprout Systems, Inc.  Apple Inc. and contributors"]
-  s.date = %q{2009-07-28}
+  s.date = %q{2009-07-29}
   s.email = %q{contact@sproutcore.com}
   s.executables = ["sc-build", "sc-build-number", "sc-docs", "sc-gen", "sc-init", "sc-manifest", "sc-server", "sproutcore"]
   s.extra_rdoc_files = [
@@ -56,16 +56,11 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/apps/tests/controllers/targets.js",
      "frameworks/sproutcore/apps/tests/controllers/tests.js",
      "frameworks/sproutcore/apps/tests/core.js",
-     "frameworks/sproutcore/apps/tests/data_source.js",
      "frameworks/sproutcore/apps/tests/english.lproj/loading.rhtml",
      "frameworks/sproutcore/apps/tests/english.lproj/main_page.css",
      "frameworks/sproutcore/apps/tests/english.lproj/main_page.js",
      "frameworks/sproutcore/apps/tests/english.lproj/strings.js",
-     "frameworks/sproutcore/apps/tests/fixtures/target.js",
-     "frameworks/sproutcore/apps/tests/fixtures/test.js",
      "frameworks/sproutcore/apps/tests/main.js",
-     "frameworks/sproutcore/apps/tests/models/target.js",
-     "frameworks/sproutcore/apps/tests/models/test.js",
      "frameworks/sproutcore/apps/tests/states/no_targets.js",
      "frameworks/sproutcore/apps/tests/states/ready.js",
      "frameworks/sproutcore/apps/tests/states/ready_detail.js",
@@ -83,12 +78,22 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/apps/tests/tests/models/test.js",
      "frameworks/sproutcore/apps/tests/tests/views/offset_checkbox.js",
      "frameworks/sproutcore/apps/tests/views/offset_checkbox.js",
+     "frameworks/sproutcore/apps/welcome/controllers/targets.js",
      "frameworks/sproutcore/apps/welcome/core.js",
      "frameworks/sproutcore/apps/welcome/english.lproj/loading.rhtml",
+     "frameworks/sproutcore/apps/welcome/english.lproj/main_page.css",
      "frameworks/sproutcore/apps/welcome/english.lproj/main_page.js",
      "frameworks/sproutcore/apps/welcome/english.lproj/strings.js",
      "frameworks/sproutcore/apps/welcome/main.js",
+     "frameworks/sproutcore/apps/welcome/tests/controllers/targets.js",
      "frameworks/sproutcore/design/Record State Table.numbers",
+     "frameworks/sproutcore/frameworks/core_tools/core.js",
+     "frameworks/sproutcore/frameworks/core_tools/data_source.js",
+     "frameworks/sproutcore/frameworks/core_tools/english.lproj/strings.js",
+     "frameworks/sproutcore/frameworks/core_tools/fixtures/target.js",
+     "frameworks/sproutcore/frameworks/core_tools/fixtures/test.js",
+     "frameworks/sproutcore/frameworks/core_tools/models/target.js",
+     "frameworks/sproutcore/frameworks/core_tools/models/test.js",
      "frameworks/sproutcore/frameworks/datastore/core.js",
      "frameworks/sproutcore/frameworks/datastore/data_sources/cascade.js",
      "frameworks/sproutcore/frameworks/datastore/data_sources/data_source.js",
