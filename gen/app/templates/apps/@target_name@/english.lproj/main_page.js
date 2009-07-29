@@ -14,8 +14,9 @@
     childViews: 'labelView'.w(),
     
     labelView: SC.LabelView.design({
-      layout: { centerX: 0, centerY: 0, width: 100, height: 18 },
-      tagName: "h1", value: "Hello World"
+      layout: { centerX: 0, centerY: 0, width: 200, height: 18 },
+      textAlign: SC.ALIGN_CENTER,
+      tagName: "h1", value: "Welcome to SproutCore!"
     })
   })
 
