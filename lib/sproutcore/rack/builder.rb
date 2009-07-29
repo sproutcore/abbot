@@ -88,7 +88,7 @@ module SC
         build_path = nil
         
         project_mutex.synchronize do 
-          reload_project! # if needed
+          did_reload = reload_project! # if needed
 
           # collect some standard info
           url = env['PATH_INFO']
@@ -115,12 +115,16 @@ module SC
           end
 
           if ret.nil?
-            # Clean the entry so it will rebuild if we are serving an html 
-            # file
-            entry.clean! if [:html, :test].include?(entry.entry_type)
-        
-            # Now build entry and return a file object
-            build_path = entry.build!.build_path
+            
+            build_path = entry.build_path
+            if [:html, :test].include?(entry.entry_type)
+              if did_reload || !File.exist?(build_path)
+                entry.clean!.build!
+              end
+            else
+              entry.build!
+            end
+
           end
 
           # Update last reload time.  This way if any other requests are
@@ -139,8 +143,8 @@ module SC
         # define response headers
         file_size = File.size(build_path)
         headers = {
-          "Last-Modified"  => File.mtime(build_path).httpdate,
-          "Etag"           => File.mtime(build_path).to_i.to_s,
+          #"Last-Modified"  => File.mtime(build_path).httpdate,
+          #"Etag"           => File.mtime(build_path).to_i.to_s,
           "Content-Type"   => mime_type(build_path),
           "Content-Length" => file_size.to_s,
           "Expires"        => (cacheable ? (Time.now + ONE_YEAR) : Time.now).httpdate
@@ -175,13 +179,18 @@ module SC
         monitor_project!
         
         # don't reload if no project or is disabled
-        return if @project.nil? || !@project.config.reload_project
+        return false if @project.nil? || !@project.config.reload_project
+        
+        _did_reload = false
         
         if @project_did_change
           @project_did_change = false
           SC.logger.info "Rebuilding project manifest"
           @project.reload!
+          _did_reload = true
         end
+        
+        _did_reload
       end
 
       def monitor_project!
@@ -225,7 +234,7 @@ module SC
                 end
               end
               
-              sleep(5)
+              sleep(2)
             end
           end
         end
