@@ -92,6 +92,7 @@ module SC
 
           # collect some standard info
           url = env['PATH_INFO']
+          url = 'sproutcore/welcome' if url == '/'
       
           # look for a matching target
           target = target_for(url)
