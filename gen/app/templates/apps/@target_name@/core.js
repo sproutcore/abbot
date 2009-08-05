@@ -10,7 +10,7 @@
   
   @extends SC.Object
 */
-<%= namespace %> = SC.Object.create(
+<%= namespace %> = SC.Application.create(
   /** @scope <%= namespace %>.prototype */ {
 
   NAMESPACE: '<%= namespace %>',
