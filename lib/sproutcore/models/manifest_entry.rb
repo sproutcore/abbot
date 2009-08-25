@@ -101,14 +101,32 @@ module SC
     
     # The owner manifest
     attr_accessor :manifest
-
+    
+    def dynamic?; self[:dynamic]; end
+    
     # The owner target
     def target; @target ||= manifest.target; end
+    
+    # dynamic_required targets, only applicable to bundle_info entries
+    def targets; self[:targets]; end
+    
+    # variation for dynamic_required targets, only applicable to bundle_info
+    # entries
+    def variation; self[:variation]; end
     
     # Returns a timestamp for when this file was last changed.  This will
     # reach back to the source entries, finding the latest original entry.
     def timestamp
-      if composite?
+      if dynamic? # MUST check for this first...
+        timestamps = targets.map do |t|
+          timestamps2 = t.manifest_for(variation).build!.entries.map do |e|
+            ts = e.timestamp
+            ts.nil? ? 0 : ts
+          end
+          timestamps2.max
+        end
+        timestamps.max
+      elsif composite?
         source_entries.map { |e| e.timestamp }.max
       else
         File.exist?(source_path) ? File.mtime(source_path).to_i : 0

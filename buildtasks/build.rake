@@ -69,5 +69,14 @@ namespace :build do
     SC::Builder::TestIndex.build ENTRY, DST_PATH
   end
   
+  desc "builds the bundle_loaded.js file for a framework"
+  build_task :bundle_loaded do
+    SC::Builder::BundleLoaded.build ENTRY, DST_PATH
+  end
+  
+  desc "builds the bundle_info.js file for a required framework"
+  build_task :bundle_info do
+    SC::Builder::BundleInfo.build ENTRY, DST_PATH
+  end
   
 end

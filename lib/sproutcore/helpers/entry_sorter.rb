@@ -14,6 +14,9 @@ module SC
     # the entries to sort along with any filenames you prefer to have added to
     # the top.  If you don't specify any filenames, then the entries will be
     # sorted alphabetically except for requires.
+    # 
+    # When bundle_info.js is present, it will always be sorted first.
+    # When bundle_loaded.js is present, it will always be sorted last.
     class EntrySorter
     
       def self.sort(entries, preferred_filenames = [])
@@ -27,7 +30,23 @@ module SC
       attr_reader :preferred_filenames
     
       def sort(entries)
-        # first sort entries by filename - ignoring case
+        bundleInfoEntry = []
+        bundleLoadedEntry = []
+        
+        # first remove bundle entries which MUST be first or last
+        entries = entries.select do |entry|
+          if entry.filename == 'bundle_info.js'
+            bundleInfoEntry = [entry]
+            false
+          elsif entry.filename == 'bundle_loaded.js'
+            bundleLoadedEntry = [entry]
+            false
+          else
+            true
+          end
+        end
+        
+        # then sort remaining entries by filename - ignoring case
         entries = entries.sort do |a,b| 
           a = (a.filename || '').to_s.downcase
           b = (b.filename || '').to_s.downcase
@@ -55,7 +74,7 @@ module SC
           add_entry_to_set(cur, ret, seen, entries, all_entries)
         end
       
-        return ret
+        return bundleInfoEntry + ret + bundleLoadedEntry
       end
 
       protected

@@ -257,6 +257,7 @@ module SC
         
         # choose which targets to include packed and unpacked
         targets = expand_required_targets(t)
+        
         if t.config.use_packed && packed_entry_name # must pass to activate
           packed, unpacked = SC::Helpers::PackedOptimizer.optimize(targets)
           unpacked << t # always use unpacked for main target

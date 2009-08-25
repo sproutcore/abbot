@@ -1,0 +1,1 @@
+alert('bundle_test');

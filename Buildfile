@@ -30,7 +30,8 @@ mode :all do
       :clients    => :app, 
       :pages      => :app, # used for static pages with your site
       :frameworks => :framework,
-      :themes     => :theme
+      :themes     => :theme,
+      :bundles    => :framework
     },
   
     # Allows the target to have other targets nested inside of it.  Override 
@@ -60,7 +61,7 @@ mode :all do
     # by default all targets autobuild
     :autobuild => true,
     
-    # by default do not minify javacript or stylesheets
+    # by default minify javacript and stylesheets
     :minify => true,
     :minify_css => true,
     

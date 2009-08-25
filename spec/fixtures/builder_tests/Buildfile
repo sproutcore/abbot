@@ -12,4 +12,7 @@ config :test_test,
   :debug_required => [:debug],
   :test_required  => [:qunit],
   :theme => nil
-  
+
+config :bundle_test,
+  :required => [:req_target_1],
+  :dynamic_required => [:req_target_2]

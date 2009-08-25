@@ -2,9 +2,9 @@ require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
 
 module SC::ManifestSpecHelpers
 
-  def std_before
-    @project = fixture_project :real_world
-    @target = @project.target_for :sproutcore
+  def std_before(project_name = :real_world, target_name = :sproutcore)
+    @project = fixture_project project_name
+    @target = @project.target_for target_name
     @buildfile = @target.buildfile
     @config = @target.config
     @manifest = @target.manifest_for(:language => :fr)
@@ -31,5 +31,5 @@ module SC::ManifestSpecHelpers
     yield if block_given?
     task.invoke_count.should > first_count
   end
-
+  
 end

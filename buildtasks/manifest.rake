@@ -132,7 +132,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
     
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css javascript sass combine minify html strings tests packed) 
+    task :all => %w(css javascript bundle_info bundle_loaded sass combine minify html strings tests packed) 
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -231,8 +231,56 @@ namespace :manifest do
       end
     end
     
+    desc "adds a bundle_info.js entry for each dynamic_required target"
+    task :bundle_info => %w(setup) do
+      
+      # Populate bundle_info for all dynamic_required frameworks.
+      # Add :debug_dynamic_required and :test_dynamic_required depending on 
+      # the build mode.
+      debug = (SC.build_mode == :debug) ? true : false
+      test = (SC.build_mode == :test) ? true : false
+      
+      targets = TARGET.dynamic_required_targets({ :debug => debug, :test => test, :theme => true })
+      unless targets.size == 0
+        source_entries = []
+        targets.each do |t|
+          t.manifest_for(MANIFEST.variation).build!.entries.each do |e|
+            source_entries << e
+          end
+        end
+        MANIFEST.add_entry 'bundle_info.js',
+          :dynamic        => true, # required to get correct timestamp for cacheable_url
+          :build_task     => 'build:bundle_info',
+          :resource       => 'javascript',
+          :entry_type     => :javascript,
+          :composite      => true,
+          :source_entries => source_entries,
+          :target         => TARGET,
+          :targets        => targets,
+          :variation      => MANIFEST.variation,
+          :debug          => debug,
+          :test           => test,
+          :theme          => true
+      end
+    end
+    task :bundle_info => :tests # IMPORTANT! to avoid JS including unit tests.
+      
+    desc "adds a bundle_loaded.js entry if the target is a framework"
+    task :bundle_loaded => %w(setup) do
+      
+      if TARGET.target_type == :framework
+        MANIFEST.add_entry 'bundle_loaded.js',
+          :build_task  => 'build:bundle_loaded',
+          :resource    => 'javascript',
+          :entry_type  => :javascript,
+          :target      => TARGET
+      end
+      
+    end
+    task :bundle_loaded => :tests # IMPORTANT! to avoid JS including unit tests.
+      
     desc "generates combined entries for javascript and css"
-    task :combine => %w(setup css javascript sass) do
+    task :combine => %w(setup css javascript bundle_info bundle_loaded sass) do
 
       # sort entries...
       css_entries = {}
@@ -456,7 +504,7 @@ namespace :manifest do
     end
     
     desc "creates transform entries for all css and Js entries to minify them if needed"
-    task :minify => %w(setup javascript css combine sass) do
+    task :minify => %w(setup javascript bundle_info bundle_loaded css combine sass) do
       
       minify_css = CONFIG.minify_css
       minify_css = CONFIG.minify if minify_css.nil?
@@ -489,7 +537,7 @@ namespace :manifest do
     end
 
     desc "adds a loc strings entry that generates a yaml file server-side functions can use" 
-    task :strings => %w(setup javascript) do
+    task :strings => %w(setup javascript bundle_info bundle_loaded) do
       # find the lproj/strings.js file...
       if entry = (MANIFEST.entry_for('source/lproj/strings.js') || MANIFEST.entry_for('source/lproj/strings.js', :hidden => true))
         MANIFEST.add_transform entry, 
