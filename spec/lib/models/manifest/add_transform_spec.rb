@@ -15,6 +15,7 @@ describe SC::Manifest, 'add_transform' do
       :source_path => File.join('source', 'foobar.js'),
       :build_path => File.join('build', 'foobar.js'),
       :staging_path => File.join('staging', 'foobar.js'),
+      :cache_path => File.join('cache', 'foobar.js'),
       :url => File.join('url', 'foobar.js')
   end
   

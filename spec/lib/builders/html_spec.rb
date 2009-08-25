@@ -431,10 +431,12 @@ describe SC::Builder::Html do
         it "adds link to debug JS if CONFIG.load_debug = true" do
           # figure expected urls...
           t = @project.target_for(:debug)
+          t.config.combine_javascript = true
           url = t.manifest_for(:language => :en).build!.entry_for('javascript.js').url
           url = /#{Regexp.escape url}/
           
           @target.config.combine_javascript = true 
+          
           @target.config.load_debug = true
           result = @builder.javascripts_for_client
           result.should =~ url

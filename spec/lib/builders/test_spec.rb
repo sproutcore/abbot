@@ -62,6 +62,7 @@ describe SC::Builder::Test do
     it "adds javascript for test" do
       # figure expected urls...
       t = @project.target_for(:qunit)
+      t.config.combine_javascript = true
       url = t.manifest_for(:language => :en).build!.entry_for('javascript.js').url
       url = /#{Regexp.escape url}/
       
