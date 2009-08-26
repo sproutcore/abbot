@@ -170,7 +170,7 @@ describe SC::Builder::BundleInfo do
         dynamic_target = @target.dynamic_required_targets[0]
         dynamic_target.should_not be_nil
         
-        bundle_info = dynamic_target.bundle_info
+        bundle_info = dynamic_target.bundle_info({ :variation => @manifest.variation })
         bundle_info.should_not be_nil
         
         (req = bundle_info[:requires]).size.should == 1
