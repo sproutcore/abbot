@@ -41,7 +41,7 @@ describe "manifest:prepare_build_tasks:bundle_loaded" do
   describe "static framework target" do
     
     before do
-      std_before :req_target_1
+      std_before :builder_tests, :req_target_1
       
       # most of these tests assume load_debug is turned off like it would be
       # in production mode
@@ -74,7 +74,7 @@ describe "manifest:prepare_build_tasks:bundle_loaded" do
   describe "dynamic framework target" do
     
     before do
-      std_before :req_target_2
+      std_before :builder_tests, :req_target_2
       
       # most of these tests assume load_debug is turned off like it would be
       # in production mode
