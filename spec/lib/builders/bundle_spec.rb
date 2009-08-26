@@ -179,10 +179,11 @@ describe SC::Builder::BundleInfo do
         (req = bundle_info[:css_urls]).size.should == 1
         req.first.should == '/static/req_target_2/en/current/stylesheet.css'
         
-        (req = bundle_info[:js_urls]).size.should == 3
-        req[0].should == '/static/req_target_2/en/current/source/javascript.js'
-        req[1].should == '/static/req_target_2/en/current/source/req_js_2.js'
-        req[2].should == '/static/req_target_2/en/current/bundle_loaded.js'
+        (req = bundle_info[:js_urls]).size.should == 4
+        req[0].should == '/static/req_target_2/en/current/bundle_info.js'
+        req[1].should == '/static/req_target_2/en/current/source/javascript.js'
+        req[2].should == '/static/req_target_2/en/current/source/req_js_2.js'
+        req[3].should == '/static/req_target_2/en/current/bundle_loaded.js'
       end
       
     end
@@ -235,6 +236,16 @@ describe SC::Builder::BundleInfo do
       @target.config.theme = nil
       @target.config.timestamp_urls = false
       
+      # make sure all targets have the same settings...
+      @target.expand_required_targets.each do |t|
+        t.config.timestamp_urls = false
+      end
+      
+      # make sure all targets have the same settings...
+      @target.dynamic_required_targets.each do |t|
+        t.config.timestamp_urls = false
+      end
+      
       # run std rules to run manifest.  Then verify preconditions to make sure
       # no other changes to the build system effect the ability of these tests
       # to run properly.
@@ -249,12 +260,33 @@ describe SC::Builder::BundleInfo do
       @target.should_not be_loadable
     end
     
-    it "should not require a dynamic framework" do
-      (req = @target.dynamic_required_targets).size.should == 0
+    it "should require its own dynamic framework" do
+      (req = @target.dynamic_required_targets).size.should == 1
     end
     
-    it "should not create a bundle_info.js entry" do
-      @manifest.entry_for('bundle_info.js').should be_nil
+    it "should create a bundle_info.js entry" do
+      @manifest.entry_for('bundle_info.js').should_not be_nil
+    end
+    
+    describe "bundle_info.js" do
+      
+      it "should have SC::Target#bundle_info return the correct requires, css_urls and js_urls" do
+        dynamic_target = @target.dynamic_required_targets[0]
+        dynamic_target.should_not be_nil
+        
+        bundle_info = dynamic_target.bundle_info({ :variation => @manifest.variation })
+        bundle_info.should_not be_nil
+        
+        (req = bundle_info[:requires]).size.should == 0
+        
+        (req = bundle_info[:css_urls]).size.should == 1
+        req.first.should == '/static/dynamic_req_target_1/en/current/stylesheet.css'
+        
+        (req = bundle_info[:js_urls]).size.should == 2
+        req[0].should == '/static/dynamic_req_target_1/en/current/source/dynamic_req_js_1.js'
+        req[1].should == '/static/dynamic_req_target_1/en/current/bundle_loaded.js'
+      end
+      
     end
     
   end

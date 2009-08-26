@@ -241,12 +241,12 @@ describe "manifest:prepare_build_tasks:bundle_info" do
       should_run('manifest:prepare_build_tasks:setup') { run_task }
     end
     
-    it "should not require a dynamic framework" do
-      (req = @target.dynamic_required_targets).size.should == 0
+    it "should require its own dynamic framework" do
+      (req = @target.dynamic_required_targets).size.should == 1
     end
     
-    it "should not create a bundle_info.js entry" do
-      @manifest.entry_for('bundle_info.js').should be_nil
+    it "should create a bundle_info.js entry" do
+      @manifest.entry_for('bundle_info.js').should_not be_nil
     end
     
   end

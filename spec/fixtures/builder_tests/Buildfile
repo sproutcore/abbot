@@ -5,7 +5,9 @@ config :html_test,
   :debug_required => [:debug],
   :test_required  => [:qunit]
   
-config :req_target_2, :required => [:req_target_1]
+config :req_target_2,
+  :required => [:req_target_1],
+  :dynamic_required => [:dynamic_req_target_1]
 
 config :test_test,
   :test_layout   => 'lib/test_layout.rhtml',
