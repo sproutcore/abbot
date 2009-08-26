@@ -194,7 +194,7 @@ module SC
           end
           
           if ret.nil?
-            fatal! "No target named #{target_name} could be found in project"
+            fatal! "No target named #{target_name} could be found in PROJECT:#{project.project_root}"
           else
             debug "Found target '#{target_name}' at PROJECT:#{ret.source_root.sub(/^#{project.project_root}\//,'')}"
           end
