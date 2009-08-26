@@ -237,8 +237,8 @@ namespace :manifest do
       # Populate bundle_info for all dynamic_required frameworks.
       # Add :debug_dynamic_required and :test_dynamic_required depending on 
       # the build mode.
-      debug = (SC.build_mode == :debug) ? true : false
-      test = (SC.build_mode == :test) ? true : false
+      debug = CONFIG.load_debug
+      test = CONFIG.load_tests
       
       targets = TARGET.dynamic_required_targets({ :debug => debug, :test => test, :theme => true })
       unless targets.size == 0
