@@ -193,7 +193,7 @@ describe "manifest:prepare_build_tasks:combine" do
 
         # get the expected set of ordered entries...based on contents of 
         # project...
-        expected = %w(source/lproj/strings.js source/core.js source/utils.js source/1.js source/a.js source/a/a.js source/a/b.js source/B.js source/b/a.js source/c.js)
+        expected = %w(bundle_info.js source/lproj/strings.js source/core.js source/utils.js source/1.js source/a.js source/a/a.js source/a/b.js source/B.js source/b/a.js source/c.js)
 
         entry.ordered_entries.should_not be_nil
         filenames = entry.ordered_entries.map { |e| e.filename }
@@ -213,7 +213,7 @@ describe "manifest:prepare_build_tasks:combine" do
 
         # get the expected set of ordered entries...based on contents of 
         # project... note that we require 'd', which should match 'lproj/d'
-        expected = %w(source/c.js source/a.js source/lproj/d.js source/b.js)
+        expected = %w(bundle_info.js source/c.js source/a.js source/lproj/d.js source/b.js)
 
         entry.ordered_entries.should_not be_nil
         filenames = entry.ordered_entries.map { |e| e.filename }
