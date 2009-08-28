@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{sproutcore}
-  s.version = "1.0.20090721145287"
+  s.version = "1.0.20090721145289"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sprout Systems, Inc.  Apple Inc. and contributors"]
-  s.date = %q{2009-07-29}
+  s.date = %q{2009-08-27}
   s.email = %q{contact@sproutcore.com}
   s.executables = ["sc-build", "sc-build-number", "sc-docs", "sc-gen", "sc-init", "sc-manifest", "sc-server", "sproutcore"]
   s.extra_rdoc_files = [
@@ -219,6 +219,7 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/desktop/mixins/collection_view_delegate.js",
      "frameworks/sproutcore/frameworks/desktop/mixins/scrollable.js",
      "frameworks/sproutcore/frameworks/desktop/panes/alert.js",
+     "frameworks/sproutcore/frameworks/desktop/panes/drop_down.js",
      "frameworks/sproutcore/frameworks/desktop/panes/menu.js",
      "frameworks/sproutcore/frameworks/desktop/panes/modal.js",
      "frameworks/sproutcore/frameworks/desktop/panes/palette.js",
@@ -236,6 +237,8 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/desktop/tests/integration/dialog.js",
      "frameworks/sproutcore/frameworks/desktop/tests/panes/alert/methods.js",
      "frameworks/sproutcore/frameworks/desktop/tests/panes/alert/ui.js",
+     "frameworks/sproutcore/frameworks/desktop/tests/panes/dropDown/methods.js",
+     "frameworks/sproutcore/frameworks/desktop/tests/panes/dropDown/ui.js",
      "frameworks/sproutcore/frameworks/desktop/tests/panes/menu/methods.js",
      "frameworks/sproutcore/frameworks/desktop/tests/panes/menu/ui.js",
      "frameworks/sproutcore/frameworks/desktop/tests/panes/palette/methods.js",
@@ -369,10 +372,10 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/foundation/system/benchmark.js",
      "frameworks/sproutcore/frameworks/foundation/system/browser.js",
      "frameworks/sproutcore/frameworks/foundation/system/builder.js",
+     "frameworks/sproutcore/frameworks/foundation/system/bundle.js",
      "frameworks/sproutcore/frameworks/foundation/system/core_query.js",
      "frameworks/sproutcore/frameworks/foundation/system/cursor.js",
      "frameworks/sproutcore/frameworks/foundation/system/datetime.js",
-     "frameworks/sproutcore/frameworks/foundation/system/error.js",
      "frameworks/sproutcore/frameworks/foundation/system/event.js",
      "frameworks/sproutcore/frameworks/foundation/system/image_cache.js",
      "frameworks/sproutcore/frameworks/foundation/system/json.js",
@@ -385,6 +388,7 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/foundation/system/responder_context.js",
      "frameworks/sproutcore/frameworks/foundation/system/root_responder.js",
      "frameworks/sproutcore/frameworks/foundation/system/routes.js",
+     "frameworks/sproutcore/frameworks/foundation/system/text_selection.js",
      "frameworks/sproutcore/frameworks/foundation/system/time.js",
      "frameworks/sproutcore/frameworks/foundation/system/timer.js",
      "frameworks/sproutcore/frameworks/foundation/system/user_defaults.js",
@@ -418,7 +422,6 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/foundation/tests/system/core_query/setClass.js",
      "frameworks/sproutcore/frameworks/foundation/tests/system/core_query/within.js",
      "frameworks/sproutcore/frameworks/foundation/tests/system/datetime.js",
-     "frameworks/sproutcore/frameworks/foundation/tests/system/error.js",
      "frameworks/sproutcore/frameworks/foundation/tests/system/json.js",
      "frameworks/sproutcore/frameworks/foundation/tests/system/locale.js",
      "frameworks/sproutcore/frameworks/foundation/tests/system/render_context/begin.js",
@@ -533,6 +536,7 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/runtime/protocols/sparse_array_delegate.js",
      "frameworks/sproutcore/frameworks/runtime/system/binding.js",
      "frameworks/sproutcore/frameworks/runtime/system/enumerator.js",
+     "frameworks/sproutcore/frameworks/runtime/system/error.js",
      "frameworks/sproutcore/frameworks/runtime/system/index_set.js",
      "frameworks/sproutcore/frameworks/runtime/system/object.js",
      "frameworks/sproutcore/frameworks/runtime/system/range_observer.js",
@@ -560,6 +564,7 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/runtime/tests/mixins/propertyChanges.js",
      "frameworks/sproutcore/frameworks/runtime/tests/private/observer_queue/isObservingSuspended.js",
      "frameworks/sproutcore/frameworks/runtime/tests/system/binding.js",
+     "frameworks/sproutcore/frameworks/runtime/tests/system/error.js",
      "frameworks/sproutcore/frameworks/runtime/tests/system/index_set/add.js",
      "frameworks/sproutcore/frameworks/runtime/tests/system/index_set/clone.js",
      "frameworks/sproutcore/frameworks/runtime/tests/system/index_set/contains.js",
@@ -717,6 +722,7 @@ Gem::Specification.new do |s|
      "gen/view/templates/views/@filename@.js",
      "lib/sproutcore.rb",
      "lib/sproutcore/builders/base.rb",
+     "lib/sproutcore/builders/bundle.rb",
      "lib/sproutcore/builders/combine.rb",
      "lib/sproutcore/builders/html.rb",
      "lib/sproutcore/builders/javascript.rb",
