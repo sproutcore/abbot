@@ -16,8 +16,10 @@ IGNORE_CHANGES = %w[.gitignore .gitmodules .DS_Store .gemspec VERSION.yml ^pkg ^
 ## LOAD DEPENDENCIES
 ##
 begin
+  require 'rubygems'
   require 'jeweler'
   require 'extlib'
+  require 'spec/rake/spectask'
 
   $:.unshift(ROOT_PATH / 'lib')
   require 'sproutcore'
@@ -226,5 +228,8 @@ end
 
 # Write a new version everytime we generate
 task 'gemspec:generate' => :update_version
+
+Spec::Rake::SpecTask.new
+
 
 # EOF
