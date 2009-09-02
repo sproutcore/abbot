@@ -44,6 +44,7 @@ module SC
 
       # Otherwise process sc_super 
       else
+        return unless (line.valid_encoding?)
         if line.match(/sc_super\(\s*\)/)
           line = line.gsub(/sc_super\(\s*\)/, 'arguments.callee.base.apply(this,arguments)')
         elsif line.match(/sc_super\(.+?\)/)

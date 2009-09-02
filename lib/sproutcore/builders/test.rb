@@ -31,9 +31,9 @@ module SC
       entry.stage!
 
       case entry.ext
-      when 'js':
+      when 'js'
         render_jstest(entry)
-      when 'rhtml':
+      when 'rhtml'
         entry.target.buildfile.invoke 'render:erubis',
           :entry    => entry, 
           :src_path => entry.staging_path,

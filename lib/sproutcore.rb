@@ -9,8 +9,11 @@ require 'logger'
 require 'extlib'
 require 'yaml'
 
-$KCODE = 'u'
-require 'jcode'
+if (RUBY_VERSION.match(/1\.8/))
+  $KCODE = 'u'
+  require 'jcode'
+  class String ; def valid_encoding? ; true ; end ; end
+end
 
 # Makes code more readable
 YES = true

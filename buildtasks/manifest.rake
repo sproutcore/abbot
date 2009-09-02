@@ -424,11 +424,11 @@ namespace :manifest do
         entry.resource = 'index'
 
         entry.render_task = case entry.ext
-        when 'rhtml':
+        when 'rhtml'
           'render:erubis'
-        when 'erb':
+        when 'erb'
           "render:erubis"
-        when 'haml':
+        when 'haml'
           'render:haml'
         end
         

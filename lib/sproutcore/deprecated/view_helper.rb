@@ -439,16 +439,16 @@ module SproutCore
       def prepare_for_javascript(value)
         return 'null' if value.nil?
         case value
-        when Array:
+        when Array
           "[#{value.map { |v| prepare_for_javascript(v) } * ','}]"
-        when Hash:
+        when Hash
           items = value.map do |k,v|
             [prepare_for_javascript(k),prepare_for_javascript(v)] * ': '
           end
           "{ #{items * ', '} }"
-        when FalseClass:
+        when FalseClass
           "false"
-        when TrueClass:
+        when TrueClass
           "true"
         else
           %("#{ value.to_s.gsub('"','\"').gsub("\n",'\n') }")

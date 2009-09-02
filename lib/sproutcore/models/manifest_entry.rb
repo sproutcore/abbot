@@ -159,7 +159,9 @@ module SC
         paths.each do |path|
           next unless File.exist?(path)
           File.readlines(path).each do |line|
-            line.scan(regexp) { |result| yield(result) }
+            if (line.valid_encoding?)
+              line.scan(regexp) { |result| yield(result) }
+            end
           end 
         end
       end
@@ -179,9 +181,9 @@ module SC
         # strip off any file ext
         filename = matches[2].ext ''
         case matches[0]
-        when 'sc_require':
+        when 'sc_require'
           self.required << filename
-        when 'require':
+        when 'require'
           self.required << filename
         when 'sc_resource'
           self.resource = filename
