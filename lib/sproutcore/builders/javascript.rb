@@ -21,7 +21,7 @@ module SC
 
       # Try to load dependencies if we're not combining javascript.
       if entry.notify_onload
-        lines << "; if ((typeof SC !== 'undefined') && SC && SC.scriptDidLoad) SC.scriptDidLoad('#{entry.target.target_name.to_s.sub(/^\//,'')}','#{entry.url}');"
+        lines << "; if ((typeof SC !== 'undefined') && SC && SC.scriptDidLoad) SC.scriptDidLoad('#{entry.target.target_name.to_s.sub(/^\//,'')}');"
       end
 
       writelines dst_path, lines
