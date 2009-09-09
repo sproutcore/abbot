@@ -18,6 +18,12 @@ module SC
     
     def build(dst_path)
       lines = readlines(entry.source_path).map { |l| rewrite_inline_code(l) }
+
+      # Try to load dependencies if we're not combining javascript.
+      if entry.notify_onload
+        lines << "; if ((typeof SC !== 'undefined') && SC && SC.scriptDidLoad) SC.scriptDidLoad('#{entry.target.target_name.to_s.sub(/^\//,'')}','#{entry.url}');"
+      end
+
       writelines dst_path, lines
     end
 

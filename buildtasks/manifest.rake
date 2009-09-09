@@ -199,6 +199,7 @@ namespace :manifest do
       # add transform & tag with build directives.
       entries.each do |entry|
         entry = MANIFEST.add_transform entry,
+          :notify_onload => !CONFIG.combine_javascript,
           :filename   => ['source', entry.filename].join('/'),
           :build_path => File.join(MANIFEST.build_root, 'source', entry.filename),
           :url => [MANIFEST.url_root, 'source', entry.filename].join("/"),
