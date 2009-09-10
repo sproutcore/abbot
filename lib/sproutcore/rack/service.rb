@@ -49,9 +49,13 @@ module SC
           server = ::Rack::Handler::CGI
         else
           begin
-            server = ::Rack::Handler::Mongrel
+            server = ::Rack::Handler::Thin
           rescue LoadError => e
-            server = ::Rack::Handler::WEBrick
+            begin
+              server = ::Rack::Handler::Mongrel
+            rescue LoadError => e
+              server = ::Rack::Handler::WEBrick
+            end
           end
         end
         
