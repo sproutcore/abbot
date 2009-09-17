@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{sproutcore}
-  s.version = "1.0.20090721145291"
+  s.version = "1.0.20090721145292"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sprout Systems, Inc.  Apple Inc. and contributors"]
-  s.date = %q{2009-09-02}
+  s.date = %q{2009-09-16}
   s.email = %q{contact@sproutcore.com}
   s.executables = ["sc-build", "sc-build-number", "sc-docs", "sc-gen", "sc-init", "sc-manifest", "sc-server", "sproutcore"]
   s.extra_rdoc_files = [
@@ -109,6 +109,7 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/datastore/models/many_attribute.js",
      "frameworks/sproutcore/frameworks/datastore/models/record.js",
      "frameworks/sproutcore/frameworks/datastore/models/record_attribute.js",
+     "frameworks/sproutcore/frameworks/datastore/models/single_attribute.js",
      "frameworks/sproutcore/frameworks/datastore/system/many_array.js",
      "frameworks/sproutcore/frameworks/datastore/system/nested_store.js",
      "frameworks/sproutcore/frameworks/datastore/system/query.js",
@@ -129,6 +130,7 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/datastore/tests/models/record/unknownProperty.js",
      "frameworks/sproutcore/frameworks/datastore/tests/models/record/writeAttribute.js",
      "frameworks/sproutcore/frameworks/datastore/tests/models/record_attribute.js",
+     "frameworks/sproutcore/frameworks/datastore/tests/models/single_attribute.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/many_array/core_methods.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/nested_store/chain.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/nested_store/commitChanges.js",
@@ -275,6 +277,7 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/desktop/tests/views/collection/content.js",
      "frameworks/sproutcore/frameworks/desktop/tests/views/collection/deleteSelection.js",
      "frameworks/sproutcore/frameworks/desktop/tests/views/collection/deselect.js",
+     "frameworks/sproutcore/frameworks/desktop/tests/views/collection/displayProperties.js",
      "frameworks/sproutcore/frameworks/desktop/tests/views/collection/itemViewForContentIndex.js",
      "frameworks/sproutcore/frameworks/desktop/tests/views/collection/layerIdFor.js",
      "frameworks/sproutcore/frameworks/desktop/tests/views/collection/length.js",
@@ -331,6 +334,7 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/desktop/views/list.js",
      "frameworks/sproutcore/frameworks/desktop/views/list_item.js",
      "frameworks/sproutcore/frameworks/desktop/views/menu_item.js",
+     "frameworks/sproutcore/frameworks/desktop/views/menu_scroll.js",
      "frameworks/sproutcore/frameworks/desktop/views/popup_button.js",
      "frameworks/sproutcore/frameworks/desktop/views/progress.js",
      "frameworks/sproutcore/frameworks/desktop/views/radio.js",
@@ -363,6 +367,7 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/foundation/english.lproj/core.css",
      "frameworks/sproutcore/frameworks/foundation/english.lproj/debug/control-test-pane.css",
      "frameworks/sproutcore/frameworks/foundation/english.lproj/images/sproutcore-logo.png",
+     "frameworks/sproutcore/frameworks/foundation/english.lproj/inline_editor.css",
      "frameworks/sproutcore/frameworks/foundation/english.lproj/label.css",
      "frameworks/sproutcore/frameworks/foundation/english.lproj/static_layout.css",
      "frameworks/sproutcore/frameworks/foundation/english.lproj/strings.js",
@@ -543,6 +548,7 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/runtime/debug/test_suites/array/unshiftObject.js",
      "frameworks/sproutcore/frameworks/runtime/license.js",
      "frameworks/sproutcore/frameworks/runtime/mixins/array.js",
+     "frameworks/sproutcore/frameworks/runtime/mixins/comparable.js",
      "frameworks/sproutcore/frameworks/runtime/mixins/copyable.js",
      "frameworks/sproutcore/frameworks/runtime/mixins/delegate_support.js",
      "frameworks/sproutcore/frameworks/runtime/mixins/enumerable.js",
@@ -576,6 +582,7 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/runtime/tests/core/objectForPropertyPath.js",
      "frameworks/sproutcore/frameworks/runtime/tests/core/tupleForPropertyPath.js",
      "frameworks/sproutcore/frameworks/runtime/tests/mixins/array.js",
+     "frameworks/sproutcore/frameworks/runtime/tests/mixins/comparable.js",
      "frameworks/sproutcore/frameworks/runtime/tests/mixins/enumerable.js",
      "frameworks/sproutcore/frameworks/runtime/tests/mixins/observable/observable.js",
      "frameworks/sproutcore/frameworks/runtime/tests/mixins/observable/propertyChanges.js",
