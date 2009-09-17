@@ -77,7 +77,7 @@ namespace :manifest do
       next if entry.localized? || entry.filename =~ /^.+\.lproj\/.+$/
       
       # allow if in tests, fixtures or debug as well...
-      next if entry.filename =~ /^(tests|fixtures|debug|protocols)\/.+$/
+      next if entry.filename =~ /^(resources|tests|fixtures|debug)\/.+$/
       
       # or skip if ext not js
       entry.hide! if entry.ext != 'js'

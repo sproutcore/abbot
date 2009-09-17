@@ -24,7 +24,7 @@ describe "manifest:hide_buildfiles" do
     entry_for('Buildfile').hidden?.should be_true
   end
   
-  it "should hide any non .js file outside of .lproj, test, fixture, & debug dirs" do
+  it "should hide any non .js file outside of .lproj, test, fixture, resources & debug dirs" do
     run_task
     entry_for('README').hidden?.should be_true
     entry_for('lib/index.html').hidden?.should be_true
@@ -32,6 +32,7 @@ describe "manifest:hide_buildfiles" do
     entry_for('tests/sample.rhtml').hidden?.should be_false
     entry_for('english.lproj/demo.html').hidden?.should be_false
     entry_for('fixtures/sample-json-fixture.json').hidden?.should be_false
+    entry_for('resources/boo.png').hidden?.should be_false
     entry_for('debug/debug-resource.html').hidden?.should be_false
   end
   
