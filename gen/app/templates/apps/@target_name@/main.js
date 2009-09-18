@@ -23,7 +23,7 @@
   // This will make your app come alive!
 
   // TODO: Set the content property on your primary controller
-  // ex: <%= class_name %>.contactsController.set('content',<%= class_name %>.contacts);
+  // ex: <%= namespace %>.contactsController.set('content',<%= namespace %>.contacts);
 
 } ;
 
