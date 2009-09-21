@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{sproutcore}
-  s.version = "1.0.20090721145292"
+  s.version = "1.0.20090721145293"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sprout Systems, Inc.  Apple Inc. and contributors"]
-  s.date = %q{2009-09-16}
+  s.date = %q{2009-09-21}
   s.email = %q{contact@sproutcore.com}
   s.executables = ["sc-build", "sc-build-number", "sc-docs", "sc-gen", "sc-init", "sc-manifest", "sc-server", "sproutcore"]
   s.extra_rdoc_files = [
@@ -219,6 +219,7 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/desktop/english.lproj/images/standard_fade/ffffff.png",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/images/sticky-note.png",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/list_item.css",
+     "frameworks/sproutcore/frameworks/desktop/english.lproj/menu.css",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/menu_item_view.css",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/modal.css",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/panel.css",
@@ -668,6 +669,7 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/themes/standard_theme/english.lproj/images/sc-toolbar-view.png",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/label.css",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/list_item.css",
+     "frameworks/sproutcore/themes/standard_theme/english.lproj/menu.css",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/menu_item_view.css",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/pane.css",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/panels/background-fat.jpg",
@@ -694,10 +696,9 @@ Gem::Specification.new do |s|
      "gen/app/README",
      "gen/app/USAGE",
      "gen/app/templates/apps/@target_name@/core.js",
-     "gen/app/templates/apps/@target_name@/english.lproj/loading.rhtml",
-     "gen/app/templates/apps/@target_name@/english.lproj/main_page.js",
-     "gen/app/templates/apps/@target_name@/english.lproj/strings.js",
      "gen/app/templates/apps/@target_name@/main.js",
+     "gen/app/templates/apps/@target_name@/resources/loading.rhtml",
+     "gen/app/templates/apps/@target_name@/resources/main_page.js",
      "gen/controller/Buildfile",
      "gen/controller/README",
      "gen/controller/USAGE",
@@ -706,7 +707,7 @@ Gem::Specification.new do |s|
      "gen/design/Buildfile",
      "gen/design/README",
      "gen/design/USAGE",
-     "gen/design/templates/english.lproj/@filename@.js",
+     "gen/design/templates/resources/@filename@.js",
      "gen/framework/Buildfile",
      "gen/framework/README",
      "gen/framework/USAGE",
@@ -727,9 +728,9 @@ Gem::Specification.new do |s|
      "gen/page/USAGE",
      "gen/page/templates/pages/@target_name@/Buildfile",
      "gen/page/templates/pages/@target_name@/core.js",
-     "gen/page/templates/pages/@target_name@/english.lproj/body.css",
-     "gen/page/templates/pages/@target_name@/english.lproj/body.rhtml",
-     "gen/page/templates/pages/@target_name@/english.lproj/strings.js",
+     "gen/page/templates/pages/@target_name@/en.lproj/strings.js",
+     "gen/page/templates/pages/@target_name@/resources/body.css",
+     "gen/page/templates/pages/@target_name@/resources/body.rhtml",
      "gen/project/Buildfile",
      "gen/project/INIT",
      "gen/project/README",
@@ -743,7 +744,7 @@ Gem::Specification.new do |s|
      "gen/theme/Buildfile",
      "gen/theme/README",
      "gen/theme/USAGE",
-     "gen/theme/templates/themes/@target_name@/english.lproj/strings.js",
+     "gen/theme/templates/themes/@target_name@/resources/theme_styles.css",
      "gen/view/Buildfile",
      "gen/view/README",
      "gen/view/USAGE",
