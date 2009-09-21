@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{sproutcore}
-  s.version = "1.0.20090721145293"
+  s.version = "1.0.20090721145294"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sprout Systems, Inc.  Apple Inc. and contributors"]
@@ -219,7 +219,6 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/frameworks/desktop/english.lproj/images/standard_fade/ffffff.png",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/images/sticky-note.png",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/list_item.css",
-     "frameworks/sproutcore/frameworks/desktop/english.lproj/menu.css",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/menu_item_view.css",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/modal.css",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/panel.css",
@@ -669,7 +668,6 @@ Gem::Specification.new do |s|
      "frameworks/sproutcore/themes/standard_theme/english.lproj/images/sc-toolbar-view.png",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/label.css",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/list_item.css",
-     "frameworks/sproutcore/themes/standard_theme/english.lproj/menu.css",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/menu_item_view.css",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/pane.css",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/panels/background-fat.jpg",
