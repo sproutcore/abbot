@@ -569,13 +569,13 @@ module SC
       build_root   = opts[:build_root] || nil
       language     = opts[:language] || self.config.preferred_language || :en
       logger       = opts[:logger] || SC.logger
-      template_name = opts[:template] || 'jsdoc'
+      template_name = opts[:template] || 'sproutcore'
       use_required = opts[:required]
       use_required = true if use_required.nil? 
       
       # collect targets to build
       doc_targets = [self]
-      doc_targets += self.expand_required_targets if use_required
+      doc_targets = (self.expand_required_targets + [self]) if use_required
 
       # convert targets to manifests so we can get alll files
       doc_manifests = doc_targets.map do |target| 
@@ -608,6 +608,7 @@ module SC
       end
 
       file_list = file_list.uniq # remove duplicates
+      file_list = file_list.select { |path| File.exist?(path) }
 
       logger.info "Building #{target_name} docs at #{build_root}"
       FileUtils.mkdir_p(build_root)
@@ -650,6 +651,7 @@ module SC
       # use pipe so that we can immediately log output as it happens
       IO.popen(js_doc_cmd) do |pipe|
         while line = pipe.gets
+          next if line =~ /WARNING: (<|===|index:)/
           logger.info line.sub(/\n$/,'')
         end
       end

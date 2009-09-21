@@ -39,7 +39,7 @@ module SC
           
           target.build_docs!(:build_root => build_root,
             :language => SC.env.language,
-            :required => SC.env.build_required,
+            :required => true, #SC.env.build_required,
             :template => SC.env.template_name,
             :logger   => SC.logger)
         else
