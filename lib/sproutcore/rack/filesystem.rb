@@ -10,7 +10,7 @@ require 'rack'
 require 'rack/request'
 require 'rack/utils'
 require 'rack/file'
-
+require 'find'
 module SC
   module Rack
     
@@ -21,6 +21,7 @@ module SC
       
       def initialize(project)
         @project = project
+        @ignore_directories = ['tmp', 'scripts', 'sproutcore'];
       end
       
       def root_dir
@@ -60,8 +61,8 @@ module SC
       def call(env)
         regex = /^\/sproutcore\/fs/
         params = ::Rack::Request.new(env).params
-        
         path = env["PATH_INFO"]
+
         return [404, {}, "not found"] unless path =~ regex
         
         path = path.sub regex, '' # remove path prefix
@@ -70,6 +71,8 @@ module SC
         case action
         when nil
           send_file(path)
+        when 'list'
+          list_files(path)
         when 'save'
           save_file(path,params)
         when 'append'
@@ -88,6 +91,32 @@ module SC
       end
       
       private
+      
+      def list_files(original_path)
+        results = []
+        with_sanitized_path(original_path) do |root_path|
+          results = folder_contents(root_path, root_path)
+        end
+        success(results.to_json)
+      end
+      
+      def folder_contents(dir, root_path)
+        results = [];
+        Dir.new(dir).each do |path|
+          name = path
+          path = dir + path
+          sc_path = path.gsub(root_path,"")
+          if FileTest.directory?(path)
+            if not (File.basename(path)[0] == ?. or @ignore_directories.include?(File.basename(path)))
+              results<< {:type => :dir, :path => sc_path, :name =>name, :contents=> folder_contents(path+"/", root_path)}
+            end
+          else #just a regular file
+            results<< {:type => :file, :path => sc_path, :name => name}
+          end
+        end
+        return results
+      end
+      
       
       def send_file(original_path)
         with_sanitized_path(original_path) do |sanitized_path|
