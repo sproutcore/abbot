@@ -53,10 +53,14 @@ Jeweler::Tasks.new do |gemspec|
   
   # Exclude as many files as possible to reduce the size of the gemspec
   # working around a bug with github
-  gemspec.files.exclude *%w[spec .graffle frameworks/sproutcore/themes/standard_theme/Source]
-  gemspec.test_files.exclude *%w[spec]
+  #gemspec.files.exclude *%w[spec .graffle frameworks/sproutcore/themes/standard_theme/Source]
+  #gemspec.test_files.exclude *%w[spec]
   
-  #gemspec.description = File.read(ROOT_PATH / 'README.txt')
+  gemspec.description = File.read(ROOT_PATH / 'README.txt')
+end
+
+Jeweler::RubyforgeTasks.new do |rubyforge|
+  rubyforge.doc_task = "rdoc"
 end
 
 ################################################
@@ -181,7 +185,6 @@ end
 
 # Extend gemspec to rename afterware
 task :gemspec do
-  
   fixup_gemspec
 end
 
@@ -228,6 +231,7 @@ end
 
 # Write a new version everytime we generate
 task 'gemspec:generate' => :update_version
+task 'rubyforge:setup' => :update_version
 
 Spec::Rake::SpecTask.new
 
