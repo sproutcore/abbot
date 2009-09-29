@@ -115,6 +115,90 @@ module SC
         urls.join("\n")
       end
 
+      # Detects and includes any bootstrap code
+      #
+      def bootstrap 
+        
+        ret = []
+        
+        # Reference any external bootstrap scripts
+        if (resources_names = target.config.bootstrap)
+          Array(resources_names).each do |resource_name|
+            ret << %(<script src="#{sc_static(resource_name)}" type="text/javascript" ></script>)
+          end
+        end
+        
+        # Reference any inlined bootstrap scripts
+        if (resources_names = target.config.bootstrap_inline)
+          Array(resources_names).each do |resource_name|
+            ret << inline_javascript(resource_name)
+          end
+        end
+        
+        # Reference any @content_for_bootstrap
+        if @content_for_bootstrap
+          ret << %(<script type="text/javascript">\n#{@content_for_bootstrap}\n</script>)
+        end
+        
+        return ret * "\n"
+      end
+      
+      # Attempts to include the named javascript entry inline to the file
+      #
+      # === Options
+      #  language:: the language to use.  defaults to current
+      #
+      def inline_javascript(resource_name, opts ={}) 
+
+        resource_name = resource_name.to_s
+        
+        # determine which manifest to search.  if a language is explicitly
+        # specified, lookup manifest for that language.  otherwise use 
+        # current manifest.
+        m = self.manifest 
+        if opts[:language]
+          m = target.manifest_for(:language => opts[:language]).build! 
+        end
+        
+        entry = m.find_entry(resource_name, :entry_type => :javascript)
+        if entry.nil?
+          entry = m.find_entry(resource_name, :hidden => true, :entry_type => :javascript)
+        end
+          
+        return '' if entry.nil?
+        
+        ret = File.readlines(entry.build!.build_path)*''
+        return %(<script type="text/javascript">\n#{ret}\n</script>)
+      end
+
+      # Attempts to include the named javascript entry inline to the file
+      #
+      # === Options
+      #  language:: the language to use.  defaults to current
+      #
+      def inline_stylesheet(resource_name, opts ={}) 
+
+        resource_name = resource_name.to_s
+        
+        # determine which manifest to search.  if a language is explicitly
+        # specified, lookup manifest for that language.  otherwise use 
+        # current manifest.
+        m = self.manifest 
+        if opts[:language]
+          m = target.manifest_for(:language => opts[:language]).build! 
+        end
+        
+        entry = m.find_entry(resource_name, :entry_type => :stylesheet)
+        if entry.nil?
+          entry = m.find_entry(resource_name, :hidden => true, :entry_type => :stylesheet)
+        end
+          
+        return '' if entry.nil?
+        
+        ret = File.readlines(entry.build!.build_path)
+        return %(<style>\n#{ret*"\n"}\n</style>)
+      end
+        
       # Attempts to render the named entry as a partial
       #
       # === Options

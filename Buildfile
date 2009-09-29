@@ -73,6 +73,9 @@ mode :all do
     # frameworks automatically if found.
     :theme  => 'sproutcore/standard_theme',
     
+    # use default bootstrap framework
+    :bootstrap_inline => 'sproutcore/bootstrap:javascript',
+    
     :use_packed => true,
     
     # if set to true then the index.html will build into the global language

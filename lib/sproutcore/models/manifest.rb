@@ -350,7 +350,7 @@ module SC
     def unique_staging_path(path)
       paths = entries(:hidden => true).map { |e| e.staging_path }
       while paths.include?(path)
-        path = path.sub(/(__\$[0-9]+)?(\.\w+)?$/,"__$#{next_staging_uuid}\\2")
+        path = path.sub(/(__\$[0-9]+)?(\.\w+)?$/,"__#{next_staging_uuid}\\2")
       end
       return path
     end
@@ -360,7 +360,7 @@ module SC
     def unique_cache_path(path)
       paths = entries(:hidden => true).map { |e| e.cache_path }
       while paths.include?(path)
-        path = path.sub(/(__\$[0-9]+)?(\.\w+)?$/,"__$#{next_staging_uuid}\\2")
+        path = path.sub(/(__\$[0-9]+)?(\.\w+)?$/,"__#{next_staging_uuid}\\2")
       end
       return path
     end
