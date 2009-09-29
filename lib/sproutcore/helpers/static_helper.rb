@@ -135,11 +135,6 @@ module SC
           end
         end
         
-        # Reference any @content_for_bootstrap
-        if @content_for_bootstrap
-          ret << %(<script type="text/javascript">\n#{@content_for_bootstrap}\n</script>)
-        end
-        
         return ret * "\n"
       end
       
