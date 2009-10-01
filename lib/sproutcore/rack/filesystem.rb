@@ -267,9 +267,9 @@ module SC
       
       def with_modifiable_path(path)      
         # can't use File.dirname here as it only recognizes Unix separators
-        path_parts = path.split(::Rack::File::SEPARATOR)
+        path_parts = path.split(::File::SEPARATOR)
         dir_name = File.join(path_parts[0..-2])
-        
+
         begin
           FileUtils.mkdir_p(dir_name)
         rescue Errno::EACCES
