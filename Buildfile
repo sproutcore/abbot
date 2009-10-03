@@ -81,7 +81,12 @@ mode :all do
     # if set to true then the index.html will build into the global language
     # and target directory.  This can interfere with deploying multiple builds
     # at one but it is more convenient.
-    :overwrite_current => false
+    :overwrite_current => false,
+    
+    # causes the default index.html file to add an overflow:hidden statement
+    # to the body tag.  This is usually preferred since it makes drag and drop
+    # look nicer
+    :hide_body_overflow => true
     
 end
 
