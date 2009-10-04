@@ -1,0 +1,15 @@
+data-source - Create a new DataSource class in your SproutCore app.
+
+USAGE:
+
+  sc-gen data-source AppName.DataSourceName [--filename=FILENAME] [--target=TARGET_NAME]
+
+DISCUSSION:
+
+This generator will create a new SproutCore DataSource template file in your 
+app.  You should pass as the first parameter your AppName.DataSourceName combination you want to create.  For example:
+
+sc-gen data-source Todos.TasksDataSource
+
+defines a new class called Todos.TasksDataSource in the file apps/todos/data_sources/task.js.
+
