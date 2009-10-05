@@ -60,7 +60,9 @@ module SC
       #   not empty
       def call(env)
         regex = /^\/sproutcore\/fs/
-        params = ::Rack::Request.new(env).params
+        rqust = ::Rack::Request.new(env)
+        params = rqust.params
+        body = rqust.body.read()
         path = env["PATH_INFO"]
 
         return [404, {}, "not found"] unless path =~ regex
@@ -75,6 +77,8 @@ module SC
           list_files(path)
         when 'save'
           save_file(path,params)
+        when 'overwrite'
+          overwrite_file(path,params,body)
         when 'append'
           append_file(path,params)
         when 'touch'
@@ -117,7 +121,17 @@ module SC
         return results
       end
       
-      
+      # This method will blast the current file
+      #
+      # @param current_file_path | the path of the current file
+      # @param params | the contents of the file
+      def overwrite_file(current_file_path, params, body)
+        with_sanitized_path(current_file_path) do |file_path|
+            blast_current_file(file_path, params, body)
+            success("Saved your changes to #{file_path}")
+        end
+      end
+          
       def send_file(original_path)
         with_sanitized_path(original_path) do |sanitized_path|
           with_readable_path(sanitized_path) do |readable_path|
@@ -126,7 +140,7 @@ module SC
         end
       end
       
-      def save_file(original_path,params)
+      def save_file(original_path,params)        
         with_sanitized_path(original_path) do |sanitized_path|
           with_modifiable_path(sanitized_path) do |dest_path|
             save_to_file(dest_path,params)
@@ -186,6 +200,15 @@ module SC
         with_tempfile_path(params['file']) do |tempfile_path|
           puts "moving #{tempfile_path} to #{dest_path}"
           FileUtils.mv(tempfile_path,dest_path)
+        end
+      end
+      
+      def blast_current_file(dest_path, params, body)
+        return not_found(dest_path) unless File.exist?(dest_path)
+        return forbidden("Cannot modify #{dest_path}") unless File.writable?(dest_path)
+        return forbidden("No content body for #{dest_path}") unless body
+        File.open(dest_path, 'w') do |f|
+          f.puts(body)
         end
       end
       
