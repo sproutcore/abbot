@@ -21,6 +21,21 @@ module SC
       lines = []
       entries = entry.ordered_entries || entry.source_entries
       
+      target_name = entry.target.target_name.to_s.sub(/^\//,'')
+      if entry.top_level_lazy_instantiation && entry.combined
+        lines << ";
+if ((typeof SC !== 'undefined') && SC && !SC.LAZY_INSTANTIATION) {
+  SC.LAZY_INSTANTIATION = {};
+}
+if(!SC.LAZY_INSTANTIATION['#{target_name}']) {
+  SC.LAZY_INSTANTIATION['#{target_name}'] = [];
+}
+SC.LAZY_INSTANTIATION['#{target_name}'].push(
+  (
+    function() {
+"        
+      end  
+
       entries.each do |entry|
         src_path = entry.stage!.staging_path
         next unless File.exist?(src_path)
@@ -29,6 +44,14 @@ module SC
         lines += readlines(src_path)
         lines << "\n"
       end
+
+      if entry.top_level_lazy_instantiation && entry.combined
+        lines << "
+    }
+  )
+);
+"
+    end
       writelines dst_path, lines
     end
     

@@ -57,7 +57,7 @@ mode :all do
     # Generate a combined javascript and stylesheet
     :combine_javascript => true,
     :combine_stylesheets => true,
-    
+
     # by default all targets autobuild
     :autobuild => true,
     
@@ -77,6 +77,10 @@ mode :all do
     :bootstrap_inline => 'sproutcore/bootstrap:javascript',
     
     :use_packed => true,
+
+		# If set to true, the specified framework, if loaded via the SC.loadBundle
+		# API, will be set up to be lazily instantiated when loaded.
+		:lazy_instantiation => false,
     
     # if set to true then the index.html will build into the global language
     # and target directory.  This can interfere with deploying multiple builds
@@ -95,17 +99,17 @@ mode :debug do
   config :all,
   
     # in debug mode, load fixtures, debug, tests, and protocols
-    :load_fixtures  => true,
-    :load_debug     => true,
-    :load_tests     => true,
+    :load_fixtures  => false,
+    :load_debug     => false,
+    :load_tests     => false,
     :load_protocols => true,
     
     # Do not combine javascript and stylesheet
     :combine_javascript => false,
-    :combine_stylesheets => true,
+    :combine_stylesheets => false,
     
     :minify_javascript => false,
-	:minify_css => false,
+		:minify_css => false,
     
     :build_prefix => 'tmp/debug/build',
     :staging_prefix => 'tmp/debug/staging',

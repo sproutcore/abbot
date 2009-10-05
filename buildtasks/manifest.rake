@@ -199,6 +199,7 @@ namespace :manifest do
       # add transform & tag with build directives.
       entries.each do |entry|
         entry = MANIFEST.add_transform entry,
+          :lazy_instantiation => CONFIG.lazy_instantiation,
           :notify_onload => !CONFIG.combine_javascript,
           :filename   => ['source', entry.filename].join('/'),
           :build_path => File.join(MANIFEST.build_root, 'source', entry.filename),
@@ -317,6 +318,7 @@ namespace :manifest do
         MANIFEST.add_composite resource_name,
           :build_task      => 'build:combine',
           :source_entries  => entries,
+          :top_level_lazy_instantiation => CONFIG.lazy_instantiation, 
           :hide_entries    => CONFIG.combine_javascript,
           :ordered_entries => SC::Helpers::EntrySorter.sort(entries, pf),
           :entry_type      => :javascript,
