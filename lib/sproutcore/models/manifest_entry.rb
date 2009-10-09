@@ -135,12 +135,24 @@ module SC
     end
     
     # Returns a URL with a possible timestamp token appended to the end of 
-    # the entry if the target's timestamp_url config is set.  Otherwise
+    # the entry if the target's timestamp_url config is set, or with a randomly
+    # assigned domain name prepended if hyper-domaining is turned on.  Otherwise
     # returns the URL itself.
     def cacheable_url
       ret = self.url
       ret = [ret, self.timestamp].join('?') if target.config.timestamp_urls
+      ret = [self.hyperdomain_prefix(ret), ret].join('') if target.config.hyper_domaining
       return ret
+    end
+    
+    # If the hyper_domaining config is an array of strings, this will select
+    # one of them based on the hash of the URL, and provide an absolute URL
+    # to the entry.
+    def hyperdomain_prefix(url)
+      hyperdomains = target.config.hyper_domaining
+      index = url.hash % hyperdomains.length
+      
+      return "http://#{hyperdomains[index]}"
     end
     
     # Scans the source paths (first staging any source entries) for the 
