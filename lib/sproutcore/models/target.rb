@@ -315,7 +315,7 @@ module SC
 
       # Otherwise, actually compute a build number. 
       if build_number.nil?
-        require 'digest/md5'
+        require 'digest/sha1'
 
         # Computes the build number based on the contents of the
         # files.  It is not as fast as using an mtime, but it will remain
