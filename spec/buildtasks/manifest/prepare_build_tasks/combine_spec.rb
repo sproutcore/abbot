@@ -180,7 +180,7 @@ describe "manifest:prepare_build_tasks:combine" do
         @project = fixture_project :ordered_entries
       end
       
-      it "orders entries as lproj/strings -> core -> utils -> others alphabetically without requires" do
+      it "orders entries as lproj/strings -> core -> utils -> others alphabetically without requires -> resources/*_page.js -> main.js}" do
         
         @target = @project.target_for :no_requires
         @buildfile = @target.buildfile
@@ -193,7 +193,7 @@ describe "manifest:prepare_build_tasks:combine" do
 
         # get the expected set of ordered entries...based on contents of 
         # project...
-        expected = %w(bundle_info.js source/lproj/strings.js source/core.js source/utils.js source/1.js source/a.js source/a/a.js source/a/b.js source/B.js source/b/a.js source/c.js)
+        expected = %w(bundle_info.js source/lproj/strings.js source/core.js source/utils.js source/1.js source/a.js source/a/a.js source/a/b.js source/B.js source/b/a.js source/c.js source/t.js source/resources/main_page.js source/main.js)
 
         entry.ordered_entries.should_not be_nil
         filenames = entry.ordered_entries.map { |e| e.filename }

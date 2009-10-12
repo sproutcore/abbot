@@ -52,10 +52,10 @@ module SC
           b = (b.filename || '').to_s.downcase
 
           # lproj/foo_page.js and main.js are loaded last
-          a_kind = (a =~ /lproj\/.+_page\.js$/) ? 1 : -1
+          a_kind = (a =~ /(lproj|resources)\/.+_page\.js$/) ? 1 : -1
           a_kind = 2 if a =~ /main.js$/
 
-          b_kind = (b =~ /lproj\/.+_page\.js$/) ? 1 : -1
+          b_kind = (b =~ /(lproj|resources)\/.+_page\.js$/) ? 1 : -1
           b_kind = 2 if b =~ /main.js$/
           
           if a_kind != b_kind
