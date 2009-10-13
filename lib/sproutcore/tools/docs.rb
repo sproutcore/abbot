@@ -12,10 +12,10 @@ module SC
   class Tools
 
     desc "sc-docs [TARGET..]", "Generates JSDoc's for specified targets."
-    method_options(:entries  => :optional,
+    method_options(:entries  => :string,
                    :clean    => true,
-                   :language => :optional,
-                   :template => :optional,
+                   :language => :string,
+                   :template => :string,
                    ['--include-required', '-r'] => false)
     def docs(*targets)
 

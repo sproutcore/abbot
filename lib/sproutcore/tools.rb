@@ -5,7 +5,7 @@
 #            and contributors
 # ===========================================================================
 
-require File.expand_path(File.join(SC::LIBPATH, 'thor', 'lib', 'thor'))
+require 'thor'
 
 module SC
 
@@ -24,6 +24,10 @@ module SC
   # tool itself when it runs.
   #
   class Tools < ::Thor
+
+    def self.invoke(task_name)
+      start([task_name.to_s] + ARGV)
+    end
 
     ################################################
     ## EXCEPTIONS
@@ -66,12 +70,12 @@ module SC
     
     # All sproutcore tools can take some standard options.  These are 
     # processed automatically when the tool is loaded
-    method_options({ '--project'        => :optional,
-                     '--library'        => :optional, # deprecated
-                     '--mode'           => :optional,
-                     '--environment'    => :optional, # deprecated
-                     '--logfile'        => :optional,
-                     '--build'          => :optional,
+    method_options({ '--project'        => :string,
+                     '--library'        => :string, # deprecated
+                     '--mode'           => :string,
+                     '--environment'    => :string, # deprecated
+                     '--logfile'        => :string,
+                     '--build'          => :string,
                      ['--verbose', '-v']      => false,
                      ['--very-verbose', '-V'] => false })
     def initialize(options, *args)
@@ -108,7 +112,7 @@ module SC
 
     # Configure the current build numbers.  Handles the --build option.
     def prepare_build_numbers!
-      return if (numbers = options.build).nil?
+      return unless (numbers = options.build)
       numbers = numbers.split(',').map { |n| n.split(':') }
       if numbers.size==1 && numbers.first.size==1
         SC.env.build_number = numbers.first.first
@@ -143,7 +147,7 @@ module SC
 
       # if no project_path is named explicitly, attempt to autodiscover from
       # working dir.  If none is found, just set project to nil
-      if project_path.nil?
+      unless project_path
         debug "No project path specified.  Searching for projects in #{Dir.pwd}"
         ret = SC::Project.load_nearest_project Dir.pwd, :parent => SC.builtin_project
         
@@ -250,7 +254,7 @@ module SC
     def find_languages(*targets)
       # Use passed languages.  If none are specified, merge installed 
       # languages for all app targets.
-      if (languages = options.languages).nil?
+      unless (languages = options.languages)
         languages = targets.map { |t| t.installed_languages }
       else
         languages = languages.split(',').map { |l| l.to_sym }

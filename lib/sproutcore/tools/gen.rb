@@ -49,9 +49,9 @@ module SC
       "Generates SproutCore components"
     
     method_options(
-      MANIFEST_OPTIONS.merge(:help       => :optional,
-                             :filename   => :optional,
-                             :target     => :optional,
+      MANIFEST_OPTIONS.merge(:help       => :string,
+                             :filename   => :string,
+                             :target     => :string,
                              '--dry-run' => false,
                              :force      => false))
       

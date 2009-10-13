@@ -9,21 +9,21 @@ module SC
   class Tools
     
     # Standard manifest options.  Used by build tool as well.
-    MANIFEST_OPTIONS = { :languages     => :optional,
+    MANIFEST_OPTIONS = { :languages     => :string,
                          :symlink       => false,
-                         :buildroot     => :optional,
-                         :stageroot     => :optional,
-                         :format        => :optional,
-                         :output        => :output,
+                         :buildroot     => :string,
+                         :stageroot     => :string,
+                         :format        => :string,
+                         :output        => :string,
                          :all           => false,
-                         ['--build-numbers', '-B'] => :optional,
+                         ['--build-numbers', '-B'] => :string,
                          ['--include-required', '-r'] => false }
                      
     desc "manifest [TARGET..]", "Generates a manifest for the specified targets"
     method_options(MANIFEST_OPTIONS.merge(
-      :format        => :optional,
-      :only          => :optional,
-      :except        => :optional,
+      :format        => :string,
+      :only          => :string,
+      :except        => :string,
       :hidden        => false ))
     def manifest(*targets)
 

@@ -12,7 +12,7 @@ module SC
     
     desc "build [TARGET..]", "Builds one or more targets"
     method_options(
-      MANIFEST_OPTIONS.merge(:entries => :optional, :clean => false))
+      MANIFEST_OPTIONS.merge(:entries => :string, :clean => false))
       
     def build(*targets)
 
