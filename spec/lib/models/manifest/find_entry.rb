@@ -29,6 +29,12 @@ describe SC::Manifest, 'entry_for' do
     @shared_man.build! #important - build before adding entries
     @shared_man.add_entry 'shared/foo.png'
     @shared_man.add_entry 'images/foo.png'
+    
+    # and one more that is not in the dependency chain...
+    @unrelated_man = @project.target_for(:unrelated).manifest_for(:language => :en)
+    @unrelated_man.build!
+    @unrelated_man.add_entry 'shared/foo.png'
+    @unrelated_man.add_entry 'images/foo.png'
   end
     
   def should_find(find_str, expected_filename)
@@ -86,6 +92,12 @@ describe SC::Manifest, 'entry_for' do
     entry = @manifest.find_entry('shared:images/foo')
     entry.should_not be_nil
     entry.manifest.should == @shared_man
+  end
+
+  it "will match a specific target even in an unrelated target if named" do
+    entry = @manifest.find_entry('unrelated:images/foo')
+    entry.should_not be_nil
+    entry.manifest.should == @unrelated_man
   end
   
   it "will match any target if empty target is named" do
