@@ -44,6 +44,7 @@ Jeweler::Tasks.new do |gemspec|
   gemspec.add_dependency 'json_pure', ">= 1.1.0"
   gemspec.add_dependency 'extlib', ">= 0.9.9"
   gemspec.add_dependency 'erubis', ">= 2.6.2"
+  gemspec.add_dependency 'thor', '>= 0.11.7'
   gemspec.add_development_dependency 'jeweler', ">= 1.0.1"
   gemspec.rubyforge_project = "sproutcore"
   gemspec.extra_rdoc_files.include *%w[History.txt README.txt]
@@ -70,7 +71,7 @@ end
 desc "performs an initial setup on the tools.  Installs gems, init submodules"
 task :init do
   $stdout.puts "Installing gems (may ask for password)"
-  `sudo gem install rack jeweler json_pure extlib erubis`
+  `sudo gem install rack jeweler json_pure extlib erubis thor`
   
   $stdout.puts "Setup submodules"
   `git submodule update --init`

@@ -28,21 +28,23 @@ module SC
   # 
   class Tools
     
-    def show_help(generator_name=nil, generator=nil)
-      if generator_name
-        if generator.nil?
-          warn("There is no #{generator_name} generator") 
+    no_tasks do
+      def show_help(generator_name=nil, generator=nil)
+        if generator_name
+          if generator.nil?
+            warn("There is no #{generator_name} generator") 
+          else
+            generator.log_usage
+          end
         else
-          generator.log_usage
+          SC.logger << "Available generators:\n"
+          SC::Generator.installed_generators_for(project).each do |name|
+            SC.logger << "  #{name}\n"
+          end
+          SC.logger << "Type sc-gen GENERATOR --help for specific usage\n\n"
         end
-      else
-        SC.logger << "Available generators:\n"
-        SC::Generator.installed_generators_for(project).each do |name|
-          SC.logger << "  #{name}\n"
-        end
-        SC.logger << "Type sc-gen GENERATOR --help for specific usage\n\n"
+        return 0
       end
-      return 0
     end
     
     desc "sc-gen generator Namespace[.ClassName] [--target=TARGET_NAME] [--filename=FILE_NAME]", 
