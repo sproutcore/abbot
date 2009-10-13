@@ -99,14 +99,14 @@ mode :debug do
   config :all,
   
     # in debug mode, load fixtures, debug, tests, and protocols
-    :load_fixtures  => false,
-    :load_debug     => false,
-    :load_tests     => false,
+    :load_fixtures  => true,
+    :load_debug     => true,
+    :load_tests     => true,
     :load_protocols => true,
     
     # Do not combine javascript and stylesheet
     :combine_javascript => false,
-    :combine_stylesheets => false,
+    :combine_stylesheets => true,
     
     :minify_javascript => false,
 		:minify_css => false,
