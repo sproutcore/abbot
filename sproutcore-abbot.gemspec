@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{sproutcore}
-  s.version = "1.0.1006"
+  s.version = "1.0.1007"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sprout Systems, Inc.  Apple Inc. and contributors"]
-  s.date = %q{2009-10-15}
+  s.date = %q{2009-10-16}
   s.description = %q{sproutcore - abbot
     by Charles Jolley and contributors
     http://www.sproutcore.com
@@ -341,15 +341,18 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/designer/coders/localization.js",
      "frameworks/sproutcore/frameworks/designer/coders/object.js",
      "frameworks/sproutcore/frameworks/designer/controllers/page_design.js",
+     "frameworks/sproutcore/frameworks/designer/core.js",
      "frameworks/sproutcore/frameworks/designer/css/css_rule.js",
      "frameworks/sproutcore/frameworks/designer/css/css_style.js",
      "frameworks/sproutcore/frameworks/designer/css/css_style_sheet.js",
+     "frameworks/sproutcore/frameworks/designer/english.lproj/selection_handles.css",
      "frameworks/sproutcore/frameworks/designer/ext/page.js",
      "frameworks/sproutcore/frameworks/designer/ext/view.js",
-     "frameworks/sproutcore/frameworks/designer/views/controls/button.js",
+     "frameworks/sproutcore/frameworks/designer/mixins/button.js",
+     "frameworks/sproutcore/frameworks/designer/views/button.js",
      "frameworks/sproutcore/frameworks/designer/views/designer.js",
      "frameworks/sproutcore/frameworks/designer/views/label.js",
-     "frameworks/sproutcore/frameworks/designer/views/mixins/button.js",
+     "frameworks/sproutcore/frameworks/designer/views/selection_handles.js",
      "frameworks/sproutcore/frameworks/designer/views/tab.js",
      "frameworks/sproutcore/frameworks/desktop/core.js",
      "frameworks/sproutcore/frameworks/desktop/debug/drag.js",
@@ -482,7 +485,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/desktop/views/checkbox.js",
      "frameworks/sproutcore/frameworks/desktop/views/collection.js",
      "frameworks/sproutcore/frameworks/desktop/views/disclosure.js",
-     "frameworks/sproutcore/frameworks/desktop/views/form.js",
      "frameworks/sproutcore/frameworks/desktop/views/grid.js",
      "frameworks/sproutcore/frameworks/desktop/views/list.js",
      "frameworks/sproutcore/frameworks/desktop/views/list_item.js",
