@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{sproutcore}
-  s.version = "1.0.1003"
+  s.version = "1.0.1006"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sprout Systems, Inc.  Apple Inc. and contributors"]
-  s.date = %q{2009-09-28}
+  s.date = %q{2009-10-15}
   s.description = %q{sproutcore - abbot
     by Charles Jolley and contributors
     http://www.sproutcore.com
@@ -235,6 +235,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/design/TestRunner Design.graffle/image31.png",
      "frameworks/sproutcore/design/TestRunner Design.graffle/image8.png",
      "frameworks/sproutcore/design/TestRunner Design.graffle/image9.png",
+     "frameworks/sproutcore/frameworks/bootstrap/README",
+     "frameworks/sproutcore/frameworks/bootstrap/core.js",
+     "frameworks/sproutcore/frameworks/bootstrap/setup_body_class_names.js",
+     "frameworks/sproutcore/frameworks/bootstrap/system/browser.js",
+     "frameworks/sproutcore/frameworks/bootstrap/system/loader.js",
      "frameworks/sproutcore/frameworks/core_tools/core.js",
      "frameworks/sproutcore/frameworks/core_tools/data_source.js",
      "frameworks/sproutcore/frameworks/core_tools/english.lproj/strings.js",
@@ -268,6 +273,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/datastore/tests/models/many_attribute.js",
      "frameworks/sproutcore/frameworks/datastore/tests/models/record/core_methods.js",
      "frameworks/sproutcore/frameworks/datastore/tests/models/record/destroy.js",
+     "frameworks/sproutcore/frameworks/datastore/tests/models/record/error_methods.js",
      "frameworks/sproutcore/frameworks/datastore/tests/models/record/normalize.js",
      "frameworks/sproutcore/frameworks/datastore/tests/models/record/readAttribute.js",
      "frameworks/sproutcore/frameworks/datastore/tests/models/record/refresh.js",
@@ -280,6 +286,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/datastore/tests/system/nested_store/chain.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/nested_store/commitChanges.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/nested_store/commitChangesFromNestedStore.js",
+     "frameworks/sproutcore/frameworks/datastore/tests/system/nested_store/core_methods.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/nested_store/dataHashDidChange.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/nested_store/discardChanges.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/nested_store/readDataHash.js",
@@ -300,6 +307,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/datastore/tests/system/query/registered_comparisons.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/query/registered_query_extensions.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/record_array/core_methods.js",
+     "frameworks/sproutcore/frameworks/datastore/tests/system/record_array/error_methods.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/record_array/flush.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/store/cancelRecord.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/store/commitChangesFromNestedStore.js",
@@ -309,6 +317,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/datastore/tests/system/store/dataHashDidChange.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/store/dataSourceCallbacks.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/store/destroyRecord.js",
+     "frameworks/sproutcore/frameworks/datastore/tests/system/store/error_methods.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/store/find.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/store/init.js",
      "frameworks/sproutcore/frameworks/datastore/tests/system/store/pushChanges.js",
@@ -356,14 +365,12 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/desktop/english.lproj/images/icons/mini_888888.png",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/images/icons/mini_ffffff.png",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/images/icons/shared.png",
-     "frameworks/sproutcore/frameworks/desktop/english.lproj/images/indicator.gif",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/images/panels/sprite-x.png",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/images/panels/sprite-y.png",
-     "frameworks/sproutcore/frameworks/desktop/english.lproj/images/sc-theme-sprite.png",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/images/standard_fade/000000.png",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/images/standard_fade/ffffff.png",
-     "frameworks/sproutcore/frameworks/desktop/english.lproj/images/sticky-note.png",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/list_item.css",
+     "frameworks/sproutcore/frameworks/desktop/english.lproj/menu.css",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/menu_item_view.css",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/modal.css",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/panel.css",
@@ -385,12 +392,12 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/desktop/mixins/collection_view_delegate.js",
      "frameworks/sproutcore/frameworks/desktop/mixins/scrollable.js",
      "frameworks/sproutcore/frameworks/desktop/panes/alert.js",
-     "frameworks/sproutcore/frameworks/desktop/panes/drop_down.js",
      "frameworks/sproutcore/frameworks/desktop/panes/menu.js",
      "frameworks/sproutcore/frameworks/desktop/panes/modal.js",
      "frameworks/sproutcore/frameworks/desktop/panes/palette.js",
      "frameworks/sproutcore/frameworks/desktop/panes/panel.js",
      "frameworks/sproutcore/frameworks/desktop/panes/picker.js",
+     "frameworks/sproutcore/frameworks/desktop/panes/select_button.js",
      "frameworks/sproutcore/frameworks/desktop/panes/sheet.js",
      "frameworks/sproutcore/frameworks/desktop/protocols/drag_data_source.js",
      "frameworks/sproutcore/frameworks/desktop/protocols/drag_source.js",
@@ -404,8 +411,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/desktop/tests/integration/dialog.js",
      "frameworks/sproutcore/frameworks/desktop/tests/panes/alert/methods.js",
      "frameworks/sproutcore/frameworks/desktop/tests/panes/alert/ui.js",
-     "frameworks/sproutcore/frameworks/desktop/tests/panes/dropDown/methods.js",
-     "frameworks/sproutcore/frameworks/desktop/tests/panes/dropDown/ui.js",
      "frameworks/sproutcore/frameworks/desktop/tests/panes/menu/methods.js",
      "frameworks/sproutcore/frameworks/desktop/tests/panes/menu/ui.js",
      "frameworks/sproutcore/frameworks/desktop/tests/panes/palette/methods.js",
@@ -414,6 +419,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/desktop/tests/panes/panel/ui.js",
      "frameworks/sproutcore/frameworks/desktop/tests/panes/picker/methods.js",
      "frameworks/sproutcore/frameworks/desktop/tests/panes/picker/ui.js",
+     "frameworks/sproutcore/frameworks/desktop/tests/panes/select_button/methods.js",
+     "frameworks/sproutcore/frameworks/desktop/tests/panes/select_button/ui.js",
      "frameworks/sproutcore/frameworks/desktop/tests/panes/sheet/methods.js",
      "frameworks/sproutcore/frameworks/desktop/tests/panes/sheet/ui.js",
      "frameworks/sproutcore/frameworks/desktop/tests/views/button/methods.js",
@@ -556,6 +563,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/foundation/system/request.js",
      "frameworks/sproutcore/frameworks/foundation/system/responder.js",
      "frameworks/sproutcore/frameworks/foundation/system/responder_context.js",
+     "frameworks/sproutcore/frameworks/foundation/system/response.js",
      "frameworks/sproutcore/frameworks/foundation/system/root_responder.js",
      "frameworks/sproutcore/frameworks/foundation/system/routes.js",
      "frameworks/sproutcore/frameworks/foundation/system/text_selection.js",
@@ -893,11 +901,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/themes/standard_theme/english.lproj/core.css",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/disclosure.css",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/images/sc-theme-repeat-x.png",
-     "frameworks/sproutcore/themes/standard_theme/english.lproj/images/sc-theme-sprite.png",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/images/sc-theme-ysprite.png",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/images/sc-toolbar-view.png",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/label.css",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/list_item.css",
+     "frameworks/sproutcore/themes/standard_theme/english.lproj/menu.css",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/menu_item_view.css",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/pane.css",
      "frameworks/sproutcore/themes/standard_theme/english.lproj/panels/background-fat.jpg",
@@ -932,6 +940,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "gen/controller/USAGE",
      "gen/controller/templates/controllers/@filename@.js",
      "gen/controller/templates/tests/controllers/@filename@.js",
+     "gen/data-source/Buildfile",
+     "gen/data-source/README",
+     "gen/data-source/USAGE",
+     "gen/data-source/templates/data_sources/@filename@.js",
      "gen/design/Buildfile",
      "gen/design/README",
      "gen/design/USAGE",
@@ -1033,37 +1045,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "lib/sproutcore/tools/init.rb",
      "lib/sproutcore/tools/manifest.rb",
      "lib/sproutcore/tools/server.rb",
-     "lib/thor/CHANGELOG.rdoc",
-     "lib/thor/LICENSE",
-     "lib/thor/README.markdown",
-     "lib/thor/Rakefile",
-     "lib/thor/Thorfile",
-     "lib/thor/bin/rake2thor",
-     "lib/thor/bin/thor",
-     "lib/thor/lib/thor.rb",
-     "lib/thor/lib/thor/error.rb",
-     "lib/thor/lib/thor/options.rb",
-     "lib/thor/lib/thor/ordered_hash.rb",
-     "lib/thor/lib/thor/runner.rb",
-     "lib/thor/lib/thor/task.rb",
-     "lib/thor/lib/thor/task_hash.rb",
-     "lib/thor/lib/thor/tasks.rb",
-     "lib/thor/lib/thor/tasks/package.rb",
-     "lib/thor/lib/thor/util.rb",
-     "lib/thor/script/destroy",
-     "lib/thor/script/generate",
-     "lib/thor/spec/fixtures/task.thor",
-     "lib/thor/spec/options_spec.rb",
-     "lib/thor/spec/ordered_hash_spec.rb",
-     "lib/thor/spec/spec.opts",
-     "lib/thor/spec/spec_helper.rb",
-     "lib/thor/spec/task_spec.rb",
-     "lib/thor/spec/tasks_spec.rb",
-     "lib/thor/spec/thor_runner_spec.rb",
-     "lib/thor/spec/thor_spec.rb",
-     "lib/thor/spec/util_spec.rb",
-     "lib/thor/task.thor",
-     "lib/thor/thor.gemspec",
      "spec/buildtasks/build/copy_spec.rb",
      "spec/buildtasks/build/spec_helper.rb",
      "spec/buildtasks/manifest/catalog_spec.rb",
@@ -1140,6 +1121,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "spec/fixtures/entry_for_project/apps/test_app/entry.txt",
      "spec/fixtures/entry_for_project/apps/test_app/frameworks/nested/PLACEHOLDER",
      "spec/fixtures/entry_for_project/frameworks/shared/PLACEHOLDER",
+     "spec/fixtures/entry_for_project/frameworks/unrelated/PLACEHOLDER",
      "spec/fixtures/find_targets/custom/Buildfile",
      "spec/fixtures/find_targets/custom/bars/bar1/bars/bar1/PLACEHOLDER",
      "spec/fixtures/find_targets/custom/bars/bar1/bars/bar2/PLACEHOLDER",
@@ -1196,7 +1178,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "spec/fixtures/ordered_entries/apps/no_requires/english.lproj/a/b.css",
      "spec/fixtures/ordered_entries/apps/no_requires/english.lproj/b/a.css",
      "spec/fixtures/ordered_entries/apps/no_requires/english.lproj/c.css",
-     "spec/fixtures/ordered_entries/apps/no_requires/lproj/strings.js",
+     "spec/fixtures/ordered_entries/apps/no_requires/english.lproj/strings.js",
+     "spec/fixtures/ordered_entries/apps/no_requires/main.js",
+     "spec/fixtures/ordered_entries/apps/no_requires/resources/main_page.js",
+     "spec/fixtures/ordered_entries/apps/no_requires/t.js",
      "spec/fixtures/ordered_entries/apps/no_requires/utils.js",
      "spec/fixtures/ordered_entries/apps/with_requires/a.js",
      "spec/fixtures/ordered_entries/apps/with_requires/b.js",
@@ -1564,12 +1549,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       s.add_runtime_dependency(%q<json_pure>, [">= 1.1.0"])
       s.add_runtime_dependency(%q<extlib>, [">= 0.9.9"])
       s.add_runtime_dependency(%q<erubis>, [">= 2.6.2"])
+      s.add_runtime_dependency(%q<thor>, [">= 0.11.7"])
       s.add_development_dependency(%q<jeweler>, [">= 1.0.1"])
     else
       s.add_dependency(%q<rack>, [">= 0.9.1"])
       s.add_dependency(%q<json_pure>, [">= 1.1.0"])
       s.add_dependency(%q<extlib>, [">= 0.9.9"])
       s.add_dependency(%q<erubis>, [">= 2.6.2"])
+      s.add_dependency(%q<thor>, [">= 0.11.7"])
       s.add_dependency(%q<jeweler>, [">= 1.0.1"])
     end
   else
@@ -1577,6 +1564,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     s.add_dependency(%q<json_pure>, [">= 1.1.0"])
     s.add_dependency(%q<extlib>, [">= 0.9.9"])
     s.add_dependency(%q<erubis>, [">= 2.6.2"])
+    s.add_dependency(%q<thor>, [">= 0.11.7"])
     s.add_dependency(%q<jeweler>, [">= 1.0.1"])
   end
 end
