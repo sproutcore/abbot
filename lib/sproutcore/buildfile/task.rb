@@ -69,7 +69,7 @@ module SC
       app = application if app.nil?
       sibling = self.class.new(name, app)
       self.instance_variables.each do |key|
-        next if IGNORE.include?(key)
+        next if IGNORE.include?(key.to_s) # instance_variables is an array of symbols in Ruby 1.9
         sibling.instance_variable_set(key, self.instance_variable_get(key))
       end
       sibling.taint if tainted?

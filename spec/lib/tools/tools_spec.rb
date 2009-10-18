@@ -3,6 +3,7 @@ require 'tempfile'
 
 # Add dummy task we can use to test general option processing
 class SC::Tools
+  desc "dummy", "a dummy task"
   def dummy; end
 end
 
