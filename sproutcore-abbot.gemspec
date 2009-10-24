@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{sproutcore}
-  s.version = "1.0.1007"
+  s.version = "1.0.1008"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sprout Systems, Inc.  Apple Inc. and contributors"]
-  s.date = %q{2009-10-16}
+  s.date = %q{2009-10-23}
   s.description = %q{sproutcore - abbot
     by Charles Jolley and contributors
     http://www.sproutcore.com
@@ -719,6 +719,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/runtime/system/enumerator.js",
      "frameworks/sproutcore/frameworks/runtime/system/error.js",
      "frameworks/sproutcore/frameworks/runtime/system/index_set.js",
+     "frameworks/sproutcore/frameworks/runtime/system/logger.js",
      "frameworks/sproutcore/frameworks/runtime/system/object.js",
      "frameworks/sproutcore/frameworks/runtime/system/range_observer.js",
      "frameworks/sproutcore/frameworks/runtime/system/run_loop.js",
@@ -762,6 +763,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/runtime/tests/system/index_set/remove.js",
      "frameworks/sproutcore/frameworks/runtime/tests/system/index_set/removeEach.js",
      "frameworks/sproutcore/frameworks/runtime/tests/system/index_set/without.js",
+     "frameworks/sproutcore/frameworks/runtime/tests/system/logger.js",
      "frameworks/sproutcore/frameworks/runtime/tests/system/object/base.js",
      "frameworks/sproutcore/frameworks/runtime/tests/system/object/bindings.js",
      "frameworks/sproutcore/frameworks/runtime/tests/system/range_observer/create.js",
