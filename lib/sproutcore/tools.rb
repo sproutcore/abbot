@@ -338,6 +338,7 @@ module SC
           if is_verbose && !e.kind_of?(FatalException)
             SC.logger.fatal("BACKTRACE:\n#{e.backtrace.join("\n")}\n")
           end
+          exit(1) 
         end
       end
       
