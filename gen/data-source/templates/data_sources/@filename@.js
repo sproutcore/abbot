@@ -10,7 +10,7 @@
 
   @extends <%= base_class_name || 'SC.DataSource' %>
 */
-<%= namespace_class_name %> = <%= base_class_name || 'SC.DataSource' %>.create(
+<%= namespace_class_name %> = <%= base_class_name || 'SC.DataSource' %>.extend(
 /** @scope <%= namespace_class_name %>.prototype */ {
 
   // ..........................................................
