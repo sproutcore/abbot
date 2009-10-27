@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{sproutcore}
-  s.version = "1.0.1008"
+  s.version = "1.0.1009"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sprout Systems, Inc.  Apple Inc. and contributors"]
-  s.date = %q{2009-10-23}
+  s.date = %q{2009-10-26}
   s.description = %q{sproutcore - abbot
     by Charles Jolley and contributors
     http://www.sproutcore.com
