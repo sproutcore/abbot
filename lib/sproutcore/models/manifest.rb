@@ -277,7 +277,10 @@ module SC
         manifest = self
         filename = target_name
       else
-        manifest = target.target_for(target_name).manifest_for(self.variation)
+        if (_manifest_target = target.target_for(target_name)).nil?
+          throw "Cannot file target #{target_name} for entry #{filename}"
+        end
+        manifest = _manifest_target.manifest_for(self.variation)
         manifest.build!
       end
       
