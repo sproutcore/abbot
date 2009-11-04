@@ -68,8 +68,10 @@ module SC
           if no_body_method.include?(http_method)
             response = http.send(http_method, http_path, headers)
           else
-          	http_body = env['rack.input'].gets || ''
-            response = http.send(http_method, http_path, http_body, headers)
+            http_body = evn['rack.input']
+            some_request = Net::HTTPGenericRequest.new(http_method, '', '', http_path, headers)
+            some_request.body_stream = http_body
+            response = http.request(some_request)
           end
         end
          
