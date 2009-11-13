@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{sproutcore}
-  s.version = "1.0.1009"
+  s.version = "1.0.1010"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sprout Systems, Inc.  Apple Inc. and contributors"]
-  s.date = %q{2009-10-26}
+  s.date = %q{2009-11-13}
   s.description = %q{sproutcore - abbot
     by Charles Jolley and contributors
     http://www.sproutcore.com
@@ -370,8 +370,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/desktop/english.lproj/images/icons/shared.png",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/images/panels/sprite-x.png",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/images/panels/sprite-y.png",
-     "frameworks/sproutcore/frameworks/desktop/english.lproj/images/standard_fade/000000.png",
-     "frameworks/sproutcore/frameworks/desktop/english.lproj/images/standard_fade/ffffff.png",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/list_item.css",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/menu.css",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/menu_item_view.css",
@@ -389,6 +387,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/desktop/english.lproj/strings.js",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/tab.css",
      "frameworks/sproutcore/frameworks/desktop/english.lproj/toolbar.css",
+     "frameworks/sproutcore/frameworks/desktop/english.lproj/well.css",
      "frameworks/sproutcore/frameworks/desktop/mixins/border.js",
      "frameworks/sproutcore/frameworks/desktop/mixins/collection_group.js",
      "frameworks/sproutcore/frameworks/desktop/mixins/collection_row_delegate.js",
@@ -453,6 +452,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/desktop/tests/views/list/rowDelegate.js",
      "frameworks/sproutcore/frameworks/desktop/tests/views/list/rowHeightForContentIndex.js",
      "frameworks/sproutcore/frameworks/desktop/tests/views/list/rowOffsetForContentIndex.js",
+     "frameworks/sproutcore/frameworks/desktop/tests/views/list/ui_alternatingrows.js",
      "frameworks/sproutcore/frameworks/desktop/tests/views/list/ui_outline.js",
      "frameworks/sproutcore/frameworks/desktop/tests/views/list/ui_row_heights.js",
      "frameworks/sproutcore/frameworks/desktop/tests/views/list/ui_simple.js",
@@ -481,6 +481,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/desktop/tests/views/tab/ui.js",
      "frameworks/sproutcore/frameworks/desktop/tests/views/web/methods.js",
      "frameworks/sproutcore/frameworks/desktop/tests/views/web/ui.js",
+     "frameworks/sproutcore/frameworks/desktop/tests/views/well/ui.js",
      "frameworks/sproutcore/frameworks/desktop/views/button.js",
      "frameworks/sproutcore/frameworks/desktop/views/checkbox.js",
      "frameworks/sproutcore/frameworks/desktop/views/collection.js",
@@ -509,6 +510,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/desktop/views/thumb.js",
      "frameworks/sproutcore/frameworks/desktop/views/toolbar.js",
      "frameworks/sproutcore/frameworks/desktop/views/web.js",
+     "frameworks/sproutcore/frameworks/desktop/views/well.js",
      "frameworks/sproutcore/frameworks/foundation/TESTING",
      "frameworks/sproutcore/frameworks/foundation/controllers/array.js",
      "frameworks/sproutcore/frameworks/foundation/controllers/controller.js",
@@ -531,6 +533,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/foundation/ext/object.js",
      "frameworks/sproutcore/frameworks/foundation/ext/run_loop.js",
      "frameworks/sproutcore/frameworks/foundation/fixtures/file_exists.json",
+     "frameworks/sproutcore/frameworks/foundation/fixtures/malformed.json",
      "frameworks/sproutcore/frameworks/foundation/license.js",
      "frameworks/sproutcore/frameworks/foundation/mixins/button.js",
      "frameworks/sproutcore/frameworks/foundation/mixins/collection_content.js",
@@ -631,6 +634,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/foundation/tests/system/user_defaults.js",
      "frameworks/sproutcore/frameworks/foundation/tests/system/utils/normalizeURL.js",
      "frameworks/sproutcore/frameworks/foundation/tests/system/utils/range.js",
+     "frameworks/sproutcore/frameworks/foundation/tests/system/utils/rect.js",
      "frameworks/sproutcore/frameworks/foundation/tests/validators/credit_card.js",
      "frameworks/sproutcore/frameworks/foundation/tests/validators/date.js",
      "frameworks/sproutcore/frameworks/foundation/tests/validators/number.js",
@@ -716,6 +720,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/runtime/protocols/observable_protocol.js",
      "frameworks/sproutcore/frameworks/runtime/protocols/sparse_array_delegate.js",
      "frameworks/sproutcore/frameworks/runtime/system/binding.js",
+     "frameworks/sproutcore/frameworks/runtime/system/cookie.js",
      "frameworks/sproutcore/frameworks/runtime/system/enumerator.js",
      "frameworks/sproutcore/frameworks/runtime/system/error.js",
      "frameworks/sproutcore/frameworks/runtime/system/index_set.js",
@@ -748,6 +753,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      "frameworks/sproutcore/frameworks/runtime/tests/mixins/propertyChanges.js",
      "frameworks/sproutcore/frameworks/runtime/tests/private/observer_queue/isObservingSuspended.js",
      "frameworks/sproutcore/frameworks/runtime/tests/system/binding.js",
+     "frameworks/sproutcore/frameworks/runtime/tests/system/cookie.js",
      "frameworks/sproutcore/frameworks/runtime/tests/system/error.js",
      "frameworks/sproutcore/frameworks/runtime/tests/system/index_set/add.js",
      "frameworks/sproutcore/frameworks/runtime/tests/system/index_set/addEach.js",
