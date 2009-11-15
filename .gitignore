@@ -9,3 +9,4 @@ doc
 *.gem
 .hashinfo.yml
 sproutcore.gemspec
+frameworks/sproutcore
