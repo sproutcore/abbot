@@ -12,6 +12,10 @@ ROOT_PATH = File.dirname(__FILE__)
 # files to ignore changes in
 IGNORE_CHANGES = %w[.gitignore .gitmodules .DS_Store .gemspec VERSION.yml ^pkg ^tmp ^coverage]
 
+# Get the DISTRIBUTION info
+require 'yaml'
+DIST = YAML.load File.read(File.expand_path(File.join(ROOT_PATH, 'DISTRIBUTION.yml')))
+
 ################################################
 ## LOAD DEPENDENCIES
 ##
@@ -19,6 +23,7 @@ begin
   require 'rubygems'
   require 'jeweler'
   require 'extlib'
+  require 'fileutils'
   require 'spec/rake/spectask'
 
   $:.unshift(ROOT_PATH / 'lib')
@@ -66,10 +71,40 @@ end
 desc "performs an initial setup on the tools.  Installs gems, init submodules"
 task :init do
   $stdout.puts "Installing gems (may ask for password)"
-  `sudo gem install rack jeweler json_pure extlib erubis thor`
+  $stdout.puts `sudo gem install rack jeweler json json_pure extlib erubis thor`
   
-  $stdout.puts "Setup submodules"
-  `git submodule update --init`
+  $stdout.puts "Setup distribution"
+
+  # Use this to get the commit hash
+  version_file = ROOT_PATH / 'VERSION.yml'
+  if File.exist?(version_file)
+    versions = YAML.load File.read(version_file)
+    versions = (versions['dist'] || versions[:dist]) if versions
+    versions ||= {}
+  end
+  
+  DIST.each do |rel_path, opts|
+    path = ROOT_PATH / rel_path
+    repo_url = opts['repo']
+        
+    if !File.exists?(path / ".git")
+      $stdout.puts "  Creating repo for #{rel_path}"
+      FileUtils.mkdir_p File.dirname(path)
+
+      $stdout.puts "\n> git clone #{repo_url} #{path}"
+      $stdout.puts `git clone #{repo_url} #{path}`
+      
+      if versions && versions[rel_path]
+        sha = versions[rel_path]
+        $stdout.puts "\n> git checkout #{sha}"
+        $stdout.puts `git checkout #{sha}`
+      end
+        
+    else
+      $stdout.puts "Found #{rel_path}"
+    end
+  end
+  
 end
 
 desc "computes the current hash of the code.  used to autodetect build changes"
@@ -142,6 +177,7 @@ task :update_version => 'hash_content' do
   minor = 0
   build = 99
   rev   = '-0-'
+  dist  = {}
   
   if File.exist?(path)
     yaml = YAML.load_file(path)
@@ -149,6 +185,7 @@ task :update_version => 'hash_content' do
     minor = yaml['minor'] || yaml[:minor] || minor
     build = yaml['patch'] || yaml[:patch] || build
     rev   = yaml['digest'] || yaml[:digest] || rev
+    dist  = yaml['dist'] || yaml[:dist] || dist
   end
  
   build += 1 if rev != CONTENT_HASH  #increment if needed
