@@ -46,7 +46,7 @@ Jeweler::Tasks.new do |gemspec|
   gemspec.name = 'sproutcore'
   gemspec.authors = 'Sprout Systems, Inc.  Apple Inc. and contributors'
   gemspec.email = 'contact@sproutcore.com'
-  gemspec.homepage = 'http://www.sproutcore.com/sproutcore'
+  gemspec.homepage = 'http://www.sproutcore.com'
   gemspec.summary = "SproutCore is a platform for building native look-and-feel applications on  the web"
   
   gemspec.add_dependency 'rack', '>= 0.9.1'
@@ -162,9 +162,18 @@ namespace :release do
       git(full_path, "tag -f #{tag_name}")
     end
   end
+  
+  task :push_tags => :tag do
+    tag_name = "REL-#{RELEASE_VERSION}"
+    DIST.keys.push('abbot').each do |rel_path|
+      full_path = rel_path=='abbot' ? ROOT_PATH : (ROOT_PATH / rel_path)
+      git(full_path, "push origin #{tag_name}")
+    end
+  end
+    
     
   desc "prepare release.  verify clean, update version, tag"
-  task :prepare => ['git:verify_clean', :update_version, :tag]
+  task :prepare => ['git:verify_clean', :update_version, :tag, :push_tags]
   
   desc "release to rubyforge for old skool folks"
   task :rubyforge => [:prepare, 'rubyforge:release']
