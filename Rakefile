@@ -155,7 +155,7 @@ namespace :release do
   end
     
   desc "prepare release.  verify clean, update version, tag"
-  task :prepare => [:update_version, 'git:verify_clean', :tag]
+  task :prepare => ['git:verify_clean', :update_version, :tag]
   
   desc "release to rubyforge for old skool folks"
   task :rubyforge => [:prepare, 'rubyforge:release']
@@ -297,8 +297,6 @@ task :build => 'gemspec:generate' do
   fixup_gemspec
 end
 
-#task "gemspec:generate" => 'git:verify_clean'
-
 # Extend gemspec to rename afterware
 task :gemspec do
   fixup_gemspec
@@ -316,13 +314,9 @@ namespace :git do
   desc "verifies there are no pending changes to commit to git"
   task :verify_clean do
     DIST.keys.push('abbot').each do |repo_name|
-      if repo_name == 'abbot'
-        path = ROOT_PATH
-      else
-        path = File.join(repo_name.split('/').unshift(ROOT_PATH))
-      end
+      full_path = repo_name=='abbot' ? ROOT_PATH : (ROOT_PATH / repo_name)
 
-      result = `cd #{path}; git status`
+      result = `cd #{full_path}; git status`
       if !(result =~ /nothing to commit \(working directory clean\)/)
         $stderr.puts "\nFATAL: Cannot complete task: changes are still pending in the '#{repo_name}' repository."
         $stderr.puts "       Commit your changes to git to continue.\n\n"
