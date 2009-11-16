@@ -76,12 +76,12 @@ Jeweler::GemcutterTasks.new
 
 
 def git(path, cmd, log=true)
-  $stdout.puts("git #{cmd}") if log
+  $stdout.puts("#{path.sub(ROOT_PATH, '')}: git #{cmd}") if log
   git_path = path / '.git'
   git_index = git_path / 'index'
   
   # The env can become polluted; breaking git.  This will avoid that.
-  %x[GIT_DIR=#{git_path}; GIT_WORK_TREE=#{path}; GIT_INDEX_FILE=#{git_index}; git status]
+  %x[GIT_DIR=#{git_path}; GIT_WORK_TREE=#{path}; GIT_INDEX_FILE=#{git_index}; git #{cmd}]
 end
 
 ################################################
@@ -159,7 +159,7 @@ namespace :release do
     tag_name = "REL-#{RELEASE_VERSION}"
     DIST.keys.push('abbot').each do |rel_path|
       full_path = rel_path=='abbot' ? ROOT_PATH : (ROOT_PATH / rel_path)
-      $stdout.puts git(full_path, "tag -f #{tag_name}")
+      git(full_path, "tag -f #{tag_name}")
     end
   end
     
