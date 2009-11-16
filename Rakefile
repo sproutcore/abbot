@@ -328,9 +328,12 @@ namespace :git do
       result = git(full_path, 'status')
 
       if !(result =~ /nothing to commit \(working directory clean\)/)
-        $stderr.puts "\nFATAL: Cannot complete task: changes are still pending in the '#{repo_name}' repository."
-        $stderr.puts "       Commit your changes to git to continue.\n\n"
-        exit(1)
+        if (repo_name != 'abbot') ||
+           (!(result =~ /#\n#\tmodified:   VERSION.yml\n#\n/))
+          $stderr.puts "\nFATAL: Cannot complete task: changes are still pending in the '#{repo_name}' repository."
+          $stderr.puts "       Commit your changes to git to continue.\n\n"
+          exit(1)
+        end
       end 
     end
   end
