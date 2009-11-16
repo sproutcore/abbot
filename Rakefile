@@ -74,6 +74,16 @@ end
 
 Jeweler::GemcutterTasks.new
 
+
+def git(path, cmd, log=true)
+  $stdout.puts("git #{cmd}") if log
+  git_path = path / '.git'
+  git_index = git_path / 'index'
+  
+  # The env can become polluted; breaking git.  This will avoid that.
+  %x[GIT_DIR=#{git_path}; GIT_WORK_TREE=#{path}; GIT_INDEX_FILE=#{git_index}; git status]
+end
+
 ################################################
 ## CORE TASKS
 ##
@@ -83,8 +93,8 @@ task :init => [:install_gems, 'dist:init', 'dist:update']
 
 task :install_gems do
   $stdout.puts "Installing gems (may ask for password)"
-  $stdout.puts `#{SUDO} gem install rack json json_pure extlib erubis thor`
-  $stdout.puts `#{SUDO} gem install jeweler gemcutter rspec` # dev req
+  system %[#{SUDO} gem install rack json json_pure extlib erubis thor]
+  system %[#{SUDO} gem install jeweler gemcutter rspec] # dev req
 end
 
 namespace :dist do
@@ -102,7 +112,7 @@ namespace :dist do
         FileUtils.mkdir_p File.dirname(path)
 
         $stdout.puts "\n> git clone #{repo_url} #{path}"
-        $stdout.puts `git clone #{repo_url} #{path}`
+        system %[git clone #{repo_url} #{path}]
       
       else
         $stdout.puts "Found #{rel_path}"
@@ -129,10 +139,10 @@ namespace :dist do
         sha = versions[rel_path]
 
         $stdout.puts "\n> git fetch"
-        $stdout.puts `cd #{path};git fetch`
+        $stdout.puts git(path, 'fetch')
 
         $stdout.puts "\n> git checkout #{sha}"
-        $stdout.puts `cd #{path};git checkout #{sha}`
+        $stdout.puts git(path, 'checkout #{sha}')
       else
         $stdout.puts "WARN: cannot fix version for #{rel_path}"
       end
@@ -149,8 +159,7 @@ namespace :release do
     tag_name = "REL-#{RELEASE_VERSION}"
     DIST.keys.push('abbot').each do |rel_path|
       full_path = rel_path=='abbot' ? ROOT_PATH : (ROOT_PATH / rel_path)
-      $stdout.puts "cd #{rel_path}; git tag -f #{tag_name}"
-      $stdout.puts `cd #{full_path}; git tag -f #{tag_name}`
+      $stdout.puts git(full_path, "tag -f #{tag_name}")
     end
   end
     
@@ -203,7 +212,7 @@ task :hash_content do
   paths.each do |path|
     mtime = File.mtime(path)
     mtime = mtime.nil? ? 0 : mtime.to_i
-    puts "detected file change: #{path.gsub(ROOT_PATH,'')}" if mtime > hash_date
+    $stdout.puts "detected file change: #{path.gsub(ROOT_PATH,'')}" if mtime > hash_date
     cur_date = mtime if mtime > cur_date
   end
   
@@ -223,7 +232,7 @@ task :hash_content do
 
   # finally set the hash
   CONTENT_HASH = hash_digest
-  puts "CONTENT_HASH = #{CONTENT_HASH}"
+  $stdout.puts "CONTENT_HASH = #{CONTENT_HASH}"
 end
   
 desc "updates the VERSION file, bumbing the build rev if the current commit has changed"
@@ -255,19 +264,19 @@ task :update_version => 'hash_content' do
   DIST.each do |rel_path, ignored|
     dist_path = ROOT_PATH / rel_path
     if File.exists?(dist_path)
-      dist_rev = `cd #{dist_path}; git log HEAD^..HEAD`
+      dist_rev = git(dist_path, "log HEAD^..HEAD")
       dist_rev = dist_rev.split("\n").first.scan(/commit ([^\s]+)/)
       dist_rev = ((dist_rev || []).first || []).first
 
       if dist_rev.nil?
-        $stdlog.puts " WARN: cannot find revision for #{rel_path}"
+        $stdout.puts " WARN: cannot find revision for #{rel_path}"
       else
         dist[rel_path] = dist_rev
       end
     end
   end
   
-  puts "write version #{[major, minor, build].join('.')} => #{path}"
+  $stdout.puts "write version #{[major, minor, build].join('.')} => #{path}"
   File.open(path, 'w+') do |f|
     YAML.dump({ 
       :major => major, 
@@ -313,13 +322,10 @@ namespace :git do
   
   desc "verifies there are no pending changes to commit to git"
   task :verify_clean do
-    DIST.keys.unshift('abbot').each do |repo_name|
+    DIST.keys.push('abbot').each do |repo_name|
       full_path = repo_name=='abbot' ? ROOT_PATH : (ROOT_PATH / repo_name)
 
-      cwd = Dir.pwd
-      FileUtils.chdir(full_path)
-      result = `git status`
-      FileUtils.chdir(cwd)
+      result = git(full_path, 'status')
 
       if !(result =~ /nothing to commit \(working directory clean\)/)
         $stderr.puts "\nFATAL: Cannot complete task: changes are still pending in the '#{repo_name}' repository."
