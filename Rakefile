@@ -276,7 +276,7 @@ namespace :git do
   
   desc "verifies there are no pending changes to commit to git"
   task :verify_clean do
-    %w(abbot frameworks/sproutcore).each do |repo_name|
+    DIST.keys.push('abbot').each do |repo_name|
       if repo_name == 'abbot'
         path = ROOT_PATH
       else
