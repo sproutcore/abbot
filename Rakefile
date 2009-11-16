@@ -69,7 +69,7 @@ Jeweler::Tasks.new do |gemspec|
 end
 
 Jeweler::RubyforgeTasks.new do |rubyforge|
-  rubyforge.doc_task = "rdoc"
+  rubyforge.doc_task = ""
 end
 
 Jeweler::GemcutterTasks.new
