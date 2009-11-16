@@ -16,6 +16,9 @@ IGNORE_CHANGES = %w[.gitignore .gitmodules .DS_Store .gemspec VERSION.yml ^pkg ^
 require 'yaml'
 DIST = YAML.load File.read(File.expand_path(File.join(ROOT_PATH, 'DISTRIBUTION.yml')))
 
+# Make empty to not use sudo
+SUDO = 'sudo'
+
 ################################################
 ## LOAD DEPENDENCIES
 ##
@@ -31,6 +34,7 @@ begin
 
 rescue LoadError => e
   $stderr.puts "WARN: some required gems are not installed (try rake init to setup)"
+  $stderr.puts e
 end
 
 
@@ -50,7 +54,11 @@ Jeweler::Tasks.new do |gemspec|
   gemspec.add_dependency 'extlib', ">= 0.9.9"
   gemspec.add_dependency 'erubis', ">= 2.6.2"
   gemspec.add_dependency 'thor', '>= 0.11.7'
-  gemspec.add_development_dependency 'jeweler', ">= 1.0.1"
+
+  gemspec.add_development_dependency 'gemcutter', ">= 0.1.0"
+  gemspec.add_development_dependency 'jeweler', ">= 1.0.0"
+  gemspec.add_development_dependency 'rspec', ">= 1.2.0"
+
   gemspec.rubyforge_project = "sproutcore"
   gemspec.extra_rdoc_files.include *%w[History.txt README.txt]
     
@@ -64,6 +72,8 @@ Jeweler::RubyforgeTasks.new do |rubyforge|
   rubyforge.doc_task = "rdoc"
 end
 
+Jeweler::GemcutterTasks.new
+
 ################################################
 ## CORE TASKS
 ##
@@ -73,7 +83,8 @@ task :init => [:install_gems, 'dist:init', 'dist:update']
 
 task :install_gems do
   $stdout.puts "Installing gems (may ask for password)"
-  $stdout.puts `sudo gem install rack jeweler json json_pure extlib erubis thor`
+  $stdout.puts `#{SUDO} gem install rack json json_pure extlib erubis thor`
+  $stdout.puts `#{SUDO} gem install jeweler gemcutter rspec` # dev req
 end
 
 namespace :dist do
@@ -128,8 +139,33 @@ namespace :dist do
       
     end
   end
+
+end
+
+namespace :release do
   
+  desc "tags the current repository and any distribution repositories.  if you can push to distribution, then push tag as well"
+  task :tag => :update_version do
+    tag_name = "REL-#{RELEASE_VERSION}"
+    DIST.keys.push('abbot').each do |rel_path|
+      full_path = rel_path=='abbot' ? ROOT_PATH : (ROOT_PATH / rel_path)
+      $stdout.puts "cd #{rel_path}; git tag -f #{tag_name}"
+      $stdout.puts `cd #{full_path}; git tag -f #{tag_name}`
+    end
+  end
+    
+  desc "prepare release.  verify clean, update version, tag"
+  task :prepare => [:update_version, 'git:verify_clean', :tag]
   
+  desc "release to rubyforge for old skool folks"
+  task :rubyforge => [:prepare, 'rubyforge:release']
+  
+  desc "release to gemcutter for new skool kids"
+  task :gemcutter => [:prepare, 'gemcutter:release']
+  
+  desc "one release to rule them all"
+  task :all => [:prepare, 'release:rubyforge', 'release:gemcutter']
+
 end
 
 desc "computes the current hash of the code.  used to autodetect build changes"
@@ -241,6 +277,9 @@ task :update_version => 'hash_content' do
       :dist   => dist 
     }, f)
   end
+  
+  RELEASE_VERSION = "#{major}.#{minor}.#{build}"
+  
 end
 
 def fixup_gemspec
