@@ -291,26 +291,6 @@ task :update_version => 'hash_content' do
   
 end
 
-def fixup_gemspec
-  from_path = ROOT_PATH / 'sproutcore.gemspec'
-  to_path = ROOT_PATH / 'sproutcore-abbot.gemspec'
-  
-  if File.exists?(from_path)
-    FileUtils.rm(to_path) if File.exists?(to_path)
-    FileUtils.cp(from_path, to_path)
-  end
-end
-
-# Extend install to cleanup the generate and cleanup the gemspec afterwards
-task :build => 'gemspec:generate' do
-  fixup_gemspec
-end
-
-# Extend gemspec to rename afterware
-task :gemspec do
-  fixup_gemspec
-end
-
 desc "cleanup the pkg dir" 
 task :clean do
   path = ROOT_PATH / 'pkg'
