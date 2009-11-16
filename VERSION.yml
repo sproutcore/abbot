@@ -1,5 +1,7 @@
 --- 
+:digest: 84885ab255ef694846319a5bbca74883144d3d63
 :major: 1
 :minor: 0
-:patch: 1011
-:digest: 4aea20b31f9aee0c884617efde271f8287981145
+:dist: 
+  frameworks/sproutcore: f9f7fe42cbb165a4021eeb616c6990914b83079d
+:patch: 1016
