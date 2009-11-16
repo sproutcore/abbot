@@ -68,42 +68,67 @@ end
 ## CORE TASKS
 ##
   
-desc "performs an initial setup on the tools.  Installs gems, init submodules"
-task :init do
+desc "performs an initial setup on the tools.  Installs gems, checkout"
+task :init => [:install_gems, 'dist:init', 'dist:update'] 
+
+task :install_gems do
   $stdout.puts "Installing gems (may ask for password)"
   $stdout.puts `sudo gem install rack jeweler json json_pure extlib erubis thor`
-  
-  $stdout.puts "Setup distribution"
+end
 
-  # Use this to get the commit hash
-  version_file = ROOT_PATH / 'VERSION.yml'
-  if File.exist?(version_file)
-    versions = YAML.load File.read(version_file)
-    versions = (versions['dist'] || versions[:dist]) if versions
-    versions ||= {}
-  end
+namespace :dist do
   
-  DIST.each do |rel_path, opts|
-    path = ROOT_PATH / rel_path
-    repo_url = opts['repo']
+  desc "checkout any frameworks in the distribution"
+  task :init do 
+    $stdout.puts "Setup distribution"
+
+    DIST.each do |rel_path, opts|
+      path = ROOT_PATH / rel_path
+      repo_url = opts['repo']
         
-    if !File.exists?(path / ".git")
-      $stdout.puts "  Creating repo for #{rel_path}"
-      FileUtils.mkdir_p File.dirname(path)
+      if !File.exists?(path / ".git")
+        $stdout.puts "  Creating repo for #{rel_path}"
+        FileUtils.mkdir_p File.dirname(path)
 
-      $stdout.puts "\n> git clone #{repo_url} #{path}"
-      $stdout.puts `git clone #{repo_url} #{path}`
+        $stdout.puts "\n> git clone #{repo_url} #{path}"
+        $stdout.puts `git clone #{repo_url} #{path}`
       
-      if versions && versions[rel_path]
-        sha = versions[rel_path]
-        $stdout.puts "\n> git checkout #{sha}"
-        $stdout.puts `git checkout #{sha}`
+      else
+        $stdout.puts "Found #{rel_path}"
       end
-        
-    else
-      $stdout.puts "Found #{rel_path}"
     end
   end
+  
+  desc "make the version of each distribution item match the one in VERSION"
+  task :update => 'dist:init' do
+    $stdout.puts "Setup distribution"
+
+    # Use this to get the commit hash
+    version_file = ROOT_PATH / 'VERSION.yml'
+    if File.exist?(version_file)
+      versions = YAML.load File.read(version_file)
+      versions = (versions['dist'] || versions[:dist]) if versions
+      versions ||= {}
+    end
+  
+    DIST.each do |rel_path, opts|
+      path = ROOT_PATH / rel_path
+        
+      if File.exists?(path / ".git") && versions[rel_path]
+        sha = versions[rel_path]
+
+        $stdout.puts "\n> git fetch"
+        $stdout.puts `cd #{path};git fetch`
+
+        $stdout.puts "\n> git checkout #{sha}"
+        $stdout.puts `cd #{path};git checkout #{sha}`
+      else
+        $stdout.puts "WARN: cannot fix version for #{rel_path}"
+      end
+      
+    end
+  end
+  
   
 end
 
@@ -185,16 +210,35 @@ task :update_version => 'hash_content' do
     minor = yaml['minor'] || yaml[:minor] || minor
     build = yaml['patch'] || yaml[:patch] || build
     rev   = yaml['digest'] || yaml[:digest] || rev
-    dist  = yaml['dist'] || yaml[:dist] || dist
   end
  
   build += 1 if rev != CONTENT_HASH  #increment if needed
   rev = CONTENT_HASH
   
+  # Update distribution versions
+  DIST.each do |rel_path, ignored|
+    dist_path = ROOT_PATH / rel_path
+    if File.exists?(dist_path)
+      dist_rev = `cd #{dist_path}; git log HEAD^..HEAD`
+      dist_rev = dist_rev.split("\n").first.scan(/commit ([^\s]+)/)
+      dist_rev = ((dist_rev || []).first || []).first
+
+      if dist_rev.nil?
+        $stdlog.puts " WARN: cannot find revision for #{rel_path}"
+      else
+        dist[rel_path] = dist_rev
+      end
+    end
+  end
+  
   puts "write version #{[major, minor, build].join('.')} => #{path}"
   File.open(path, 'w+') do |f|
     YAML.dump({ 
-      :major => major, :minor => minor, :patch => build, :digest => rev 
+      :major => major, 
+      :minor => minor, 
+      :patch => build, 
+      :digest => rev,
+      :dist   => dist 
     }, f)
   end
 end
