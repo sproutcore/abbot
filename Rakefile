@@ -69,6 +69,7 @@ Jeweler::Tasks.new do |gemspec|
 end
 
 Jeweler::RubyforgeTasks.new do |rubyforge|
+  rubyforge.doc_task = 'rdoc'
 end
 
 Jeweler::GemcutterTasks.new
@@ -181,7 +182,7 @@ namespace :release do
   task :gemcutter => [:prepare, 'gemcutter:release']
   
   desc "one release to rule them all"
-  task :all => [:prepare, 'release:rubyforge', 'release:gemcutter']
+  task :all => [:prepare, 'release:gemcutter', 'release:rubyforge']
 
 end
 

@@ -1,6 +1,6 @@
 --- 
-:patch: 1026
-:digest: ce4142ef527899b23641d956b2b0b7aaad951f05
+:patch: 1029
+:digest: 0586e5d27fa590d9ff1d40815c5a0ec6642f0cd5
 :dist: 
   frameworks/sproutcore: f9f7fe42cbb165a4021eeb616c6990914b83079d
 :major: 1
