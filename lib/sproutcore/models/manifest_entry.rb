@@ -158,11 +158,21 @@ module SC
       if paths = self.source_paths
         paths.each do |path|
           next unless File.exist?(path)
-          File.readlines(path).each do |line|
-            if (line.valid_encoding?)
-              line.scan(regexp) { |result| yield(result) }
-            end
-          end 
+          
+          # fine all directives in the source.  use file cache to make this 
+          # fast later on.
+          results = target.file_attr('scan_source', path) do
+            ret = []
+            File.readlines(path).each do |line|
+              if (line.valid_encoding?)
+                line.scan(regexp) { |result| ret << result }
+              end
+            end 
+            ret
+          end
+          
+          results.each { |result| yield(result) }
+          
         end
       end
     end
@@ -175,6 +185,9 @@ module SC
     # results on all other file types.
     #
     def discover_build_directives!
+      
+      target.begin_attr_changes
+      
       self.required = []
       entry = self.transform? ? self.source_entry : self
       entry.scan_source(BUILD_DIRECTIVES_REGEX) do |matches|
@@ -189,6 +202,9 @@ module SC
           self.resource = filename
         end
       end
+      
+      target.end_attr_changes
+      
     end
     
     ######################################################

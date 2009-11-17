@@ -5,6 +5,9 @@
 #            and contributors
 # ===========================================================================
 
+require 'yaml'
+require 'fileutils'
+
 module SC
   
   # Defines a build target in a project.  A build target is a component that
@@ -286,6 +289,76 @@ module SC
       return false
     end
     
+    # path to attr_cache file
+    def file_attr_cache_path
+      @file_attr_cache_path ||= (self.cache_root / '__file_attr_cache.yml')
+    end
+    
+    # suspend writing the file cache out if needed
+    def begin_attr_changes
+      @attr_change_level = (@attr_change_level || 0)+1
+    end
+    
+    # resume writing file cache out if needed
+    def end_attr_changes
+      @attr_change_level = (@attr_change_level || 0) - 1
+      if @attr_change_level <= 0
+        @attr_change_level = 0 
+        _write_file_attr_cache if @attr_cache_has_changes
+      end
+    end
+    
+    def _write_file_attr_cache
+      if (@attr_change_level||0) > 0
+        @attr_cache_has_changes = true
+
+      else
+        @attr_cache_has_changes = false
+        if @file_attr_cache
+          FileUtils.mkdir_p(File.dirname(file_attr_cache_path))
+          fp = File.open(file_attr_cache_path, 'w+')
+          fp.write @file_attr_cache.to_yaml
+          fp.close
+        end
+      end
+      
+    end
+      
+          
+    # returns or computes an attribute on a given file.  this will keep the
+    # named attribute in a cache keyed against the mtime of the named path.
+    # if the mtime matches, the cached value is returned.  otherwise, yields
+    # to the passed block to compute again.
+    def file_attr(attr_name, path, &block)
+
+      # read cache from disk if needed
+      if @file_attr_cache.nil?
+        if File.exists?(file_attr_cache_path)
+          require 'yaml'
+          @file_attr_cache = YAML.load File.read(file_attr_cache_path)
+        else
+          @file_attr_cache = {}
+        end
+      end
+
+      path_root = (@file_attr_cache[path] ||= {})
+      attr_info = (path_root[attr_name.to_s] ||= {})
+      attr_mtime = attr_info['mtime'].to_i
+      path_mtime = File.exists?(path) ? File.mtime(path).to_i : 0
+      if attr_mtime.nil? || (path_mtime != attr_mtime)
+        SC.logger.debug "MISS file_attr_cache:#{attr_name}: #{File.basename(path)} path_mtime=#{path_mtime} attr_mtime=#{attr_mtime}"
+        
+        value = attr_info['value'] = yield
+        attr_info['mtime'] = path_mtime
+        _write_file_attr_cache
+        
+      else
+        value = attr_info['value']
+      end
+      
+      return value
+    end
+    
     # Computes a unique build number for this target.  The build number is
     # gauranteed to change anytime the contents of any source file changes 
     # or anytime the build number of a required target changes.  Although 
@@ -321,11 +394,16 @@ module SC
         # files.  It is not as fast as using an mtime, but it will remain
         # constant from one machine to the next so it can be used when
         # deploying across multiple build machines, etc.
+        begin_attr_changes
         digests = Dir.glob(File.join(source_root, '**', '*')).map do |path|
-          allowed = File.exists?(path) && !File.directory?(path)
-          allowed = allowed && !target_directory?(path)
-          allowed ? Digest::SHA1.hexdigest(File.read(path)) : nil
+          file_attr(:digest, path) do
+            allowed = File.exists?(path) && !File.directory?(path)
+            allowed = allowed && !target_directory?(path)
+            allowed ? Digest::SHA1.hexdigest(File.read(path)) : nil
+          end
         end
+        end_attr_changes
+        
         digests.compact!
 
         # Get all required targets and add in their build number.
