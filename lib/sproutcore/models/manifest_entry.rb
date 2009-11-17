@@ -127,7 +127,8 @@ module SC
         end
         timestamps.max
       elsif composite?
-        source_entries.map { |e| e.timestamp }.max
+
+        source_entries.map { |e| e.timestamp || 0 }.max || Time.now.to_i
       else
         File.exist?(source_path) ? File.mtime(source_path).to_i : 0
       end

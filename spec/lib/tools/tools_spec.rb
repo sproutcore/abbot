@@ -13,6 +13,14 @@ describe SC::Tools do
 
   describe "logger options" do
 
+    before do
+      save_env
+    end
+    
+    after do 
+      restore_env
+    end
+    
     it "should default to warn log level" do
       SC::Tools.start %w(dummy)
       SC.env.log_level.should == :warn
@@ -53,6 +61,14 @@ describe SC::Tools do
   end
       
   describe "build mode options" do
+    
+    before do
+      save_env
+    end
+    
+    after do
+      restore_env
+    end
     
     it "should default to :production build mode" do
       SC::Tools.start %w(dummy)

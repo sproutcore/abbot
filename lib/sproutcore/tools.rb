@@ -138,6 +138,11 @@ module SC
         @project = a_project
       end
     
+      def set_test_project(a_project)
+        @project = a_project
+        @discovered_project = true
+      end
+      
       # The current project.  This is discovered based on the passed --project
       # option or based on the current working directory.  If no project can 
       # be found, this method will always return null.

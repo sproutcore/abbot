@@ -50,7 +50,7 @@ describe SC::Target, 'compute_build_number' do
   describe "accurate method to compute build number" do
     
     before do
-      @target = @project.target_for(:sproutcore)
+      @target = @project.target_for(:sproutcore).prepare!
       @target.config.build_numbers = nil #precondition
       @target.config.build_number = nil  #precondition
     end
@@ -72,10 +72,10 @@ describe SC::Target, 'compute_build_number' do
   end
 
   it "changes generated build number if build number for a required target changes" do
-    target = @project.target_for(:sproutcore)
+    target = @project.target_for(:sproutcore).prepare!
     target.should_not be_nil
 
-    required = target.target_for(:desktop)
+    required = target.target_for(:desktop).prepare!
     required.should_not be_nil
     required.config.build_numbers = nil #precondition
     required.config.build_number = nil  #precondition
@@ -95,10 +95,10 @@ describe SC::Target, 'compute_build_number' do
   end
 
   it "does not change generated build number if a nested target that is not required by target changes" do
-    target = @project.target_for(:sproutcore)
+    target = @project.target_for(:sproutcore).prepare!
     target.should_not be_nil
 
-    not_required = target.target_for(:mobile)
+    not_required = target.target_for(:mobile).prepare!
     not_required.should_not be_nil
 
     #precondition

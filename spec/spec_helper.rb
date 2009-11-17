@@ -48,6 +48,18 @@ module SC
   
   module SpecHelpers
     
+    # env doesn't automatically reset
+    def save_env
+      @env ||= []
+      @env << { :env => SC.env.dup, :build_mode => SC.build_mode }
+    end
+    
+    def restore_env
+      e = (@env || []).pop
+      SC.env = e[:env]
+      SC.build_mode = e[:build_mode]
+    end
+    
     def fixture_path(*path_items)
       (path_items = path_items.flatten).unshift 'fixtures'
       path_items.map! { |pi| pi.to_s }

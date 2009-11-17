@@ -330,7 +330,7 @@ module SC
     # if the mtime matches, the cached value is returned.  otherwise, yields
     # to the passed block to compute again.
     def file_attr(attr_name, path, &block)
-
+      
       # read cache from disk if needed
       if @file_attr_cache.nil?
         if File.exists?(file_attr_cache_path)

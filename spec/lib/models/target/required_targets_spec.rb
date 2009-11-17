@@ -5,7 +5,14 @@ describe SC::Target, 'required_targets' do
   include SC::SpecHelpers
 
   before do
+    @env = SC.build_mode # force debug mode
+    SC.build_mode = :debug
+
     @project = fixture_project(:real_world)
+  end
+  
+  after do
+    SC.build_mode = @env
   end
     
   it "should resolve references to child targets" do
@@ -66,15 +73,18 @@ describe SC::Target, 'required_targets' do
   end
   
   it "should log a warning if a required test or debug target could not be found" do
+    
     target = @project.target_for :sproutcore
     target.config.test_required = 'imaginary_foo'
     target.config.debug_required = 'imaginary_bar'
     
     capture('stderr') { target.required_targets(:test => true) }.size.should_not == 0
     capture('stderr') { target.required_targets(:debug => true) }.size.should_not == 0
+    
   end
   
   it "should include any CONFIG.theme if passed :theme => true && target_type == :app" do
+    
     expected = @project.target_for 'sproutcore/standard_theme'
     
     target = @project.target_for :contacts
