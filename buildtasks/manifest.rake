@@ -275,6 +275,8 @@ namespace :manifest do
           :build_task  => 'build:bundle_loaded',
           :resource    => 'javascript',
           :entry_type  => :javascript,
+          :composite   => true, # does not have a source
+          :source_entries => [],
           :target      => TARGET
       end
       
