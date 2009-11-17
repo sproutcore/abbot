@@ -148,6 +148,18 @@ module SC
       invoke_with_call_chain(task_args, InvocationChain::EMPTY)
     end
 
+    def self.log_indent
+      @task_indent ||= ''
+    end
+    
+    def self.indent_logs
+      @task_indent = (@task_indent || '') + '  '
+    end
+    
+    def self.outdent_logs
+      @task_indent = (@task_indent || '')[0..-3]
+    end
+    
     # Same as invoke, but explicitly pass a call chain to detect
     # circular dependencies.
     def invoke_with_call_chain(task_args, invocation_chain) # :nodoc:
@@ -155,23 +167,37 @@ module SC
         invocation_chain = InvocationChain.append(self, invocation_chain)
         @lock.synchronize do
           
+          indent = self.class.indent_logs
+          
           # Use logging options to decide what to output
           # one of :env, :name, :none
-          log_opt = task_options[:log] || :env
+          log_opt = task_options[:log] || :none
           if [:name, :env].include?(log_opt)
-            SC.logger.debug "invoke ~ #{name} #{format_trace_flags}"
+            SC.logger.debug "#{indent}invoke ~ #{name} #{format_trace_flags}"
           end
           
           if log_opt == :env
             TASK_ENV.each do |key, value|
               next if %w(config task_env).include?(key.to_s.downcase)
-              SC.logger.debug "  #{key} = #{value.inspect}"
+              SC.logger.debug "#{indent}  #{key} = #{value.inspect}"
             end
           end
+          
+          t_start = Time.now.to_f * 1000
           
           invocation_chain = invoke_prerequisites(task_args, invocation_chain)
           @invoke_count += 1
           execute(task_args) if needed?
+          
+          t_end = Time.now.to_f * 1000
+          t_diff = t_end - t_start
+          
+          # ignore short tasks
+          if t_diff > 10
+            SC.logger.debug "#{indent}long task ~ #{name}: #{t_diff.to_i} msec"
+          end
+          self.class.outdent_logs
+          
         end
       end
       return invocation_chain
@@ -199,6 +225,7 @@ module SC
 
     # Execute the actions associated with this task.
     def execute(args=nil)
+      
       @execute_count += 1
       args ||= EMPTY_TASK_ARGS
       return if SC.env.dryrun
@@ -211,6 +238,7 @@ module SC
           act.call(self, args)
         end
       end
+      
     end
 
     # Is this task needed?
