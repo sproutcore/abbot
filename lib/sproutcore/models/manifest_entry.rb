@@ -218,7 +218,33 @@ module SC
       return self 
     end
         
+    # Diagnostic function.  Indicates what will happen if you called build
+    def inspect_build_state
+      inspect_build_to self.build_path
+    end
+    
+    def inspect_staging_state
+      inspect_build_to self.staging_path
+    end
+     
     private 
+    
+    def inspect_build_to(dst_path)
+      return "#{filename}: dst #{dst_path} not found" if !File.exist?(dst_path)
+      dst_mtime = File.mtime(dst_path).to_i
+      self.source_paths.each do |path|
+        if path.nil?
+          puts "WARN: nil path in #{filename}"
+          next
+        end
+        
+        return "#{filename}: src #{path} not found" if !File.exist?(path)
+        
+        src_mtime = File.mtime(path).to_i
+        return "#{filename}: src #{path} is newer [#{dst_mtime} < #{src_mtime}]" if dst_mtime < src_mtime
+      end
+      return "#{filename}: will not build"
+    end
     
     def build_to(dst_path)
       if self.build_task.nil?
@@ -245,7 +271,8 @@ module SC
         :dst_path => dst_path
         
       return self
-    end  
+    end
+    
 
   end
   
