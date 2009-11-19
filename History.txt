@@ -1,4 +1,8 @@
-== 1.0.1034
+== 1.0.1036
+
+Added mising .tmpl files that prevented doc tool from running
+
+== 1.0.1035
 
 - Fixed bug with the new proxy.  HTTP method names were not capitalized, causing some servers to throw an exception
 
