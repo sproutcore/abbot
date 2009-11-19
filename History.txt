@@ -1,3 +1,15 @@
+== 1.0.1034
+
+- Fixed bug with the new proxy.  HTTP method names were not capitalized, causing some servers to throw an exception
+
+== 1.0.1033
+
+- Updated SproutCore JS
+- Build tools now work as a distribution.  We can include resources from other projects as well
+
+== 1.0.1009
+
+First release of SproutCore 1.0 RC1
 
 == 1.0.0.a1 / 2009-04-04
 
