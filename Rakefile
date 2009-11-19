@@ -63,7 +63,7 @@ Jeweler::Tasks.new do |gemspec|
   gemspec.extra_rdoc_files.include *%w[History.txt README.txt]
     
   gemspec.files.include *%w[.htaccess frameworks/sproutcore/**/*]
-  gemspec.files.exclude *%w[^coverage/ .gitignore .gitmodules .DS_Store tmp .hashinfo .svn .git]
+  gemspec.files.exclude *%w[^coverage/ .gitignore .gitmodules .DS_Store tmp/ .hashinfo .svn .git]
   
   gemspec.description = File.read(ROOT_PATH / 'README.txt')
 end
