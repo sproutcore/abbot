@@ -141,18 +141,28 @@ module SC
     def cacheable_url
       ret = self.url
       ret = [ret, self.timestamp].join('?') if target.config.timestamp_urls
-      ret = [self.hyperdomain_prefix(ret), ret].join('') if target.config.hyper_domaining
+      ret = [self.hyperdomain_prefix(ret, self.ext), ret].join('') if target.config.hyper_domaining
       return ret
     end
     
     # If the hyper_domaining config is an array of strings, this will select
     # one of them based on the hash of the URL, and provide an absolute URL
     # to the entry.
-    def hyperdomain_prefix(url)
+    def hyperdomain_prefix(url, ext)
       hyperdomains = target.config.hyper_domaining
-      index = url.hash % hyperdomains.length
       
-      return "http://#{hyperdomains[index]}"
+      if ext == 'js' && hyperdomains[:javascript]
+        index = url.hash % (hyperdomains[:javascript].length)
+        return "http://#{hyperdomains[:javascript][index]}"
+      elsif ext == 'css' && hyperdomains[:css]
+        index = url.hash % hyperdomains[:css].length
+        return "http://#{hyperdomains[:css][index]}"
+      elsif (ext == 'png' || ext == 'jpg' || ext == 'gif') && hyperdomains[:image]
+        index = url.hash % hyperdomains[:image].length
+        return "http://#{hyperdomains[:image][index]}"
+      else
+        return url
+      end  
     end
     
     # Scans the source paths (first staging any source entries) for the 
