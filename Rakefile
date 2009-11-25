@@ -109,10 +109,14 @@ namespace :dist do
         
       if !File.exists?(path / ".git")
         $stdout.puts "  Creating repo for #{rel_path}"
-        FileUtils.mkdir_p File.dirname(path)
+        FileUtils.mkdir_p path
 
         $stdout.puts "\n> git clone #{repo_url} #{path}"
-        system %[git clone #{repo_url} #{path}]
+        system "GIT_DIR=#{path / '.git'}; GIT_WORK_TREE=#{path}; git init"
+        
+        git(path,"remote add origin #{repo_url}")
+        git(path,"fetch origin")
+        git(path,"checkout -b origin remotes/origin/master")
       
       else
         $stdout.puts "Found #{rel_path}"
@@ -141,8 +145,11 @@ namespace :dist do
         $stdout.puts "\n> git fetch"
         $stdout.puts git(path, 'fetch')
 
-        $stdout.puts "\n> git checkout #{sha}"
-        $stdout.puts git(path, 'checkout #{sha}')
+        if sha
+          $stdout.puts "\n> git checkout #{sha}"
+          $stdout.puts git(path, "checkout #{sha}")
+        end
+        
       else
         $stdout.puts "WARN: cannot fix version for #{rel_path}"
       end
