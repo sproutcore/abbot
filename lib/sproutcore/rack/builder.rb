@@ -322,7 +322,16 @@ module SC
       # a few bug fixes.
       def mime_type(build_path)
         ext = File.extname(build_path)
-        (ext == '.js') ? 'text/javascript' : ::Rack::Mime.mime_type(ext, 'text/plain')
+        
+        case ext
+        when '.js'
+          'text/javascript'
+        when '.ttf'
+          'font/ttf'
+        else
+          ::Rack::Mime.mime_type(ext, 'text/plain')
+        end
+        
       end
       
     end
