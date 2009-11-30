@@ -149,12 +149,12 @@ module SC
     
     # If the hyper_domaining config is an array of strings, this will select
     # one of them based on the hash of the URL, and provide an absolute URL
-    # to the entry.
+    # to the entry. The hyperdomain includes the protocol. (http://, etc)
     def hyperdomain_prefix(url)
       hyperdomains = target.config.hyper_domaining
       index = url.hash % hyperdomains.length
       
-      return "http://#{hyperdomains[index]}"
+      return "#{hyperdomains[index]}"
     end
     
     
