@@ -150,19 +150,7 @@ module SC
     # to the entry.
     def hyperdomain_prefix(url, ext)
       hyperdomains = target.config.hyper_domaining
-      
-      if ext == 'js' && hyperdomains[:javascript]
-        index = url.hash % (hyperdomains[:javascript].length)
-        return "http://#{hyperdomains[:javascript][index]}"
-      elsif ext == 'css' && hyperdomains[:css]
-        index = url.hash % hyperdomains[:css].length
-        return "http://#{hyperdomains[:css][index]}"
-      elsif (ext == 'png' || ext == 'jpg' || ext == 'gif') && hyperdomains[:image]
-        index = url.hash % hyperdomains[:image].length
-        return "http://#{hyperdomains[:image][index]}"
-      else
-        return url
-      end  
+      return "http://#{hyperdomains[url.hash % hyperdomains.length]}"
     end
     
     # Scans the source paths (first staging any source entries) for the 
