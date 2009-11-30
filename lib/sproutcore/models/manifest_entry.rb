@@ -141,17 +141,22 @@ module SC
     def cacheable_url
       ret = self.url
       ret = [ret, self.timestamp].join('?') if target.config.timestamp_urls
-      ret = [self.hyperdomain_prefix(ret, self.ext), ret].join('') if target.config.hyper_domaining
+      if target.config.hyper_domaining
+        ret = [self.hyperdomain_prefix(ret), ret].join('') 
+      end
       return ret
     end
     
     # If the hyper_domaining config is an array of strings, this will select
     # one of them based on the hash of the URL, and provide an absolute URL
     # to the entry.
-    def hyperdomain_prefix(url, ext)
+    def hyperdomain_prefix(url)
       hyperdomains = target.config.hyper_domaining
-      return "http://#{hyperdomains[url.hash % hyperdomains.length]}"
+      index = url.hash % hyperdomains.length
+      
+      return "http://#{hyperdomains[index]}"
     end
+    
     
     # Scans the source paths (first staging any source entries) for the 
     # passed regex.  Your block will be executed with each line that matched.
