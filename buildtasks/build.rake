@@ -57,6 +57,11 @@ namespace :build do
       SC::Builder::Minify.build ENTRY, DST_PATH, :javascript
     end
     
+    desc "minifies a Javascript file immediately by invoking the YUI compressor"
+    build_task :inline_javascript do
+      SC::Builder::Minify.build ENTRY, DST_PATH, :inline_javascript
+    end
+    
   end
   
   desc "builds a unit test"

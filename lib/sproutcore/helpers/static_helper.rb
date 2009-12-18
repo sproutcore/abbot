@@ -162,7 +162,7 @@ module SC
           
         return '' if entry.nil?
         
-        ret = File.readlines(entry.build!.build_path)*''
+        ret = entry.stage!.inline_contents*''
         return %(<script type="text/javascript">\n#{ret}\n</script>)
       end
 
@@ -190,7 +190,7 @@ module SC
           
         return '' if entry.nil?
         
-        ret = File.readlines(entry.build!.build_path)
+        ret = entry.stage!.inline_contents
         return %(<style>\n#{ret*"\n"}\n</style>)
       end
         

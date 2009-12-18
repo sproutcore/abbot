@@ -258,6 +258,32 @@ module SC
     def inspect_staging_state
       inspect_build_to self.staging_path
     end
+    
+    
+    def inline_contents
+      unless File.exists?(self.staging_path)
+    
+        # stage source entries if needed...
+        (self.source_entries || []).each { |e| e.stage! } if composite?
+    
+        # get build task and build it
+        buildfile = manifest.target.buildfile
+        if !buildfile.task_defined?(self.build_task)
+          raise "Could not build entry #{self.filename} because build task '#{self.build_task}' is not defined"
+        end
+    
+        buildfile.invoke 'build:minify:inline_javascript',
+          :entry => self,
+          :manifest => self.manifest,
+          :target => self.manifest.target,
+          :config => self.manifest.target.config,
+          :project => self.manifest.target.project,
+          :src_path => self.source_path,
+          :src_paths => self.source_paths,
+          :dst_path => self.staging_path
+      end
+      File.readlines(self.staging_path)
+    end
      
     private 
     

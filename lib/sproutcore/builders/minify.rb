@@ -33,22 +33,55 @@ module SC
     end
     
     def build_css(dst_path)
-      yui_root = File.expand_path(File.join(LIBPATH, '..', 'vendor', 'yui-compressor'))
-      jar_path = File.join(yui_root, 'yuicompressor-2.4.2.jar')
-      FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
-      filecompress = "java -jar " + jar_path + " --charset utf-8 --line-break 0 --nomunge --preserve-semi --disable-optimizations " + entry.source_path + " -o \"" + dst_path + "\" 2>&1"
-      SC.logger.info  'Compressing CSS with YUI .... '+ dst_path
-      SC.logger.debug `#{filecompress}`
+      a = Regexp.new('^'+MANIFEST.build_root)
+      if dst_path =~ a
+        $to_minify= $to_minify+" "+dst_path
+        FileUtils.mkdir_p(File.dirname(dst_path))
+        FileUtils.copy(entry.source_path, dst_path)
+      else
+        yui_root = File.expand_path(File.join(LIBPATH, '..', 'vendor', 'yui-compressor'))
+        jar_path = File.join(yui_root, 'yuicompressor-2.4.2.jar')
+        FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
+        filecompress = "java -jar " + jar_path + " --charset utf-8 --line-break 0 --nomunge --preserve-semi --disable-optimizations " + entry.source_path + " -o \"" + dst_path + "\" 2>&1"
+        SC.logger.info  'Compressing CSS with YUI .... '+ dst_path
+        SC.logger.debug `#{filecompress}`
 
-      if $?.exitstatus != 0
-        _report_error(output, entry.filename, entry.source_path)
-        SC.logger.fatal("!!!!YUI compressor failed, please check that your css code is valid.")
-        SC.logger.fatal("!!!!Failed compressing CSS... "+ dst_path)
+        if $?.exitstatus != 0
+          _report_error(output, entry.filename, entry.source_path)
+          SC.logger.fatal("!!!!YUI compressor failed, please check that your css code is valid.")
+          SC.logger.fatal("!!!!Failed compressing CSS... "+ dst_path)
+        end
       end
   	end
     
     # Minify some javascript by invoking the YUI compressor.
     def build_javascript(dst_path)
+      a = Regexp.new('^'+MANIFEST.build_root)
+      if dst_path =~ a
+        $to_minify= $to_minify+" "+dst_path
+        FileUtils.mkdir_p(File.dirname(dst_path))
+        FileUtils.copy(entry.source_path, dst_path)
+      else
+        yui_root = File.expand_path(File.join(LIBPATH, '..', 'vendor', 'yui-compressor'))
+        jar_path = File.join(yui_root, 'yuicompressor-2.4.2.jar')
+        FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
+        filecompress = "java -jar " + jar_path + " --charset utf-8 --line-break 80 " + entry.source_path + " -o \"" + dst_path + "\" 2>&1"
+        SC.logger.info  'Compressing with YUI:  '+ dst_path + "..."
+
+        output = `#{filecompress}`      # It'd be nice to just read STDERR, but
+                                      # I can't find a reasonable, commonly-
+                                      # installed, works-on-all-OSes solution.
+        if $?.exitstatus != 0
+          _report_error(output, entry.filename, entry.source_path)
+          SC.logger.fatal("!!!!YUI compressor failed, please check that your js code is valid")
+          SC.logger.fatal("!!!!Failed compressing ... "+ dst_path)
+        end
+      end
+    end
+    
+    def build_inline_javascript(dst_path)
+      SC.logger.info  'Compressing inline Javascript with YUI: ' + dst_path + "..."
+      system(yui_command('--line-break 0', dst_path))
       yui_root = File.expand_path(File.join(LIBPATH, '..', 'vendor', 'yui-compressor'))
       jar_path = File.join(yui_root, 'yuicompressor-2.4.2.jar')
       FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
@@ -56,14 +89,13 @@ module SC
       SC.logger.info  'Compressing with YUI:  '+ dst_path + "..."
 
       output = `#{filecompress}`      # It'd be nice to just read STDERR, but
-                                      # I can't find a reasonable, commonly-
-                                      # installed, works-on-all-OSes solution.
+                                    # I can't find a reasonable, commonly-
+                                    # installed, works-on-all-OSes solution.
       if $?.exitstatus != 0
         _report_error(output, entry.filename, entry.source_path)
         SC.logger.fatal("!!!!YUI compressor failed, please check that your js code is valid")
         SC.logger.fatal("!!!!Failed compressing ... "+ dst_path)
       end
-      
     end
   
   
