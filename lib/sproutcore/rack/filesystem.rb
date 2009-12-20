@@ -70,22 +70,25 @@ module SC
         path = path.sub regex, '' # remove path prefix
         action = params['action']
         
+        #Missing:
+        #need a way to rename/move files and folders
+        
         case action
-        when nil
+        when nil #sends the contents of the file
           send_file(path)
-        when 'list'
+        when 'list' #returns folder structure
           list_files(path)
-        when 'save'
+        when 'save' #doesn't do anything
           save_file(path,params)
-        when 'overwrite'
+        when 'overwrite'  #overwrites file's contents with whatever is sent
           overwrite_file(path,params,body)
-        when 'append'
+        when 'append' #does nothing
           append_file(path,params)
-        when 'touch'
+        when 'touch' #creates a file
           touch_file(path)
-        when 'makedir'
+        when 'mkdir' #creates a folder
           make_directory(path)
-        when 'remove'
+        when 'remove' #removes the file
           remove_path(path)
         else
           forbidden("Unknown action #{params['action']}")
@@ -110,12 +113,13 @@ module SC
           name = path
           path = dir + path
           sc_path = path.gsub(root_path,"")
+          sc_path = sc_path.gsub(name,"")
           if FileTest.directory?(path)
             if not (File.basename(path)[0] == ?. or @ignore_directories.include?(File.basename(path)))
-              results<< {:type => :dir, :path => sc_path, :name =>name, :contents=> folder_contents(path+"/", root_path)}
+              results<< {:type => :dir, :dir => sc_path, :name =>name, :contents=> folder_contents(path+"/", root_path)}
             end
           else #just a regular file
-            results<< {:type => :file, :path => sc_path, :name => name}
+            results<< {:type => :file, :dir => sc_path, :name => name}
           end
         end
         return results
