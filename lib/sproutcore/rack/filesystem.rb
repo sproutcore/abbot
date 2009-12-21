@@ -78,7 +78,7 @@ module SC
           send_file(path)
         when 'list' #returns folder structure
           list_files(path)
-        when 'save' #doesn't do anything
+        when 'save' #doesn't do anything useful
           save_file(path,params)
         when 'overwrite'  #overwrites file's contents with whatever is sent
           overwrite_file(path,params,body)
@@ -86,6 +86,7 @@ module SC
           append_file(path,params)
         when 'touch' #creates a file
           touch_file(path)
+          overwrite_file(path,params,body) if body
         when 'mkdir' #creates a folder
           make_directory(path)
         when 'remove' #removes the file
