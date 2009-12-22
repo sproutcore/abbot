@@ -1,3 +1,34 @@
+== 1.0.1041 / 21-Dec-2009
+
+- yui-compressor now runs once at the end of a build, significantly shortening build time for many projects.
+
+- Added Button Hold behavior for SC.Button.  Holding a button will repeatedly fire an action (think arrow buttons on a scroll bar)
+
+- Improved SC.Logger
+
+- Incorporated rough draft of new SC.Animatable framework
+
+- Minor bug fixes - mostly tweaks required for better IE7 support
+
+- Improved documentation on a few methods
+
+- Added a logging for invokeOnce() and invokeLater() making it easier to track when these events occurs and what caused them
+
+- Moved some images into themes so they won’t load when Apple uses its own private theme
+
+- Fixed some bugs in SC.SheetPane introduced when merging the public source code
+
+- Added didAppendLayer and willRemoveLayer callbacks to SC.View so we can add events for video tags
+
+- Added SC.get() which works on any object, even null values
+
+- Added SC.WellView
+
+- New animating SC.SheetPane
+
+- Better support for SC.DateTime
+
+
 == 1.0.1036
 
 Added mising .tmpl files that prevented doc tool from running
