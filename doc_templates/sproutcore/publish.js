@@ -13,7 +13,8 @@ function superTextile(s) {
             ['\\+', '\\+', 'ins'],  //fixed
             ['~', '~', 'sub'],   
             ['\\^', '\\^', 'sup'], // me
-            ['{{{', '}}}', 'code']];
+            ['{{{', '}}}', 'code'],
+            ['@', '@', 'code']];
 
   for (var i=0;i<qtags.length;i++) {
     var ttag_o = qtags[i][0], ttag_c = qtags[i][1], htag = qtags[i][2];
