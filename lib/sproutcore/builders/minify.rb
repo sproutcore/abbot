@@ -33,14 +33,14 @@ module SC
     end
     
     def build_css(dst_path)
-      $to_minify= $to_minify+" "+dst_path
+      $to_minify << dst_path
       FileUtils.mkdir_p(File.dirname(dst_path))
       FileUtils.copy(entry.source_path, dst_path)
   	end
     
     # Minify some javascript by invoking the YUI compressor.
     def build_javascript(dst_path)
-      $to_minify= $to_minify+" "+dst_path
+      $to_minify << dst_path
       FileUtils.mkdir_p(File.dirname(dst_path))
       FileUtils.copy(entry.source_path, dst_path)
     end

@@ -7,7 +7,7 @@
 
 require File.expand_path(File.join(File.dirname(__FILE__), 'manifest'))
 
-$to_minify=''
+$to_minify = []
 
 module SC
   class Tools
@@ -75,21 +75,24 @@ module SC
           end
         end
       end
-      yui_root = File.expand_path(File.join(LIBPATH, '..', 'vendor', 'yui-compressor'))
-      jar_path = File.join(yui_root, 'SCyuicompressor-2.4.2.jar')
-      filecompress = "java -jar " + jar_path + " --charset utf-8 --line-break 80 " + $to_minify + " 2>&1"
-      SC.logger.info filecompress
-      SC.logger.info  'Compressing with YUI:  '+ $to_minify + "..."
       
-      output = `#{filecompress}`      # It'd be nice to just read STDERR, but
-                                      # I can't find a reasonable, commonly-
-                                      # installed, works-on-all-OSes solution.
-      SC.logger.info output
-        if $?.exitstatus != 0
-        SC.logger.fatal(output)
-        SC.logger.fatal("!!!!YUI compressor failed, please check that your js code is valid")
-        SC.logger.fatal("!!!!Failed compressing ... "+ build_root)
-        exit(1) 
+      if $to_minify.length > 0
+        yui_root = File.expand_path(File.join(LIBPATH, '..', 'vendor', 'yui-compressor'))
+        jar_path = File.join(yui_root, 'SCyuicompressor-2.4.2.jar')
+        filecompress = "java -jar " + jar_path + " --charset utf-8 --line-break 80 " + $to_minify * ' ' + " 2>&1"
+        SC.logger.info filecompress
+        SC.logger.info  'Compressing with YUI:  '+ $to_minify * ' ' + "..."
+      
+        output = `#{filecompress}`      # It'd be nice to just read STDERR, but
+                                        # I can't find a reasonable, commonly-
+                                        # installed, works-on-all-OSes solution.
+        SC.logger.info output
+          if $?.exitstatus != 0
+          SC.logger.fatal(output)
+          SC.logger.fatal("!!!!YUI compressor failed, please check that your js code is valid")
+          SC.logger.fatal("!!!!Failed compressing ... "+ build_root)
+          exit(1) 
+        end
       end
     end    
   end
