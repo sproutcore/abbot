@@ -332,15 +332,15 @@ module SC
     def file_attr(attr_name, path, &block)
       
       # read cache from disk if needed
-      if @file_attr_cache.nil?
-        if File.exists?(file_attr_cache_path)
-          require 'yaml'
-          @file_attr_cache = YAML.load File.read(file_attr_cache_path)
-        else
-          @file_attr_cache = {}
-        end
+      if @file_attr_cache.nil? && File.exists?(file_attr_cache_path)
+        require 'yaml'
+        @file_attr_cache = YAML.load_file file_attr_cache_path
+          
+        # Sometimes the file is corrupted, in this case, clear the cache
+        File.delete file_attr_cache_path unless @file_attr_cache
       end
-
+      @file_attr_cache ||= {}
+      
       path_root = (@file_attr_cache[path] ||= {})
       attr_info = (path_root[attr_name.to_s] ||= {})
       attr_mtime = attr_info['mtime'].to_i
