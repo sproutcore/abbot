@@ -82,8 +82,8 @@ module SC
       SC.logger.info  'Compressing with YUI:  '+ $to_minify + "..."
       
       output = `#{filecompress}`      # It'd be nice to just read STDERR, but
-                                          # I can't find a reasonable, commonly-
-                                          # installed, works-on-all-OSes solution.
+                                      # I can't find a reasonable, commonly-
+                                      # installed, works-on-all-OSes solution.
       SC.logger.info output
         if $?.exitstatus != 0
         SC.logger.fatal(output)
