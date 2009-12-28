@@ -6,6 +6,7 @@
 # ===========================================================================
 
 require File.expand_path(File.join(File.dirname(__FILE__), 'manifest'))
+require 'pathname'
 
 $to_minify = []
 
@@ -69,8 +70,10 @@ module SC
         if entries.size > 0
           info "Building entries for #{manifest.target.target_name}:#{manifest.language}..."
           
+          target_build_root = Pathname.new(manifest.target.project.project_root)
           entries.each do |entry|
-            info "  #{entry.filename} -> #{entry.build_path}"
+            dst = Pathname.new(entry.build_path).relative_path_from(target_build_root)
+            info "  #{entry.filename} -> #{dst}"
             entry.build!
           end
         end
@@ -80,9 +83,8 @@ module SC
         yui_root = File.expand_path(File.join(LIBPATH, '..', 'vendor', 'yui-compressor'))
         jar_path = File.join(yui_root, 'SCyuicompressor-2.4.2.jar')
         filecompress = "java -jar " + jar_path + " --charset utf-8 --line-break 80 " + $to_minify * ' ' + " 2>&1"
-        SC.logger.info filecompress
-        SC.logger.info  'Compressing with YUI:  '+ $to_minify * ' ' + "..."
-      
+        SC.logger.info  'Compressing with YUI...'
+        
         output = `#{filecompress}`      # It'd be nice to just read STDERR, but
                                         # I can't find a reasonable, commonly-
                                         # installed, works-on-all-OSes solution.
