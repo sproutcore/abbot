@@ -189,7 +189,7 @@ namespace :release do
   task :gemcutter => [:prepare, 'gemcutter:release']
   
   desc "one release to rule them all"
-  task :all => [:prepare, 'release:gemcutter', 'release:rubyforge']
+  task :all => [:prepare, 'release:gemcutter']
 
 end
 
