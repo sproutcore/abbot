@@ -18,6 +18,7 @@ if has_sass
   
     before do
       std_before :sass_test
+      @manifest.add_entry 'icons/image.png'
     end
 
 
@@ -38,6 +39,13 @@ if has_sass
       # just verify that output looks like the CSS we expect
       lines.should =~ /\#main\s+p.+\{.+color.+width.+\}/
     end
-  
+    
+    it "converts static_url() and sc_static() => 'url('foo')' " do
+      lines = run_builder('sample.sass')
+      css = lines.join("\n")
+      
+      css.should_not =~ /(static_url|sc_static)/
+      css.should =~ /url\('.+'\)/ # important MUST have some url...
+    end
   end
 end

@@ -5,7 +5,7 @@
 #            and contributors
 # ===========================================================================
 
-require File.expand_path(File.join(File.dirname(__FILE__), 'base'))
+require File.expand_path(File.join(File.dirname(__FILE__), 'stylesheet'))
 require 'fileutils'
 
 module SC
@@ -14,7 +14,7 @@ module SC
   # further processing than simply executing the Sass.  It would be nice to 
   # add support for sc_static and other directives at some point.
   #
-  class Builder::Sass < Builder::Base
+  class Builder::Sass < Builder::Stylesheet
     
     def build(dst_path)
       begin
@@ -25,8 +25,10 @@ module SC
 
       begin
         content = readlines(entry.source_path)*''
-        content = ::Sass::Engine.new(content).render
-        writelines dst_path, [content]
+        css = ::Sass::Engine.new(content).render
+        lines = []
+        css.each_line { |l| lines << rewrite_inline_code(l) }
+        writelines dst_path, lines
       rescue Exception => e
         
         # explain sass syntax error a bit more...
