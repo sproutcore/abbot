@@ -10,7 +10,7 @@
 
   @extends <%= base_class_name || 'SC.Responder' %>
 */
-<%= namespace_class_name %> = <%= base_class_name || 'SC.Responder' %>.extend(
+<%= namespace_class_name %> = <%= base_class_name || 'SC.Responder' %>.create(
 /** @scope <%= namespace_class_name %>.prototype */ {
   /**
     The next state to check if this state does not implement the action.
