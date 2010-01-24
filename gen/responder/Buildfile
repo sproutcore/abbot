@@ -6,13 +6,13 @@
 
 namespace :generator do
 
-  # Verify required properties are present.  Also accept second argument as
-  # base class.
+  # - Verify required properties are present
+  # - Accept second argument as base class
+
   task :prepare do
     GENERATOR.requires! :target_project, :target, :namespace, :class_name
+    GENERATOR.class_name = GENERATOR.class_name.upcase
     GENERATOR.base_class_name ||= GENERATOR.arguments[2]
-	
-	GENERATOR.filename = GENERATOR.filename.downcase
   end
   
 end

@@ -1,17 +1,15 @@
-responder - Create a new responder in your SproutCore app.
+responder - Create a new Responder class to use in your statecharts.
 
 USAGE:
 
-  sc-gen responder AppName.RESPONDER_NAME [--filename=FILENAME] [--target=TARGET_NAME]
+  sc-gen responder AppName.ResponderName [--filename=FILENAME] [--target=TARGET_NAME]
 
 DISCUSSION:
 
-This generator will create a new SproutCore responder file in your app.  You should pass as the first parameter your AppName.ClassName combination you want to create.  For example:
+This generator will create a new SproutCore Responder template file in your 
+app.  You should pass as the first parameter your AppName.ResponderName combination you want to create.  For example:
 
-sc-gen responder Todos.READY
+sc-gen responder Todos.START
 
-defines a new responder called Todos.READY in the file apps/todos/responder/ready.js . This generator enforces capitalization of the Responder object. For example:
+defines a new class called Todos.START in the file apps/todos/states/start.js.
 
-sc-gen responder Todos.Start
-
-defines a new responder called Todos.START.
