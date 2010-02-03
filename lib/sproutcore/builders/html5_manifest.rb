@@ -22,13 +22,13 @@ module SC
       path = dst_path.split('/tmp/build')
       inspect_files(path[0] + '/tmp/build', path[1])
       
-      #puts CONFIG.html5_manifest
       networks = $to_html5_manifest_networks
       if networks
         @files << "\n\nNETWORK:"
         networks.each do |network|
           @files << network
         end
+        @files << "\n"
       end
       
       manifest_path = dst_path.sub('index.html', '') + 'app.manifest'
