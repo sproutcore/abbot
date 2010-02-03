@@ -10,4 +10,8 @@ This generator will create a new SproutCore responder file in your app.  You sho
 
 sc-gen responder Todos.READY
 
-defines a new responder called Todos.READY in the file apps/todos/responder/ready.js .
+defines a new responder called Todos.READY in the file apps/todos/responder/ready.js . This generator enforces capitalization of the Responder object. For example:
+
+sc-gen responder Todos.Start
+
+defines a new responder called Todos.START.
