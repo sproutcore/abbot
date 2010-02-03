@@ -399,7 +399,6 @@ namespace :manifest do
       MANIFEST.entries.each do |entry|
         next unless entry.ext == "sass"
         
-        
         MANIFEST.add_transform entry,
           :filename   => ['source', entry.filename].join('/'),
           :build_path => File.join(MANIFEST.build_root, 'source', entry.filename),
@@ -537,6 +536,7 @@ namespace :manifest do
               :packed     => entry.packed? # carry forward
           end
         end
+        
       end
       
     end

@@ -9,6 +9,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'manifest'))
 require 'pathname'
 
 $to_minify = []
+$to_html5_manifest = []
 
 module SC
   class Tools
@@ -76,6 +77,13 @@ module SC
             info "  #{entry.filename} -> #{dst}"
             entry.build!
           end
+        end
+      end
+      
+      if $to_html5_manifest.length > 0
+        #@content_for_html5_manifest = true
+        $to_html5_manifest.each do |entry|
+          SC::Builder::HTML5Manifest.build('', entry)
         end
       end
       

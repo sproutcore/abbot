@@ -112,6 +112,10 @@ module SC
     end
       
     def build(dst_path)
+      if CONFIG.html5_manifest
+        $to_html5_manifest << dst_path
+        @content_for_html5_manifest = true
+      end
       writelines dst_path, [self.render]
     end
     
@@ -143,7 +147,7 @@ module SC
       if !File.exist?(input_path)
         raise "html_builder could compile file at #{input_path} because the file could not be found" 
       end
-
+      
       old_renderer = @renderer
       @renderer = render_engine  # save for capture...
       
