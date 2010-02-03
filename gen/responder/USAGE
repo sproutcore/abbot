@@ -1,0 +1,13 @@
+responder - Create a new responder in your SproutCore app.
+
+USAGE:
+
+  sc-gen responder AppName.RESPONDER_NAME [--filename=FILENAME] [--target=TARGET_NAME]
+
+DISCUSSION:
+
+This generator will create a new SproutCore responder file in your app.  You should pass as the first parameter your AppName.ClassName combination you want to create.  For example:
+
+sc-gen responder Todos.READY
+
+defines a new responder called Todos.READY in the file apps/todos/responder/ready.js .
