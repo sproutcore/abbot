@@ -10,10 +10,7 @@ require 'fileutils'
 
 module SC
 
-  # This builder combines several javascript files into a single file.  It is
-  # used to prepare a single javascript file for production use.  This build
-  # tool expects the javascript files to have already been processed for any
-  # build directives such sc_static().
+  # This builder create an HTML5 manifest file for application caching
   #
   class Builder::HTML5Manifest < Builder::Base
     
@@ -26,17 +23,17 @@ module SC
       inspect_files(path[0] + '/tmp/build', path[1])
       
       #puts CONFIG.html5_manifest
-      #networks = CONFIG.html5_manifest_networks
-      #if networks
-      #  @files << "\n\nNETWORK:"
-      #  networks.each do |network|
-      #    @files << network
-      #  end
-      #end
+      networks = $to_html5_manifest_networks
+      if networks
+        @files << "\n\nNETWORK:"
+        networks.each do |network|
+          @files << network
+        end
+      end
       
       manifest_path = dst_path.sub('index.html', '') + 'app.manifest'
-      puts manifest_path
       writelines manifest_path, @files
+      puts manifest_path
     end
     
     def joinlines(lines)

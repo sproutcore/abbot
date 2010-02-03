@@ -114,6 +114,7 @@ module SC
     def build(dst_path)
       if CONFIG.html5_manifest
         $to_html5_manifest << dst_path
+        $to_html5_manifest_networks = CONFIG.html5_manifest_networks
         @content_for_html5_manifest = true
       end
       writelines dst_path, [self.render]

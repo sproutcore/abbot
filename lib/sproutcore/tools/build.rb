@@ -10,6 +10,7 @@ require 'pathname'
 
 $to_minify = []
 $to_html5_manifest = []
+$to_html5_manifest_networks = []
 
 module SC
   class Tools
@@ -81,7 +82,6 @@ module SC
       end
       
       if $to_html5_manifest.length > 0
-        #@content_for_html5_manifest = true
         $to_html5_manifest.each do |entry|
           SC::Builder::HTML5Manifest.build('', entry)
         end
