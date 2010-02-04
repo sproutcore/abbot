@@ -4,15 +4,12 @@
 #            portions copyright @2006-2009 Sprout Systems, Inc.
 #            and contributors
 # ===========================================================================
-
-require File.expand_path(File.join(File.dirname(__FILE__), 'base'))
 require 'fileutils'
 
-module SC
+module SC::Helpers
 
-  # This builder create an HTML5 manifest file for application caching
-  #
-  class Builder::HTML5Manifest < Builder::Base
+  # Creates an HTML5 manifest file for application caching
+  class HTML5Manifest
     
     def build(dst_path)
       @files = []
@@ -20,6 +17,7 @@ module SC
       @files << "CACHE MANIFEST\n# List of all resources required by this project\n"
       
       path = dst_path.split('/tmp/build')
+      
       inspect_files(path[0] + '/tmp/build', path[1])
       
       networks = $to_html5_manifest_networks
@@ -33,11 +31,28 @@ module SC
       
       manifest_path = dst_path.sub('index.html', '') + 'app.manifest'
       writelines manifest_path, @files
-      puts manifest_path
+    end
+    
+    # writes the passed lines to the named file
+    def writelines(dst_path, lines)
+      FileUtils.mkdir_p(File.dirname(dst_path))
+      f = File.open(dst_path, 'w')
+      f.write joinlines(lines)
+      f.close
     end
     
     def joinlines(lines)
       lines.join("\n")
+    end
+    
+    # Reads the lines from the source file.  If the source file does not 
+    # exist, returns empty array.
+    def readlines(src_path)
+      if File.exist?(src_path) && !File.directory?(src_path) 
+        File.readlines(src_path)
+      else
+        []
+      end
     end
     
     def inspect_files(base_path, dst_path)
@@ -45,7 +60,7 @@ module SC
       content = readlines(path)
       
       content.each do |line|
-        line.scan(/['"]([^\s]+?(?=\.(css|js|png|gif))\.\2)['"]/) do |x, y, z|
+        line.scan(/['"]([^\s]+?(?=\.(css|js|png|gif|jpg|jpeg))\.\2)['"]/i) do |x, y, z|
           file_location = x
           # in case of hyperdomaining, strip off the http part and then look
           # for the file
@@ -65,8 +80,6 @@ module SC
           
         end
       end
-      
-      @files
       
     end
     

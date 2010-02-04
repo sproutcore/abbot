@@ -83,7 +83,7 @@ module SC
       
       if $to_html5_manifest.length > 0
         $to_html5_manifest.each do |entry|
-          SC::Builder::HTML5Manifest.build('', entry)
+          SC::Helpers::HTML5Manifest.new.build(entry)
         end
       end
       

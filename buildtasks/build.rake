@@ -45,11 +45,6 @@ namespace :build do
     SC::Builder::Combine.build ENTRY, DST_PATH
   end
   
-  desc "generates an HTML5 manifest file for each built application"
-  build_task :html5_manifest do
-    SC::Builder::HTML5Manifest.build ENTRY, DST_PATH
-  end
-  
   namespace :minify do
     
     desc "Minifies a CSS file by invoking CSSmin"
