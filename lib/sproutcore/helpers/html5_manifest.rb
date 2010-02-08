@@ -65,7 +65,7 @@ module SC::Helpers
           # in case of hyperdomaining, strip off the http part and then look
           # for the file
           if x[0,4] == 'http'
-            file_location = '/' + x.gsub(/http\:\/\/.*?\//, '')
+            file_location = '/' + x.gsub(/https?\:\/\/.*?\//, '')
           end
           
           next unless File.exist?(base_path + file_location)
