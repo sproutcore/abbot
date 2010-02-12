@@ -14,7 +14,27 @@ IGNORE_CHANGES = %w[.gitignore .gitmodules .DS_Store .gemspec VERSION.yml ^pkg ^
 
 # Get the DISTRIBUTION info
 require 'yaml'
-DIST = YAML.load File.read(File.expand_path(File.join(ROOT_PATH, 'DISTRIBUTION.yml')))
+
+DIST_PATH = File.expand_path(File.join(ROOT_PATH, 'DISTRIBUTION.yml'))
+DIST = YAML.load File.read(DIST_PATH)
+
+LOCAL_DIST_PATH = File.expand_path(File.join(ROOT_PATH, 'LOCAL.yml'))
+if File.exists? LOCAL_DIST_PATH
+  
+  # merged each item in the top level hash.  This allows for key-by-key 
+  # overrides
+  YAML.load(File.read(LOCAL_DIST_PATH)).each do |key, opts|
+    if DIST[key]
+      DIST[key].merge! opts
+    else
+      DIST[KEY] = opts
+    end
+  end
+  
+  puts "Using local overrides for distribution"
+end
+
+REMOTE_NAME = 'dist' # used by git
 
 # Make empty to not use sudo
 SUDO = 'sudo'
@@ -22,16 +42,18 @@ SUDO = 'sudo'
 ################################################
 ## LOAD DEPENDENCIES
 ##
+
+# Core dependencies. Just warn if these are not available
 begin
   require 'rubygems'
-  require 'jeweler'
   require 'extlib'
   require 'fileutils'
   require 'spec/rake/spectask'
 
   $:.unshift(ROOT_PATH / 'lib')
-  require 'sproutcore'
 
+  require 'sproutcore'
+  
 rescue LoadError => e
   $stderr.puts "WARN: some required gems are not installed (try rake init to setup)"
   $stderr.puts e
@@ -39,42 +61,55 @@ end
 
 
 ################################################
-## PROJECT DESCRIPTION
+## JEWELER PROJECT DESCRIPTION
 ##
 
-Jeweler::Tasks.new do |gemspec|
-  gemspec.name = 'sproutcore'
-  gemspec.authors = 'Sprout Systems, Inc.  Apple Inc. and contributors'
-  gemspec.email = 'contact@sproutcore.com'
-  gemspec.homepage = 'http://www.sproutcore.com'
-  gemspec.summary = "SproutCore is a platform for building native look-and-feel applications on  the web"
+begin 
+  require 'jeweler'
+  HAS_JEWELER = true
   
-  gemspec.add_dependency 'rack', '>= 0.9.1'
-  gemspec.add_dependency 'json_pure', ">= 1.1.0"
-  gemspec.add_dependency 'extlib', ">= 0.9.9"
-  gemspec.add_dependency 'erubis', ">= 2.6.2"
-  gemspec.add_dependency 'thor', '>= 0.11.7'
+rescue LoadError => e
+  $stderr.puts "WARN: jeweler is not yet installed (try rake init to setup)"
+  $stderr.puts e
+  HAS_JEWELER = false
+end
 
-  gemspec.add_development_dependency 'gemcutter', ">= 0.1.0"
-  gemspec.add_development_dependency 'jeweler', ">= 1.0.0"
-  gemspec.add_development_dependency 'rspec', ">= 1.2.0"
+if HAS_JEWELER
+  Jeweler::Tasks.new do |gemspec|
+    gemspec.name = 'sproutcore'
+    gemspec.authors = 'Sprout Systems, Inc.  Apple Inc. and contributors'
+    gemspec.email = 'contact@sproutcore.com'
+    gemspec.homepage = 'http://www.sproutcore.com'
+    gemspec.summary = "SproutCore is a platform for building native look-and-feel applications on  the web"
+  
+    gemspec.add_dependency 'rack', '>= 0.9.1'
+    gemspec.add_dependency 'json_pure', ">= 1.1.0"
+    gemspec.add_dependency 'extlib', ">= 0.9.9"
+    gemspec.add_dependency 'erubis', ">= 2.6.2"
+    gemspec.add_dependency 'thor', '>= 0.11.7'
 
-  gemspec.rubyforge_project = "sproutcore"
-  gemspec.extra_rdoc_files.include *%w[History.txt README.txt]
+    gemspec.add_development_dependency 'gemcutter', ">= 0.1.0"
+    gemspec.add_development_dependency 'jeweler', ">= 1.0.0"
+    gemspec.add_development_dependency 'rspec', ">= 1.2.0"
+
+    gemspec.rubyforge_project = "sproutcore"
+    gemspec.extra_rdoc_files.include *%w[History.txt README.txt]
     
-  gemspec.files.include *%w[.htaccess frameworks/sproutcore/**/*]
-  gemspec.files.exclude *%w[^coverage/ .gitignore .gitmodules .DS_Store tmp/ .hashinfo .svn .git]
+    gemspec.files.include *%w[.htaccess frameworks/sproutcore/**/*]
+    gemspec.files.exclude *%w[^coverage/ .gitignore .gitmodules .DS_Store tmp/ .hashinfo .svn .git]
   
-  gemspec.description = File.read(ROOT_PATH / 'README.txt')
+    gemspec.description = File.read(ROOT_PATH / 'README.txt')
+  end
+
+  Jeweler::GemcutterTasks.new
 end
 
-Jeweler::RubyforgeTasks.new do |rubyforge|
-  rubyforge.doc_task = 'rdoc'
-end
 
-Jeweler::GemcutterTasks.new
+################################################
+## CORE TASKS
+##
 
-
+# git helper used to run git from within rake.
 def git(path, cmd, log=true)
   $stdout.puts("#{path.sub(ROOT_PATH, '')}: git #{cmd}") if log
   git_path = path / '.git'
@@ -84,13 +119,11 @@ def git(path, cmd, log=true)
   %x[GIT_DIR=#{git_path}; GIT_WORK_TREE=#{path}; GIT_INDEX_FILE=#{git_index}; git #{cmd}]
 end
 
-################################################
-## CORE TASKS
-##
   
 desc "performs an initial setup on the tools.  Installs gems, checkout"
 task :init => [:install_gems, 'dist:init', 'dist:update'] 
 
+desc "verifies that all required gems are installed"
 task :install_gems do
   $stdout.puts "Installing gems (may ask for password)"
   system %[#{SUDO} gem install rack json json_pure extlib erubis thor]
@@ -106,26 +139,80 @@ namespace :dist do
     DIST.each do |rel_path, opts|
       path = ROOT_PATH / rel_path
       repo_url = opts['repo']
-        
+      dist_branch = opts['branch'] || 'master'
+
+      # if the .git repository does not exist yet, create it
       if !File.exists?(path / ".git")
         $stdout.puts "  Creating repo for #{rel_path}"
         FileUtils.mkdir_p path
 
         $stdout.puts "\n> git clone #{repo_url} #{path}"
         system "GIT_DIR=#{path / '.git'}; GIT_WORK_TREE=#{path}; git init"
+      end
+      
+      # if git exists, make sure a "dist" remote exists and matches the named
+      # remote
+      remote = git(path, 'remote -v').split("\n").find do |l|
+        l =~ /^#{REMOTE_NAME}.+\(fetch\)/
+      end
+      
+      if remote
+        cur_repo_url = remote.match(/^#{REMOTE_NAME}(.+)\(fetch\)/)[1].strip
+        if (cur_repo_url != repo_url)
+          $stdout.puts "ERROR: #{rel_path} has a 'dist' remote pointing to a different repo.  Please remove the 'dist' remote and try again"
+          exit(1)
+        else
+          $stdout.puts "Found #{rel_path}:dist => #{repo_url}"
+        end
+      
+      # remote does not yet exist, add it...
+      else
+        $stdout.puts git(path,"remote add dist #{repo_url}")
+      end
+      
+      $stdout.puts git(path, "fetch dist")
+
+      # Make sure a "dist" branch exists..  if not checkout against the
+      # dist branch
+      if git(path, 'branch') =~ /dist\n/
+        $stdout.puts "WARN: #{rel_path}:dist branch already exists.  delete branch and try again if you aren't sure it is setup properly"
+      else
+        git(path,"branch dist remotes/dist/#{dist_branch}")
+      end
+      
+      git(path, "checkout dist")
+
+    end
+  end
+  
+  desc "Make sure each repository in the distribute is set to the target remote branch and up-to-date"
+  task :update => 'dist:init' do
+    $stdout.puts "Setup distribution"
+
+    DIST.each do |rel_path, opts|
+      path = ROOT_PATH / rel_path
+      branch = opts['branch'] || 'master'
         
-        git(path,"remote add origin #{repo_url}")
-        git(path,"fetch origin")
-        git(path,"checkout -b origin remotes/origin/master")
+      if File.exists?(path / ".git")
+
+        $stdout.puts "\n> git checkout dist"
+        $stdout.puts git(path, "checkout dist")
+
+        $stdout.puts "\n> git fetch dist"
+        $stdout.puts git(path, 'fetch dist')
+
+        $stdout.puts "\n> git rebase remotes/dist/#{branch}"
+        $stdout.puts git(path, "rebase remotes/dist/#{branch}")
       
       else
-        $stdout.puts "Found #{rel_path}"
+        $stdout.puts "WARN: cannot fix version for #{rel_path}"
       end
+      
     end
   end
   
   desc "make the version of each distribution item match the one in VERSION"
-  task :update => 'dist:init' do
+  task :freeze => 'dist:init' do
     $stdout.puts "Setup distribution"
 
     # Use this to get the commit hash

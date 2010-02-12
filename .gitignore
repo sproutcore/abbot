@@ -10,4 +10,5 @@ doc
 .hashinfo.yml
 sproutcore.gemspec
 frameworks
+LOCAL.yml
 

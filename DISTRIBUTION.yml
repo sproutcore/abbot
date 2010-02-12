@@ -8,7 +8,13 @@
 #   repo: GIT/SVN URL
 #   scm:  git|svn  <- type of source control system.  defaults to git
 #
+# Note that if you are maintaining private versions of any of these 
+# frameworks you can also create a file called LOCAL.yml that can contain
+# any overrides to the distirbution info contained here.
+#
 
 frameworks/sproutcore:
-  repo: git://github.com/sproutit/sproutcore.git
+  repo: "git://github.com/sproutit/sproutcore.git"
+  branch: "master"
+  
 
