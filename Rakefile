@@ -23,7 +23,7 @@ if File.exists? LOCAL_DIST_PATH
   
   # merged each item in the top level hash.  This allows for key-by-key 
   # overrides
-  YAML.load(File.read(LOCAL_DIST_PATH)).each do |key, opts|
+  (YAML.load(File.read(LOCAL_DIST_PATH)) || {}).each do |key, opts|
     if DIST[key]
       DIST[key].merge! opts
     else
@@ -121,13 +121,32 @@ end
 
   
 desc "performs an initial setup on the tools.  Installs gems, checkout"
-task :init => [:install_gems, 'dist:init', 'dist:update'] 
+task :init => [:install_gems, 'dist:init'] 
 
 desc "verifies that all required gems are installed"
 task :install_gems do
   $stdout.puts "Installing gems (may ask for password)"
-  system %[#{SUDO} gem install rack json json_pure extlib erubis thor]
-  system %[#{SUDO} gem install jeweler gemcutter rspec] # dev req
+  
+  gem_names = %w(rack json json_pure extlib erubis thor jeweler gemcutter rspec)
+  gem_install = []
+  gem_update = []
+  
+  # detect which ones are installed and update those
+  gem_names.each do |name|
+    if %x[gem list #{name}] =~ /#{Regexp.escape(name)} \(/
+      gem_update << name
+    else
+      gem_install << name
+    end
+  end
+
+  $stdout.puts "installing gems #{gem_install * ' '}"  if gem_install.size>0
+  $stdout.puts "updating gems #{gem_update * ' '}"  if gem_update.size>0
+
+  # install missing gems - updating known gems
+  # this is faster than just installing all gems
+  system %[#{SUDO} gem install #{gem_install * ' '}]
+  system %[#{SUDO} gem update #{gem_update * ' '}]
 end
 
 namespace :dist do
