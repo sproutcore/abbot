@@ -1,5 +1,5 @@
 // ==========================================================================
-// Project:   <%= namespace_class_name %>
+// Project:   <%= namespace %>.<%= class_name.upcase %>
 // Copyright: ©<%= Time.now.year %> My Company, Inc.
 // ==========================================================================
 /*globals <%= namespace %> */
@@ -9,22 +9,31 @@
   (Document Your State Here)
 
   @extends <%= base_class_name || 'SC.Responder' %>
+  @version 0.1
 */
-<%= namespace_class_name %> = <%= base_class_name || 'SC.Responder' %>.create(
-/** @scope <%= namespace_class_name %>.prototype */ {
+<%= namespace %>.<%= class_name.upcase %> = <%= base_class_name || 'SC.Responder' %>.create(
+/** @scope <%= namespace %>.<%= class_name.upcase %>.prototype */ {
+
   /**
     The next state to check if this state does not implement the action.
   */
   nextResponder: null,
   
-  // ..........................................................
-  // EVENTS
-  //
   didBecomeFirstResponder: function() {
     // Called when this state becomes first responder
   },
   
   willLoseFirstResponder: function() {
-    //Called when this state loses first responder
+    // Called when this state loses first responder
+  },
+  
+  // ..........................................................
+  // EVENTS
+  //
+  
+  // add event handlers here
+  someAction: function() {
+    
   }
+  
 }) ;
