@@ -166,34 +166,7 @@ module SC
         return %(<script type="text/javascript">\n#{ret}\n</script>)
       end
      
-      # Attempts to include the named javascript entry inline to the file
-      #
-      # === Options
-      #  language:: the language to use.  defaults to current
-      #
-      def inline_designer_javascript(resource_name, opts ={}) 
-
-        resource_name = resource_name.to_s
-        
-        # determine which manifest to search.  if a language is explicitly
-        # specified, lookup manifest for that language.  otherwise use 
-        # current manifest.
-        m = self.manifest 
-        if opts[:language]
-          m = target.manifest_for(:language => opts[:language]).build! 
-        end
-        
-        entry = m.find_entry(resource_name, :entry_type => :javascript)
-        if entry.nil?
-          entry = m.find_entry(resource_name, :hidden => true, :entry_type => :javascript)
-        end
-          
-        return '' if entry.nil? || !$design_mode
-        
-        ret = entry.stage!.inline_contents*''
-        return %(<script type="text/javascript">\n#{ret}\n</script>)
-      end
-      # Attempts to include the named javascript entry inline to the file
+    # Attempts to include the named javascript entry inline to the file
       #
       # === Options
       #  language:: the language to use.  defaults to current

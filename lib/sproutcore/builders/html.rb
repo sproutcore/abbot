@@ -186,6 +186,7 @@ module SC
     # Renders a single entry.  The entry will be staged and then its 
     # render task will be executed.
     def render_entry(entry)
+      @content_for_designer = '<script type="text/javascript">SC.suppressMain = YES;</script>' if $design_mode
       entry.stage!
       entry.target.buildfile.invoke entry.render_task,
         :entry    => entry, 

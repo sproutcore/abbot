@@ -95,9 +95,8 @@ module SC
           url = '/sproutcore/welcome' if url == '/'
           
           #designer mode?
-          $design_mode = false
           $design_mode = ((/designMode=YES/ =~ env['QUERY_STRING']) != nil) ? true : false
-          SC.logger.fatal $design_mode
+          
           # look for a matching target
           target = target_for(url)
           ret = not_found("No matching target") if target.nil?
@@ -120,12 +119,12 @@ module SC
           end
 
           if ret.nil?
-            
             build_path = entry.build_path
             if [:html, :test].include?(entry.entry_type)
-              if did_reload || !File.exist?(build_path)
+              #if did_reload || !File.exist?(build_path)
+              #always clean html files...
                 entry.clean!.build!
-              end
+              #end
             else
               entry.build!
             end
