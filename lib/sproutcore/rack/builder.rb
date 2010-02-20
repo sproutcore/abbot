@@ -95,8 +95,9 @@ module SC
           url = '/sproutcore/welcome' if url == '/'
           
           #designer mode?
-          $design_mode = true if /designMode=YES/ =~ env['QUERY_STRING'] 
-          SC.logger.info $design_mode
+          $design_mode = false
+          $design_mode = ((/designMode=YES/ =~ env['QUERY_STRING']) != nil) ? true : false
+          SC.logger.fatal $design_mode
           # look for a matching target
           target = target_for(url)
           ret = not_found("No matching target") if target.nil?
