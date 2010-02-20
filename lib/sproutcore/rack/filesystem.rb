@@ -102,6 +102,7 @@ module SC
       
       def list_files(original_path)
         results = []
+        @id = 0
         with_sanitized_path(original_path) do |root_path|
           results = folder_contents(root_path, root_path)
         end
@@ -109,7 +110,8 @@ module SC
       end
       
       def folder_contents(dir, root_path)
-        results = [];
+        results = []
+
         Dir.new(dir).each do |path|
           name = path
           path = dir + path
@@ -117,10 +119,11 @@ module SC
           sc_path = sc_path.gsub(name,"")
           if FileTest.directory?(path)
             if not (File.basename(path)[0] == ?. or @ignore_directories.include?(File.basename(path)))
-              results<< {:type => :dir, :dir => sc_path, :name =>name, :contents=> folder_contents(path+"/", root_path)}
+              results<< {:type => :Dir, :dir => sc_path, :name =>name, 
+                          :contents=> folder_contents(path+"/", root_path), :id => @id+=1}
             end
           else #just a regular file
-            results<< {:type => :file, :dir => sc_path, :name => name}
+            results<< {:type => :File, :dir => sc_path, :name => name, :id => @id+=1 }
           end
         end
         return results

@@ -89,11 +89,14 @@ module SC
         
         project_mutex.synchronize do 
           did_reload = reload_project! # if needed
-
+          
           # collect some standard info
           url = env['PATH_INFO']
           url = '/sproutcore/welcome' if url == '/'
-      
+          
+          #designer mode?
+          $design_mode = true if /designMode=YES/ =~ env['QUERY_STRING'] 
+          SC.logger.info $design_mode
           # look for a matching target
           target = target_for(url)
           ret = not_found("No matching target") if target.nil?
