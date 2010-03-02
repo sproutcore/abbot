@@ -102,11 +102,15 @@ namespace :manifest do
         entry.filename   = entry.filename.sub(lang_dir, sub_str)
         entry.build_path = entry.build_path.sub(lang_dir, sub_str)
         entry.url        = entry.url.sub(lang_dir, sub_str)
-      
+              
         # if this is part of the current language, always include...
         # hide any preferred_language entry...
         if entry.language == MANIFEST.language
-          seen[entry.filename].hide! if seen[entry.filename]
+          if seen[entry.filename]
+            seen[entry.filename].hide! 
+          else
+            seen[entry.filename] = entry
+          end
           
         # if this is a preferred_language, hide unless we've seen one
         elsif entry.language == preferred_language
