@@ -100,7 +100,7 @@ module SC
           if $?.exitstatus != 0
           SC.logger.fatal(output)
           SC.logger.fatal("!!!!YUI compressor failed, please check that your js code is valid")
-          SC.logger.fatal("!!!!Failed compressing ... "+ build_root)
+          SC.logger.fatal("!!!!Failed compressing ... "+ $to_minify.join(','))
           exit(1) 
         end
       end
