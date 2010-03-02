@@ -337,7 +337,7 @@ module SC
       if ret.nil?
         seen = Set.new if seen.nil?
         seen << cur_manifest.target
-        cur_manifest.target.expand_required_targets.each do |t|
+        cur_manifest.target.expand_required_targets(:theme => true).each do |t|
           next if seen.include?(t) # avoid recursion
 
           manifest = t.manifest_for(self.variation).build!
