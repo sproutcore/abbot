@@ -122,10 +122,7 @@ module SC
         #if config.serve_test_runner || config.serve_docs
           apps << SC::Rack::Dev.new(project) 
         #end
-        if project.buildfile.proxies.size > 0
-          apps << SC::Rack::Proxy.new(project) 
-        end
-
+        
         # Add builder for the project itself
         apps  << SC::Rack::Builder.new(project)
         
@@ -138,6 +135,10 @@ module SC
         
         if self.filesystem
           apps << SC::Rack::Filesystem.new(project)
+        end
+        
+        if project.buildfile.proxies.size > 0
+          apps << SC::Rack::Proxy.new(project) 
         end
         
         # Wrap'em in a cascade if needed.  This will return the first
