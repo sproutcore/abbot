@@ -40,7 +40,9 @@ module SC
         env.each do |key, value|
           next unless key =~ /^HTTP_/
           key = key.gsub(/^HTTP_/,'').downcase.sub(/^\w/){|l| l.upcase}.gsub(/_(\w)/){|l| "-#{$1.upcase}"} # remove HTTP_, dasherize and titleize
-          headers[key] = value
+          if !key.eql? "Version"
+            headers[key] = value
+          end
         end
         
         # Rack documentation says CONTENT_TYPE and CONTENT_LENGTH aren't prefixed by HTTP_
