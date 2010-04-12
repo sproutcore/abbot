@@ -75,6 +75,9 @@ mode :all do
     
     # use default bootstrap framework
     :bootstrap_inline => 'sproutcore/bootstrap:javascript',
+
+    # In design mode, load the designer
+    :design_required => ['sproutcore/designer'],
     
     :use_packed => true,
 
