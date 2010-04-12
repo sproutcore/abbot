@@ -59,7 +59,7 @@ module SC
           end
         end
         
-        opts[:Filesystem] ||= opts[:filesystem] || true # allow either case
+        opts[:Filesystem] ||= opts[:filesystem] || false # allow either case
         self.filesystem = opts[:Filesystem]
         
         projects = opts.delete(:projects) || [opts.delete(:project)].compact
