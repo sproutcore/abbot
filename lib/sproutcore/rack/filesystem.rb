@@ -104,23 +104,22 @@ module SC
         results = []
         @id = 0
         with_sanitized_path(original_path) do |root_path|
-          results = folder_contents(root_path, root_path)
+          results = folder_contents(root_path)
         end
         success(results.to_json)
       end
       
-      def folder_contents(dir, root_path)
+      def folder_contents(dir)
         results = []
 
         Dir.new(dir).each do |path|
           name = path
           path = dir + path
-          sc_path = path.gsub(root_path,"")
-          sc_path = sc_path.gsub(name,"")
+          sc_path = dir.gsub(root_dir,"")
           if FileTest.directory?(path)
             if not (File.basename(path)[0] == ?. or @ignore_directories.include?(File.basename(path)))
               results<< {:type => :Dir, :dir => sc_path, :name =>name, 
-                          :contents=> folder_contents(path+"/", root_path), :id => @id+=1}
+                          :contents=> folder_contents(path+"/"), :id => @id+=1}
             end
           else #just a regular file
             results<< {:type => :File, :dir => sc_path, :name => name, :id => @id+=1 }
