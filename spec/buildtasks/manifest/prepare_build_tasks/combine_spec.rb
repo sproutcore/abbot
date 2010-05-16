@@ -18,8 +18,8 @@ describe "manifest:prepare_build_tasks:combine" do
     }
   end
 
-  it "should run setup, javascript, css, & sass as prereq" do
-    %w(setup javascript css sass).each do |task_name|
+  it "should run setup, javascript, css, sass, scss & less as prereq" do
+    %w(setup javascript css sass scss less).each do |task_name|
       should_run("manifest:prepare_build_tasks:#{task_name}") { run_task }
     end
   end
@@ -45,6 +45,14 @@ describe "manifest:prepare_build_tasks:combine" do
 
       # Test that sass file is included...
       expected = entry_for('source/demo2.css', :entry_type => :css)
+      entry.source_entries.should include(expected)
+      
+      # Test that scss file is included...
+      expected = entry_for('source/demo3.css', :entry_type => :css)
+      entry.source_entries.should include(expected)
+      
+      # Test that less file is included...
+      expected = entry_for('source/demo4.css', :entry_type => :css)
       entry.source_entries.should include(expected)
 
       entry = entry_for 'bar.css'

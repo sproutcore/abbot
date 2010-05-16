@@ -15,8 +15,15 @@ module SC
   # add support for sc_static and other directives at some point.
   #
   class Builder::Sass < Builder::Stylesheet
+    @@sass_syntax = :sass
     
-    def build(dst_path)
+    # main entry called by build tasks
+    def self.build(entry, dst_path, sass_syntax=:sass)
+      @@sass_syntax =sass_syntax
+      new(entry).build(dst_path)
+    end
+    
+    def build(dst_path, sass_syntax=:sass)
       begin
         require 'sass'
       rescue
@@ -25,7 +32,7 @@ module SC
 
       begin
         content = readlines(entry.source_path)*''
-        css = ::Sass::Engine.new(content).render
+        css = ::Sass::Engine.new(content, :syntax => @@sass_syntax).render
         lines = []
         css.each_line { |l| lines << rewrite_inline_code(l) }
         writelines dst_path, lines

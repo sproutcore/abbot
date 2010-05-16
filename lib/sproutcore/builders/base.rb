@@ -30,7 +30,7 @@ module SC
       def build(dst_path)
       end
 
-      # main entry called by build tasls
+      # main entry called by build tasks
       def self.build(entry, dst_path)
         new(entry).build(dst_path)
       end
