@@ -133,12 +133,12 @@ module SC
           apps  << ::Rack::File.new(pubdir) if File.directory?(pubdir)
         end
         
-        if self.filesystem
-          apps << SC::Rack::Filesystem.new(project)
-        end
-        
         if project.buildfile.proxies.size > 0
           apps << SC::Rack::Proxy.new(project) 
+        end
+        
+        if self.filesystem
+          apps << SC::Rack::Filesystem.new(project)
         end
         
         # Wrap'em in a cascade if needed.  This will return the first
