@@ -136,7 +136,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
     
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css javascript bundle_info bundle_loaded sass combine minify html strings tests packed) 
+    task :all => %w(css javascript bundle_info bundle_loaded sass scss less combine minify html strings tests packed) 
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -288,7 +288,7 @@ namespace :manifest do
     task :bundle_loaded => :tests # IMPORTANT! to avoid JS including unit tests.
       
     desc "generates combined entries for javascript and css"
-    task :combine => %w(setup css javascript bundle_info bundle_loaded sass) do
+    task :combine => %w(setup css javascript bundle_info bundle_loaded sass scss less) do
 
       # sort entries...
       css_entries = {}
@@ -397,21 +397,23 @@ namespace :manifest do
     end
     task :minify => :packed # IMPORTANT: don't want minified version
     
-    
-    desc "create a builder task for all sass files to create css files"
-    task :sass => :setup do
-      MANIFEST.entries.each do |entry|
-        next unless entry.ext == "sass"
-        
-        MANIFEST.add_transform entry,
-          :filename   => ['source', entry.filename].join('/'),
-          :build_path => File.join(MANIFEST.build_root, 'source', entry.filename),
-          :url => [MANIFEST.url_root, 'source', entry.filename].join("/"),
-          :build_task => 'build:sass',
-          :entry_type => :css,
-          :ext        => 'css',
-          :resource   => 'stylesheet',
-          :required   => []
+    #Create builder tasks for sass, scss (sass v3) and less in a DRY way
+    [:sass, :scss, :less].each do |csscompiler|
+      desc sprintf("create a builder task for all %s files to create css files", csscompiler.to_s)
+      task csscompiler => :setup do
+        MANIFEST.entries.each do |entry|
+          next unless entry.ext == csscompiler.to_s
+          
+          MANIFEST.add_transform entry,
+            :filename   => ['source', entry.filename].join('/'),
+            :build_path => File.join(MANIFEST.build_root, 'source', entry.filename),
+            :url => [MANIFEST.url_root, 'source', entry.filename].join("/"),
+            :build_task => 'build:'+csscompiler.to_s,
+            :entry_type => :css,
+            :ext        => 'css',
+            :resource   => 'stylesheet',
+            :required   => []
+        end
       end
     end
     
@@ -512,7 +514,7 @@ namespace :manifest do
     end
     
     desc "creates transform entries for all css and Js entries to minify them if needed"
-    task :minify => %w(setup javascript bundle_info bundle_loaded css combine sass) do
+    task :minify => %w(setup javascript bundle_info bundle_loaded css combine sass scss less) do
       
       minify_css = CONFIG.minify_css
       minify_css = CONFIG.minify if minify_css.nil?

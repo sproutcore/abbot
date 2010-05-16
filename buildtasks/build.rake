@@ -25,6 +25,16 @@ namespace :build do
     SC::Builder::Sass.build ENTRY, DST_PATH
   end
   
+  desc "builds a single scss (sass v3 syntax) file"
+  build_task :scss do
+    SC::Builder::Sass.build ENTRY, DST_PATH, :scss
+  end
+
+  desc "builds a single less file"
+  build_task :less do
+    SC::Builder::Less.build ENTRY, DST_PATH
+  end
+  
   desc "builds a single javascript file"
   build_task :javascript do
     SC::Builder::JavaScript.build ENTRY, DST_PATH
