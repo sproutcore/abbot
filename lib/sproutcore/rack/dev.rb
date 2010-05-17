@@ -6,7 +6,7 @@
 # ===========================================================================
 
 require 'json'
-
+require 'ruby-debug'
 module SC
   module Rack
     
@@ -17,11 +17,22 @@ module SC
         @project = project
       end
       
+      #TODO: dry this up...also exists in SC::Rack::Filesystem
+      def root_dir
+        unless @root_dir
+          @root_dir = @project.project_root
+        end
+        return @root_dir
+      end
+      
       def call(env)
         url = env['PATH_INFO']
         case url
         when '/sc/targets.json' # returns description of targets
           return [200, {}, get_targets_json]
+          
+        when '/sc/greenhouse-config.json' #returns json of all valid design objects
+          return [200, {}, get_greenhouse_configs(env)]
         else
           return [404, {}, "not found"]
         end
@@ -45,6 +56,36 @@ module SC
         end
         targets.to_json
       end
+      
+      def get_greenhouse_configs(env)
+        rqust = ::Rack::Request.new(env)
+        params = rqust.params
+        app_target = @project.target_for(params['app'].to_sym) 
+        ret = []
+        if(app_target)
+          path = app_target.source_root + "/design/greenhouse.config"
+          json = File.exists?(path) ? JSON.parse(File.read(path)) : {}
+          json[:path] = path.gsub(root_dir, "")
+          json[:name] = app_target.target_name
+          json[:canEdit] = true
+          ret << json
+          
+          app_target.expand_required_targets.each do |target|
+            path = target.source_root + "/design/greenhouse.config"
+            json = File.exists?(path) ? JSON.parse(File.read(path)) : {}
+            if(path.include?(root_dir))
+              json[:path] = path.gsub(root_dir, "")
+              json[:canEdit] = true
+            else
+              json[:canEdit] = false
+              json[:path] = path
+            end
+            json[:name] = target.target_name
+            ret << json
+          end
+        end
+        return ret.to_json
+      end #end of get_greenhouse_configs
       
     end
   end
