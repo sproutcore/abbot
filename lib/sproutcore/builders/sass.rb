@@ -23,7 +23,7 @@ module SC
       new(entry).build(dst_path)
     end
     
-    def build(dst_path, sass_syntax=:sass)
+    def build(dst_path)
       begin
         require 'sass'
       rescue
