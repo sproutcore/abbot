@@ -32,7 +32,8 @@ module SC
 
       begin
         content = readlines(entry.source_path)*''
-        css = ::Sass::Engine.new(content, :syntax => @@sass_syntax).render
+        load_paths = [entry.source_path[0..entry.source_path.rindex('/')]]
+        css = ::Sass::Engine.new(content, :syntax => @@sass_syntax, :load_paths => load_paths).render
         lines = []
         css.each_line { |l| lines << rewrite_inline_code(l) }
         writelines dst_path, lines
