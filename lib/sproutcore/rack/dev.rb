@@ -6,7 +6,6 @@
 # ===========================================================================
 
 require 'json'
-#require 'ruby-debug'
 module SC
   module Rack
 
@@ -60,7 +59,8 @@ module SC
       def get_greenhouse_configs(env)
         rqust = ::Rack::Request.new(env)
         params = rqust.params
-        app_target = @project.target_for(params['app'].to_sym)
+        app = params['app'] ? params['app'].to_sym : ''
+        app_target = @project.target_for(app) 
         ret = []
         if(app_target)
           path = app_target.source_root + "/design/greenhouse.config"
