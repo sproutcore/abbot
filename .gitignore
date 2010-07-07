@@ -8,7 +8,6 @@ log
 doc
 *.gem
 .hashinfo.yml
-sproutcore.gemspec
 frameworks
 LOCAL.yml
 
