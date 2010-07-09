@@ -109,9 +109,9 @@ module SC
           %(  <script type="text/javascript" src="#{url}"></script>)
         end
 
-        # Add preferred language definition...
-        urls << %(<script type="text/javascript">String.preferredLanguage = "#{language}";</script>)
-
+         # Add preferred language definition, before other scripts...
+        urls.insert(0, %(<script type="text/javascript">String.preferredLanguage = "#{language}";</script>))
+          
         urls.join("\n")
       end
 
