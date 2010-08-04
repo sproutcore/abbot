@@ -87,13 +87,25 @@ module SC
       # This is the core entry method used to run every tool.  Extend this
       # method with any standard preprocessing you want all tools to do before
       # they do their specific thing.
-      def invoke(*args)
+      def task_setup
         prepare_logger!
         prepare_mode!
         prepare_build_numbers!
-        super
       end
-      
+
+      # Thor 0.14.0+
+      if method_defined?(:invoke_task)
+        def invoke_task(*)
+          task_setup
+          super
+        end
+      else
+        def invoke(*)
+          task_setup
+          super
+        end
+      end
+
       # Make the options hash a HashStruct so that we can access each variable
       # as a method
       def options; @tool_options ||= HashStruct.new(super); end
