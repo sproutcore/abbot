@@ -6,7 +6,7 @@
 # ===========================================================================
 
 module SC
-  
+
   # The NameSpace class will lookup task names in the the scope
   # defined by a +namespace+ command.  Borrowed from Rake 0.8.3
   #
@@ -29,5 +29,5 @@ module SC
       @task_manager.tasks
     end
   end # NameSpace
-  
+
 end

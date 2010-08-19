@@ -8,9 +8,9 @@
 
 module SC
   class Tools
-    
+
     ################################################
-    ## COMMAND LINE  
+    ## COMMAND LINE
     ##
 
     desc "build-number TARGET", "Computes a build number for the target"

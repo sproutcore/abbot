@@ -9,7 +9,7 @@ require 'singleton'
 require 'time'
 
 module SC
-  
+
   # EarlyTime is a fake timestamp that occurs _before_ any other time value.
   # Borrowed from Rake 0.8.3
   class EarlyTime < Time
@@ -27,4 +27,4 @@ module SC
 
   EARLY = EarlyTime.instance
 
-end  
+end

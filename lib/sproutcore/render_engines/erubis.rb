@@ -19,7 +19,7 @@ module SC
         rescue
           raise "Cannot render ERB file because erubis is not installed. Try running 'sudo gem install erubis' and try again"
         end
-        
+
         ::Erubis::Eruby.new.convert(input)
       end
 
@@ -33,7 +33,7 @@ module SC
         rescue
           buffer = nil
         end
-        
+
         if buffer.nil?
           block.call(*args).to_s
         else

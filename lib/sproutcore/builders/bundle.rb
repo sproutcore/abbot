@@ -12,30 +12,30 @@ module SC
   # Builds a bundle_loaded.js file which MUST be the last JavaScript to load
   # in a framework.
   class Builder::BundleLoaded < Builder::Base
-    
+
     def build(dst_path)
       writelines dst_path, ["; if ((typeof SC !== 'undefined') && SC && SC.bundleDidLoad) SC.bundleDidLoad('#{entry.target.target_name.to_s.sub(/^\//,'')}');"]
     end
-    
+
   end
-  
-  # Builds a bundle_info.js file which MUST be run *before* the framework is 
+
+  # Builds a bundle_info.js file which MUST be run *before* the framework is
   # loaded by the application or framework doing the loading.
   class Builder::BundleInfo < Builder::Base
-    
+
     def build(dst_path)
       begin
         require 'erubis'
       rescue
         raise "Cannot render bundle_info.js because erubis is not installed. Try running 'sudo gem install erubis' and try again."
       end
-      
+
       eruby = Erubis::Eruby.new <<-EOT
         ;(function() {
           var target_name = '<%= @target_name %>' ;
           if (!SC.BUNDLE_INFO) throw "SC.BUNDLE_INFO is not defined!" ;
           if (SC.BUNDLE_INFO[target_name]) return ; <%# not an error... %>
-          
+
           <%# first time, so add a Hash with this target's bundle_info %>
           SC.BUNDLE_INFO[target_name] = {
             requires: [<%= @requires.join(',') %>],
@@ -44,7 +44,7 @@ module SC
           }
         })();
       EOT
-      
+
       output = ""
       entry.targets.each do |t|
         bundle_info = t.bundle_info({ :debug => entry.debug, :test => entry.test, :theme => entry.theme, :variation => entry.variation })
@@ -57,7 +57,7 @@ module SC
       end
       writelines dst_path, [output]
     end
-    
+
   end
-  
+
 end

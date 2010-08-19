@@ -7,7 +7,7 @@
 
 module SC
   class Tools
-    
+
     # Standard manifest options.  Used by build tool as well.
     MANIFEST_OPTIONS = { :languages     => :string,
                          :symlink       => false,
@@ -18,7 +18,7 @@ module SC
                          :all           => false,
                          ['--build-numbers', '-B'] => :string,
                          ['--include-required', '-r'] => false }
-                     
+
     desc "manifest [TARGET..]", "Generates a manifest for the specified targets"
     method_options(MANIFEST_OPTIONS.merge(
       :format        => :string,
@@ -30,14 +30,14 @@ module SC
       # Copy some key props to the env
       SC.env.build_prefix   = options.buildroot if options.buildroot
       SC.env.staging_prefix = options.stageroot if options.stageroot
-      SC.env.use_symlink    = options.symlink 
-      
+      SC.env.use_symlink    = options.symlink
+
       # Verify format
       format = (options.format || 'yaml').to_s.downcase.to_sym
       if ![:yaml, :json].include?(format)
         raise "Format must be yaml or json"
       end
-      
+
       # Get allowed keys
       only_keys = nil
       if options[:only]
@@ -52,16 +52,16 @@ module SC
         except_keys.map! { |k| k.to_sym }
         except_keys = nil if except_keys.size == 0
       end
-      
+
       # call core method to actually build the manifests...
       manifests = build_manifests(*targets)
 
       # now convert them to hashes...
-      manifests.map! do |manifest| 
-        manifest.to_hash :hidden => options.hidden, 
+      manifests.map! do |manifest|
+        manifest.to_hash :hidden => options.hidden,
           :only => only_keys, :except => except_keys
       end
-      
+
       # Serialize'em
       case format
       when :yaml
@@ -69,7 +69,7 @@ module SC
       when :json
         output = mainfests.to_json
       end
-      
+
       # output ...
       if options.output
         file = File.open(options.output, 'w')
@@ -78,8 +78,8 @@ module SC
       else
         $stdout << output
       end
-      
-    end    
-    
+
+    end
+
   end
 end

@@ -6,7 +6,7 @@
 # ===========================================================================
 
 module SC
-  
+
   # InvocationChain tracks the chain of task invocations to detect
   # circular dependencies.  Borrowed from Rake 0.8.3
   class InvocationChain
@@ -22,7 +22,7 @@ module SC
     def already_invoked?(task)
       (task == @value) || @tail.already_invoked?(task)
     end
-    
+
     def append(value)
       if member?(value)
         raise "Circular dependency detected: #{to_s} => #{value}"

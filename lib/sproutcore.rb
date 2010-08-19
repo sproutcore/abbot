@@ -19,8 +19,8 @@ end
 # Ruby 1.9 Compatibility
 if (RUBY_VERSION.match(/1\.9/))
   # Fix for Rack Ruby 1.9 incompatibility. This makes 404s render again.
-  class String 
-    alias each each_line unless ''.respond_to?(:each) 
+  class String
+    alias each each_line unless ''.respond_to?(:each)
   end
 end
 
@@ -33,12 +33,12 @@ module SproutCore
   # :stopdoc:
   LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
   PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
-  
+
   VERSION_PATH = PATH / 'VERSION.yml'
   VERSION_INFO = YAML.load_file(VERSION_PATH)
-  
+
   VERSION = [VERSION_INFO[:major], VERSION_INFO[:minor], VERSION_INFO[:patch]].join('.')
-  
+
   # :startdoc:
 
   # Returns the version string for the library.
@@ -75,7 +75,7 @@ module SproutCore
 
     Dir.glob(search_me).sort.each {|rb| require rb}
   end
-  
+
   # Global variable that can store specific environmental settings.  This is
   # where you will find the build mode among other things set by sc-build.
   #
@@ -83,34 +83,34 @@ module SproutCore
     @env ||= HashStruct.new(:build_mode => :debug, :buildfile_names => %w(Buildfile sc-config sc-config.rb))
   end
   def self.env=(hash); @env = HashStruct.new(hash); end
-  
+
   # Returns a standard logger object.  You can replace this with your own
   # logger to redirect all SproutCore log output if needed.  Otherwise, a
-  # logger will bre created based on your env.log_level and env.logfile 
+  # logger will bre created based on your env.log_level and env.logfile
   # options.
-  def self.logger 
+  def self.logger
     return @logger unless @logger.nil?
-    
+
     if env.logfile
       @logger = Logger.new env.logfile, 10, 1024000
     else
       @logger = Logger.new $stderr
-      
+
       # if we are logging to the screen, no reason to use a std loggin fmt
       @logger.formatter = lambda do |severity, time, progname, msg|
-        [severity, '~', msg.to_s, "\n"].join(' ') 
+        [severity, '~', msg.to_s, "\n"].join(' ')
       end
     end
-    
+
     @logger.level = (env.log_level == :debug) ? Logger::DEBUG : ((env.log_level == :info) ? Logger::INFO : Logger::WARN)
-    
+
     return @logger
   end
   attr_writer :logger
 
   # Returns the current build mode. The build mode is determined based on the
-  # current environment build_mode settings.  Note that for backwards 
-  # compatibility reasons, :development and :debug are treated as being 
+  # current environment build_mode settings.  Note that for backwards
+  # compatibility reasons, :development and :debug are treated as being
   # identical.
   def self.build_mode
     ret = env.build_mode || :production
@@ -118,27 +118,27 @@ module SproutCore
     ret = :debug if ret == :development # backwards compatibility
     ret
   end
-  
+
   def self.build_mode=(new_mode)
     new_mode = new_mode.to_sym
     new_mode = :debug if new_mode == :development
     env.build_mode = new_mode
     self.build_mode
   end
-  
+
   # Returns a project instance representing the builtin library
   def self.builtin_project
     @builtin_project ||= SC::Project.new(PATH)
   end
-  
-  # Returns the current project, if defined.  This is normally only set 
+
+  # Returns the current project, if defined.  This is normally only set
   # when you start sc-server in interactive mode.
   def self.project; @project; end
   def self.project=(project); @project = project; end
-  
+
   # Attempts to load a project for the current working directory or from the
   # passed directory location.  Returns nil if no project could be detected.
-  # This is just a shorthand for creating a Project object.  It is useful 
+  # This is just a shorthand for creating a Project object.  It is useful
   # when using the build tools as a Ruby library
   def self.load_project(path = nil, opts = {})
     path = File.expand_path(path.nil? ? Dir.pwd : path)
@@ -148,7 +148,7 @@ module SproutCore
       SC::Project.load_nearest_project path, :parent => SC.builtin_project
     end
   end
-    
+
 end  # module SC
 
 SC = SproutCore # alias

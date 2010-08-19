@@ -11,15 +11,15 @@ require 'fileutils'
 module SC
 
   # This build is used to process a single javascript file.  It will
-  # substitute any calls to sc_super and sc_static() (or static_url()).  It 
-  # does NOT product a combined JavaScript for production.  See the 
+  # substitute any calls to sc_super and sc_static() (or static_url()).  It
+  # does NOT product a combined JavaScript for production.  See the
   # Builder::CombinedJavaScript for more.
   class Builder::JavaScript < Builder::Base
-    
+
     def build(dst_path)
       lines = []
       target_name = entry.target.target_name.to_s.sub(/^\//,'')
-      
+
       if entry.lazy_instantiation && entry.notify_onload
         lines << ";
 if ((typeof SC !== 'undefined') && SC && !SC.LAZY_INSTANTIATION) {
@@ -48,13 +48,13 @@ SC.LAZY_INSTANTIATION['#{target_name}'].push(
 );
 "
       end
-      
+
       writelines dst_path, lines
     end
 
     # Returns true if the current entry is a localized strings file.  These
     # files receive some specialized processing to allow for server-side only
-    # strings.  -- You can name a string key beginning with "@@" and it will 
+    # strings.  -- You can name a string key beginning with "@@" and it will
     # be removed.
     def localized_strings?
       @lstrings ||= entry.localized? && entry.filename =~ /strings.js$/
@@ -67,7 +67,7 @@ SC.LAZY_INSTANTIATION['#{target_name}'].push(
       if localized_strings?
         line = line.gsub(/["']@@.*["']\s*?:\s*?["'].*["']\s*,\s*$/,'')
 
-      # Otherwise process sc_super 
+      # Otherwise process sc_super
       else
         return unless (line.valid_encoding?)
         if line.match(/sc_super\(\s*\)/)
@@ -81,7 +81,7 @@ SC.LAZY_INSTANTIATION['#{target_name}'].push(
       # and finally rewrite static_url
       return replace_static_url(line)
     end
-    
+
   end
-  
+
 end

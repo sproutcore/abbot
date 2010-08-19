@@ -6,21 +6,21 @@
 # ===========================================================================
 
 module SC
-  
-  # Builder classes implement the more complex algorithms for building 
-  # resources in SproutCore such as building HTML, JavaScript or CSS.  
+
+  # Builder classes implement the more complex algorithms for building
+  # resources in SproutCore such as building HTML, JavaScript or CSS.
   # Builders are usually invoked from within build tasks which are, in-turn,
   # selected by the manifest.
   #
-  module Builder    
-  
+  module Builder
+
     # The base class extended by most builder classes.  This contains some
     # default functionality for handling loading and writing files.  Usually
     # you will want to consult the specific classes instead for more info.
     #
     class Base
       # entry the current builder is working on
-      attr_accessor :entry 
+      attr_accessor :entry
 
       def initialize(entry=nil)
         @entry =entry
@@ -35,10 +35,10 @@ module SC
         new(entry).build(dst_path)
       end
 
-      # Reads the lines from the source file.  If the source file does not 
+      # Reads the lines from the source file.  If the source file does not
       # exist, returns empty array.
       def readlines(src_path)
-        if File.exist?(src_path) && !File.directory?(src_path) 
+        if File.exist?(src_path) && !File.directory?(src_path)
           File.readlines(src_path)
         else
           []
@@ -66,26 +66,26 @@ module SC
           entry_name = $2
           entry_name = "#{$2}:index.html" if $1 == 'sc_target'
           static_entry = entry.manifest.find_entry($2)
-          
+
           if static_entry.nil?
             url = ''
           elsif $1 == 'sc_target'
             url = static_entry.friendly_url || static_entry.cacheable_url
           else
-            url = static_entry.cacheable_url 
+            url = static_entry.cacheable_url
           end
-            
+
           static_url(url)
         end
       end
 
       # Generates the proper output for a given static url and a given target
-      # this is often overridden by subclasses.  the default just wraps in 
+      # this is often overridden by subclasses.  the default just wraps in
       # quotes.
       def static_url(url='')
         ["'", url.gsub('"','\"'),"'"].join('')
       end
     end # class
-    
+
   end # module Builder
 end # module SC

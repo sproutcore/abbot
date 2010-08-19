@@ -8,7 +8,7 @@
 module SC
 
   class Buildfile
-    
+
     # Describe the domain-specific-language helpers supported by buildfiles.
     # This is included as a mixin for the buildfile.
     module Commands
@@ -23,7 +23,7 @@ module SC
       def task(*args, &block)
         define_task(::SC::Buildfile::Task, *args, &block)
       end
-      
+
       # Replace an existing task instead of enhancing it.
       #
       # Example:
@@ -40,7 +40,7 @@ module SC
           raise e
         end
       end
-      
+
       # Define a build task.  A build task will not run if the destination
       # file is newer than the source files.
       #
@@ -48,9 +48,9 @@ module SC
         define_task(::SC::Buildfile::BuildTask, *args, &block)
       end
 
-      # Import the partial Rakefiles +fn+.  Imported files are loaded _after_ 
-      # the current file is completely loaded.  This allows the import statement 
-      # to appear anywhere in the importing file, and yet allowing the imported 
+      # Import the partial Rakefiles +fn+.  Imported files are loaded _after_
+      # the current file is completely loaded.  This allows the import statement
+      # to appear anywhere in the importing file, and yet allowing the imported
       # files to depend on objects defined in the importing file.
       #
       # A common use of the import statement is to include files containing
@@ -61,14 +61,14 @@ module SC
       #
       def import(*args)
         base_path = current_path.nil? ? nil : File.dirname(current_path)
-        args.each do |fn| 
+        args.each do |fn|
           fn = File.expand_path(fn, base_path)
           add_import(fn)
         end
       end
-    
+
       # Create a new rake namespace and use it for evaluating the given block.
-      # Returns a NameSpace object that can be used to lookup tasks defined in 
+      # Returns a NameSpace object that can be used to lookup tasks defined in
       # the namespace.
       #
       # E.g.
@@ -108,7 +108,7 @@ module SC
 
       # Scope any config statements inside the passed block to the named mode.
       # Normally if you call a config statement outside of a mode block, it will
-      # scope to all modes. 
+      # scope to all modes.
       #
       # Example:
       # mode :debug do
@@ -146,17 +146,17 @@ module SC
       def proxy(proxy_path, opts={})
         add_proxy proxy_path, opts
       end
-      
+
       # Register info about this buildfile as a project
       def project(name=nil, type=nil)
         self.project_name = name.nil? ? :default : name.to_sym
         self.project_type = type.nil? ? :default : type.to_sym
         self.project!
       end
-      
+
     end
-    
+
     include Commands
   end
-  
+
 end

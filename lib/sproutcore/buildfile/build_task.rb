@@ -20,14 +20,14 @@ module SC
       dst_mtime = File.mtime(DST_PATH)
       SRC_PATHS.each do |path|
         next if path.nil? # skip incase of bad src paths...
-        
+
         timestamp = File.exist?(path) ? File.mtime(path) : EARLY
         ret = ret || (dst_mtime < timestamp)
         break if ret
       end
-      return ret 
+      return ret
     end
-    
+
   end
 end
-  
+

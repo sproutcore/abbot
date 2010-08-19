@@ -6,9 +6,9 @@
 # ===========================================================================
 
 module SC
-  
+
   class Tools
-    
+
     desc "server", "Starts the development server"
     method_options  :daemonize  => false,
                     :pid        => :string,
@@ -18,13 +18,13 @@ module SC
                     :filesystem => true
     def server
       prepare_mode!('debug') # set mode again, using debug as default
-      
+
       SC.env.build_prefix   = options.buildroot if options.buildroot
       SC.env.staging_prefix = options.stageroot if options.stageroot
-      
+
       # get project and start service.
       project = requires_project!
-      
+
       # start shell if passed
       if options.irb
         require 'irb'
@@ -32,7 +32,7 @@ module SC
         if File.exists? ".irbrc"
           ENV['IRBRC'] = ".irbrc"
         end
-        
+
         SC.project = project
         SC.logger << "SproutCore v#{SC::VERSION} Interactive Shell\n"
         SC.logger << "SC.project = #{project.project_root}\n"
@@ -43,6 +43,6 @@ module SC
         SC::Rack::Service.start(options.merge(:project => project))
       end
     end
-    
+
   end
 end

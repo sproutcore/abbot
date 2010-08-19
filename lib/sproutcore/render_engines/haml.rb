@@ -21,11 +21,11 @@ module SC
         end
         ::Haml::Engine.new(input).send(:precompiled_with_ambles, [])
       end
-      
+
       def concat(string, binding)
         eval("_hamlout", binding).push_text string
       end
-      
+
       def capture(*args, &block)
         if @html_context.respond_to?(:is_haml?) && @html_context.is_haml?
           @html_context.capture_haml(nil, &block)

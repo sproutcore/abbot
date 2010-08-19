@@ -6,7 +6,7 @@
 # ===========================================================================
 
 module SC
-  
+
   # TaskAguments manage the arguments passed to a task.  Borrowed from Rake
   # 0.8.3
   #
@@ -65,9 +65,9 @@ module SC
     def inspect
       to_s
     end
-    
+
     protected
-    
+
     def lookup(name)
       if @hash.has_key?(name)
         @hash[name]
@@ -82,5 +82,5 @@ module SC
   end
 
   EMPTY_TASK_ARGS = TaskArguments.new([], [])
-  
+
 end

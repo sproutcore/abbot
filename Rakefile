@@ -20,8 +20,8 @@ DIST = YAML.load File.read(DIST_PATH)
 
 LOCAL_DIST_PATH = File.expand_path(File.join(ROOT_PATH, 'LOCAL.yml'))
 if File.exists? LOCAL_DIST_PATH
-  
-  # merged each item in the top level hash.  This allows for key-by-key 
+
+  # merged each item in the top level hash.  This allows for key-by-key
   # overrides
   (YAML.load(File.read(LOCAL_DIST_PATH)) || {}).each do |key, opts|
     if DIST[key]
@@ -30,7 +30,7 @@ if File.exists? LOCAL_DIST_PATH
       DIST[KEY] = opts
     end
   end
-  
+
   puts "Using local overrides for distribution"
 end
 
@@ -53,7 +53,7 @@ begin
   $:.unshift(ROOT_PATH / 'lib')
 
   require 'sproutcore'
-  
+
 rescue LoadError => e
   $stderr.puts "WARN: some required gems are not installed (try rake init to setup)"
   $stderr.puts e
@@ -64,10 +64,10 @@ end
 ## JEWELER PROJECT DESCRIPTION
 ##
 
-begin 
+begin
   require 'jeweler'
   HAS_JEWELER = true
-  
+
 rescue LoadError => e
   $stderr.puts "WARN: jeweler is not yet installed (try rake init to setup)"
   $stderr.puts e
@@ -81,7 +81,7 @@ if HAS_JEWELER
     gemspec.email = 'contact@sproutcore.com'
     gemspec.homepage = 'http://www.sproutcore.com'
     gemspec.summary = "SproutCore is a platform for building native look-and-feel applications on  the web"
-  
+
     gemspec.add_dependency 'rack', '>= 0.9.1'
     gemspec.add_dependency 'json_pure', ">= 1.1.0"
     gemspec.add_dependency 'extlib', ">= 0.9.9"
@@ -94,10 +94,10 @@ if HAS_JEWELER
 
     gemspec.rubyforge_project = "sproutcore"
     gemspec.extra_rdoc_files.include *%w[History.txt README.txt]
-    
+
     gemspec.files.include *%w[.htaccess frameworks/sproutcore/**/*]
     gemspec.files.exclude *%w[^coverage/ .gitignore .gitmodules .DS_Store tmp/ .hashinfo .svn .git]
-  
+
     gemspec.description = File.read(ROOT_PATH / 'README.txt')
   end
 
@@ -114,23 +114,23 @@ def git(path, cmd, log=true)
   $stdout.puts("#{path.sub(ROOT_PATH, '')}: git #{cmd}") if log
   git_path = path / '.git'
   git_index = git_path / 'index'
-  
+
   # The env can become polluted; breaking git.  This will avoid that.
   %x[GIT_DIR=#{git_path}; GIT_WORK_TREE=#{path}; GIT_INDEX_FILE=#{git_index}; git #{cmd}]
 end
 
-  
+
 desc "performs an initial setup on the tools.  Installs gems, checkout"
-task :init => [:install_gems, 'dist:init'] 
+task :init => [:install_gems, 'dist:init']
 
 desc "verifies that all required gems are installed"
 task :install_gems do
   $stdout.puts "Installing gems (may ask for password)"
-  
+
   gem_names = %w(rack json json_pure extlib erubis thor jeweler gemcutter rspec)
   gem_install = []
   gem_update = []
-  
+
   # detect which ones are installed and update those
   gem_names.each do |name|
     if %x[gem list #{name}] =~ /#{Regexp.escape(name)} \(/
@@ -150,9 +150,9 @@ task :install_gems do
 end
 
 namespace :dist do
-  
+
   desc "checkout any frameworks in the distribution"
-  task :init do 
+  task :init do
     $stdout.puts "Setup distribution"
 
     DIST.each do |rel_path, opts|
@@ -168,13 +168,13 @@ namespace :dist do
         $stdout.puts "\n> git clone #{repo_url} #{path}"
         system "GIT_DIR=#{path / '.git'}; GIT_WORK_TREE=#{path}; git init"
       end
-      
+
       # if git exists, make sure a "dist" remote exists and matches the named
       # remote
       remote = git(path, 'remote -v').split("\n").find do |l|
         l =~ /^#{REMOTE_NAME}.+\(fetch\)/
       end
-      
+
       if remote
         cur_repo_url = remote.match(/^#{REMOTE_NAME}(.+)\(fetch\)/)[1].strip
         if (cur_repo_url != repo_url)
@@ -183,12 +183,12 @@ namespace :dist do
         else
           $stdout.puts "Found #{rel_path}:dist => #{repo_url}"
         end
-      
+
       # remote does not yet exist, add it...
       else
         $stdout.puts git(path,"remote add dist #{repo_url}")
       end
-      
+
       $stdout.puts git(path, "fetch dist")
 
       # Make sure a "dist" branch exists..  if not checkout against the
@@ -198,12 +198,12 @@ namespace :dist do
       else
         git(path,"branch dist remotes/dist/#{dist_branch}")
       end
-      
+
       git(path, "checkout dist")
 
     end
   end
-  
+
   desc "Make sure each repository in the distribute is set to the target remote branch and up-to-date"
   task :update => 'dist:init' do
     $stdout.puts "Setup distribution"
@@ -211,7 +211,7 @@ namespace :dist do
     DIST.each do |rel_path, opts|
       path = ROOT_PATH / rel_path
       branch = opts['branch'] || 'master'
-        
+
       if File.exists?(path / ".git")
 
         $stdout.puts "\n> git checkout dist"
@@ -222,14 +222,14 @@ namespace :dist do
 
         $stdout.puts "\n> git rebase remotes/dist/#{branch}"
         $stdout.puts git(path, "rebase remotes/dist/#{branch}")
-      
+
       else
         $stdout.puts "WARN: cannot fix version for #{rel_path}"
       end
-      
+
     end
   end
-  
+
   desc "make the version of each distribution item match the one in VERSION"
   task :freeze => 'dist:init' do
     $stdout.puts "Setup distribution"
@@ -241,10 +241,10 @@ namespace :dist do
       versions = (versions['dist'] || versions[:dist]) if versions
       versions ||= {}
     end
-  
+
     DIST.each do |rel_path, opts|
       path = ROOT_PATH / rel_path
-        
+
       if File.exists?(path / ".git") && versions[rel_path]
         sha = versions[rel_path]
 
@@ -255,18 +255,18 @@ namespace :dist do
           $stdout.puts "\n> git checkout #{sha}"
           $stdout.puts git(path, "checkout #{sha}")
         end
-        
+
       else
         $stdout.puts "WARN: cannot fix version for #{rel_path}"
       end
-      
+
     end
   end
 
 end
 
 namespace :release do
-  
+
   desc "tags the current repository and any distribution repositories.  if you can push to distribution, then push tag as well"
   task :tag => :update_version do
     tag_name = "REL-#{RELEASE_VERSION}"
@@ -275,7 +275,7 @@ namespace :release do
       git(full_path, "tag -f #{tag_name}")
     end
   end
-  
+
   task :push_tags => :tag do
     tag_name = "REL-#{RELEASE_VERSION}"
     DIST.keys.push('abbot').each do |rel_path|
@@ -283,17 +283,17 @@ namespace :release do
       git(full_path, "push origin #{tag_name}")
     end
   end
-    
-    
+
+
   desc "prepare release.  verify clean, update version, tag"
   task :prepare => ['git:verify_clean', :update_version, :tag, :push_tags]
-  
+
   desc "release to rubyforge for old skool folks"
   task :rubyforge => [:prepare, 'rubyforge:release']
-  
+
   desc "release to gemcutter for new skool kids"
   task :gemcutter => [:prepare, 'gemcutter:release']
-  
+
   desc "one release to rule them all"
   task :all => [:prepare, 'release:gemcutter']
 
@@ -301,11 +301,11 @@ end
 
 desc "computes the current hash of the code.  used to autodetect build changes"
 task :hash_content do
-  
+
   require 'yaml'
   require 'digest/md5'
 
-  ignore = IGNORE_CHANGES.map do |x| 
+  ignore = IGNORE_CHANGES.map do |x|
     if x =~ /^\^/
       /^#{Regexp.escape(ROOT_PATH / x[1..-1])}/
     else
@@ -318,18 +318,18 @@ task :hash_content do
   hashinfo_path = ROOT_PATH / '.hashinfo.yml'
   hash_date = 0
   hash_digest = nil
-  
+
   if File.exist?(hashinfo_path)
     yaml = YAML.load_file(hashinfo_path)
     hash_date = yaml['date'] || yaml[:date] || hash_date
     hash_digest = yaml['digest'] || yaml[:digest] || hash_digest
   end
-  
-  # paths to search  
+
+  # paths to search
   paths = Dir.glob(File.join(ROOT_PATH, '**', '*')).reject do |path|
     File.directory?(path) || (ignore.find { |i| path =~ i })
   end
-  
+
   cur_date = 0
   paths.each do |path|
     mtime = File.mtime(path)
@@ -337,8 +337,8 @@ task :hash_content do
     $stdout.puts "detected file change: #{path.gsub(ROOT_PATH,'')}" if mtime > hash_date
     cur_date = mtime if mtime > cur_date
   end
-  
-  if hash_digest.nil? || (cur_date != hash_date) 
+
+  if hash_digest.nil? || (cur_date != hash_date)
     digests = paths.map do |path|
       Digest::SHA1.hexdigest(File.read(path))
     end
@@ -346,7 +346,7 @@ task :hash_content do
     hash_digest = Digest::SHA1.hexdigest(digests.join)
   end
   hash_date = cur_date
-  
+
   # write cache
   File.open(hashinfo_path, 'w+') do |f|
     YAML.dump({ :date => hash_date, :digest => hash_digest }, f)
@@ -356,21 +356,21 @@ task :hash_content do
   CONTENT_HASH = hash_digest
   $stdout.puts "CONTENT_HASH = #{CONTENT_HASH}"
 end
-  
+
 desc "updates the VERSION file, bumbing the build rev if the current commit has changed"
 task :update_version => 'hash_content' do
 
   path = ROOT_PATH / 'VERSION.yml'
- 
+
   require 'yaml'
- 
+
   # first, load the current yaml if possible
   major = 1
   minor = 0
   build = 99
   rev   = '-0-'
   dist  = {}
-  
+
   if File.exist?(path)
     yaml = YAML.load_file(path)
     major = yaml['major'] || yaml[:major] || major
@@ -378,10 +378,10 @@ task :update_version => 'hash_content' do
     build = yaml['patch'] || yaml[:patch] || build
     rev   = yaml['digest'] || yaml[:digest] || rev
   end
- 
+
   build += 1 if rev != CONTENT_HASH  #increment if needed
   rev = CONTENT_HASH
-  
+
   # Update distribution versions
   DIST.each do |rel_path, ignored|
     dist_path = ROOT_PATH / rel_path
@@ -397,23 +397,23 @@ task :update_version => 'hash_content' do
       end
     end
   end
-  
+
   $stdout.puts "write version #{[major, minor, build].join('.')} => #{path}"
   File.open(path, 'w+') do |f|
-    YAML.dump({ 
-      :major => major, 
-      :minor => minor, 
-      :patch => build, 
+    YAML.dump({
+      :major => major,
+      :minor => minor,
+      :patch => build,
       :digest => rev,
-      :dist   => dist 
+      :dist   => dist
     }, f)
   end
-  
+
   RELEASE_VERSION = "#{major}.#{minor}.#{build}"
-  
+
 end
 
-desc "cleanup the pkg dir" 
+desc "cleanup the pkg dir"
 task :clean do
   path = ROOT_PATH / 'pkg'
   FileUtils.rm_r(path) if File.directory?(path)
@@ -421,7 +421,7 @@ task :clean do
 end
 
 namespace :git do
-  
+
   desc "verifies there are no pending changes to commit to git"
   task :verify_clean do
     DIST.keys.push('abbot').each do |repo_name|
@@ -436,10 +436,10 @@ namespace :git do
           $stderr.puts "       Commit your changes to git to continue.\n\n"
           exit(1)
         end
-      end 
+      end
     end
   end
-  
+
   desc "Collects the current SHA1 commit hash into COMMIT_ID"
   task :collect_commit do
     log = `git log HEAD^..HEAD`
@@ -451,7 +451,7 @@ namespace :git do
       $stdout.puts "COMMIT_ID = #{COMMIT_ID}"
     end
   end
-  
+
 end
 
 # Write a new version everytime we generate

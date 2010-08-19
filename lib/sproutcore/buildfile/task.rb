@@ -6,8 +6,8 @@
 # ===========================================================================
 
 module SC
-  
-  # Buildfile tasks are rake tasks with a few extras added to support 
+
+  # Buildfile tasks are rake tasks with a few extras added to support
   # unique buildfile constraints.  Much of this source code is borrowed from
   # Rake 0.8.3
   #
@@ -33,17 +33,17 @@ module SC
     # Array of nested namespaces names used for task lookup by this task.
     attr_reader :scope
 
-    # The number of times this task has been invoked.  Use to ensure that 
+    # The number of times this task has been invoked.  Use to ensure that
     # the task was invoked during some call chain...
     attr_reader :invoke_count
-    
-    # The number of times the task was actually executed.  This may differ 
+
+    # The number of times the task was actually executed.  This may differ
     # from the invoke_count if the task was invoked but was not needed.
     attr_reader :execute_count
-    
+
     # Various options you can set on the task to control log level, etc.
     attr_reader :task_options
-    
+
     # Return task name
     def to_s
       name
@@ -75,7 +75,7 @@ module SC
       sibling.taint if tainted?
       sibling
     end
-    
+
     # Create a task named +task_name+ with no actions or prerequisites. Use
     # +enhance+ to add actions and prerequisites.
     def initialize(task_name, app)
@@ -151,53 +151,53 @@ module SC
     def self.log_indent
       @task_indent ||= ''
     end
-    
+
     def self.indent_logs
       @task_indent = (@task_indent || '') + '  '
     end
-    
+
     def self.outdent_logs
       @task_indent = (@task_indent || '')[0..-3]
     end
-    
+
     # Same as invoke, but explicitly pass a call chain to detect
     # circular dependencies.
     def invoke_with_call_chain(task_args, invocation_chain) # :nodoc:
       unless invocation_chain.already_invoked?(self)
         invocation_chain = InvocationChain.append(self, invocation_chain)
         @lock.synchronize do
-          
+
           indent = self.class.indent_logs
-          
+
           # Use logging options to decide what to output
           # one of :env, :name, :none
           log_opt = task_options[:log] || :none
           if [:name, :env].include?(log_opt)
             SC.logger.debug "#{indent}invoke ~ #{name} #{format_trace_flags}"
           end
-          
+
           if log_opt == :env
             TASK_ENV.each do |key, value|
               next if %w(config task_env).include?(key.to_s.downcase)
               SC.logger.debug "#{indent}  #{key} = #{value.inspect}"
             end
           end
-          
+
           t_start = Time.now.to_f * 1000
-          
+
           invocation_chain = invoke_prerequisites(task_args, invocation_chain)
           @invoke_count += 1
           execute(task_args) if needed?
-          
+
           t_end = Time.now.to_f * 1000
           t_diff = t_end - t_start
-          
+
           # ignore short tasks
           if t_diff > 10
             SC.logger.debug "#{indent}long task ~ #{name}: #{t_diff.to_i} msec"
           end
           self.class.outdent_logs
-          
+
         end
       end
       return invocation_chain
@@ -225,7 +225,7 @@ module SC
 
     # Execute the actions associated with this task.
     def execute(args=nil)
-      
+
       @execute_count += 1
       args ||= EMPTY_TASK_ARGS
       return if SC.env.dryrun
@@ -238,7 +238,7 @@ module SC
           act.call(self, args)
         end
       end
-      
+
     end
 
     # Is this task needed?
@@ -265,7 +265,7 @@ module SC
       return if !task_options
       @task_options = task_options
     end
-    
+
     # Writing to the comment attribute is the same as adding a description.
     def comment=(description)
       add_description(description)
@@ -315,18 +315,18 @@ module SC
     end
 
     class <<self
-      
+
       # Apply the scope to the task name according to the rules for
       # this kind of task.  Generic tasks will accept the scope as
       # part of the name.
       def scope_name(scope, task_name)
         (scope + [task_name]).join(':')
       end
-      
+
     end
 
   end
 
 end
 
-    
+

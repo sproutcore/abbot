@@ -12,11 +12,11 @@
 #
 # == About
 #
-# Rainpress is a compressor for CSS. It's written in ruby, but should not be 
+# Rainpress is a compressor for CSS. It's written in ruby, but should not be
 # limited to ruby projects.
 #
-# Rainpress does not apply common compression algorithms like gzip, it removes 
-# unnecessary characters and replaces some attributes with a shorter equivalent 
+# Rainpress does not apply common compression algorithms like gzip, it removes
+# unnecessary characters and replaces some attributes with a shorter equivalent
 # name.
 #
 # == Links
@@ -42,12 +42,12 @@ module SC::Helpers
   #   packer = SproutCore::CSSPacker.new
   #   compressed_style = packer.compress(style)
   class CSSPacker
-  
+
     # Use always this functions if you want to compress your CSS-style
     #
     # <b>Options:</b>
     #
-    # * <tt>:preserveComments</tt> - if set to true, comments will not be 
+    # * <tt>:preserveComments</tt> - if set to true, comments will not be
     #   removed
     # * <tt>:preserveNewline</tt> - if set to true, newlines will not be removed
     # * <tt>:preserveSpaces</tt> - if set to true, spaces will not be removed
@@ -57,30 +57,30 @@ module SC::Helpers
     def compress(style, options = {})
       # remove comments
       style = remove_comments(style) unless options[:preserveComments]
-    	
+
   	  # remove newlines
       style = remove_newlines(style) unless options[:preserveNewlines]
-    	
+
 	  # remove unneeded spaces
       style = remove_spaces(style) unless options[:preserveSpaces]
-    	
+
 	  # replace colours with shorter names
       style = shorten_colors(style) unless options[:preserveColors]
-      
+
       # make all other things
       style = do_misc(style) unless options[:skipMisc]
-      
+
 	  style
 	end
-  
+
     # Remove all comments out of the CSS-Document
   	def remove_comments(script)
       input = script
       script = ''
-      
+
       while input.length > 0 do
         pos = input.index("/*");
-        
+
         # No more comments
         if pos == nil
           script += input
@@ -93,7 +93,7 @@ module SC::Helpers
           input = input[(pos+2)..-1]
         end
       end
-      
+
       # return
   		script
   	end
@@ -102,7 +102,7 @@ module SC::Helpers
   	def remove_newlines(script)
   		script.gsub(/\n|\r/,'')
   	end
-  	
+
     # 1. Turn mutiple spaces into a single
     # 2. Remove spaces around ;:{},
     # 3. Remove tabs
@@ -115,7 +115,7 @@ module SC::Helpers
       script = script.gsub(/\s*,\s*/,',')
       script.gsub("\t",'');
   	end
-  	
+
   	# Replace color values with their shorter equivalent
   	#
   	# 1. Turn rgb(,,)-colors into #-values
@@ -130,7 +130,7 @@ module SC::Helpers
       style = style.gsub(/rgb\s*\(\s*([0-9,\s]+)\s*\)/) do |match|
         out = '#'
         $1.split(',').each do |num|
-          if num.to_i < 16 
+          if num.to_i < 16
             out += '0'
           end
           out += num.to_i.to_s(16) # convert to hex
@@ -139,9 +139,9 @@ module SC::Helpers
       end
       # #AABBCC to #ABC, keep if preceed by a '='
       style = style.gsub(/([^\"'=\s])(\s*)#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])/) do |match|
-        out = match        
+        out = match
         if ($3.downcase == $4.downcase) and ($5.downcase == $6.downcase) and ($7.downcase == $8.downcase)
-          out = $1 + '#' + $3.downcase + $5.downcase + $7.downcase 
+          out = $1 + '#' + $3.downcase + $5.downcase + $7.downcase
         end
         out
       end
@@ -153,10 +153,10 @@ module SC::Helpers
       # shotern several numbers to names
       style = style.gsub(/:[\s]*#([fF]00|[fF]{2}0000);/, ':red;')
       style = style.gsub(/:[\s]*#([fF]00|[fF]{2}0000)\}/, ':red}')
-      
+
   	  style
     end
-  
+
     # Do miscellaneous compression methods on the style
     def do_misc(script)
       # Replace 0(pt,px,em,%) with 0 but only when preceded by : or a white-space
@@ -193,10 +193,10 @@ module SC::Helpers
       script = script.gsub(/font[\s]*:[\s]*bold[\s;\}]*/) do |match|
         match.sub('bold', '700')
       end
-      
+
       script
     end
-    
+
   end
-  
+
 end

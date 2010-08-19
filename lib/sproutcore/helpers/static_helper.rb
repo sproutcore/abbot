@@ -46,11 +46,11 @@ module SC
           else
             urls += cur_entry.ordered_entries.map { |e| e.cacheable_url }
           end
-          
+
           # add any stylesheet libs from the target
           urls += (cur_target.config.stylesheet_libs || [])
         end
-          
+
         # Convert to HTML and return
         urls = urls.map do |url|
           if include_method == :import
@@ -59,7 +59,7 @@ module SC
             %(  <link href="#{url}" rel="stylesheet" type="text/css" />)
           end
         end
-        
+
         # if include style is @import, surround with style tags
         if include_method == :import
           %(<style type="text/css">\n#{urls * "\n"}</style>)
@@ -91,7 +91,7 @@ module SC
         urls = []
         combine_javascript = t.config.combine_javascript
         combined_entries(t, opts, 'javascript.js', 'javascript-packed.js') do |cur_target, cur_entry|
-          
+
           # include either the entry URL or URL of ordered entries
           # depending on setup
           if cur_target.config.combine_javascript
@@ -99,7 +99,7 @@ module SC
           else
             urls += cur_entry.ordered_entries.map { |e| e.cacheable_url }
           end
-          
+
           # add any stylesheet libs from the target
           urls += (cur_target.config.javascript_libs || [])
         end
@@ -117,83 +117,83 @@ module SC
 
       # Detects and includes any bootstrap code
       #
-      def bootstrap 
-        
+      def bootstrap
+
         ret = []
-        
+
         # Reference any external bootstrap scripts
         if (resources_names = target.config.bootstrap)
           Array(resources_names).each do |resource_name|
             ret << %(<script src="#{sc_static(resource_name)}" type="text/javascript" ></script>)
           end
         end
-        
+
         # Reference any inlined bootstrap scripts
         if (resources_names = target.config.bootstrap_inline)
           Array(resources_names).each do |resource_name|
             ret << inline_javascript(resource_name)
           end
         end
-        
+
         return ret * "\n"
       end
-      
+
       # Attempts to include the named javascript entry inline to the file
       #
       # === Options
       #  language:: the language to use.  defaults to current
       #
-      def inline_javascript(resource_name, opts ={}) 
+      def inline_javascript(resource_name, opts ={})
 
         resource_name = resource_name.to_s
-        
+
         # determine which manifest to search.  if a language is explicitly
-        # specified, lookup manifest for that language.  otherwise use 
+        # specified, lookup manifest for that language.  otherwise use
         # current manifest.
-        m = self.manifest 
+        m = self.manifest
         if opts[:language]
-          m = target.manifest_for(:language => opts[:language]).build! 
+          m = target.manifest_for(:language => opts[:language]).build!
         end
-        
+
         entry = m.find_entry(resource_name, :entry_type => :javascript)
         if entry.nil?
           entry = m.find_entry(resource_name, :hidden => true, :entry_type => :javascript)
         end
-          
+
         return '' if entry.nil?
-        
+
         ret = entry.stage!.inline_contents*''
         return %(<script type="text/javascript">\n#{ret}\n</script>)
       end
-     
+
     # Attempts to include the named javascript entry inline to the file
       #
       # === Options
       #  language:: the language to use.  defaults to current
       #
-      def inline_stylesheet(resource_name, opts ={}) 
+      def inline_stylesheet(resource_name, opts ={})
 
         resource_name = resource_name.to_s
-        
+
         # determine which manifest to search.  if a language is explicitly
-        # specified, lookup manifest for that language.  otherwise use 
+        # specified, lookup manifest for that language.  otherwise use
         # current manifest.
-        m = self.manifest 
+        m = self.manifest
         if opts[:language]
-          m = target.manifest_for(:language => opts[:language]).build! 
+          m = target.manifest_for(:language => opts[:language]).build!
         end
-        
+
         entry = m.find_entry(resource_name, :entry_type => :stylesheet)
         if entry.nil?
           entry = m.find_entry(resource_name, :hidden => true, :entry_type => :stylesheet)
         end
-          
+
         return '' if entry.nil?
-        
+
         ret = entry.stage!.inline_contents
         return %(<style>\n#{ret*"\n"}\n</style>)
       end
-        
+
       # Attempts to render the named entry as a partial
       #
       # === Options
@@ -203,26 +203,26 @@ module SC
         resource_name = resource_name.to_s
         m = self.manifest
         if opts[:language]
-          m = target.manifest_for(:language => opts[:language]).build! 
+          m = target.manifest_for(:language => opts[:language]).build!
         end
 
         entry = m.find_entry(resource_name, :hidden => true, :entry_type => :html)
-        return entry.nil? ? '' : render_partial(entry) 
+        return entry.nil? ? '' : render_partial(entry)
       end
-        
+
       # Returns the URL for the named resource
       def sc_static(resource_name, opts = {})
-        
+
         resource_name = resource_name.to_s
-        
+
         # determine which manifest to search.  if a language is explicitly
-        # specified, lookup manifest for that language.  otherwise use 
+        # specified, lookup manifest for that language.  otherwise use
         # current manifest.
-        m = self.manifest 
+        m = self.manifest
         if opts[:language]
-          m = target.manifest_for(:language => opts[:language]).build! 
+          m = target.manifest_for(:language => opts[:language]).build!
         end
-        
+
         entry = m.find_entry(resource_name)
         return '' if entry.nil?
         return entry.friendly_url if opts[:friendly] && entry.friendly_url
@@ -236,7 +236,7 @@ module SC
         resource_name = "#{resource_name}:index.html"
         sc_static(resource_name, opts)
       end
-      
+
       # Allows you to specify HTML resource this html template should be
       # merged into.   Optionally also specify the layout file to use when
       # building this resource.
@@ -249,17 +249,17 @@ module SC
         @layout = opts[:layout] if opts[:layout]
         return ''
       end
-        
+
       # Localizes the passed string, using the optional passed options.
       def loc(string, opts = {})
         string = string.nil? ? '' : string.to_s
         language = opts[:language] || self.language
         return strings_hash(language)[string] || string
       end
-      
+
       # Returns the CSS class name dictated by the current theme.  You can
       # also pass an optional default value to use if no theme is specified
-      # in the config.  The value returned here will use either the 
+      # in the config.  The value returned here will use either the
       # theme_name set in the target's config or the theme_name set by the
       # theme framework, if set.
       def theme_name(opts ={})
@@ -273,13 +273,13 @@ module SC
         end
         return ret
       end
-       
+
       def title(cur_target=nil)
         cur_target = self.target if cur_target.nil?
         cur_target.config.title || cur_target.target_name.to_s.sub(/^\//,'').gsub(/[-_\/]/,' ').split(' ').map { |x| x.capitalize }.join(' ')
       end
-      
-      private 
+
+      private
 
       # Returns a merged strings hash from all of the required bundles.  Used
       # by loc()
@@ -293,13 +293,13 @@ module SC
       def strings_hash(for_language)
         ret = (@strings_hashes ||= {})[for_language]
         return ret unless ret.nil?
-        
-        # Need to generate hash. 
-        
+
+        # Need to generate hash.
+
         # get the default manifest for the current target.  will be used to
         # select other manifests.
         m = (for_language == self.language) ? self.manifest : target.manifest_for(:language => for_language)
-        
+
         # get all of the targets to merge...
         ret = {}
         targets = (target.expand_required_targets + [target])
@@ -307,21 +307,21 @@ module SC
           # get the manifest for the target
           cur_manifest = (t == target) ? m : t.manifest_for(m.variation)
           cur_manifest.build!
-          
+
           # ...and find a strings entry, if there is one.
           strings_entry = cur_manifest.entries(:hidden => true).find { |e| e.entry_type == :strings }
           next if strings_entry.nil?
 
           # then load the strings
           strings_entry.stage!
-          next if !File.exist?(strings_entry.staging_path) 
-          strings_hash = YAML.load(File.read(strings_entry.staging_path)) 
+          next if !File.exist?(strings_entry.staging_path)
+          strings_hash = YAML.load(File.read(strings_entry.staging_path))
           next if strings_hash.nil? # could not load...
 
           # if strings loaded, merge into ret...
           ret = ret.merge(strings_hash)
         end
-        
+
         # save in cache.
         @strings_hashes[for_language] = ret
         return ret # done!
@@ -329,14 +329,14 @@ module SC
 
       # Find all of the combined entries.
       def combined_entries(t, opts, entry_name, packed_entry_name=nil, &block)
-        
-        # choose manifest variant.  default to current manifest variant 
+
+        # choose manifest variant.  default to current manifest variant
         # if no explicit language was passed.
         v = opts[:language] ? { :language => opts[:language] } : manifest.variation
-        
+
         # choose which targets to include packed and unpacked
         targets = expand_required_targets(t)
-        
+
         if t.config.use_packed && packed_entry_name # must pass to activate
           packed, unpacked = SC::Helpers::PackedOptimizer.optimize(targets)
           unpacked << t # always use unpacked for main target
@@ -344,16 +344,16 @@ module SC
           packed = []
           unpacked = targets + [t] # always use unpacked
         end
-        
+
         # deal with packed targets...
         packed.each do |t|
           # get the manifest for the target
           cur_manifest = t.manifest_for(v).build!
-          
+
           # get the stylesheet or js entry for it...
           entry = cur_manifest.entry_for packed_entry_name
           next if entry.nil? || !entry.composite? # no stylesheet or js
-          
+
           yield(t, entry)
         end
 
@@ -364,12 +364,12 @@ module SC
           # get the stylesheet or js entry for it...
           entry = cur_manifest.entry_for entry_name
           next if entry.nil? || !entry.composite? # no stylesheet or js
-          
+
           yield(t, entry)
         end
       end
 
-      
+
     end
 
   end

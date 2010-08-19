@@ -6,7 +6,7 @@
 # ===========================================================================
 
 module SC
-  
+
   # Manages a set of tasks.  Borrowed from Rake 0.8.3
   module TaskManager
     # Track the last comment made in the Rakefile.
@@ -14,7 +14,7 @@ module SC
     alias :last_comment :last_description    # Backwards compatibility
 
     attr_accessor :last_task_options
-    
+
     def initialize
       super
       @tasks = Hash.new
@@ -86,7 +86,7 @@ module SC
       [task_name, arg_names, []]
     end
     private :resolve_args_without_dependencies
-    
+
     # Resolve task arguments for a task or rule when there are
     # dependencies declared.
     #
@@ -117,7 +117,7 @@ module SC
       [task_name, arg_names, deps]
     end
     private :resolve_args_with_dependencies
-    
+
     # List of all defined tasks in this application.
     def tasks
       @tasks.values.sort_by { |t| t.name }

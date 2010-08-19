@@ -7,34 +7,34 @@
 
 require 'net/http'
 module SC
-  module Rack 
-     
-    # Rack application proxies requests as needed for the given project. 
-    class Proxy 
-       
-      def initialize(project) 
+  module Rack
+
+    # Rack application proxies requests as needed for the given project.
+    class Proxy
+
+      def initialize(project)
         @project = project
         @proxies = project.buildfile.proxies
-      end 
-       
-      def call(env)        
+      end
+
+      def call(env)
         url = env['PATH_INFO']
-        
+
         @proxies.each do |proxy, value|
           if url.match(/^#{Regexp.escape(proxy.to_s)}/)
             return handle_proxy(value, proxy.to_s, env)
           end
         end
-        
+
         return [404, {}, "not found"]
       end
-      
-      def handle_proxy(proxy, proxy_url, env)  
+
+      def handle_proxy(proxy, proxy_url, env)
         origin_host = env['SERVER_NAME'] # capture the origin host for cookies
         http_method = env['REQUEST_METHOD'].to_s.downcase
         url = env['PATH_INFO']
         params = env['QUERY_STRING']
-                
+
         # collect headers...
         headers = {}
         env.each do |key, value|
@@ -44,48 +44,48 @@ module SC
             headers[key] = value
           end
         end
-        
+
         # Rack documentation says CONTENT_TYPE and CONTENT_LENGTH aren't prefixed by HTTP_
         headers['Content-Type'] = env['CONTENT_TYPE'] if env['CONTENT_TYPE']
         headers['Content-Length'] = env['CONTENT_LENGTH'] if env['CONTENT_LENGTH']
-        
+
         http_host, http_port = proxy[:to].split(':')
         http_port = '80' if http_port.nil?
-        
+
         # added 4/23/09 per Charles Jolley, corrects problem
         # when making requests to virtual hosts
         headers['Host'] = "#{http_host}:#{http_port}"
-        
+
         if proxy[:url]
           url = url.sub(/^#{Regexp.escape proxy_url}/, proxy[:url])
         end
-        
+
         http_path = [url]
         http_path << params if params && params.size>0
         http_path = http_path.join('?')
-         
+
         response = nil
-        no_body_method = %w(delete get copy head move options trace) 
+        no_body_method = %w(delete get copy head move options trace)
         ::Net::HTTP.start(http_host, http_port) do |http|
           if no_body_method.include?(http_method)
             response = http.send(http_method, http_path, headers)
           else
             http_body = env['rack.input']
-            some_request = Net::HTTPGenericRequest.new http_method.upcase, 
+            some_request = Net::HTTPGenericRequest.new http_method.upcase,
                             true, true, http_path, headers
-                            
+
             some_request.body_stream = http_body
             response = http.request(some_request)
           end
         end
-         
+
         status = response.code # http status code
-        
+
         SC.logger << "~ PROXY: #{http_method.upcase} #{status} #{url} -> http://#{http_host}:#{http_port}#{http_path}\n"
-        
+
         # display and construct specific response headers
         response_headers = {}
-        ignore_headers = ['transfer-encoding', 'keep-alive', 'connection'] 
+        ignore_headers = ['transfer-encoding', 'keep-alive', 'connection']
         response.each do |key, value|
           next if ignore_headers.include?(key.downcase)
           # If this is a cookie, strip out the domain.  This technically may
@@ -94,13 +94,13 @@ module SC
           value.gsub!(/domain=[^\;]+\;? ?/,'') if key.downcase == 'set-cookie'
           # Location headers should rewrite the hostname if it is included.
           value.gsub!(/^http:\/\/#{http_host}(:[0-9]+)?\//, "http://#{http_host}/") if key.downcase == 'location'
-          
+
           SC.logger << "   #{key}: #{value}\n"
           response_headers[key] = value
         end
-        
+
         return [status, ::Rack::Utils::HeaderHash.new(response_headers), [response.body]]
-      end 
-    end 
-  end 
+      end
+    end
+  end
 end

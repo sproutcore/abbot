@@ -11,18 +11,18 @@ require 'fileutils'
 module SC
 
   # This build can compile a Sass stylesheet.  At this point it does no
-  # further processing than simply executing the Sass.  It would be nice to 
+  # further processing than simply executing the Sass.  It would be nice to
   # add support for sc_static and other directives at some point.
   #
   class Builder::Sass < Builder::Stylesheet
     @@sass_syntax = :sass
-    
+
     # main entry called by build tasks
     def self.build(entry, dst_path, sass_syntax=:sass)
       @@sass_syntax =sass_syntax
       new(entry).build(dst_path)
     end
-    
+
     def build(dst_path)
       begin
         require 'sass'
@@ -38,7 +38,7 @@ module SC
         css.each_line { |l| lines << rewrite_inline_code(l) }
         writelines dst_path, lines
       rescue Exception => e
-        
+
         # explain sass syntax error a bit more...
         if e.is_a? Sass::SyntaxError
           e_string = "#{e.class}: #{e.message}"
@@ -56,10 +56,10 @@ module SC
           raise e_string
         else
           raise e # reraise
-        end 
+        end
       end # rescue
     end # def
-    
+
   end
-  
+
 end

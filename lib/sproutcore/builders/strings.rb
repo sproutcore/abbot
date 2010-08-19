@@ -11,15 +11,15 @@ require 'fileutils'
 module SC
 
   # This builder is used to generate a file containing all of the loc strings
-  # for a particular manifest.  The strings file is used when generating 
+  # for a particular manifest.  The strings file is used when generating
   # HTML try to map localized strings
   class Builder::Strings < Builder::Base
-    
+
     def build(dst_path)
       data = parse_strings_js(entry.source_path)
       writelines dst_path, [data.to_yaml]
     end
-    
+
     def parse_strings_js(source_path)
       return {} if !File.exists?(source_path)
 
@@ -35,10 +35,10 @@ module SC
         y = eval(%[<<__EOF__\n#{y}\n__EOF__]).chop
         ret[x] = y
       end
-      return ret 
+      return ret
     end
-      
-    
+
+
   end
-  
+
 end

@@ -6,7 +6,7 @@
 # ===========================================================================
 
 module SC
-  
+
   # Mixing for creating easily cloned objects.  Borrowed from Rake 0.8.3
   module Cloneable
 
@@ -29,6 +29,6 @@ module SC
       sibling
     end
   end
-  
-  
+
+
 end

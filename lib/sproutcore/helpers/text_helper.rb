@@ -77,7 +77,7 @@ module SC
           gem "RedCloth"
           require 'redcloth'
         end
-        
+
         # Returns the text with all the Textile codes turned into HTML tags.
         # <i>This method is only available if RedCloth[http://whytheluckystiff.net/ruby/redcloth/]
         # is available</i>.

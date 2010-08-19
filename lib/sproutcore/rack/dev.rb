@@ -9,14 +9,14 @@ require 'json'
 #require 'ruby-debug'
 module SC
   module Rack
-    
+
     # Hosts general dev environment-related JSON assets.
     class Dev
-      
+
       def initialize(project)
         @project = project
       end
-      
+
       #TODO: dry this up...also exists in SC::Rack::Filesystem
       def root_dir
         unless @root_dir
@@ -24,22 +24,22 @@ module SC
         end
         return @root_dir
       end
-      
+
       def call(env)
         url = env['PATH_INFO']
         case url
         when '/sc/targets.json' # returns description of targets
           return [200, {}, get_targets_json]
-          
+
         when '/sc/greenhouse-config.json' #returns json of all valid design objects
           return [200, {}, get_greenhouse_configs(env)]
         else
           return [404, {}, "not found"]
         end
-          
+
         return [404, {}, "not found"]
       end
-      
+
       def get_targets_json
         targets = @project.targets.values.map do |target|
           target.prepare!
@@ -56,11 +56,11 @@ module SC
         end
         targets.to_json
       end
-      
+
       def get_greenhouse_configs(env)
         rqust = ::Rack::Request.new(env)
         params = rqust.params
-        app_target = @project.target_for(params['app'].to_sym) 
+        app_target = @project.target_for(params['app'].to_sym)
         ret = []
         if(app_target)
           path = app_target.source_root + "/design/greenhouse.config"
@@ -69,7 +69,7 @@ module SC
           json[:name] = app_target.target_name
           json[:canEdit] = true
           ret << json
-          
+
           app_target.expand_required_targets.each do |target|
             path = target.source_root + "/design/greenhouse.config"
             json = File.exists?(path) ? JSON.parse(File.read(path)) : {}
@@ -86,7 +86,7 @@ module SC
         end
         return ret.to_json
       end #end of get_greenhouse_configs
-      
+
     end
   end
 end

@@ -6,7 +6,7 @@
 # ===========================================================================
 
 module SC
-  
+
   # A HashStruct is a type of hash that can also be accessed as a structed
   # (like an OpenStruct).  It also treats strings and symbols as the same
   # for keys.
@@ -27,7 +27,7 @@ module SC
       end
       sibling
     end
-    
+
     # Returns true if the receiver has all of the options set
     def has_options?(opts = {})
       opts.each do |key, value|
@@ -35,13 +35,13 @@ module SC
       end
       return true
     end
-    
+
     def to_hash
       ret = {}
       each { |key, value| ret[key] = value }
       return ret
     end
-    
+
     ######################################################
     # INTERNAL SUPPORT
     #
@@ -65,7 +65,7 @@ module SC
           value = args[0]
         end
         self[method_name] = value
-        
+
       # convert property? => !!self[:property]
       elsif method_name =~ /\?$/
         !!self[method_name[0..-2]]
@@ -73,7 +73,7 @@ module SC
         self[method_name]
       end
     end
-    
+
     # Treat all keys like symbols
     def [](key)
       sym_key = key.to_sym rescue nil
@@ -96,14 +96,14 @@ module SC
       end
       return self
     end
-    
+
     # Reimplement to return a new HashStruct
     def merge(other_hash)
       ret = self.class.new.merge!(self)
       ret.merge!(other_hash) if other_hash != self
-      return ret 
+      return ret
     end
-    
+
   end
 end
 
