@@ -41,6 +41,7 @@ module SC
   #    entirely synthesized from other sources.
   #
   class Target < HashStruct
+    # WYCATS TODO: Can these be memoized?
     def source_root
       self[:source_root]
     end
@@ -294,14 +295,11 @@ module SC
 
     # Returns true if the passed path appears to be a target directory
     # according to the target's current config.
-    def target_directory?(path, root_path=nil)
-      root_path = self.source_root if root_path.nil?
-      @target_names ||= self.config[:target_types].keys
-      path = path.to_s.sub /^#{Regexp.escape root_path}\//, ''
-      @target_names.each do |name|
-        return true if path =~ /^#{Regexp.escape name.to_s}/
+    def target_directory?(path, root_path=source_root)
+      path = path.sub /^#{Regexp.escape root_path}\//, ''
+      config.target_names.find do |name|
+        path.index(name.to_s) == 0
       end
-      return false
     end
 
     # path to attr_cache file

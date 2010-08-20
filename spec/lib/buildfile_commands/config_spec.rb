@@ -16,8 +16,8 @@ describe SC::Buildfile::Commands, 'config' do
 
     configs = a.configs
 
-    configs.all['/test1'].should_not be_nil
-    configs.all['/test1'].foo.should eql(:bar)
+    configs.all[:'/test1'].should_not be_nil
+    configs.all[:'/test1'].foo.should eql(:bar)
   end
 
   it "should merge options when same config is named mode than once" do
@@ -27,8 +27,8 @@ describe SC::Buildfile::Commands, 'config' do
     end
 
     configs = a.configs
-    configs.all['/test1'].test1.should eql(:bar)
-    configs.all['/test1'].test2.should eql(:foo)
+    configs.all[:'/test1'].test1.should eql(:bar)
+    configs.all[:'/test1'].test2.should eql(:foo)
   end
 
   it "should both accept an options hash, accept a block, or both" do
@@ -48,10 +48,10 @@ describe SC::Buildfile::Commands, 'config' do
       end
     end
 
-    a.configs.all['/test1'].foo.should eql(:bar)
-    b.configs.all['/test1'].foo.should eql(:bar)
-    c.configs.all['/test1'].test1.should eql(:bar)
-    c.configs.all['/test1'].test2.should eql(:foo)
+    a.configs.all[:'/test1'].foo.should eql(:bar)
+    b.configs.all[:'/test1'].foo.should eql(:bar)
+    c.configs.all[:'/test1'].test1.should eql(:bar)
+    c.configs.all[:'/test1'].test2.should eql(:foo)
   end
 
   it "should allow OpenStruct-style setting of configs when passed to block" do
@@ -60,7 +60,7 @@ describe SC::Buildfile::Commands, 'config' do
         c.foo = :bar
       end
     end
-    a.configs.all['/test1'].foo.should eql(:bar)
+    a.configs.all[:'/test1'].foo.should eql(:bar)
   end
 
   it "should merge configs on top of a base buildfile configs without changing the root config" do
@@ -72,11 +72,11 @@ describe SC::Buildfile::Commands, 'config' do
       config :bundle, :test1 => :bar
     end
 
-    b.configs.all['/bundle'].test1.should eql(:bar)
-    b.configs.all['/bundle'].test2.should eql(:foo)
+    b.configs.all[:'/bundle'].test1.should eql(:bar)
+    b.configs.all[:'/bundle'].test2.should eql(:foo)
 
-    a.configs.all['/bundle'].test1.should eql(:foo)
-    a.configs.all['/bundle'].test2.should eql(:foo)
+    a.configs.all[:'/bundle'].test1.should eql(:foo)
+    a.configs.all[:'/bundle'].test2.should eql(:foo)
   end
 
   it "should store configs inside of a specific mode when specified" do
@@ -87,11 +87,11 @@ describe SC::Buildfile::Commands, 'config' do
       config :bundle, :bar => :bar
     end
 
-    a.configs.all['/bundle'].bar.should eql(:bar)
-    a.configs.all['/bundle'].foo.should be_nil
+    a.configs.all[:'/bundle'].bar.should eql(:bar)
+    a.configs.all[:'/bundle'].foo.should be_nil
 
-    a.configs.debug['/bundle'].bar.should be_nil
-    a.configs.debug['/bundle'].foo.should eql(:foo)
+    a.configs.debug[:'/bundle'].bar.should be_nil
+    a.configs.debug[:'/bundle'].foo.should eql(:foo)
   end
 
 end

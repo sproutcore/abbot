@@ -28,6 +28,7 @@ module SC
       super(opts)
       @target = target
       @entries = []
+      @staging_uuid = 0
     end
 
     def inspect
@@ -348,10 +349,19 @@ module SC
       return ret
     end
 
+    def unique_path(key, path)
+      paths = entries(:hidden => true).map { |e| e[keys] }
+      while paths.include?(path)
+        path = path.sub(/(__\$[0-9]+)?(\.\w+)?$/,"__#{next_staging_uuid}\\2")
+      end
+      return path
+    end
+
     # Finds a unique staging path starting with the root proposed staging
     # path.
     def unique_staging_path(path)
       paths = entries(:hidden => true).map { |e| e[:staging_path] }
+      p paths.size
       while paths.include?(path)
         path = path.sub(/(__\$[0-9]+)?(\.\w+)?$/,"__#{next_staging_uuid}\\2")
       end
@@ -371,7 +381,7 @@ module SC
     protected
 
     def next_staging_uuid
-      self[:staging_uuid] = (self[:staging_uuid] || 0) + 1
+      @staging_uuid += 1
     end
 
   end

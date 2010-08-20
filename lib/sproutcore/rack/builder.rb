@@ -122,8 +122,17 @@ module SC
             if [:html, :test].include?(entry[:entry_type])
               #if did_reload || !File.exist?(build_path)
               #always clean html files...
+              if ENV["PROFILE"]
+                require "ruby-prof"
+                RubyProf.start
                 entry.clean!.build!
-              #end
+                result = RubyProf.stop
+                printer = RubyProf::CallStackPrinter.new(result)
+                printer.print(File.open("output.html", "w"), :min_percent => 0)
+                exit!
+              else
+                entry.clean!.build!
+              end
             else
               entry.build!
             end
@@ -197,6 +206,7 @@ module SC
       end
 
       def monitor_project!
+        return
         if !@should_monitor
           @should_monitor = true
           @project_root = @project.project_root

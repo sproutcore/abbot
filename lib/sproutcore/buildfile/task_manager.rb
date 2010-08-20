@@ -17,6 +17,7 @@ module SC
 
     def initialize
       super
+      @task_cache = Hash.new {|h,k| h[k] = {} }
       @tasks = Hash.new
       @rules = Array.new
       @scope = Array.new
@@ -51,8 +52,7 @@ module SC
 
     # Find a matching task for +task_name+.
     def [](task_name, scopes=nil)
-      task_name = task_name.to_s
-      self.lookup(task_name, scopes) or
+      lookup(task_name, scopes) or
         raise "Don't know how to build task '#{task_name}'"
     end
 
@@ -135,18 +135,20 @@ module SC
     # are recognized.  If no scope argument is supplied, use the
     # current scope.  Return nil if the task cannot be found.
     def lookup(task_name, initial_scope=nil)
-      initial_scope ||= @scope
-      task_name = task_name.to_s
-      if task_name =~ /^rake:/
-        scopes = []
-        task_name = task_name.sub(/^rake:/, '')
-      elsif task_name =~ /^(\^+)/
-        scopes = initial_scope[0, initial_scope.size - $1.size]
-        task_name = task_name.sub(/^(\^+)/, '')
-      else
-        scopes = initial_scope
+      @task_cache[initial_scope][task_name] ||= begin
+        initial_scope ||= @scope
+        task_name = task_name.to_s
+        if task_name =~ /^rake:/
+          scopes = []
+          task_name = task_name.sub(/^rake:/, '')
+        elsif task_name =~ /^(\^+)/
+          scopes = initial_scope[0, initial_scope.size - $1.size]
+          task_name = task_name.sub(/^(\^+)/, '')
+        else
+          scopes = initial_scope
+        end
+        lookup_in_scope(task_name, scopes)
       end
-      lookup_in_scope(task_name, scopes)
     end
 
     # Lookup the task name

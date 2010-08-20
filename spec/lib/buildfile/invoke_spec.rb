@@ -50,7 +50,7 @@ describe SC::Buildfile, 'invoke' do
     const1 = {}
     const2 = {}
 
-    Kernel.const_reset(:CONSTANT, const1)
+    Object.const_reset(:CONSTANT, const1)
     buildfile.invoke :task2, :constant => const2
 
     # now add some keys so we can tell them apart...

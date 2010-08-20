@@ -26,8 +26,16 @@ module SC
   class ManifestEntry < HashStruct
 
     def initialize(manifest, opts={})
-      @manifest = manifest # store manifest has ivar
+      @manifest = manifest
       super(opts)
+    end
+
+    def normalized_filename
+      @normalized_filename = self[:filename].to_s.downcase
+    end
+
+    def extensionless_filename
+      @extensionless_filename ||= normalized_filename.ext("")
     end
 
     # invoked whenever the manifest entry is first created.  This will invoke
@@ -51,7 +59,7 @@ module SC
     def prepared?; @is_prepared || false; end
 
     def inspect
-      "SC::ManifestEntry(#{filename}, build_task=>#{self.build_task}, entry_type=>#{self.entry_type}, is_hidden=>#{self.hidden?})"
+      "SC::ManifestEntry(#{self[:filename]}, build_task=>#{self[:build_task]}, entry_type=>#{self[:entry_type]}, is_hidden=>#{self.hidden?})"
     end
 
     def to_hash(opts={})

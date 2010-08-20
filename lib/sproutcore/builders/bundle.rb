@@ -47,12 +47,12 @@ module SC
 
       output = ""
       entry.targets.each do |t|
-        bundle_info = t.bundle_info({ :debug => entry.debug, :test => entry.test, :theme => entry.theme, :variation => entry.variation })
+        bundle_info = t.bundle_info({ :debug => entry[:debug], :test => entry[:test], :theme => entry[:theme], :variation => entry[:variation] })
         output << eruby.evaluate({
-          :target_name => t.target_name.to_s.sub(/^\//,''),
-          :requires => bundle_info.requires.map{ |t| "'#{t.target_name.to_s.sub(/^\//,'')}'" },
-          :styles   => bundle_info.css_urls.map{ |url| "'#{url}'" },
-          :scripts  => bundle_info.js_urls.map{  |url| "'#{url}'" }
+          :target_name => t[:target_name].to_s.sub(/^\//,''),
+          :requires => bundle_info[:requires].map{ |t| "'#{t[:target_name].to_s.sub(/^\//,'')}'" },
+          :styles   => bundle_info[:css_urls].map{ |url| "'#{url}'" },
+          :scripts  => bundle_info[:js_urls].map{  |url| "'#{url}'" }
         })
       end
       writelines dst_path, [output]

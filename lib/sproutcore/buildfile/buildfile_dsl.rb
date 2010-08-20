@@ -9,6 +9,13 @@ module SC
 
   class Buildfile
 
+    # This class allows us to memoize common computations
+    class Config < HashStruct
+      def target_names
+        @target_names ||= self[:target_types].keys
+      end
+    end
+
     # Describe the domain-specific-language helpers supported by buildfiles.
     # This is included as a mixin for the buildfile.
     module Commands
@@ -132,7 +139,7 @@ module SC
       #  end
       #
       def config(config_name, opts = {}, &block)
-        opts = ::SC::HashStruct.new(opts)
+        opts = ::SC::Buildfile::Config.new(opts)
         yield(opts) if block_given?
         add_config config_name, opts
         return self

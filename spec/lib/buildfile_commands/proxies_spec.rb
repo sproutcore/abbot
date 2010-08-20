@@ -7,7 +7,7 @@ describe SC::Buildfile::Commands, 'proxy' do
     b = SC::Buildfile.define do
       proxy '/url', :foo => :bar
     end
-    b.proxies['/url'].foo.should eql(:bar)
+    b.proxies[:'/url'].foo.should eql(:bar)
   end
 
   it "should save the REPLACE opts for multiple calls to proxy" do
@@ -15,8 +15,8 @@ describe SC::Buildfile::Commands, 'proxy' do
       proxy '/url', :test1 => :foo, :test2 => :foo
       proxy '/url', :test1 => :bar
     end
-    b.proxies['/url'].test1.should eql(:bar)
-    b.proxies['/url'].test2.should be_nil
+    b.proxies[:'/url'].test1.should eql(:bar)
+    b.proxies[:'/url'].test2.should be_nil
   end
 
   it "should merge multiple proxy urls and REPLACE opts for chained files" do
@@ -29,9 +29,9 @@ describe SC::Buildfile::Commands, 'proxy' do
       proxy '/url1', :test1 => :bar
     end
 
-    b.proxies['/url1'].test1.should eql(:bar)
-    b.proxies['/url1'].test2.should be_nil
-    b.proxies['/url2'].test1.should eql(:foo)
+    b.proxies[:'/url1'].test1.should eql(:bar)
+    b.proxies[:'/url1'].test2.should be_nil
+    b.proxies[:'/url2'].test1.should eql(:foo)
   end
 
 end

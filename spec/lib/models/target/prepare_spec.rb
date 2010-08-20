@@ -8,7 +8,7 @@ describe SC::Target, 'prepare!' do
     @project = fixture_project(:real_world)
 
     # get target from project manually since target_for() calls prepare!
-    @target = @project.targets['/contacts']
+    @target = @project.targets[:'/contacts']
 
     @target.buildfile.define! do
       replace_task 'target:prepare' do
@@ -34,7 +34,7 @@ describe SC::Target, 'prepare!' do
     # get an empty project with no build tasks...
     project = empty_project
     project.add_target '/default', :default, :source_root => project.project_root
-    target = project.targets['/default']
+    target = project.targets[:'/default']
     target.buildfile.lookup('target:prepare').should be_nil
 
     lambda { target.prepare! }.should_not raise_error

@@ -31,7 +31,7 @@ module SC
     # Returns true if the receiver has all of the options set
     def has_options?(opts = {})
       opts.each do |key, value|
-        return false if self[key] != value
+        return false if self[key.to_sym] != value
       end
       return true
     end
@@ -71,7 +71,7 @@ module SC
         !!self[method_name[0..-2].to_sym]
       else
         print_first_caller(method_name)
-        self[method_name]
+        self[method_name.to_sym]
       end
     end
 

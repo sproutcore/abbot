@@ -26,7 +26,7 @@ describe "manifest:prepare_build_tasks:css" do
     entries = @manifest.entries.select { |e| e.entry_type == :css }
     entries.each do |entry|
       %w(filename url build_path).each do |key|
-        entry[key].should =~ /source\//
+        entry[key.to_sym].should =~ /source\//
       end
     end
   end

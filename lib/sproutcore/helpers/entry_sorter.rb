@@ -5,6 +5,8 @@
 #            and contributors
 # ===========================================================================
 
+require "set"
+
 module SC
 
   module Helpers
@@ -33,12 +35,19 @@ module SC
         bundleInfoEntry = []
         bundleLoadedEntry = []
 
+        all_entries = {}
+        entries.each do |e|
+          name = e.extensionless_filename
+          all_entries[name] = e
+        end
+
+
         # first remove bundle entries which MUST be first or last
         entries = entries.select do |entry|
-          if entry[:filename] == 'bundle_info.js'
+          if entry.normalized_filename == 'bundle_info.js'
             bundleInfoEntry = [entry]
             false
-          elsif entry[:filename] == 'bundle_loaded.js'
+          elsif entry.normalized_filename == 'bundle_loaded.js'
             bundleLoadedEntry = [entry]
             false
           else
@@ -46,31 +55,28 @@ module SC
           end
         end
 
-        # then sort remaining entries by filename - ignoring case
-        entries = entries.sort do |a,b|
-          a = (a[:filename] || '').to_s.downcase
-          b = (b[:filename] || '').to_s.downcase
+        entries.sort_by! do |entry|
+          name = entry.normalized_filename
 
-          # lproj/foo_page.js and main.js are loaded last
-          a_kind = (a =~ /(lproj|resources)\/.+_page\.js$/) ? 1 : -1
-          a_kind = 2 if a =~ /main.js$/
-
-          b_kind = (b =~ /(lproj|resources)\/.+_page\.js$/) ? 1 : -1
-          b_kind = 2 if b =~ /main.js$/
-
-          if a_kind != b_kind
-            a_kind <=> b_kind
+          result = case name
+          when /main\.js$/
+            [2, name]
+          when /(?:lproj|resources)\/.+_page\.js$/
+            [1, name]
+          when /lproj\/strings.js$/
+            [-2, name]
           else
-            a <=> b
+            [-1, name]
           end
 
+          # force preferred filenames to the front on the list
+          result.unshift (@preferred_filenames.include?(name) ? -1 : 1)
         end
-        all_entries = entries.dup # needed for sort...
 
         # now process each entry to handle requires
-        seen = []
+        seen = Set.new
         ret = []
-        while cur = next_entry(entries)
+        while cur = entries.shift
           add_entry_to_set(cur, ret, seen, entries, all_entries)
         end
 
@@ -81,44 +87,17 @@ module SC
 
       # Converts a passed set of requires into entries
       def required_entries(required, entries, requiring_entry, all_entries)
-        return [] if required.nil?
+        return [] unless required
+
         required.map do |filename|
-          filename = filename.to_s.downcase.ext('')
-          source_filename = "source/#{filename}"
-          entry = all_entries.find do |e|
-            e[:filename].to_s.downcase.ext('') == source_filename
-          end
+          entry = all_entries["source/#{filename}"] || all_entries["source/lproj/#{filename}"]
 
-          # try localized version...
-          if entry.nil? && !(filename =~ /^lproj\//)
-            source_filename = "source/lproj/#{filename}"
-            entry = all_entries.find do |e|
-              e[:filename].to_s.downcase.ext('') == source_filename
-            end
-          end
-
-          if entry.nil?
+          unless entry
             SC.logger.warn "Could not find entry '#{filename}' required in #{requiring_entry.target[:target_name].to_s.sub(/^\//,'')}:#{requiring_entry[:filename]}"
           end
 
           entry
-        end
-      end
-
-      # Returns the next entry from the set of entries based on required order.
-      # Removed entry from array.
-      def next_entry(entries)
-        ret = nil
-
-        # look for preferred entries first...
-        @preferred_filenames.each do |filename|
-          ret = entries.find { |e| e[:filename].to_s.downcase == filename }
-          break if ret
-        end
-
-        ret ||= entries.first # else fallback to first entry in set
-        entries.delete(ret) if ret
-        return ret
+        end.compact
       end
 
       # Adds the specified entry to the ordered array, adding required first
@@ -128,7 +107,6 @@ module SC
         seen << entry
         req = required_entries(entry[:required], entries, entry, all_entries)
         req.each do |required|
-          next if required.nil?
           add_entry_to_set(required, ret, seen, entries, all_entries)
         end
         ret << entry

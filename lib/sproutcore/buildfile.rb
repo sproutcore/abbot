@@ -212,9 +212,10 @@ module SC
     #  task_name:: the full name of the task, including namespaces
     #  consts:: Optional hash of constant values to set on the env
     def invoke(task_name, consts = nil)
-      consts = set_kernel_consts consts  # save  to restore
-      self[task_name.to_s].invoke
-      set_kernel_consts consts # clear constants
+      original = set_kernel_consts consts
+      self[task_name].invoke
+    ensure
+      set_kernel_consts original
     end
 
     # Returns true if the buildfile has the named task defined
@@ -320,7 +321,7 @@ module SC
 
       # Perform Merge
       mode_configs = (self.configs[config_mode.to_sym] ||= HashStruct.new)
-      config = (mode_configs[config_name.to_sym] ||= HashStruct.new)
+      config = (mode_configs[config_name.to_sym] ||= ::SC::Buildfile::Config.new)
       config.merge!(opts)
     end
 
@@ -346,7 +347,7 @@ module SC
       # collect the hashes
       all_configs = configs[:all]
       cur_configs = configs[mode_name]
-      ret = HashStruct.new
+      ret = ::SC::Buildfile::Config.new
 
       # now merge em! -- note that this assumes the merge method will handle
       # self.merge(self) & self.merge(nil) gracefully
@@ -444,25 +445,25 @@ module SC
 
     # For each key in the passed hash, this will register a global
     def set_kernel_consts(env = nil)
-      return env if env.nil?
+      return env unless env
 
       # for each item in the passed environment, convert to uppercase constant
       # and set in global namespace.  Save the old value so that it can be
       # restored later.
       ret = {}
       env.each do |key, value|
-        const_key = key.to_s.upcase.to_sym
+        const_key = key.to_s.upcase
 
         # Save the old const value
-        ret[key] = Kernel.const_get(const_key) rescue nil
+        ret[key] = Object.const_get(const_key) if Object.const_defined?(const_key)
 
         # Reset
-        Kernel.const_reset(const_key, value)
+        Object.const_reset(const_key, value)
       end
 
       # Also, save env.  Used mostly for logging
-      ret['TASK_ENV'] = Kernel.const_get('TASK_ENV') rescue nil
-      Kernel.const_reset('TASK_ENV', env)
+      ret['TASK_ENV'] = Object.const_get('TASK_ENV') if Object.const_defined?("TASK_ENV")
+      Object.const_reset('TASK_ENV', env)
 
       return ret
     end
@@ -473,10 +474,17 @@ end
 
 # Add public method to kernel to remove defined constant using private
 # method.
-module Kernel
-  def const_reset(key, value)
+class Object
+  def self.const_reset(key, value)
     remove_const(key) if const_defined?(key)
     const_set key, value
+  end
+end
+
+# back-compat
+module Kernel
+  def self.const_reset(key, value)
+    Object.const_reset(key, value)
   end
 end
 

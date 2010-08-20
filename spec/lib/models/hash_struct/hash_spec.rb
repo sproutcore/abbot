@@ -26,13 +26,13 @@ describe SC::HashStruct, 'hash operations' do
     e[:foo].should eql(:bar)
   end
 
-  it "should treat string and hash keys as the same" do
+  it "should treat string and hash keys as the same for writing, but not reading" do
     e = SC::HashStruct.new
     e['foo'] = :bar
     e[:foo].should eql(:bar)
 
     e[:foo2] = :bar
-    e['foo2'].should eql(:bar)
+    e['foo2'].should eql(nil)
   end
 
   it "should convert all keys to symbols (i.e. if you get keys, they will always be symbols)" do

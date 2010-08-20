@@ -20,7 +20,7 @@ describe SC::Project, 'targets' do
     project = SC::Project.new fixture_path('buildfiles', 'empty_project'), :parent => parent
     project.targets.size.should eql(1)
 
-    t = project.targets['base1']
+    t = project.targets[:'base1']
     t.target_name.should == :base1
     t.target_type.should == :dummy_type
     t.source_root.should  == "foo"

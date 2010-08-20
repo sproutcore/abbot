@@ -43,7 +43,7 @@ describe SC::Manifest, 'build!' do
     # get an empty project with no build tasks...
     project = empty_project
     project.add_target '/default', :default, :source_root => project.project_root
-    target = project.targets['/default']
+    target = project.targets[:'/default']
     target.buildfile.lookup('manifest:build').should be_nil
 
     manifest = target.manifest_for :language => :en
