@@ -1,4 +1,5 @@
-require File.join(File.dirname(__FILE__), %w[.. .. .. spec_helper])
+require "spec_helper"
+
 require 'tempfile'
 require 'fileutils'
 

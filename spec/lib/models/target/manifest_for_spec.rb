@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), %w[.. .. .. spec_helper])
+require "spec_helper"
 
 describe SC::Target, 'manifest_for' do
 
@@ -39,4 +39,4 @@ describe SC::Target, 'manifest_for' do
   
 end
 
-    
+

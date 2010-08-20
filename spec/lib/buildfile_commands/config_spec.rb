@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
+require "spec_helper"
 
 # The config helper can be used in a Buildfile to specify config options
 # targeted at specific bundle names.

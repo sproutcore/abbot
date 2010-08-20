@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), %w[.. .. .. spec_helper])
+require "spec_helper"
 
 describe SC::HashStruct, 'method_missing' do
 
@@ -38,4 +38,4 @@ describe SC::HashStruct, 'method_missing' do
   
 end
   
-    
+

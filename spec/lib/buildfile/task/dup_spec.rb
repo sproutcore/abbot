@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), %w[.. .. .. spec_helper])
+require "spec_helper"
 
 # define a custom subclass of the task to make sure classes are copied
 class CustomTestTask < SC::Buildfile::Task  

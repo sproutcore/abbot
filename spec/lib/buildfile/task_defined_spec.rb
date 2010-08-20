@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
+require "spec_helper"
 
 describe SC::Buildfile, 'task_defined?' do
 
@@ -14,4 +14,4 @@ describe SC::Buildfile, 'task_defined?' do
   end
 
 end
-  
+

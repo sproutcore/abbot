@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), %w[.. .. .. spec_helper])
+require "spec_helper"
 
 describe SC::Target, 'prepare!' do
 
@@ -50,4 +50,4 @@ describe SC::Target, 'prepare!' do
   
 end
 
-  
+

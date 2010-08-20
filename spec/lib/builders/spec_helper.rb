@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
+require "spec_helper"
 
 module SC::BuilderSpecHelper
   
@@ -27,4 +27,4 @@ module SC::BuilderSpecHelper
   end
   
 end
-    
+

@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), 'spec_helper')
+require "lib/builders/spec_helper"
 
 describe SC::Builder::Combine do
   

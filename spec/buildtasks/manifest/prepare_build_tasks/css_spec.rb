@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), %w(.. spec_helper))
+require "buildtasks/manifest/spec_helper"
 
 # This task prepares a single CSS entry for every untagged source entry.
 describe "manifest:prepare_build_tasks:css" do

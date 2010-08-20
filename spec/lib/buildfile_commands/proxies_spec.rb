@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
+require "spec_helper"
 
 # The proxy helper defines proxy settings that can be used with sc-server
 describe SC::Buildfile::Commands, 'proxy' do

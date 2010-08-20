@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), 'spec_helper')
+require "lib/builders/spec_helper"
 
 # If sass is not installed, just skip these.
 has_sass = true

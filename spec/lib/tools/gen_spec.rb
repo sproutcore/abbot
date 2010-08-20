@@ -1,4 +1,5 @@
-require File.join(File.dirname(__FILE__), %w[.. .. spec_helper])
+require "spec_helper"
+
 require 'tempfile'
 
 # Add dummy task we can use to test general option processing

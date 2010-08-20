@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), 'spec_helper')
+require "buildtasks/manifest/spec_helper"
 
 describe "manifest:prepare" do
   
