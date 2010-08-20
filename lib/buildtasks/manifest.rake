@@ -12,30 +12,30 @@ namespace :manifest do
     require 'tempfile'
 
     # make sure a language was set
-    MANIFEST.language ||= :en
+    MANIFEST[:language] ||= :en
     
     # build_root is target.build_root + language + build_number
-    MANIFEST.build_root = File.join(TARGET.build_root, 
-      MANIFEST.language.to_s, TARGET.build_number.to_s)
+    MANIFEST[:build_root] = File.join(TARGET[:build_root],
+      MANIFEST[:language].to_s, TARGET[:build_number].to_s)
       
     # staging_root is target.staging_root + language + build_number
-    MANIFEST.staging_root = File.join(TARGET.staging_root, 
-      MANIFEST.language.to_s, TARGET.build_number.to_s)
+    MANIFEST[:staging_root] = File.join(TARGET[:staging_root],
+      MANIFEST[:language].to_s, TARGET[:build_number].to_s)
       
     # cache_root is target.cache_root + language + build_number
-    MANIFEST.cache_root = File.join(TARGET.cache_root, 
-      MANIFEST.language.to_s, TARGET.build_number.to_s)
+    MANIFEST[:cache_root] = File.join(TARGET[:cache_root], 
+      MANIFEST[:language].to_s, TARGET[:build_number].to_s)
       
     # url_root
-    MANIFEST.url_root = 
-      [TARGET.url_root, MANIFEST.language, TARGET.build_number].join('/')
+    MANIFEST[:url_root] =
+      [TARGET[:url_root], MANIFEST[:language], TARGET[:build_number]].join('/')
       
     # index_root
-    MANIFEST.index_root = 
-      [TARGET.index_root, MANIFEST.language, TARGET.build_number].join('/')
+    MANIFEST[:index_root] =
+      [TARGET[:index_root], MANIFEST[:language], TARGET[:build_number]].join('/')
       
     # source_root
-    MANIFEST.source_root = TARGET.source_root
+    MANIFEST[:source_root] = TARGET[:source_root]
   end
 
   desc "Actually builds a manifest.  This will catalog all entries and then filter them"
@@ -43,7 +43,7 @@ namespace :manifest do
   
   desc "first step in building a manifest, this adds a simple copy file entry for every file in the source"
   task :catalog do |t|
-    source_root = TARGET.source_root
+    source_root = TARGET[:source_root]
     Dir.glob(File.join(source_root, '**', '*')).each do |path|
       next if !File.exist?(path) || File.directory?(path)
       next if TARGET.target_directory?(path)
@@ -67,57 +67,57 @@ namespace :manifest do
 
       # if in /dirname or /foo.lproj/dirname -- hide it!
       dirnames.each do |dirname|
-        if entry.filename =~ /^(([^\/]+)\.lproj\/)?#{dirname}\/.+$/
+        if entry[:filename] =~ /^(([^\/]+)\.lproj\/)?#{dirname}\/.+$/
           entry.hide!
           next
         end
       end
       
       # otherwise, allow if inside lproj
-      next if entry.localized? || entry.filename =~ /^.+\.lproj\/.+$/
+      next if entry.localized? || entry[:filename] =~ /^.+\.lproj\/.+$/
       
       # allow if in tests, fixtures or debug as well...
-      next if entry.filename =~ /^(resources|tests|fixtures|debug)\/.+$/
+      next if entry[:filename] =~ /^(resources|tests|fixtures|debug)\/.+$/
       
       # or skip if ext not js
-      entry.hide! if entry.ext != 'js'
+      entry.hide! if entry[:ext] != 'js'
     end
   end
   
   desc "localizes files. reject any files from other languages"
   task :localize => [:catalog, :hide_buildfiles] do
     seen = {} # already seen entries...
-    preferred_language = TARGET.config.preferred_language || :en
+    preferred_language = TARGET.config[:preferred_language] || :en
     
     MANIFEST.entries.each do |entry|
       
       # Is a localized resource!
-      if entry.filename =~ /^([^\/]+)\.lproj\/(.+)$/
-        entry.language = (SC::Target::LONG_LANGUAGE_MAP[$1.to_s.downcase.to_sym]) || $1.to_sym
+      if entry[:filename] =~ /^([^\/]+)\.lproj\/(.+)$/
+        entry[:language] = (SC::Target::LONG_LANGUAGE_MAP[$1.to_s.downcase.to_sym]) || $1.to_sym
         entry.localized = true
 
         # remove .lproj dir from build paths as well..
         lang_dir = "#{$1}.lproj/"
-        sub_str = (entry.ext == 'js') ? 'lproj/' : ''
-        entry.filename   = entry.filename.sub(lang_dir, sub_str)
-        entry.build_path = entry.build_path.sub(lang_dir, sub_str)
-        entry.url        = entry.url.sub(lang_dir, sub_str)
+        sub_str = (entry[:ext] == 'js') ? 'lproj/' : ''
+        entry[:filename  ] = entry[:filename].sub(lang_dir, sub_str)
+        entry[:build_path] = entry[:build_path].sub(lang_dir, sub_str)
+        entry[:url]        = entry[:url].sub(lang_dir, sub_str)
               
         # if this is part of the current language, always include...
         # hide any preferred_language entry...
-        if entry.language == MANIFEST.language
-          if seen[entry.filename]
-            seen[entry.filename].hide! 
+        if entry[:language] == MANIFEST[:language]
+          if seen[entry[:filename]]
+            seen[entry[:filename]].hide! 
           else
-            seen[entry.filename] = entry
+            seen[entry[:filename]] = entry
           end
           
         # if this is a preferred_language, hide unless we've seen one
-        elsif entry.language == preferred_language
-          if seen[entry.filename]
+        elsif entry[:language] == preferred_language
+          if seen[entry[:filename]]
             entry.hide!
           else
-            seen[entry.filename] = entry
+            seen[entry[:filename]] = entry
           end
         
         # Otherwise, hide it...
@@ -127,8 +127,8 @@ namespace :manifest do
          
       # Not a localized resource
       else
-        entry.language = MANIFEST.language
-        entry.localized = false
+        entry[:language] = MANIFEST[:language]
+        entry[:localized] = false
       end
     end
   end
@@ -136,7 +136,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
     
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css javascript bundle_info bundle_loaded sass scss less combine minify html strings tests packed) 
+    task :all => %w(css javascript bundle_info bundle_loaded sass scss less combine html strings)
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -148,11 +148,11 @@ namespace :manifest do
       test_entries = []
       entries_by_dirname = {} # for building composites...
       MANIFEST.entries.each do |entry|
-        next unless entry.filename =~ /^tests\//
+        next unless entry[:filename] =~ /^tests\//
 
         # if this is a js file, add js transform first to handle sc_static()
         # etc.
-        if entry.ext == 'js'
+        if entry[:ext] == 'js'
           entry = MANIFEST.add_transform entry,
             :build_task => 'build:javascript'
         end
@@ -164,7 +164,7 @@ namespace :manifest do
           :ext        => :html)
           
         # Strip off dirnames, saving each by dirname...
-        dirname = entry.filename
+        dirname = entry[:filename]
         while (dirname = dirname.sub(/\/?[^\/]+$/,'')).size > 0
           (entries_by_dirname[dirname] ||= []) << entry
         end
@@ -182,7 +182,7 @@ namespace :manifest do
       end
       
       # Add summary entry
-      if CONFIG.load_tests
+      if CONFIG[:load_tests]
         MANIFEST.add_entry 'tests/-index.json',
           :composite      => true, 
           :source_entries => test_entries,
@@ -191,23 +191,23 @@ namespace :manifest do
       end
     end
     task :javascript => :tests # IMPORTANT! to avoid JS including unit tests.
-    task :html       => :tests # IMPORTANT! to avoid HTML including tests
+    # task :html       => :tests # IMPORTANT! to avoid HTML including tests
 
     desc "scans for javascript files, annotates them and prepares combined entries for each output target" 
     task :javascript => :setup do
       # select all original entries with with ext of css
       entries = MANIFEST.entries.select do |e| 
-        e.original? && e.ext == 'js'
+        e.original? && e[:ext] == 'js'
       end
 
       # add transform & tag with build directives.
       entries.each do |entry|
         entry = MANIFEST.add_transform entry,
-          :lazy_instantiation => CONFIG.lazy_instantiation,
-          :notify_onload => !CONFIG.combine_javascript,
-          :filename   => ['source', entry.filename].join('/'),
-          :build_path => File.join(MANIFEST.build_root, 'source', entry.filename),
-          :url => [MANIFEST.url_root, 'source', entry.filename].join("/"),
+          :lazy_instantiation => CONFIG[:lazy_instantiation],
+          :notify_onload => !CONFIG[:combine_javascript],
+          :filename   => ['source', entry[:filename]].join('/'),
+          :build_path => File.join(MANIFEST[:build_root], 'source', entry[:filename]),
+          :url => [MANIFEST[:url_root], 'source', entry[:filename]].join("/"),
           :build_task => 'build:javascript',
           :resource   => 'javascript',
           :entry_type => :javascript
@@ -221,15 +221,15 @@ namespace :manifest do
       
       # select all original entries with with ext of css
       entries = MANIFEST.entries.select do |e| 
-        e.original? && e.ext == 'css'
+        e.original? && e[:ext] == 'css'
       end
 
       # add transform & tag with build directives.
       entries.each do |entry|
         entry = MANIFEST.add_transform entry,
-          :filename   => ['source', entry.filename].join('/'),
-          :build_path => File.join(MANIFEST.build_root, 'source', entry.filename),
-          :url => [MANIFEST.url_root, 'source', entry.filename].join("/"),
+          :filename   => ['source', entry[:filename]].join('/'),
+          :build_path => File.join(MANIFEST[:build_root], 'source', entry[:filename]),
+          :url => [MANIFEST[:url_root], 'source', entry[:filename]].join("/"),
           :build_task => 'build:css',
           :resource   => 'stylesheet',
           :entry_type => :css
@@ -243,8 +243,8 @@ namespace :manifest do
       # Populate bundle_info for all dynamic_required frameworks.
       # Add :debug_dynamic_required and :test_dynamic_required depending on 
       # the build mode.
-      debug = CONFIG.load_debug
-      test = CONFIG.load_tests
+      debug = CONFIG[:load_debug]
+      test = CONFIG[:load_tests]
       
       targets = TARGET.dynamic_required_targets({ :debug => debug, :test => test, :theme => true })
       unless targets.size == 0
@@ -274,7 +274,7 @@ namespace :manifest do
     desc "adds a bundle_loaded.js entry if the target is a framework"
     task :bundle_loaded => %w(setup) do
       
-      if TARGET.target_type == :framework
+      if TARGET[:target_type] == :framework
         MANIFEST.add_entry 'bundle_loaded.js',
           :build_task  => 'build:bundle_loaded',
           :resource    => 'javascript',
@@ -295,14 +295,14 @@ namespace :manifest do
       javascript_entries = {}
       MANIFEST.entries.each do |entry|
         # we can only combine entries with a resource property.
-        next if entry.resource.nil?
+        next if entry[:resource].nil?
         
         # look for CSS or JS type entries
-        case entry.entry_type
+        case entry[:entry_type]
         when :css
-          (css_entries[entry.resource] ||= []) << entry
+          (css_entries[entry[:resource]] ||= []) << entry
         when :javascript
-          (javascript_entries[entry.resource] ||= []) << entry
+          (javascript_entries[entry[:resource]] ||= []) << entry
         end
       end
 
@@ -311,7 +311,7 @@ namespace :manifest do
         MANIFEST.add_composite resource_name.ext('css'),
           :build_task      => 'build:combine',
           :source_entries  => entries,
-          :hide_entries    => CONFIG.combine_stylesheets,
+          :hide_entries    => CONFIG[:combine_stylesheets],
           :ordered_entries => SC::Helpers::EntrySorter.sort(entries),
           :entry_type      => :css,
           :combined        => true
@@ -324,8 +324,8 @@ namespace :manifest do
         MANIFEST.add_composite resource_name,
           :build_task      => 'build:combine',
           :source_entries  => entries,
-          :top_level_lazy_instantiation => CONFIG.lazy_instantiation, 
-          :hide_entries    => CONFIG.combine_javascript,
+          :top_level_lazy_instantiation => CONFIG[:lazy_instantiation],
+          :hide_entries    => CONFIG[:combine_javascript],
           :ordered_entries => SC::Helpers::EntrySorter.sort(entries, pf),
           :entry_type      => :javascript,
           :combined        => true
@@ -337,7 +337,7 @@ namespace :manifest do
     task :packed => %w(setup combine) do
 
       # don't add packed entries for apps.
-      if TARGET.target_type != :app
+      if TARGET[:target_type] != :app
         # Handle JavaScript version.  get all required targets and find their
         # javascript.js.  Build packed js from that.
         targets = TARGET.expand_required_targets + [TARGET]
@@ -369,7 +369,7 @@ namespace :manifest do
     task :packed => %w(setup combine) do
 
       # don't add packed entries for apps.
-      if TARGET.target_type != :app
+      if TARGET[:target_type] != :app
         # Handle CSS version.  get all required targets and find their
         # stylesheet.css.  Build packed css from that.
         targets = TARGET.expand_required_targets + [TARGET]
@@ -402,12 +402,12 @@ namespace :manifest do
       desc sprintf("create a builder task for all %s files to create css files", csscompiler.to_s)
       task csscompiler => :setup do
         MANIFEST.entries.each do |entry|
-          next unless entry.ext == csscompiler.to_s
+          next unless entry[:ext] == csscompiler.to_s
           
           MANIFEST.add_transform entry,
-            :filename   => ['source', entry.filename].join('/'),
-            :build_path => File.join(MANIFEST.build_root, 'source', entry.filename),
-            :url => [MANIFEST.url_root, 'source', entry.filename].join("/"),
+            :filename   => ['source', entry[:filename]].join('/'),
+            :build_path => File.join(MANIFEST[:build_root], 'source', entry[:filename]),
+            :url => [MANIFEST[:url_root], 'source', entry[:filename]].join("/"),
             :build_task => 'build:'+csscompiler.to_s,
             :entry_type => :css,
             :ext        => 'css',
@@ -423,16 +423,17 @@ namespace :manifest do
       # select all entries with proper extensions
       known_ext = %w(rhtml erb haml)
       entries = MANIFEST.entries.select do |e| 
-        (e.entry_type == :html) || (e.entry_type.nil? && known_ext.include?(e.ext))
+        (e[:entry_type] == :html) || (e[:entry_type].nil? && known_ext.include?(e[:ext]))
       end
 
       # tag entry with build directives and sort by resource
       entries_by_resource = {}
+
       entries.each do |entry|
         entry.entry_type = :html
         entry.resource = 'index'
 
-        entry.render_task = case entry.ext
+        entry.render_task = case entry[:ext]
         when 'rhtml'
           'render:erubis'
         when 'erb'
@@ -442,9 +443,9 @@ namespace :manifest do
         end
         
         # items beginning with an underscore are partials.  do not build
-        if entry.filename =~ /^_/
+        if entry[:filename] =~ /^_/
           entry.hide!
-          entry.is_partial = true
+          entry[:is_partial] = true
 
         # not a partial
         else
@@ -453,7 +454,7 @@ namespace :manifest do
           entry.scan_source(/<%\s*sc_resource\(?\s*['"](.+)['"]\s*\)?/) do |m|
             entry.resource = m[0].ext ''
           end
-          (entries_by_resource[entry.resource] ||= []) << entry
+          (entries_by_resource[entry[:resource]] ||= []) << entry
         end
         
       end
@@ -470,9 +471,9 @@ namespace :manifest do
         is_index = resource_name == 'index.html'
         
         # compute the friendly_url assuming normal install process
-        friendly_url = [TARGET.index_root]
-        m_language = MANIFEST.language.to_sym
-        t_preferred = (TARGET.config.preferred_language || :en).to_sym
+        friendly_url = [TARGET[:index_root]]
+        m_language = MANIFEST[:language].to_sym
+        t_preferred = (TARGET.config[:preferred_language] || :en).to_sym
         if is_index
           friendly_url << m_language.to_s unless t_preferred == m_language
         else
@@ -481,9 +482,9 @@ namespace :manifest do
         end
         friendly_url = friendly_url.join('/')
 
-        is_pref_lang = (MANIFEST.language == CONFIG.preferred_language)
+        is_pref_lang = (MANIFEST[:language] == CONFIG[:preferred_language])
         is_hidden = !TARGET.loadable? && is_index
-        overwrite_current = CONFIG.overwrite_current
+        overwrite_current = CONFIG[:overwrite_current]
         
         # index.html entries get generated three times.  Once for inside the
         # build dir, once for the language and once for the entire target name
@@ -516,14 +517,14 @@ namespace :manifest do
     desc "creates transform entries for all css and Js entries to minify them if needed"
     task :minify => %w(setup javascript bundle_info bundle_loaded css combine sass scss less) do
       
-      minify_css = CONFIG.minify_css
-      minify_css = CONFIG.minify if minify_css.nil?
+      minify_css = CONFIG[:minify_css]
+      minify_css = CONFIG[:minify] if minify_css.nil?
 
-      minify_javascript = CONFIG.minify_javascript
-      minify_javascript = CONFIG.minify if minify_javascript.nil?
+      minify_javascript = CONFIG[:minify_javascript]
+      minify_javascript = CONFIG[:minify] if minify_javascript.nil?
       
       MANIFEST.entries.dup.each do |entry|
-        case entry.entry_type
+        case entry[:entry_type]
         when :css
           if minify_css
             MANIFEST.add_transform entry, 
@@ -553,9 +554,9 @@ namespace :manifest do
       if entry = (MANIFEST.entry_for('source/lproj/strings.js') || MANIFEST.entry_for('source/lproj/strings.js', :hidden => true))
         MANIFEST.add_transform entry, 
           :filename   => 'strings.yaml',
-          :build_path => File.join(MANIFEST.build_root, 'strings.yaml'),
-          :staging_path => File.join(MANIFEST.staging_root, 'strings.yaml'),
-          :url        => [MANIFEST.url_root, 'strings.yaml'].join('/'),
+          :build_path => File.join(MANIFEST[:build_root], 'strings.yaml'),
+          :staging_path => File.join(MANIFEST[:staging_root], 'strings.yaml'),
+          :url        => [MANIFEST[:url_root], 'strings.yaml'].join('/'),
           :build_task => 'build:strings',
           :ext        => 'yaml',
           :entry_type => :strings,

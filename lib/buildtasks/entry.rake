@@ -15,7 +15,7 @@ namespace :entry do
   # filename and, optionally a source_path or source_entries.
   task_options :log => :none # no logging -- too much detail
   task :prepare do
-    filename = ENTRY.filename
+    filename = ENTRY[:filename]
     raise "All entries must have a filename!" if filename.nil?
     
     filename_parts = filename.split('/')
@@ -24,37 +24,37 @@ namespace :entry do
     # contain the staging_path from the source_entries.   The source_path
     # is simply the first source_paths.
     if ENTRY.composite?
-      ENTRY.source_entries ||= [ENTRY.source_entry].compact
-      ENTRY.source_paths ||= ENTRY.source_entries.map { |e| e.staging_path }
-      ENTRY.source_path ||= ENTRY.source_paths.first
-      ENTRY.source_entry ||= ENTRY.source_entries.first
+      ENTRY[:source_entries] ||= [ENTRY[:source_entry]].compact
+      ENTRY[:source_paths] ||= ENTRY[:source_entries].map { |e| e[:staging_path] }
+      ENTRY[:source_path] ||= ENTRY[:source_paths].first
+      ENTRY[:source_entry] ||= ENTRY[:source_entries].first
       
     # Otherwise, the source_path is where we will pull from and source_paths
     # is simply the source_path in an array.
     else
-      ENTRY.source_path ||= File.join(MANIFEST.source_root, filename_parts)
-      ENTRY.source_paths ||= [ENTRY.source_path]
+      ENTRY[:source_path] ||= File.join(MANIFEST[:source_root], filename_parts)
+      ENTRY[:source_paths] ||= [ENTRY[:source_path]]
     end
     
     # Construct some easier paths if needed
-    ENTRY.build_path ||= File.join(MANIFEST.build_root, filename_parts)
-    ENTRY.url ||= [MANIFEST.url_root, filename_parts].join('/')
+    ENTRY[:build_path] ||= File.join(MANIFEST[:build_root], filename_parts)
+    ENTRY[:url] ||= [MANIFEST[:url_root], filename_parts].join('/')
     
     # Fill in a default build task
-    ENTRY.build_task ||= 'build:copy'
+    ENTRY[:build_task] ||= 'build:copy'
     
     ENTRY.ext = File.extname(filename)[1..-1]
     
     # If the build_task is build:copy, make the staging path equal the 
     # source_root.  This is an optimization that will avoid unnecessary 
     # copying.  All other build_tasks we build a staging path from the root.
-    if ENTRY.build_task.to_s == 'build:copy'
-      ENTRY.staging_path ||= ENTRY.source_path
+    if ENTRY[:build_task].to_s == 'build:copy'
+      ENTRY[:staging_path] ||= ENTRY[:source_path]
     else
-      ENTRY.staging_path ||= MANIFEST.unique_staging_path(File.join(MANIFEST.staging_root, filename_parts))
+      ENTRY[:staging_path] ||= MANIFEST.unique_staging_path(File.join(MANIFEST[:staging_root], filename_parts))
     end
     
-    ENTRY.cache_path = MANIFEST.unique_cache_path(File.join(MANIFEST.cache_root, filename_parts))
+    ENTRY[:cache_path] = MANIFEST.unique_cache_path(File.join(MANIFEST[:cache_root], filename_parts))
     
   end
   
