@@ -14,10 +14,10 @@ module SC
   # A Buildfile is a special type of file that contains the configurations and
   # build tasks used for a particular project or project target.  Buildfiles
   # are based on Rake but largely use their own syntax and helper methods.
-  # 
-  # Whenever you create a project, you will often also add a Buildfile, 
+  #
+  # Whenever you create a project, you will often also add a Buildfile,
   # sc-config, or sc-config.rb file.  All of these files are laoded into the
-  # build system using this class.  The other model objects will then 
+  # build system using this class.  The other model objects will then
   # reference their buildfile to extract configuration information and to find
   # key tasks required for the build process.
   #
@@ -28,7 +28,7 @@ module SC
   #   buildfile = Buildfile.load('/path/to/buildfile')
   #
   # You can also load multiple buildfiles by calling the load!() method on
-  # an exising Buildfile object or by passing a directory with several 
+  # an exising Buildfile object or by passing a directory with several
   # buildfiles in it:
   #
   #   buildfile = Buildfile.new
@@ -51,9 +51,9 @@ module SC
   #    task :demo_task
   #  end
   #
-  # When you call define!() on a buildfile, the block is executed in the 
+  # When you call define!() on a buildfile, the block is executed in the
   # context of the buildfile object, just like a Buildfile loaded from disk.
-  # You will not usually use define!() on a buildfile in normal code, but it 
+  # You will not usually use define!() on a buildfile in normal code, but it
   # is very useful for unit testing.
   #
   # == Executing Tasks
@@ -64,7 +64,7 @@ module SC
   #
   #   buildfile.invoke :demo_task, :context => my_context
   #
-  # With the above example, the demo_task could access the "context" as a 
+  # With the above example, the demo_task could access the "context" as a
   # global constant like do:
   #
   #   task :demo_task do
@@ -87,20 +87,20 @@ module SC
   # in this call.
   #
   class Buildfile
-    
+
     # Default buildfile names.  Override with SC.env.buildfile_names
     BUILDFILE_NAMES = %w(Buildfile sc-config sc-config.rb)
-    
+
     include Cloneable
     include TaskManager
-    
+
     # The location of the buildfile represented by this object.
     attr_accessor :path
-    
+
     ################################################
     # CLASS METHODS
     #
-    
+
     # Determines if this directory has a buildfile or not...
     def self.has_buildfile?(dir_path, buildfile_names=nil)
       buildfile_names ||= (SC.env.buildfile_names || BUILDFILE_NAMES)
@@ -110,7 +110,7 @@ module SC
       end
       return false
     end
-      
+
     # Loads the buildfile at the specified path.  This simply creates a new
     # instance and loads it.
     #
@@ -123,9 +123,9 @@ module SC
     def self.load(path)
       self.new.load!(path)
     end
-    
-    # Creates a new buildfile and then gives you an opportunity to define 
-    # its contents by executing the passed block in the context of the 
+
+    # Creates a new buildfile and then gives you an opportunity to define
+    # its contents by executing the passed block in the context of the
     # buildfile.
     #
     # === Returns
@@ -138,10 +138,10 @@ module SC
     ################################################
     # TASK METHODS
     #
-    
+
     attr_reader :current_path
-    
-    # Extend the buildfile dynamically by executing the named task.  This 
+
+    # Extend the buildfile dynamically by executing the named task.  This
     # will yield the block if given after making the buildfile the current
     # build file.
     #
@@ -160,11 +160,11 @@ module SC
       reset_define_context context
       return self
     end
-    
+
     def task_defined?(task_name)
       !!lookup(task_name)
     end
-    
+
     # Loads the contents of the passed file into the buildfile object.  The
     # contents will be executed in the context of the buildfile object.  If
     # the filename passed is nil or the file does not exist, this will simply
@@ -176,12 +176,12 @@ module SC
     #
     # === Returns
     #  self
-    
+
     def load!(filename=nil, buildfile_names=nil)
-      
+
       # If a directory is passed, look for any buildfile and load them...
       if File.directory?(filename)
-        
+
         # search directory for buildfiles and load them.
         buildfile_names ||= (SC.env.buildfile_names || BUILDFILE_NAMES)
         buildfile_names.each do |path|
@@ -189,7 +189,7 @@ module SC
           next unless File.exist?(path) && !File.directory?(path)
           load!(path)
         end
-        
+
       elsif File.exist?(filename)
         old_path = @current_path
         @current_path = filename
@@ -200,20 +200,20 @@ module SC
       end
       return self
     end
-      
+
     def loaded_paths; @loaded_paths ||= []; end
-    
+
     # Executes the name task.  Unlike invoke_task, this method will execute
-    # the task even if it has already been executed before.  You can also 
+    # the task even if it has already been executed before.  You can also
     # pass a hash of additional constants that will be set on the global
     # namespace before the task is invoked.
-    # 
+    #
     # === Params
     #  task_name:: the full name of the task, including namespaces
     #  consts:: Optional hash of constant values to set on the env
     def invoke(task_name, consts = nil)
       consts = set_kernel_consts consts  # save  to restore
-      self[task_name.to_s].invoke 
+      self[task_name.to_s].invoke
       set_kernel_consts consts # clear constants
     end
 
@@ -224,7 +224,7 @@ module SC
     def has_task?(task_name)
       !self[task_name.to_s].nil?
     end
-    
+
     ################################################
     # RAKE SUPPORT
     #
@@ -259,11 +259,11 @@ module SC
     ################################################
     # CONFIG METHODS
     #
-    
+
     def current_mode
       @define_context.current_mode
     end
-    
+
     def current_mode=(new_mode)
       @define_context.current_mode = new_mode
     end
@@ -278,18 +278,18 @@ module SC
       @target_name = target.target_name.to_s
       return self
     end
-    
+
     # The namespace for this buildfile.  This should be name equal to the
     # namespace of the target that owns the buildfile, if there is one
     attr_reader :target_name
-    
+
     # The hash of configs as loaded from the files.  The configs are stored
     # by mode and then by config name.  To get a merged config, use
     # config_for().
     attr_reader :configs
-    
+
     # The hash of proxy commands
-    
+
     # Merge the passed hash of options into the config hash.  This method
     # is usually used by the config global helper
     #
@@ -307,7 +307,7 @@ module SC
         opts = config_mode; config_mode = nil
       end
       config_mode = current_mode if config_mode.nil?
-      
+
       # Normalize the config name -- :all or 'all' is OK, absolute OK.
       config_name = config_name.to_s
       if config_name != 'all' && (config_name[0..0] != '/')
@@ -317,26 +317,26 @@ module SC
           config_name = [target_name, config_name].join('/')
         end
       end
-      
+
       # Perform Merge
       mode_configs = (self.configs[config_mode.to_sym] ||= HashStruct.new)
       config = (mode_configs[config_name.to_sym] ||= HashStruct.new)
       config.merge!(opts)
     end
-    
-    # Returns the merged config setting for the config name and mode.  If 
+
+    # Returns the merged config setting for the config name and mode.  If
     # no mode is specified the :all mode is assumed.
     #
     # This will merge config hashes in the following order (mode/name):
-    # 
+    #
     # all:all -> mode:all -> all:config -> mode:config
     #
-    # 
-    
+    #
+
     # === Params
     #  config_name:: The config name
     #  mode_name:: optional mode name
-    #  
+    #
     # === Returns
     #  merged config -- a HashStruct
     def config_for(config_name, mode_name=nil)
@@ -347,17 +347,17 @@ module SC
       all_configs = configs[:all]
       cur_configs = configs[mode_name]
       ret = HashStruct.new
-      
+
       # now merge em! -- note that this assumes the merge method will handle
       # self.merge(self) & self.merge(nil) gracefully
       ret.merge!(all_configs[:all]) if all_configs
       ret.merge!(cur_configs[:all]) if cur_configs
       ret.merge!(all_configs[config_name]) if all_configs
       ret.merge!(cur_configs[config_name]) if cur_configs
-      
+
       # Done -- return result
-      return ret  
-    end      
+      return ret
+    end
 
     ################################################
     # PROJECT & TARGET METHODS
@@ -365,24 +365,24 @@ module SC
 
     # This is set if you use the project helper method in your buildfile.
     attr_accessor :project_name
-    
+
     def project_type; @project_type || :default; end
     attr_writer :project_type
-    
+
     # Returns YES if this buildfile appears to represent a project.  If you
     # use the project() helper method, it will set this
     def project?; @is_project || false; end
     def project!; @is_project = true; end
-    
+
     ################################################
     # PROXY METHODS
     #
-    
+
     # The hash of all proxies paths and their options
     attr_reader :proxies
-    
+
     # Adds a proxy to the list of proxy paths.  These are used only in server
-    # mode to proxy certain URLs.  If you call this method with the same 
+    # mode to proxy certain URLs.  If you call this method with the same
     # proxy path more than once, the options will be merged.
     #
     # === Params
@@ -396,11 +396,11 @@ module SC
       @proxies[proxy_path] = HashStruct.new(opts)
       return self
     end
-    
+
     ################################################
     # INTERNAL SUPPORT
     #
-    
+
     def initialize
       super
       @configs = HashStruct.new
@@ -409,29 +409,29 @@ module SC
       @imported = []
       @options = HashStruct.new
     end
-    
-    # When dup'ing, rewrite the @tasks hash to use clones of the tasks 
+
+    # When dup'ing, rewrite the @tasks hash to use clones of the tasks
     # the point to the new application object.
     def dup
       ret = super
-      
+
       # Make sure the tasks themselves are cloned
       tasks = ret.instance_variable_get('@tasks')
       tasks.each do | key, task |
         tasks[key] = task.dup(ret)
       end
-      
+
       # Deep clone the config and proxy hashes as well...
       %w(@configs @proxies @options).each do |ivar|
         cloned_ivar = instance_variable_get(ivar).deep_clone
         ret.instance_variable_set(ivar, cloned_ivar)
       end
-      
+
       ret.instance_variable_set('@is_project', false) # transient - do not dup
-      
-      return ret 
+
+      return ret
     end
-    
+
     protected
 
     # Save off the old define context and replace it with the passed context
@@ -441,8 +441,8 @@ module SC
       @define_context = HashStruct.new(context || {})
       return ret
     end
-    
-    # For each key in the passed hash, this will register a global 
+
+    # For each key in the passed hash, this will register a global
     def set_kernel_consts(env = nil)
       return env if env.nil?
 
@@ -452,23 +452,23 @@ module SC
       ret = {}
       env.each do |key, value|
         const_key = key.to_s.upcase.to_sym
-        
+
         # Save the old const value
         ret[key] = Kernel.const_get(const_key) rescue nil
 
         # Reset
         Kernel.const_reset(const_key, value)
       end
-      
+
       # Also, save env.  Used mostly for logging
       ret['TASK_ENV'] = Kernel.const_get('TASK_ENV') rescue nil
       Kernel.const_reset('TASK_ENV', env)
-      
+
       return ret
     end
-      
+
   end
-  
+
 end
 
 # Add public method to kernel to remove defined constant using private

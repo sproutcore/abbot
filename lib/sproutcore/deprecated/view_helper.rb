@@ -129,7 +129,7 @@ module SproutCore
           end
         end
       end
-      
+
       def to_s
         "RenderContext #{view_helper_id}[#{item_id}]"
       end
@@ -571,7 +571,7 @@ module SproutCore
         view_settings = { :id => item_id, :class => view_class, :properties => rc.render_view, :lazy => opts[:lazy], :outlet_path => opts[:outlet_path] }
 
         # if an outlet item is passed, then register this as an outlet.
-        outlet = opts[:outlet] 
+        outlet = opts[:outlet]
         if outlet.nil?
           outlet = opts[:field].nil? ? !cur_rc.nil? : [opts[:field].to_s, 'field'].join('_').to_sym
         end
