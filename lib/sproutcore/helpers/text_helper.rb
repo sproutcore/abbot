@@ -5,7 +5,7 @@
 #            and contributors
 # ===========================================================================
 
-require File.join(SC::LIBPATH, 'sproutcore', 'helpers', 'tag_helper')
+require "sproutcore/helpers/tag_helper"
 #require 'html/document'
 
 # Borrowed from Rails 2.0.2

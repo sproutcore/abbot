@@ -5,7 +5,7 @@
 #            and contributors
 # ===========================================================================
 
-require File.expand_path(File.join(File.dirname(__FILE__), 'base'))
+require "sproutcore/builders/base"
 require 'fileutils'
 
 module SC
@@ -39,10 +39,8 @@ module SC
         FileUtils.mkdir_p(File.dirname(dst_path))
         FileUtils.copy(entry.source_path, dst_path)
       else
-        yui_root = File.expand_path(File.join(LIBPATH, '..', 'vendor', 'yui-compressor'))
-        jar_path = File.join(yui_root, 'yuicompressor-2.4.2.jar')
         FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
-        filecompress = "java -jar " + jar_path + " --charset utf-8 --line-break 0 --nomunge --preserve-semi --disable-optimizations " + entry.source_path + " -o \"" + dst_path + "\" 2>&1"
+        filecompress = "java -jar " + yui_jar + " --charset utf-8 --line-break 0 --nomunge --preserve-semi --disable-optimizations " + entry.source_path + " -o \"" + dst_path + "\" 2>&1"
         SC.logger.info  'Compressing CSS with YUI .... '+ dst_path
         SC.logger.debug `#{filecompress}`
 
@@ -62,10 +60,8 @@ module SC
         FileUtils.mkdir_p(File.dirname(dst_path))
         FileUtils.copy(entry.source_path, dst_path)
       else
-        yui_root = File.expand_path(File.join(LIBPATH, '..', 'vendor', 'yui-compressor'))
-        jar_path = File.join(yui_root, 'yuicompressor-2.4.2.jar')
         FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
-        filecompress = "java -jar " + jar_path + " --charset utf-8 --line-break 80 " + entry.source_path + " -o \"" + dst_path + "\" 2>&1"
+        filecompress = "java -jar " + yui_jar + " --charset utf-8 --line-break 80 " + entry.source_path + " -o \"" + dst_path + "\" 2>&1"
         SC.logger.info  'Compressing with YUI:  '+ dst_path + "..."
 
         output = `#{filecompress}`      # It'd be nice to just read STDERR, but
@@ -81,10 +77,8 @@ module SC
 
     def build_inline_javascript(dst_path)
       SC.logger.info  'Compressing inline Javascript with YUI: ' + dst_path + "..."
-      yui_root = File.expand_path(File.join(LIBPATH, '..', 'vendor', 'yui-compressor'))
-      jar_path = File.join(yui_root, 'yuicompressor-2.4.2.jar')
       FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
-      filecompress = "java -jar " + jar_path + " --charset utf-8 --line-break 80 " + entry.source_path + " -o \"" + dst_path + "\" 2>&1"
+      filecompress = "java -jar " + yui_jar + " --charset utf-8 --line-break 80 " + entry.source_path + " -o \"" + dst_path + "\" 2>&1"
       SC.logger.info  'Compressing with YUI:  '+ dst_path + "..."
 
       output = `#{filecompress}`      # It'd be nice to just read STDERR, but
@@ -97,6 +91,14 @@ module SC
       end
     end
 
+  private
+
+    def yui_jar
+      @yui_jar ||= begin
+        yui_root = File.expand_path("../../vendor/yui-compressor", __FILE__)
+        File.join(yui_root, 'yuicompressor-2.4.2.jar')
+      end
+    end
 
     def _report_error(output, input_filename, input_filepath)
       # The output might have some clues to what exactly was wrong, and it'll

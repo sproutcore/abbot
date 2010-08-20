@@ -5,7 +5,7 @@
 #            and contributors
 # ===========================================================================
 
-require File.expand_path(File.join(File.dirname(__FILE__), 'base'))
+require "sproutcore/builders/base"
 require 'fileutils'
 
 module SC

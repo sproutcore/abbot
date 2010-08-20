@@ -6,7 +6,7 @@
 #            and contributors
 # ===========================================================================
 
-require File.expand_path(File.join(File.dirname(__FILE__), 'manifest'))
+require "sproutcore/tools/manifest"
 
 module SC
   class Tools

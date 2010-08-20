@@ -5,7 +5,7 @@
 #            and contributors
 # ===========================================================================
 
-require File.expand_path(File.join(File.dirname(__FILE__), 'task'))
+require "sproutcore/buildfile/task"
 
 module SC
 

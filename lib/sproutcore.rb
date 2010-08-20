@@ -28,18 +28,9 @@ end
 YES = true
 NO = false
 
+require "sproutcore/version"
+
 module SproutCore
-
-  # :stopdoc:
-  LIBPATH = ::File.expand_path(::File.dirname(__FILE__)) + ::File::SEPARATOR
-  PATH = ::File.dirname(LIBPATH) + ::File::SEPARATOR
-
-  VERSION_PATH = PATH / 'VERSION.yml'
-  VERSION_INFO = YAML.load_file(VERSION_PATH)
-
-  VERSION = [VERSION_INFO[:major], VERSION_INFO[:minor], VERSION_INFO[:patch]].join('.')
-
-  # :startdoc:
 
   # Returns the version string for the library.
   #
@@ -61,19 +52,6 @@ module SproutCore
   #
   def self.path( *args )
     args.empty? ? PATH : ::File.join(PATH, args.flatten)
-  end
-
-  # Utility method used to rquire all files ending in .rb that lie in the
-  # directory below this file that has the same name as the filename passed
-  # in. Optionally, a specific _directory_ name can be passed in such that
-  # the _filename_ does not have to be equivalent to the directory.
-  #
-  def self.require_all_libs_relative_to( fname, dir = nil )
-    dir ||= ::File.basename(fname, '.*')
-    search_me = ::File.expand_path(
-        ::File.join(::File.dirname(fname), dir, '*.rb'))
-
-    Dir.glob(search_me).sort.each {|rb| require rb}
   end
 
   # Global variable that can store specific environmental settings.  This is
@@ -153,10 +131,14 @@ end  # module SC
 
 SC = SproutCore # alias
 
-
-SC.require_all_libs_relative_to(__FILE__)
-%w(buildfile models helpers deprecated builders render_engines tools rack).each do |dir|
-  SC.require_all_libs_relative_to(__FILE__, ['sproutcore', dir])
-end
+require "sproutcore/buildfile"
+require "sproutcore/tools"
+require "sproutcore/rack"
+require "sproutcore/helpers"
+require "sproutcore/deprecated/view_helper"
+require "sproutcore/builders"
+require "sproutcore/models"
+require "sproutcore/render_engines/erubis"
+require "sproutcore/render_engines/haml"
 
 # EOF

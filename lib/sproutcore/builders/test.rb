@@ -5,7 +5,7 @@
 #            and contributors
 # ===========================================================================
 
-require File.expand_path(File.join(File.dirname(__FILE__), 'html'))
+require "sproutcore/builders/html"
 
 module SC
 

@@ -5,9 +5,9 @@
 #            and contributors
 # ===========================================================================
 
-require File.join(File.dirname(__FILE__), 'models', 'hash_struct')
-require File.join(File.dirname(__FILE__), 'buildfile', 'cloneable')
-require File.join(File.dirname(__FILE__), 'buildfile', 'task_manager')
+require "sproutcore/models/hash_struct"
+require "sproutcore/buildfile/cloneable"
+require "sproutcore/buildfile/task_manager"
 
 module SC
 
@@ -480,5 +480,13 @@ module Kernel
   end
 end
 
-SC.require_all_libs_relative_to(__FILE__)
+require "sproutcore/buildfile/build_task"
+require "sproutcore/buildfile/buildfile_dsl"
+require "sproutcore/buildfile/early_time"
+require "sproutcore/buildfile/invocation_chain"
+require "sproutcore/buildfile/namespace"
+require "sproutcore/buildfile/string_ext"
+require "sproutcore/buildfile/task"
+require "sproutcore/buildfile/task_arguments"
+require "sproutcore/buildfile/task_manager"
 

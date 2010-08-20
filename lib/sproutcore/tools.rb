@@ -350,4 +350,11 @@ module SC
 
 end
 
-SC.require_all_libs_relative_to(__FILE__)
+require "sproutcore/tools/build"
+require "sproutcore/tools/build_number"
+require "sproutcore/tools/docs"
+require "sproutcore/tools/gen"
+require "sproutcore/tools/init"
+require "sproutcore/tools/manifest"
+require "sproutcore/tools/server"
+

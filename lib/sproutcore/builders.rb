@@ -1,0 +1,12 @@
+require "sproutcore/builders/base"
+require "sproutcore/builders/bundle"
+require "sproutcore/builders/combine"
+require "sproutcore/builders/html"
+require "sproutcore/builders/javascript"
+require "sproutcore/builders/minify"
+require "sproutcore/builders/sass"
+require "sproutcore/builders/strings"
+require "sproutcore/builders/stylesheet"
+require "sproutcore/builders/test"
+require "sproutcore/builders/test_index"
+
