@@ -1,19 +1,7 @@
 require 'fileutils'
 require 'tempfile'
 
-require File.expand_path(
-    File.join(File.dirname(__FILE__), %w[.. lib sproutcore]))
-
-Spec::Runner.configure do |config|
-  # == Mock Framework
-  #
-  # RSpec uses it's own mocking framework by default. If you prefer to
-  # use mocha, flexmock or RR, uncomment the appropriate line:
-  #
-  # config.mock_with :mocha
-  # config.mock_with :flexmock
-  # config.mock_with :rr
-end
+require "sproutcore"
 
 module SC
   
@@ -62,8 +50,8 @@ module SC
     
     def fixture_path(*path_items)
       (path_items = path_items.flatten).unshift 'fixtures'
-      path_items.map! { |pi| pi.to_s }
-      File.expand_path File.join(File.dirname(__FILE__), path_items)
+      path = path_items.map { |pi| pi.to_s }.join("/")
+      File.expand_path("../#{path}", __FILE__)
     end
     
     def empty_project
