@@ -24,24 +24,31 @@ module SC
   # tool itself when it runs.
   #
   class Tools < ::Thor
+    check_unknown_options!
 
     def self.invoke(task_name)
       start([task_name.to_s] + ARGV)
     end
 
-
     # All sproutcore tools can take some standard options.  These are
     # processed automatically when the tool is loaded
-    method_options({ '--project'        => :string,
-                     '--library'        => :string, # deprecated
-                     '--mode'           => :string,
-                     '--environment'    => :string, # deprecated
-                     '--logfile'        => :string,
-                     '--build'          => :string,
-                     ['--verbose', '-v']      => false,
-                     ['--very-verbose', '-V'] => false })
-    def initialize(options, *args)
+    class_option "project",      :type => :string
+    class_option "mode",         :type => :string
+    class_option "logfile",      :type => :string
+    class_option "build",        :type => :string
+    class_option "verbose",      :type => :boolean, :aliases => "-v"
+    class_option "very-verbose", :type => :boolean, :aliases => "-V"
+    class_option "library",      :type => :string #deprecated
+    class_option "environment",  :type => :string #deprecated
+
+    # This is the core entry method used to run every tool.  Extend this
+    # method with any standard preprocessing you want all tools to do before
+    # they do their specific thing.
+    def initialize(*)
       super
+      prepare_logger!
+      prepare_mode!
+      prepare_build_numbers!
     end
 
     no_tasks do
@@ -83,16 +90,6 @@ module SC
       ################################################
       ## GLOBAL OPTIONS
       ##
-
-      # This is the core entry method used to run every tool.  Extend this
-      # method with any standard preprocessing you want all tools to do before
-      # they do their specific thing.
-      def invoke(*args)
-        prepare_logger!
-        prepare_mode!
-        prepare_build_numbers!
-        super
-      end
 
       # Make the options hash a HashStruct so that we can access each variable
       # as a method
