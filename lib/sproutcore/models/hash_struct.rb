@@ -48,7 +48,7 @@ module SC
 
     # Pass in any options you want set initially on the manifest entry.
     def initialize(opts = {})
-      super
+      super()
       self.merge!(opts)
     end
 
@@ -68,33 +68,32 @@ module SC
 
       # convert property? => !!self[:property]
       elsif method_name =~ /\?$/
-        !!self[method_name[0..-2]]
+        !!self[method_name[0..-2].to_sym]
       else
-        first_caller = caller.find {|str| str !~ /hash_struct\.rb/ }
-
-        unless first_caller =~ %r{spec/.*(_spec|spec_helper).rb}
-          puts "---"
-          puts method_name
-          puts first_caller
-          puts "---"
-        end
-
+        print_first_caller(method_name)
         self[method_name]
       end
     end
 
-    # Treat all keys like symbols
-    def [](key)
-      sym_key = key.to_sym rescue nil
-      raise "HashStruct cannot convert #{key} to symbol" if sym_key.nil?
-      fetch sym_key, nil
+    def print_first_caller(*extras)
+      first_caller = caller.find {|str| str !~ /hash_struct\.rb/ }
+
+      unless first_caller =~ %r{spec/.*(_spec|spec_helper).rb}
+        puts "---"
+        p extras
+        puts first_caller
+        puts "---"
+      end
     end
+
+    # When using the optimized #[] lookup form,require a Symbol
+    # def [](key) super end
 
     def []=(key, value)
       sym_key = key.to_sym rescue nil
       raise "HashStruct cannot convert #{key} to symbol" if sym_key.nil?
 
-      store sym_key, value
+      super(sym_key, value)
     end
 
     # Reimplement merge! to go through the []=() method so that keys can be

@@ -59,7 +59,7 @@ namespace :manifest do
   task :hide_buildfiles => :catalog do
     # these directories are to be excluded unless CONFIG.load_"dirname" = true
     dirnames = %w(debug tests fixtures protocols).reject do |k| 
-      CONFIG["load_#{k}"]
+      CONFIG[:"load_#{k}"]
     end
 
     # loop through entries and hide those that do not below...

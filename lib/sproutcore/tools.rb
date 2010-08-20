@@ -98,7 +98,7 @@ module SC
       # Configure the expected log level and log target.  Handles the
       # --verbose, --very-verbose and --logfile options
       def prepare_logger!
-        SC.env[:log_level] = options['very-verbose'] ? :debug : (options[:verbose] ? :info : :warn)
+        SC.env[:log_level] = options[:'very-verbose'] ? :debug : (options[:verbose] ? :info : :warn)
         SC.env[:logfile] = File.expand_path(options[:logfile]) if options[:logfile]
       end
 
@@ -221,7 +221,7 @@ module SC
 
         # If include required was specified, merge in all required bundles as
         # well.
-        if options['include-required']
+        if options[:'include-required']
           targets.each do |target|
             targets += target.expand_required_targets :theme => true,
              :debug => target.config.load_debug,

@@ -161,7 +161,7 @@ module SC
     #  a Target instance or nil if no matching target could be found
     #
     def target_for(target_name)
-      ret = (targets[target_name.to_s.sub(/^([^\/])/,'/\1')])
+      ret = (targets[target_name.to_s.sub(/^([^\/])/,'/\1').to_sym])
       ret.nil? ? nil : ret
     end
 

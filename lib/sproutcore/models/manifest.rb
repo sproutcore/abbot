@@ -204,7 +204,7 @@ module SC
       # Clone important properties to new transform...
       opts = HashStruct.new(opts)
       %w(filename build_path url).each do |key|
-        opts[key] ||= entry[key]
+        opts[key.to_sym] ||= entry[key.to_sym]
       end
 
       # generate a unique staging path.  If the original entry has its
@@ -228,7 +228,7 @@ module SC
       # Normalize to new extension if provided.  else copy ext from entry...
       if opts[:ext]
         %w(filename build_path staging_path url).each do |key|
-          opts[key] = opts[key].ext(opts[:ext])
+          opts[key.to_sym] = opts[key.to_sym].ext(opts[:ext])
         end
         opts[:ext] = opts[:ext].to_s
       else

@@ -53,11 +53,9 @@ describe SC::HashStruct, 'hash operations' do
 
     # numbers respond to to_sym but return nil
     lambda { a[1] = :foo }.should raise_error
-    lambda { a[1] }.should raise_error
 
     # Object does not respond to to_sym
     lambda { a[Object.new] = :foo }.should raise_error
-    lambda { a[Object.new] }.should raise_error
   end
 
 

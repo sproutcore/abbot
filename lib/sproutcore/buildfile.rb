@@ -352,8 +352,8 @@ module SC
       # self.merge(self) & self.merge(nil) gracefully
       ret.merge!(all_configs[:all]) if all_configs
       ret.merge!(cur_configs[:all]) if cur_configs
-      ret.merge!(all_configs[config_name]) if all_configs
-      ret.merge!(cur_configs[config_name]) if cur_configs
+      ret.merge!(all_configs[config_name.to_sym]) if all_configs
+      ret.merge!(cur_configs[config_name.to_sym]) if cur_configs
 
       # Done -- return result
       return ret
