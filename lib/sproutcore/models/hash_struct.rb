@@ -53,8 +53,8 @@ module SC
     end
 
     # Allow for method-like access to hash also...
-    def method_missing(method_name, *args)
-      method_name = method_name.to_s
+    def method_missing(id, *args)
+      method_name = id.to_s
       if method_name =~ /=$/
         # suppoert property? = true
         if method_name =~ /\?=$/
@@ -70,6 +70,15 @@ module SC
       elsif method_name =~ /\?$/
         !!self[method_name[0..-2]]
       else
+        first_caller = caller.find {|str| str !~ /hash_struct\.rb/ }
+
+        unless first_caller =~ %r{spec/.*(_spec|spec_helper).rb}
+          puts "---"
+          puts method_name
+          puts first_caller
+          puts "---"
+        end
+
         self[method_name]
       end
     end
@@ -78,13 +87,14 @@ module SC
     def [](key)
       sym_key = key.to_sym rescue nil
       raise "HashStruct cannot convert #{key} to symbol" if sym_key.nil?
-      fetch(sym_key, nil)
+      fetch sym_key, nil
     end
 
     def []=(key, value)
       sym_key = key.to_sym rescue nil
       raise "HashStruct cannot convert #{key} to symbol" if sym_key.nil?
-      store(sym_key, value)
+
+      store sym_key, value
     end
 
     # Reimplement merge! to go through the []=() method so that keys can be

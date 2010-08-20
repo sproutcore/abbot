@@ -41,6 +41,13 @@ module SC
   #    entirely synthesized from other sources.
   #
   class Target < HashStruct
+    def source_root
+      self[:source_root]
+    end
+
+    def project
+      self[:project]
+    end
 
     def initialize(target_name, target_type, opts={})
       # Add target_name & type of options so they can be enumerated as part
@@ -96,7 +103,7 @@ module SC
     #  Buildfile
     #
     def buildfile
-      @buildfile ||= parent_target.buildfile.dup.for_target(self).load!(self.source_root)
+      @buildfile ||= parent_target.buildfile.dup.for_target(self).load!(source_root)
     end
 
     # Returns the config for the current project.  The config is computed by
@@ -106,7 +113,7 @@ module SC
     #
     # This is the config hash you should use to control how items are built.
     def config
-      return @config ||= buildfile.config_for(target_name, SC.build_mode).merge(SC.env)
+      return @config ||= buildfile.config_for(self[:target_name], SC.build_mode).merge(SC.env)
     end
 
     # Clears the cached config, reloading it from the buildfile again.  This
@@ -152,33 +159,33 @@ module SC
       return ret unless ret.nil?
 
       # else compute return value, respecting options
-      ret = [config.required]
-      if opts[:debug] && config.debug_required
-        ret << config.debug_required
+      ret = [config[:required]]
+      if opts[:debug] && config[:debug_required]
+        ret << config[:debug_required]
       end
-      if opts[:test] && config.test_required
-        ret << config.test_required
-      end
-
-      if opts_design && config.design_required
-        ret << config.design_required
+      if opts[:test] && config[:test_required]
+        ret << config[:test_required]
       end
 
-      if opts[:theme] && self.loads_theme? && config.theme
+      if opts_design && config[:design_required]
+        ret << config[:design_required]
+      end
+
+      if opts[:theme] && self.loads_theme? && config[:theme]
         # verify theme is a theme target type - note that if no matching
         # target is found, we'll just let this go through so the standard
         # not found warning can show.
-        t = target_for(config.theme)
-        if t && t.target_type != :theme
-          SC.logger.warn "Target #{config.theme} was set as theme for #{target_name} but it is not a theme."
+        t = target_for(config[:theme])
+        if t && t[:target_type] != :theme
+          SC.logger.warn "Target #{config[:theme]} was set as theme for #{self[:target_name]} but it is not a theme."
         else
-          ret << config.theme
+          ret << config[:theme]
         end
       end
 
       ret = ret.flatten.compact.map do |n|
         if (t = target_for(n)).nil?
-          SC.logger.warn "Could not find target #{n} that is required by #{target_name}"
+          SC.logger.warn "Could not find target #{n} that is required by #{self[:target_name]}"
         end
         t
       end
@@ -215,22 +222,22 @@ module SC
       return ret unless ret.nil?
 
       # else compute return value, respecting options
-      ret = [config.dynamic_required]
-      if opts[:debug] && config.debug_dynamic_required
-        ret << config.debug_dynamic_required
+      ret = [config[:dynamic_required]]
+      if opts[:debug] && config[:debug_dynamic_required]
+        ret << config[:debug_dynamic_required]
       end
-      if opts[:test] && config.test_dynamic_required
-        ret << config.test_dynamic_required
+      if opts[:test] && config[:test_dynamic_required]
+        ret << config[:test_dynamic_required]
       end
-      if opts[:theme] && self.loads_theme? && config.theme
+      if opts[:theme] && self.loads_theme? && config[:theme]
         # verify theme is a theme target type - note that if no matching
         # target is found, we'll just let this go through so the standard
         # not found warning can show.
-        t = target_for(config.theme)
-        if t && t.target_type != :theme
-          SC.logger.warn "Target #{config.theme} was set as theme for #{target_name} but it is not a theme."
+        t = target_for(config[:theme])
+        if t && t[:target_type] != :theme
+          SC.logger.warn "Target #{config[:theme]} was set as theme for #{target_name} but it is not a theme."
         else
-          ret << config.theme
+          ret << config[:theme]
         end
       end
 
@@ -251,7 +258,7 @@ module SC
     # the value yourself.
     def loads_theme?;
       ret = self[:loads_theme]
-      ret.nil? ? (target_type == :app) : ret
+      ret.nil? ? (self[:target_type] == :app) : ret
     end
 
     # Returns the expanded list of required targets, ordered as they actually
@@ -289,7 +296,7 @@ module SC
     # according to the target's current config.
     def target_directory?(path, root_path=nil)
       root_path = self.source_root if root_path.nil?
-      @target_names ||= self.config.target_types.keys
+      @target_names ||= self.config[:target_types].keys
       path = path.to_s.sub /^#{Regexp.escape root_path}\//, ''
       @target_names.each do |name|
         return true if path =~ /^#{Regexp.escape name.to_s}/
@@ -299,7 +306,7 @@ module SC
 
     # path to attr_cache file
     def file_attr_cache_path
-      @file_attr_cache_path ||= (self.cache_root / '__file_attr_cache.yml')
+      @file_attr_cache_path ||= (self[:cache_root] / '__file_attr_cache.yml')
     end
 
     # suspend writing the file cache out if needed
@@ -386,13 +393,13 @@ module SC
       build_number = nil if opts[:force]
 
       # Look for a global build_numbers hash and try that
-      if (build_numbers = config.build_numbers)
-        build_number = build_numbers[target_name.to_s] || build_numbers[target_name.to_sym]
+      if (build_numbers = config[:build_numbers])
+        build_number = build_numbers[self[:target_name].to_s] || build_numbers[self[:target_name].to_sym]
       end
 
       # Otherwise, use config build number specifically for this target, if
       # specified
-      build_number ||= config.build_number
+      build_number ||= config[:build_number]
 
       # Otherwise, actually compute a build number.
       if build_number.nil?
@@ -421,7 +428,7 @@ module SC
         seen ||= []
 
         _targets = required_targets(:theme => true).sort do |a,b|
-          (a.target_name||'').to_s <=> (b.target_name||'').to_s
+          (a[:target_name]||'').to_s <=> (b[:target_name]||'').to_s
         end
 
         _targets.each do |ct|
@@ -475,7 +482,7 @@ module SC
     # target_name must still be added, but we'll never use the actual contents
     # and don't need to waste bandwidth downloading it.
     def bundle_info(opts ={})
-      if target_type == :app
+      if self[:target_type] == :app
         raise "bundle_info called on an app target"
       else
         requires = required_targets(opts) # only go one-level deep!
@@ -483,42 +490,42 @@ module SC
         # Targets that aren't pre-loaded can't be packed together. That leaves
         # loading css and js individually and/or loading the combined or
         # minified css and js.
-        combine_css = config.combine_stylesheets
-        combine_js  = config.combine_javascript
-        minify_css  = config.minify_css
-        minify_css  = config.minify if minify_css.nil?
-        minify_js   = config.minify_javascript
-        minify_js   = config.minify if minify_js.nil?
-        pack_css    = config.use_packed
-        pack_js     = config.use_packed
+        combine_css = config[:combine_stylesheets]
+        combine_js  = config[:combine_javascript]
+        minify_css  = config[:minify_css]
+        minify_css  = config[:minify] if minify_css.nil?
+        minify_js   = config[:minify_javascript]
+        minify_js   = config[:minify] if minify_js.nil?
+        pack_css    = config[:use_packed]
+        pack_js     = config[:use_packed]
 
         # sort entries...
         css_entries = {}
         javascript_entries = {}
          manifest_for(opts[:variation]).build!.entries.each do |entry|
-          if entry.resource.nil?
-            entry.resource = ''
+          if entry[:resource].nil?
+            entry[:resource] = ''
           end
 
           # look for CSS or JS type entries
-          case entry.entry_type
+          case entry[:entry_type]
           when :css
-            (css_entries[entry.resource] ||= []) << entry
+            (css_entries[entry[:resource]] ||= []) << entry
           when :javascript
-            (javascript_entries[entry.resource] ||= []) << entry
+            (javascript_entries[entry[:resource]] ||= []) << entry
           end
         end
 
         css_urls = []
         css_entries.each do |resource_name, entries|
           SC::Helpers::EntrySorter.sort(entries).each do |entry|
-            if minify_css && entry.minified
+            if minify_css && entry[:minified]
               css_urls << entry.cacheable_url
-            elsif pack_css && entry.packed && !entry.minified
+            elsif pack_css && entry[:packed] && !entry[:minified]
               css_urls << entry.cacheable_url
-            elsif combine_css && entry.combined && !entry.packed && !entry.minified
+            elsif combine_css && entry[:combined] && !entry[:packed] && !entry[:minified]
               css_urls << entry.cacheable_url
-            elsif !entry.combined && !entry.packed && !entry.minified
+            elsif !entry[:combined] && !entry[:packed] && !entry[:minified]
               css_urls << entry.cacheable_url
             end
           end
@@ -529,13 +536,13 @@ module SC
           resource_name = resource_name.ext('js')
           pf = (resource_name == 'javascript.js') ? %w(source/lproj/strings.js source/core.js source/utils.js) : []
           SC::Helpers::EntrySorter.sort(entries, pf).each do |entry|
-            if minify_js && entry.minified
+            if minify_js && entry[:minified]
               js_urls << entry.cacheable_url
-            elsif pack_js && entry.packed && !entry.minified
+            elsif pack_js && entry[:packed] && !entry[:minified]
               js_urls << entry.cacheable_url
-            elsif combine_js && entry.combined && !entry.packed && !entry.minified
+            elsif combine_js && entry[:combined] && !entry[:packed] && !entry[:minified]
               js_urls << entry.cacheable_url
-            elsif !entry.combined && !entry.packed && !entry.minified
+            elsif !entry[:combined] && !entry[:packed] && !entry[:minified]
               js_urls << entry.cacheable_url
             end
           end
@@ -561,7 +568,7 @@ module SC
     def parent_target
       return @parent_target unless @parent_target.nil?
       return nil if project.nil?
-      tname = target_name
+      tname = self[:target_name]
       while @parent_target.nil?
         tname = tname.to_s.sub(/\/[^\/]+$/,'')
         @parent_target = (tname.size>0) ? project.target_for(tname) : project
@@ -592,7 +599,7 @@ module SC
       else # relative target...
 
         # look for any targets that are children of this target
-        ret = project.target_for([self.target_name, target_name].join('/'))
+        ret = project.target_for([self[:target_name], target_name].join('/'))
 
         # Ask my parent target to look for the target, and so on.
         if ret.nil?
@@ -616,7 +623,7 @@ module SC
         next unless path =~ /\/([^\/]+)\.lproj/
         (LONG_LANGUAGE_MAP[$1.downcase.to_sym] || $1).to_s
       end
-      ret << config.preferred_language.to_s if config.preferred_language
+      ret << config[:preferred_language].to_s if config[:preferred_language]
       ret.compact.uniq.sort { |a,b| a.downcase <=> b.downcase }.map { |l| l.to_sym }
     end
 

@@ -103,7 +103,7 @@ module SC
 
     # Determines if this directory has a buildfile or not...
     def self.has_buildfile?(dir_path, buildfile_names=nil)
-      buildfile_names ||= (SC.env.buildfile_names || BUILDFILE_NAMES)
+      buildfile_names ||= (SC.env[:buildfile_names] || BUILDFILE_NAMES)
       buildfile_names.each do |path|
         path = File.join(dir_path, path)
         return true if File.exist?(path) && !File.directory?(path)
@@ -152,9 +152,9 @@ module SC
     # === Returns
     #   self
     #
-    def define!(string=nil, &block)
+    def define!(string=nil, filename="(unknown Buildfile)", &block)
       context = reset_define_context :current_mode => :all
-      instance_eval(string) if string
+      instance_eval(string, filename) if string
       instance_eval(&block) if block_given?
       load_imports
       reset_define_context context
@@ -183,7 +183,7 @@ module SC
       if File.directory?(filename)
 
         # search directory for buildfiles and load them.
-        buildfile_names ||= (SC.env.buildfile_names || BUILDFILE_NAMES)
+        buildfile_names ||= (SC.env[:buildfile_names] || BUILDFILE_NAMES)
         buildfile_names.each do |path|
           path = File.join(filename, path)
           next unless File.exist?(path) && !File.directory?(path)
@@ -195,7 +195,7 @@ module SC
         @current_path = filename
         loaded_paths << filename # save loaded paths
         SC.logger.debug "Loading buildfile at #{filename}"
-        define!(File.read(filename)) if filename && File.exist?(filename)
+        define!(File.read(filename), filename) if filename && File.exist?(filename)
         @current_path = old_path
       end
       return self
@@ -261,11 +261,11 @@ module SC
     #
 
     def current_mode
-      @define_context.current_mode
+      @define_context[:current_mode]
     end
 
     def current_mode=(new_mode)
-      @define_context.current_mode = new_mode
+      @define_context[:current_mode] = new_mode
     end
 
     # Configures the buildfile for use with the specified target.  Call this
@@ -275,7 +275,7 @@ module SC
     #  self
     #
     def for_target(target)
-      @target_name = target.target_name.to_s
+      @target_name = target[:target_name].to_s
       return self
     end
 

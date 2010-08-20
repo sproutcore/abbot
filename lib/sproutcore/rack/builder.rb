@@ -81,7 +81,6 @@ module SC
       # Main entry point for this Rack application.  Returns 404 if no
       # matching entry could be found in the project.
       def call(env)
-
         # define local variables so they will survive the mutext contexts
         # below...
         ret = url = target = language = cacheable = manifest = entry = nil
@@ -113,14 +112,14 @@ module SC
             manifest = target.manifest_for(:language => language).build!
 
             # lookup entry by url
-            unless entry = manifest.entries.find { |e| e.url == url }
+            unless entry = manifest.entries.find { |e| e[:url] == url }
               ret = not_found("No matching entry in target")
             end
           end
 
           if ret.nil?
-            build_path = entry.build_path
-            if [:html, :test].include?(entry.entry_type)
+            build_path = entry[:build_path]
+            if [:html, :test].include?(entry[:entry_type])
               #if did_reload || !File.exist?(build_path)
               #always clean html files...
                 entry.clean!.build!
@@ -142,7 +141,7 @@ module SC
           return not_found("File could not build (entry: #{entry.filename} - build_path: #{build_path}")
         end
 
-        SC.logger.info "Serving #{target.target_name.to_s.sub(/^\//,'')}:#{entry.filename}"
+        SC.logger.info "Serving #{target[:target_name].to_s.sub(/^\//,'')}:#{entry[:filename]}"
 
         # define response headers
         file_size = File.size(build_path)
@@ -183,7 +182,7 @@ module SC
         monitor_project!
 
         # don't reload if no project or is disabled
-        return false if @project.nil? || !@project.config.reload_project
+        return false if @project.nil? || !@project.config[:reload_project]
 
         _did_reload = false
 
@@ -259,9 +258,10 @@ module SC
         # target.
         url_parts = url.split '/'
         ret = nil
+
         while url_parts.size>0 && ret.nil?
           url = url_parts.join '/'
-          ret = targets.find { |t| t.url_root == url || t.index_root == url }
+          ret = targets.find { |t| t[:url_root] == url || t[:index_root] == url }
           url_parts.pop
         end
         return ret
@@ -294,27 +294,27 @@ module SC
         # /foo/en - /foo/en/index.html
         # /foo/en/build_number - /foo/en/build_number/index.html
         # /foo/en/CURRENT/resource-name
-        matched = url.match(/^#{Regexp.escape target.index_root}(\/([^\/\.]+))?(\/([^\/\.]+))?(\/(.*))?$/)
+        matched = url.match(/^#{Regexp.escape target[:index_root]}(\/([^\/\.]+))?(\/([^\/\.]+))?(\/(.*))?$/)
         unless matched.nil?
-          matched_language = matched[2] || target.config.preferred_language
+          matched_language = matched[2] || target.config[:preferred_language]
 
           matched_build_number = matched[4]
           if matched_build_number.blank? || matched_build_number == 'current'
-            matched_build_number = target.build_number
+            matched_build_number = target[:build_number]
           end
 
           resource_name = matched[6]
           resource_name = 'index.html' if resource_name.blank?
 
           # convert to url root based
-          url = [target.url_root, matched_language, matched_build_number,
+          url = [target[:url_root], matched_language, matched_build_number,
                  resource_name] * '/'
           cacheable = false # index_root based urls are not cacheable
 
         # otherwise, just get the language -- url_root-based urls must be
         # fully qualified
         else
-          matched = url.match(/^#{Regexp.escape  target.url_root}\/([^\/\.]+)/)
+          matched = url.match(/^#{Regexp.escape  target[:url_root]}\/([^\/\.]+)/)
           matched_language = matched ? matched[1] : nil
         end
 

@@ -128,9 +128,9 @@ module SC
         timestamps.max
       elsif composite?
 
-        source_entries.map { |e| e.timestamp || 0 }.max || Time.now.to_i
+        self[:source_entries].map { |e| e.timestamp || 0 }.max || Time.now.to_i
       else
-        File.exist?(source_path) ? File.mtime(source_path).to_i : 0
+        File.exist?(self[:source_path]) ? File.mtime(self[:source_path]).to_i : 0
       end
     end
 
@@ -139,9 +139,9 @@ module SC
     # assigned domain name prepended if hyper-domaining is turned on.  Otherwise
     # returns the URL itself.
     def cacheable_url
-      ret = self.url
-      ret = [ret, self.timestamp].join('?') if target.config.timestamp_urls
-      if target.config.hyper_domaining
+      ret = self[:url]
+      ret = [ret, self.timestamp].join('?') if target.config[:timestamp_urls]
+      if target.config[:hyper_domaining]
         ret = [self.hyperdomain_prefix(ret), ret].join('')
       end
       return ret
@@ -167,11 +167,11 @@ module SC
     #  entry.extract_content(/require\((.+)\)/) { |line| $1 }
     #
     def scan_source(regexp, &block)
-      if entries = self.source_entries
+      if entries = self[:source_entries]
         entries.each { |entry| entry.stage! }
       end
 
-      if paths = self.source_paths
+      if paths = self[:source_paths]
         paths.each do |path|
           next unless File.exist?(path)
 
@@ -205,17 +205,17 @@ module SC
       target.begin_attr_changes
 
       self.required = []
-      entry = self.transform? ? self.source_entry : self
+      entry = self.transform? ? self[:source_entry] : self
       entry.scan_source(BUILD_DIRECTIVES_REGEX) do |matches|
         # strip off any file ext
         filename = matches[2].ext ''
         case matches[0]
         when 'sc_require'
-          self.required << filename
+          self[:required] << filename
         when 'require'
-          self.required << filename
+          self[:required] << filename
         when 'sc_resource'
-          self.resource = filename
+          self[:resource] = filename
         end
       end
 
@@ -230,13 +230,13 @@ module SC
     # Invokes the entry's build task to build to its build path.  If the
     # entry has source entries, they will be staged first.
     def build!
-      build_to self.build_path
+      build_to self[:build_path]
     end
 
     # Builds an entry into its staging path.  This method can be invoked on
     # any entry whose output is required by another entry to be built.
     def stage!
-      build_to self.staging_path
+      build_to self[:staging_path]
     end
 
     # Removes the build and staging files for this entry so the next
@@ -245,23 +245,23 @@ module SC
     # === Returns
     #  self
     def clean!
-      FileUtils.rm(self.build_path) if File.exist?(self.build_path)
-      FileUtils.rm(self.staging_path) if File.exist?(self.staging_path)
+      FileUtils.rm(self[:build_path]) if File.exist?(self[:build_path])
+      FileUtils.rm(self[:staging_path]) if File.exist?(self[:staging_path])
       return self
     end
 
     # Diagnostic function.  Indicates what will happen if you called build
     def inspect_build_state
-      inspect_build_to self.build_path
+      inspect_build_to self[:build_path]
     end
 
     def inspect_staging_state
-      inspect_build_to self.staging_path
+      inspect_build_to self[:staging_path]
     end
 
 
     def inline_contents
-      unless File.exists?(self.staging_path)
+      unless File.exists?(self[:staging_path])
 
         # stage source entries if needed...
         (self.source_entries || []).each { |e| e.stage! } if composite?
@@ -278,11 +278,11 @@ module SC
           :target => self.manifest.target,
           :config => self.manifest.target.config,
           :project => self.manifest.target.project,
-          :src_path => self.source_path,
-          :src_paths => self.source_paths,
-          :dst_path => self.staging_path
-      end
-      File.readlines(self.staging_path)
+          :src_path => self[:source_path],
+          :src_paths => self[:source_paths],
+          :dst_path => self[:staging_path]
+        end
+      File.readlines(self[:staging_path])
     end
 
     private
@@ -305,27 +305,27 @@ module SC
     end
 
     def build_to(dst_path)
-      if self.build_task.nil?
+      if self[:build_task].nil?
         raise "no build task defined for #{self.filename}"
       end
 
       # stage source entries if needed...
-      (self.source_entries || []).each { |e| e.stage! } if composite?
+      (self[:source_entries] || []).each { |e| e.stage! } if composite?
 
       # get build task and build it
       buildfile = manifest.target.buildfile
-      if !buildfile.task_defined?(self.build_task)
-        raise "Could not build entry #{self.filename} because build task '#{self.build_task}' is not defined"
+      if !buildfile.task_defined?(self[:build_task])
+        raise "Could not build entry #{self[:filename]} because build task '#{self[:build_task]}' is not defined"
       end
 
-      buildfile.invoke self.build_task,
+      buildfile.invoke self[:build_task],
         :entry => self,
         :manifest => self.manifest,
         :target => self.manifest.target,
         :config => self.manifest.target.config,
         :project => self.manifest.target.project,
-        :src_path => self.source_path,
-        :src_paths => self.source_paths,
+        :src_path => self[:source_path],
+        :src_paths => self[:source_paths],
         :dst_path => dst_path
 
       return self

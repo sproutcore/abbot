@@ -37,18 +37,18 @@ module SC
 
         # collect urls from entries
         urls = []
-        combine_stylesheets = t.config.combine_stylesheets
+        combine_stylesheets = t.config[:combine_stylesheets]
         combined_entries(t, opts, 'stylesheet.css', 'stylesheet-packed.css') do |cur_target, cur_entry|
           # include either the entry URL or URL of ordered entries
           # depending on setup
           if combine_stylesheets
             urls << cur_entry.cacheable_url
           else
-            urls += cur_entry.ordered_entries.map { |e| e.cacheable_url }
+            urls += cur_entry[:ordered_entries].map { |e| e.cacheable_url }
           end
 
           # add any stylesheet libs from the target
-          urls += (cur_target.config.stylesheet_libs || [])
+          urls += (cur_target.config[:stylesheet_libs] || [])
         end
 
         # Convert to HTML and return
@@ -89,19 +89,19 @@ module SC
 
         # collect urls from entries
         urls = []
-        combine_javascript = t.config.combine_javascript
+        combine_javascript = t.config[:combine_javascript]
         combined_entries(t, opts, 'javascript.js', 'javascript-packed.js') do |cur_target, cur_entry|
 
           # include either the entry URL or URL of ordered entries
           # depending on setup
-          if cur_target.config.combine_javascript
+          if cur_target.config[:combine_javascript]
             urls << cur_entry.cacheable_url
           else
-            urls += cur_entry.ordered_entries.map { |e| e.cacheable_url }
+            urls += cur_entry[:ordered_entries].map { |e| e.cacheable_url }
           end
 
           # add any stylesheet libs from the target
-          urls += (cur_target.config.javascript_libs || [])
+          urls += (cur_target.config[:javascript_libs] || [])
         end
 
         # Convert to HTML and return
@@ -122,14 +122,14 @@ module SC
         ret = []
 
         # Reference any external bootstrap scripts
-        if (resources_names = target.config.bootstrap)
+        if (resources_names = target.config[:bootstrap])
           Array(resources_names).each do |resource_name|
             ret << %(<script src="#{sc_static(resource_name)}" type="text/javascript" ></script>)
           end
         end
 
         # Reference any inlined bootstrap scripts
-        if (resources_names = target.config.bootstrap_inline)
+        if (resources_names = target.config[:bootstrap_inline])
           Array(resources_names).each do |resource_name|
             ret << inline_javascript(resource_name)
           end
@@ -264,11 +264,11 @@ module SC
       # theme framework, if set.
       def theme_name(opts ={})
         ret = opts[:default] || 'sc-theme'
-        if target.config.theme_name
-          ret = target.config.theme_name
-        elsif target.config.theme
-          if theme_target = target.target_for(target.config.theme)
-            ret = theme_target.config.theme_name || ret
+        if target.config[:theme_name]
+          ret = target.config[:theme_name]
+        elsif target.config[:theme]
+          if theme_target = target.target_for(target.config[:theme])
+            ret = theme_target.config[:theme_name] || ret
           end
         end
         return ret
@@ -276,7 +276,7 @@ module SC
 
       def title(cur_target=nil)
         cur_target = self.target if cur_target.nil?
-        cur_target.config.title || cur_target.target_name.to_s.sub(/^\//,'').gsub(/[-_\/]/,' ').split(' ').map { |x| x.capitalize }.join(' ')
+        cur_target.config[:title] || cur_target[:target_name].to_s.sub(/^\//,'').gsub(/[-_\/]/,' ').split(' ').map { |x| x.capitalize }.join(' ')
       end
 
       private
@@ -309,13 +309,13 @@ module SC
           cur_manifest.build!
 
           # ...and find a strings entry, if there is one.
-          strings_entry = cur_manifest.entries(:hidden => true).find { |e| e.entry_type == :strings }
+          strings_entry = cur_manifest.entries(:hidden => true).find { |e| e[:entry_type] == :strings }
           next if strings_entry.nil?
 
           # then load the strings
           strings_entry.stage!
-          next if !File.exist?(strings_entry.staging_path)
-          strings_hash = YAML.load(File.read(strings_entry.staging_path))
+          next if !File.exist?(strings_entry[:staging_path])
+          strings_hash = YAML.load(File.read(strings_entry[:staging_path]))
           next if strings_hash.nil? # could not load...
 
           # if strings loaded, merge into ret...
@@ -337,7 +337,7 @@ module SC
         # choose which targets to include packed and unpacked
         targets = expand_required_targets(t)
 
-        if t.config.use_packed && packed_entry_name # must pass to activate
+        if t.config[:use_packed] && packed_entry_name # must pass to activate
           packed, unpacked = SC::Helpers::PackedOptimizer.optimize(targets)
           unpacked << t # always use unpacked for main target
         else

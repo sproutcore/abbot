@@ -15,8 +15,8 @@ module SC
 
     def build(dst_path)
       require 'json'
-      items = entry.source_entries.map do |e|
-        { "filename" => e.filename.ext(''), "url" => e.url }
+      items = entry[:source_entries].map do |e|
+        { "filename" => e[:filename].ext(''), "url" => e[:url] }
       end
       writelines dst_path, [items.to_json]
     end

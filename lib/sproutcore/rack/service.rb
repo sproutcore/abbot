@@ -119,6 +119,18 @@ module SC
 
         # setup some conditional items...
         config = project.config
+
+        # serve files out of the public directory if serve_public is
+        # configures && the public directory exists
+        if config[:serve_public]
+          pubdir = File.join(project.project_root, 'public')
+          apps  << ::Rack::File.new(pubdir) if File.directory?(pubdir)
+        end
+
+        if self.filesystem
+          apps << SC::Rack::Filesystem.new(project)
+        end
+
         #if config.serve_test_runner || config.serve_docs
           apps << SC::Rack::Dev.new(project)
         #end
@@ -126,19 +138,8 @@ module SC
         # Add builder for the project itself
         apps  << SC::Rack::Builder.new(project)
 
-        # serve files out of the public directory if serve_public is
-        # configures && the public directory exists
-        if config.serve_public
-          pubdir = File.join(project.project_root, 'public')
-          apps  << ::Rack::File.new(pubdir) if File.directory?(pubdir)
-        end
-
         if project.buildfile.proxies.size > 0
           apps << SC::Rack::Proxy.new(project)
-        end
-
-        if self.filesystem
-          apps << SC::Rack::Filesystem.new(project)
         end
 
         # Wrap'em in a cascade if needed.  This will return the first
@@ -146,7 +147,7 @@ module SC
         app = apps.size == 1 ? apps.first : ::Rack::Cascade.new(apps)
 
         # Add show exceptions handler if enabled
-        app = ::Rack::ShowExceptions.new(app) if config.serve_exceptions
+        app = ::Rack::ShowExceptions.new(app) if config[:serve_exceptions]
 
         return app # done!
       end

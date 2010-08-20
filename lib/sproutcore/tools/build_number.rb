@@ -16,7 +16,7 @@ module SC
     desc "build-number TARGET", "Computes a build number for the target"
     def build_number(*targets)
       target = requires_target!(*targets)
-      $stdout << target.prepare!.build_number
+      $stdout << target.prepare![:build_number]
     end
 
   end

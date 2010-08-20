@@ -35,10 +35,10 @@ module SC
 
         # first remove bundle entries which MUST be first or last
         entries = entries.select do |entry|
-          if entry.filename == 'bundle_info.js'
+          if entry[:filename] == 'bundle_info.js'
             bundleInfoEntry = [entry]
             false
-          elsif entry.filename == 'bundle_loaded.js'
+          elsif entry[:filename] == 'bundle_loaded.js'
             bundleLoadedEntry = [entry]
             false
           else
@@ -48,8 +48,8 @@ module SC
 
         # then sort remaining entries by filename - ignoring case
         entries = entries.sort do |a,b|
-          a = (a.filename || '').to_s.downcase
-          b = (b.filename || '').to_s.downcase
+          a = (a[:filename] || '').to_s.downcase
+          b = (b[:filename] || '').to_s.downcase
 
           # lproj/foo_page.js and main.js are loaded last
           a_kind = (a =~ /(lproj|resources)\/.+_page\.js$/) ? 1 : -1
@@ -86,19 +86,19 @@ module SC
           filename = filename.to_s.downcase.ext('')
           source_filename = "source/#{filename}"
           entry = all_entries.find do |e|
-            e.filename.to_s.downcase.ext('') == source_filename
+            e[:filename].to_s.downcase.ext('') == source_filename
           end
 
           # try localized version...
           if entry.nil? && !(filename =~ /^lproj\//)
             source_filename = "source/lproj/#{filename}"
             entry = all_entries.find do |e|
-              e.filename.to_s.downcase.ext('') == source_filename
+              e[:filename].to_s.downcase.ext('') == source_filename
             end
           end
 
           if entry.nil?
-            SC.logger.warn "Could not find entry '#{filename}' required in #{requiring_entry.target.target_name.to_s.sub(/^\//,'')}:#{requiring_entry.filename}"
+            SC.logger.warn "Could not find entry '#{filename}' required in #{requiring_entry.target[:target_name].to_s.sub(/^\//,'')}:#{requiring_entry[:filename]}"
           end
 
           entry
@@ -112,7 +112,7 @@ module SC
 
         # look for preferred entries first...
         @preferred_filenames.each do |filename|
-          ret = entries.find { |e| e.filename.to_s.downcase == filename }
+          ret = entries.find { |e| e[:filename].to_s.downcase == filename }
           break if ret
         end
 
@@ -126,7 +126,7 @@ module SC
         return if seen.include?(entry)
 
         seen << entry
-        req = required_entries(entry.required, entries, entry, all_entries)
+        req = required_entries(entry[:required], entries, entry, all_entries)
         req.each do |required|
           next if required.nil?
           add_entry_to_set(required, ret, seen, entries, all_entries)

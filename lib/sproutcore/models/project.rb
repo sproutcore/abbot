@@ -210,7 +210,7 @@ module SC
       # look for directories matching the target_types keys and create target
       # with target_types value as type. -- normalize to lowercase string
       target_types = {}
-      (config.target_types || {}).each do |key, value|
+      (config[:target_types] || {}).each do |key, value|
         target_types[key.to_s.downcase] = value
       end
 
@@ -232,7 +232,7 @@ module SC
           # if target's config allows nested targets, then call recursively
           # asking the target's config allows the target's Buildfile to
           # override the default.
-          if target.config.allow_nested_targets
+          if target.config[:allow_nested_targets]
             find_targets_for(source_root, target_name, target.config)
           end
         end # Dir.glob
@@ -258,7 +258,7 @@ module SC
     # is how we inherit inherit targets from a parent project.
     def dup_targets(to_dup)
       to_dup.each do | target_name, target |
-        add_target target_name, target.target_type, target.to_hash
+        add_target target_name, target[:target_type], target.to_hash
       end
     end
 

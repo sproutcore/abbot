@@ -19,7 +19,7 @@ module SC
   class Builder::Stylesheet < Builder::Base
 
     def build(dst_path)
-      lines = readlines(entry.source_path).map { |l| rewrite_inline_code(l) }
+      lines = readlines(entry[:source_path]).map { |l| rewrite_inline_code(l) }
       writelines dst_path, lines
     end
 

@@ -69,7 +69,7 @@ module SC
     #   other_manifest = other_target.manifest_for(my_manifest.variation)
     #
     def variation
-      return { :language => self.language }
+      return { :language => self[:language] }
     end
 
     # Builds the manifest if it has not been built yet.
@@ -175,7 +175,7 @@ module SC
       opts[:composite] = true
       @entries << (ret = ManifestEntry.new(self, opts)).prepare!
 
-      ret.source_entries.each { |entry| entry.hide! } if should_hide_entries
+      ret[:source_entries].each { |entry| entry.hide! } if should_hide_entries
       return ret
     end
 
@@ -210,14 +210,14 @@ module SC
       # generate a unique staging path.  If the original entry has its
       # staging_path set == to source_root (optimization for build:copy), then
       # first rebase staging path against the staging root.
-      if (staging_path = entry.staging_path) == entry.source_path
-        staging_path = File.join(self.staging_root, entry.filename)
+      if (staging_path = entry[:staging_path]) == entry[:source_path]
+        staging_path = File.join(self[:staging_root], entry[:filename])
       end
-      opts.staging_path ||= unique_staging_path(staging_path)
+      opts[:staging_path] ||= unique_staging_path(staging_path)
 
       # generate a unique cache path from the staging page.  just sub the
       # staging root for the cache root
-      opts.cache_path ||= unique_cache_path(entry.cache_path)
+      opts[:cache_path] ||= unique_cache_path(entry[:cache_path])
 
       # copy other useful entries
       opts.source_entry   = entry
@@ -226,13 +226,13 @@ module SC
       opts.transform      = true # make .transform? = true
 
       # Normalize to new extension if provided.  else copy ext from entry...
-      if opts.ext
+      if opts[:ext]
         %w(filename build_path staging_path url).each do |key|
-          opts[key] = opts[key].ext(opts.ext)
+          opts[key] = opts[key].ext(opts[:ext])
         end
-        opts.ext = opts.ext.to_s
+        opts[:ext] = opts[:ext].to_s
       else
-        opts.ext = entry.ext
+        opts[:ext] = entry[:ext]
       end
 
       # Create new entry and hide old one
@@ -285,7 +285,7 @@ module SC
       end
 
       manifest.entries(:hidden => opts[:hidden]).find do |entry|
-        (entry.filename == filename) && entry.has_options?(opts)
+        (entry[:filename] == filename) && entry.has_options?(opts)
       end
     end
 
@@ -321,8 +321,8 @@ module SC
       # look on our own target only if target is named
       ret = cur_manifest.entries(:hidden => opts[:hidden]).reject do |entry|
         if entry.has_options?(opts)
-          entry_extname = File.extname(entry.filename)
-          entry_rootname = entry.filename.sub(/#{entry_extname}$/,'')
+          entry_extname = File.extname(entry[:filename])
+          entry_rootname = entry[:filename].sub(/#{entry_extname}$/,'')
           ext_match = (extname.nil? || extname.size == 0) || (entry_extname == extname)
         else
           ext_match = false
@@ -351,7 +351,7 @@ module SC
     # Finds a unique staging path starting with the root proposed staging
     # path.
     def unique_staging_path(path)
-      paths = entries(:hidden => true).map { |e| e.staging_path }
+      paths = entries(:hidden => true).map { |e| e[:staging_path] }
       while paths.include?(path)
         path = path.sub(/(__\$[0-9]+)?(\.\w+)?$/,"__#{next_staging_uuid}\\2")
       end
@@ -361,7 +361,7 @@ module SC
     # Finds a unique cache path starting with the root proposed staging
     # path.
     def unique_cache_path(path)
-      paths = entries(:hidden => true).map { |e| e.cache_path }
+      paths = entries(:hidden => true).map { |e| e[:cache_path] }
       while paths.include?(path)
         path = path.sub(/(__\$[0-9]+)?(\.\w+)?$/,"__#{next_staging_uuid}\\2")
       end
@@ -371,7 +371,7 @@ module SC
     protected
 
     def next_staging_uuid
-      self.staging_uuid = (self.staging_uuid || 0) + 1
+      self[:staging_uuid] = (self[:staging_uuid] || 0) + 1
     end
 
   end

@@ -19,14 +19,14 @@ module SC
     def server
       prepare_mode!('debug') # set mode again, using debug as default
 
-      SC.env.build_prefix   = options.buildroot if options.buildroot
-      SC.env.staging_prefix = options.stageroot if options.stageroot
+      SC.env[:build_prefix]   = options[:buildroot] if options[:buildroot]
+      SC.env[:staging_prefix] = options[:stageroot] if options[:stageroot]
 
       # get project and start service.
       project = requires_project!
 
       # start shell if passed
-      if options.irb
+      if options[:irb]
         require 'irb'
         require 'irb/completion'
         if File.exists? ".irbrc"

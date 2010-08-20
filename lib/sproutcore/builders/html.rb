@@ -44,7 +44,7 @@ module SC
     # manifest owning the current entry
     attr_reader :manifest
 
-    def target_name; target.target_name.to_s.sub(/^\//,''); end
+    def target_name; target[:target_name].to_s.sub(/^\//,''); end
     alias_method :bundle_name, :target_name # backwards compat
 
     def config; target.config; end
@@ -59,29 +59,29 @@ module SC
     # from the layout property, which is a relative pathname.
     def layout_path
       entry = layout_entry
-      entry.nil? ? nil : entry.staging_path
+      entry.nil? ? nil : entry[:staging_path]
     end
 
     def initialize(entry)
       super(entry)
       @target = @bundle = entry.manifest.target
-      @filename = entry.filename
-      @language = @entry.manifest.language
+      @filename = entry[:filename]
+      @language = @entry.manifest[:language]
       @project = @library = @target.project
       @manifest = entry.manifest
       @renderer = nil
 
       # set the current layout from the target's config.layout
-      @layout = @target.config.layout || 'lib/index.rhtml'
+      @layout = @target.config[:layout] || 'lib/index.rhtml'
 
       # find all entries -- use source_Entries + required if needed
-      @entries = entry.source_entries.dup
+      @entries = entry[:source_entries].dup
       if entry.include_required_targets?
         @target.expand_required_targets.each do |target|
           cur_manifest = target.manifest_for(@manifest.variation).build!
-          cur_entry = cur_manifest.entry_for(entry.filename, :combined => true) || cur_manifest.entry_for(entry.filename, :hidden => true, :combined => true)
+          cur_entry = cur_manifest.entry_for(entry[:filename], :combined => true) || cur_manifest.entry_for(entry[:filename], :hidden => true, :combined => true)
           next if cur_entry.nil?
-          @entries += cur_entry.source_entries
+          @entries += cur_entry[:source_entries]
         end
       end
     end
@@ -90,7 +90,7 @@ module SC
     # This method can be overridden by subclasses to provide specific
     # config settings.
     def expand_required_targets(target, opts = {})
-      opts[:debug] = target.config.load_debug
+      opts[:debug] = target.config[:load_debug]
       opts[:theme] = true
       return target.expand_required_targets(opts)
     end
@@ -112,9 +112,9 @@ module SC
     end
 
     def build(dst_path)
-      if CONFIG.html5_manifest
+      if CONFIG[:html5_manifest]
         $to_html5_manifest << dst_path
-        $to_html5_manifest_networks = CONFIG.html5_manifest_networks
+        $to_html5_manifest_networks = CONFIG[:html5_manifest_networks]
         @content_for_html5_manifest = true
       end
       writelines dst_path, [self.render]
@@ -155,7 +155,7 @@ module SC
       input = File.read(input_path)
 
       content_for content_for_key do
-        _render_compiled_template( render_engine.compile(input) )
+        _render_compiled_template( render_engine.compile(input), input_path )
       end
 
       @render = old_renderer
@@ -188,15 +188,15 @@ module SC
     def render_entry(entry)
       @content_for_designer = '<script type="text/javascript">SC.suppressMain = YES;</script>' if $design_mode
       entry.stage!
-      entry.target.buildfile.invoke entry.render_task,
+      entry.target.buildfile.invoke entry[:render_task],
         :entry    => entry,
-        :src_path => entry.staging_path,
+        :src_path => entry[:staging_path],
         :context  => self
     end
 
     # Renders a compiled template within this context
-    def _render_compiled_template(compiled_template)
-      self.instance_eval "def __render(); #{compiled_template}; end"
+    def _render_compiled_template(compiled_template, input_path="(compiled erb)")
+      self.instance_eval "def __render(); #{compiled_template}; end", input_path
       begin
         self.send(:__render) do |*names|
           self.instance_variable_get("@content_for_#{names.first}")

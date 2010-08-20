@@ -69,8 +69,8 @@ module SproutCore
   def self.logger
     return @logger unless @logger.nil?
 
-    if env.logfile
-      @logger = Logger.new env.logfile, 10, 1024000
+    if env[:logfile]
+      @logger = Logger.new env[:logfile], 10, 1024000
     else
       @logger = Logger.new $stderr
 
@@ -80,7 +80,7 @@ module SproutCore
       end
     end
 
-    @logger.level = (env.log_level == :debug) ? Logger::DEBUG : ((env.log_level == :info) ? Logger::INFO : Logger::WARN)
+    @logger.level = (env[:log_level] == :debug) ? Logger::DEBUG : ((env[:log_level] == :info) ? Logger::INFO : Logger::WARN)
 
     return @logger
   end
@@ -91,7 +91,7 @@ module SproutCore
   # compatibility reasons, :development and :debug are treated as being
   # identical.
   def self.build_mode
-    ret = env.build_mode || :production
+    ret = env[:build_mode] || :production
     ret = ret.to_sym unless ret.nil?
     ret = :debug if ret == :development # backwards compatibility
     ret
@@ -124,6 +124,13 @@ module SproutCore
       SC::Project.load path, :parent => SC.builtin_project
     else # attempt to autodiscover unless disabled
       SC::Project.load_nearest_project path, :parent => SC.builtin_project
+    end
+  end
+
+  def self.yui_jar
+    @yui_jar ||= begin
+      yui_root = File.expand_path("../vendor/yui-compressor", __FILE__)
+      File.join(yui_root, 'yuicompressor-2.4.2.jar')
     end
   end
 

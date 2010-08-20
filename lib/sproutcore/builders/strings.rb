@@ -16,7 +16,7 @@ module SC
   class Builder::Strings < Builder::Base
 
     def build(dst_path)
-      data = parse_strings_js(entry.source_path)
+      data = parse_strings_js(entry[:source_path])
       writelines dst_path, [data.to_yaml]
     end
 

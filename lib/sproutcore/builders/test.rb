@@ -15,7 +15,7 @@ module SC
 
     def initialize(entry)
       super(entry)
-      @layout = @target.config.test_layout || 'lib/test.rhtml'
+      @layout = @target.config[:test_layout] || 'lib/test.rhtml'
     end
 
     # Always include any required test targets as well when loading unit
@@ -30,13 +30,13 @@ module SC
     def render_entry(entry)
       entry.stage!
 
-      case entry.ext
+      case entry[:ext]
       when 'js'
         render_jstest(entry)
       when 'rhtml'
         entry.target.buildfile.invoke 'render:erubis',
           :entry    => entry,
-          :src_path => entry.staging_path,
+          :src_path => entry[:staging_path],
           :context  => self
       end
     end
@@ -47,8 +47,8 @@ module SC
     # into its own closure so that globals defined by one test will not
     # conflict with any others.
     def render_jstest(entry)
-      lines = readlines(entry.staging_path)
-      pathname = entry.staging_path.gsub(/^.+\/staging\//,'').gsub(/"/, '\"')
+      lines = readlines(entry[:staging_path])
+      pathname = entry[:staging_path].gsub(/^.+\/staging\//,'').gsub(/"/, '\"')
       lines.unshift %[<script type="text/javascript">\nif (typeof SC !== "undefined") {\n  SC.mode = "TEST_MODE";\n  SC.filename = "#{pathname}"; \n}\n(function() {\n]
       lines.push    %[\n})();\n</script>\n]
       @content_for_final = (@content_for_final || '') + lines.join("")

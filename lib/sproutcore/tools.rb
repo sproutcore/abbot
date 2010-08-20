@@ -98,21 +98,21 @@ module SC
       # Configure the expected log level and log target.  Handles the
       # --verbose, --very-verbose and --logfile options
       def prepare_logger!
-        SC.env.log_level = options['very-verbose'] ? :debug : (options.verbose ? :info : :warn)
-        SC.env.logfile = File.expand_path(options.logfile) if options.logfile
+        SC.env[:log_level] = options['very-verbose'] ? :debug : (options[:verbose] ? :info : :warn)
+        SC.env[:logfile] = File.expand_path(options[:logfile]) if options[:logfile]
       end
 
       # Configure the current build mode.  Handles the --mode and
       # --environment options.  (--environment is provided for backwards
       # compatibility)
       def prepare_mode!(preferred_mode = 'production')
-        build_mode = (options.mode || options.environment || preferred_mode).to_s.downcase.to_sym
+        build_mode = (options[:mode] || options[:environment] || preferred_mode).to_s.downcase.to_sym
         SC.build_mode = build_mode
       end
 
       # Configure the current build numbers.  Handles the --build option.
       def prepare_build_numbers!
-        return unless (numbers = options.build)
+        return unless (numbers = options[:build])
         numbers = numbers.split(',').map { |n| n.split(':') }
         if numbers.size==1 && numbers.first.size==1
           SC.env.build_number = numbers.first.first
@@ -148,7 +148,7 @@ module SC
         @discovered_project = true
 
         ret = nil
-        project_path = options.project || options.library
+        project_path = options[:project] || options[:library]
 
         # if no project_path is named explicitly, attempt to autodiscover from
         # working dir.  If none is found, just set project to nil

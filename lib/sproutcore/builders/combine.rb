@@ -19,10 +19,10 @@ module SC
 
     def build(dst_path)
       lines = []
-      entries = entry.ordered_entries || entry.source_entries
+      entries = entry[:ordered_entries] || entry[:source_entries]
 
-      target_name = entry.target.target_name.to_s.sub(/^\//,'')
-      if entry.top_level_lazy_instantiation && entry.combined
+      target_name = entry.target[:target_name].to_s.sub(/^\//,'')
+      if entry[:top_level_lazy_instantiation] && entry[:combined]
         lines << ";
 if ((typeof SC !== 'undefined') && SC && !SC.LAZY_INSTANTIATION) {
   SC.LAZY_INSTANTIATION = {};
@@ -37,15 +37,15 @@ SC.LAZY_INSTANTIATION['#{target_name}'].push(
       end
 
       entries.each do |entry|
-        src_path = entry.stage!.staging_path
+        src_path = entry.stage![:staging_path]
         next unless File.exist?(src_path)
 
-        lines << "/* >>>>>>>>>> BEGIN #{entry.filename} */\n"
+        lines << "/* >>>>>>>>>> BEGIN #{entry[:filename]} */\n"
         lines += readlines(src_path)
         lines << "\n"
       end
 
-      if entry.top_level_lazy_instantiation && entry.combined
+      if entry[:top_level_lazy_instantiation] && entry[:combined]
         lines << "
     }
   )

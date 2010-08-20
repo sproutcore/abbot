@@ -228,7 +228,7 @@ module SC
 
       @execute_count += 1
       args ||= EMPTY_TASK_ARGS
-      return if SC.env.dryrun
+      return if SC.env[:dryrun]
 
       @actions.each do |act|
         case act.arity
