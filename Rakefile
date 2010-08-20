@@ -64,46 +64,28 @@ end
 ## JEWELER PROJECT DESCRIPTION
 ##
 
-begin
-  require 'jeweler'
-  HAS_JEWELER = true
-
-rescue LoadError => e
-  $stderr.puts "WARN: jeweler is not yet installed (try rake init to setup)"
-  $stderr.puts e
-  HAS_JEWELER = false
-end
-
-if HAS_JEWELER
-  Jeweler::Tasks.new do |gemspec|
-    gemspec.name = 'sproutcore'
-    gemspec.authors = 'Sprout Systems, Inc.  Apple Inc. and contributors'
-    gemspec.email = 'contact@sproutcore.com'
-    gemspec.homepage = 'http://www.sproutcore.com'
-    gemspec.summary = "SproutCore is a platform for building native look-and-feel applications on  the web"
-
-    gemspec.add_dependency 'rack', '>= 0.9.1'
-    gemspec.add_dependency 'json_pure', ">= 1.1.0"
-    gemspec.add_dependency 'extlib', ">= 0.9.9"
-    gemspec.add_dependency 'erubis', ">= 2.6.2"
-    gemspec.add_dependency 'thor', '>= 0.11.7'
-
-    gemspec.add_development_dependency 'gemcutter', ">= 0.1.0"
-    gemspec.add_development_dependency 'jeweler', ">= 1.0.0"
-    gemspec.add_development_dependency 'rspec', ">= 1.2.0"
-
-    gemspec.rubyforge_project = "sproutcore"
-    gemspec.extra_rdoc_files.include *%w[History.txt README.txt]
-
-    gemspec.files.include *%w[.htaccess frameworks/sproutcore/**/*]
-    gemspec.files.exclude *%w[^coverage/ .gitignore .gitmodules .DS_Store tmp/ .hashinfo .svn .git]
-
-    gemspec.description = File.read(ROOT_PATH / 'README.txt')
+namespace :gem do
+  task :clean do
+    system "rm *.gem"
   end
 
-  Jeweler::GemcutterTasks.new
-end
+  desc "build the sproutcore gem"
+  task :build => :clean do
+    system "gem build sproutcore.gemspec"
+  end
 
+  desc "install the sproutcore gem to the system"
+  task :install => :build do
+    gem = Dir["*.gem"][0]
+    system "gem install #{gem}"
+  end
+
+  desc "push the sproutcore gem to rubygems.org"
+  task :push => :build do
+    gem = Dir["*.gem"][0]
+    system "gem push #{gem}"
+  end
+end
 
 ################################################
 ## CORE TASKS
