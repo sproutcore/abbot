@@ -1,10 +1,10 @@
 require "buildtasks/manifest/spec_helper"
 
 describe "manifest:localize" do
-  
+
   include SC::SpecHelpers
   include SC::ManifestSpecHelpers
-  
+
   before do
     std_before
   end
@@ -13,12 +13,12 @@ describe "manifest:localize" do
     @manifest.prepare!
     super('manifest:localize')
   end
-  
+
   it "should run manifest:catalog && hide_buildfiles as prereq" do
     should_run('manifest:catalog') { run_task }
     should_run('manifest:hide_buildfiles') { run_task }
   end
-  
+
   it "should not alter non-localized files" do
     run_task
     entry = entry_for('core.js')
@@ -36,7 +36,7 @@ describe "manifest:localize" do
       end
     end
   end
-  
+
   it "should remove foo.lproj from filename, build_path, and url of localized except for css and js files, which get 'lproj' instead" do
     run_task
     @manifest.entries.each do |entry|
@@ -45,23 +45,23 @@ describe "manifest:localize" do
       if entry.ext == 'js'
         new_filename = "lproj/#{new_filename}"
       end
-      
+
       entry.filename.should eql(new_filename)
       entry.build_path = File.join(@manifest.build_root, new_filename.split('/'))
       entry.url = [@manifest.url_root, new_filename.split('/')].flatten.join('/')
     end
   end
-  
+
   it "should assign language to localized entries" do
     run_task
     # we just test this by spot checking to make sure any entry in the
     # french.lproj actually has a french language code assigned...
     @manifest.entries.each do |entry|
       next unless entry.localize? && (entry.source_path =~ /french\.lproj/)
-      entry.language.should eql(:fr) 
+      entry.language.should eql(:fr)
     end
   end
-      
+
   it "should not hide resources in current language" do
     run_task
     entry = entry_for('lproj/french-resource.js')
@@ -69,7 +69,7 @@ describe "manifest:localize" do
     entry.should_not be_hidden
     entry.language.should eql(:fr)
   end
-  
+
   it "should not hide resource in preferred language that are not also found in current language" do
     run_task
     entry = entry_for('demo.html')
@@ -77,7 +77,7 @@ describe "manifest:localize" do
     entry.language.should eql(:en)
     entry.should_not be_hidden
   end
-  
+
   it "should prefer resource in current language over those in preferred language" do
     run_task
     # a 'strings.js' is defined in english.lproj, french.lproj, & german
@@ -87,7 +87,7 @@ describe "manifest:localize" do
     entry.should_not be_hidden
     entry.language.should eql(:fr)
   end
-    
+
   it "should hide resources in languages not part of current language or preferred language" do
     run_task
     entry = entry_for('lproj/german-resource.js')

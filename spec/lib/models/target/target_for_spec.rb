@@ -8,13 +8,13 @@ describe SC::Target, 'target_for' do
     @project = fixture_project(:real_world)
     @target = @project.target_for(:sproutcore)
   end
-  
+
   it "should lookup absolute target names (/foo) from the top" do
     target = @target.target_for('/contacts')
     target.should_not be_nil
     target.target_name.to_s.should eql('/contacts')
   end
-  
+
   it "should look for relative names in children first" do
     # note: uploader should exist both in /apps and /sproutcore/frameworks
     target = @target.target_for(:uploader)
@@ -47,10 +47,10 @@ describe SC::Target, 'target_for' do
     target.should_not be_nil
     target.target_name.to_s.should eql('/sproutcore/costello')
   end
-  
+
   it "should return nil if no matching target could be found" do
     target = @target.target_for(:does_not_exist)
     target.should be_nil
   end
-  
+
 end

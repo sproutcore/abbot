@@ -1,10 +1,10 @@
 require "buildtasks/manifest/spec_helper"
 
 describe "manifest:prepare_build_tasks:minify" do
-  
+
   include SC::SpecHelpers
   include SC::ManifestSpecHelpers
-  
+
   before do
     std_before
   end
@@ -15,13 +15,13 @@ describe "manifest:prepare_build_tasks:minify" do
   end
 
   it "should run setup, javascript, css, and combine as prereq" do
-    %w(setup javascript css sass scss less combine).each do |task_name|  
+    %w(setup javascript css sass scss less combine).each do |task_name|
       should_run("manifest:prepare_build_tasks:#{task_name}") { run_task }
     end
   end
-  
+
   describe "minify javascript tasks" do
-    
+
     def should_have_minify_javascript_tasks
       entries = @manifest.entries.select { |e| e.entry_type == :javascript }
       entries.each do |entry|
@@ -37,7 +37,7 @@ describe "manifest:prepare_build_tasks:minify" do
         entry.should_not be_minified
       end
     end
-    
+
     it "adds task when CONFIG.minify_javascript == true" do
       @target.config.minify_javascript = true
       run_task
@@ -64,7 +64,7 @@ describe "manifest:prepare_build_tasks:minify" do
       run_task
       should_not_have_minify_javascript_tasks
     end
-    
+
   end
-  
+
 end

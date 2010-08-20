@@ -2,14 +2,14 @@ require "buildtasks/manifest/spec_helper"
 
 # Creates combined entries for javascript & css
 describe "manifest:prepare_build_tasks:Strings" do
-  
+
   include SC::SpecHelpers
   include SC::ManifestSpecHelpers
-  
+
   before do
     std_before
   end
-  
+
   def run_task
     @manifest.prepare!
     super('manifest:prepare_build_tasks:strings')
@@ -27,16 +27,16 @@ describe "manifest:prepare_build_tasks:Strings" do
   end
 
   describe "transform entry" do
-    
+
     before do
       run_task
       @entry = @manifest.entry_for('strings.yaml', :hidden => true)
     end
-    
+
     it "should hide entry" do
       @entry.should be_hidden
     end
-    
+
     it "has entry_type = :strings" do
       @entry.entry_type.should == :strings
     end
@@ -44,20 +44,20 @@ describe "manifest:prepare_build_tasks:Strings" do
     it "should not hide source entry" do
       @entry.source_entry.should_not be_hidden
     end
-    
+
     it "has source/lproj/strings.js as source entry" do
       @entry.source_entry.filename.should == 'source/lproj/strings.js'
     end
-    
+
     it "has ext of 'yaml'" do
       @entry.ext.should == 'yaml'
       @entry.filename.should =~ /\.yaml$/
     end
-    
+
     it "has build task of build:strings" do
       @entry.build_task.to_s.should == 'build:strings'
     end
-  
+
   end
 end
 

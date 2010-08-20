@@ -4,11 +4,11 @@ describe SC::Buildfile::Commands, 'build_task' do
 
   it "should add a new task to the buildfile" do
     b = SC::Buildfile.define do
-      build_task :task1 
+      build_task :task1
     end
     b.task_defined?(:task1).should_not be_nil
   end
-  
+
   it "should add a new task with class BuilTask" do
     b = SC::Buildfile.define do
       build_task :task1

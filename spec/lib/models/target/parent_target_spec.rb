@@ -12,10 +12,10 @@ describe SC::Target, 'parent_target' do
     target = @project.target_for('sproutcore/costello')
     target.parent_target.should eql(@project.target_for(:sproutcore))
   end
-  
+
   it "should return project if top-level" do
     target = @project.target_for(:sproutcore)
     target.parent_target.should eql(@project)
   end
-    
+
 end

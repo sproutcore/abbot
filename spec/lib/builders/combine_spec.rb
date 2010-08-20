@@ -1,7 +1,7 @@
 require "lib/builders/spec_helper"
 
 describe SC::Builder::Combine do
-  
+
   include SC::SpecHelpers
   include SC::BuilderSpecHelper
 
@@ -12,7 +12,7 @@ describe SC::Builder::Combine do
   after do
     std_after
   end
-  
+
   def verify_combine(main_entryname, filename_ext, src_root=nil)
     # generate artificial entries to test.
     source_entries = %w(a b c).map do |filename|
@@ -22,17 +22,17 @@ describe SC::Builder::Combine do
         :source_path  => source_path,
         :staging_path => source_path,
         :build_path   => source_path
-      
+
       File.exist?(@entry.source_path).should be_true # precondition
       @entry
     end
-    
+
     # generate wrapper to entry...
     filename = main_entryname.ext(filename_ext)
     @entry = @manifest.add_composite filename,
       :source_entries  => source_entries,
       :ordered_entries => source_entries
-    
+
     @dst_path = @entry.build_path
 
     # Generate expected...
@@ -54,14 +54,14 @@ EOF
     result = File.readlines(@dst_path)*""
     result.should eql(expected)
   end
-    
-      
+
+
   it "should combine JavaScript files according to ordered_entries, with separators in between" do
     verify_combine 'javascript', 'js'
   end
-  
+
   it "should combine CSS files according to ordered_entries with separators in between" do
     verify_combine 'stylesheet', 'css', 'english.lproj'
   end
-  
+
 end

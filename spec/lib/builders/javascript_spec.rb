@@ -1,16 +1,16 @@
 require "lib/builders/spec_helper"
 
 describe SC::Builder::JavaScript do
-  
+
   include SC::SpecHelpers
   include SC::BuilderSpecHelper
-  
+
   before do
     std_before :javascript_test
-    
+
     # add fake image entry for sc_static tests..
     @manifest.add_entry 'icons/image.png'
-    @target.config.timestamp_urls = false 
+    @target.config.timestamp_urls = false
   end
 
 
@@ -24,7 +24,7 @@ describe SC::Builder::JavaScript do
       SC::Builder::JavaScript.build(entry, dst_path)
     end
   end
-    
+
   it "converts calls to sc_super() => arguments.callee.base.apply()" do
     lines = run_builder 'sc_super.js'
     lines.each do |line|
@@ -33,7 +33,7 @@ describe SC::Builder::JavaScript do
       line.should =~ /arguments.callee.base.apply\(this,arguments\)/
     end
   end
-      
+
   it "converts static_url() and sc_static() => 'url('foo')' " do
     lines = run_builder 'sc_static.js'
     lines.each do |line|
@@ -58,7 +58,7 @@ describe SC::Builder::JavaScript do
       line.should =~ /'.+\?.+'/ # important MUST have some url w/ timestamp...
     end
   end
-  
+
   it "removes server-side keys from localized strings.js files" do
     lines = run_builder 'strings.js', true
     @entry.should be_localized
@@ -77,6 +77,6 @@ describe SC::Builder::JavaScript do
       line.should =~ /@@foo/ # make sure key is NOT removed...
     end
   end
-      
-  
+
+
 end

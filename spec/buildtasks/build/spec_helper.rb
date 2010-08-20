@@ -1,21 +1,21 @@
 require "spec_helper"
 
 module SC::BuildSpecHelpers
-  
+
   def std_before
     @project = temp_project :real_world
     @target = @project.target_for :sproutcore
     @buildfile = @target.buildfile
     @manifest = @target.manifest_for(:language => :fr)
-    
+
     @target.prepare! # make sure its ready for the manifest...
     @manifest.build! # get a basic manifest good to go...
   end
-  
+
   def std_after
     @project.cleanup
   end
-  
+
   def run_task(entry=nil, dst_path=nil)
     entry ||= @entry
     @buildfile.invoke @task_name,

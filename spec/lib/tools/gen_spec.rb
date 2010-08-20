@@ -9,9 +9,9 @@ class SC::Tools
 end
 
 describe SC::Tools do
-  
+
   include SC::SpecHelpers
-  
+
   # executes once
   before(:all) do
     @tmpfile = Tempfile.new('foo')
@@ -19,7 +19,7 @@ describe SC::Tools do
     # only really need the dir
     @tmpfile.close
   end
-  
+
   # executes before each 'it'
   before(:each) do
     FileUtils.mkdir_p @tmpdir
@@ -27,7 +27,7 @@ describe SC::Tools do
     @tool = SC::Tools.new({})
     @tool.options = @options
   end
-  
+
   describe "gen command line options parser" do
 
     # it "project generator camel case" do
@@ -39,10 +39,10 @@ describe SC::Tools do
     #   @tool.method_name.should == nil
     #   @tool.class_nesting_depth.should == 0
     #   @tool.file_path.should == 'my_test_project'
-    #   
+    #
     #   @tool.files_generated.should == 1
     # end
-    # 
+    #
     # it "project generator lower case" do
     #   @tool.gen('project', 'my_test_project')
     #   # instance variables
@@ -52,10 +52,10 @@ describe SC::Tools do
     #   @tool.method_name.should == nil
     #   @tool.class_nesting_depth.should == 0
     #   @tool.file_path.should == 'my_test_project'
-    #   
+    #
     #   @tool.files_generated.should == 1
     # end
-    # 
+    #
     # it "app generator camel case" do
     #   @tool.gen('app', 'MyTestApp')
     #   # instance variables
@@ -65,10 +65,10 @@ describe SC::Tools do
     #   @tool.method_name.should == nil
     #   @tool.class_nesting_depth.should == 0
     #   @tool.file_path.should == 'my_test_app'
-    #   
+    #
     #   @tool.files_generated.should == 5
     # end
-    # 
+    #
     # it "app generator lower case" do
     #   @tool.gen('app', 'my_test_app')
     #   # instance variables
@@ -78,10 +78,10 @@ describe SC::Tools do
     #   @tool.method_name.should == nil
     #   @tool.class_nesting_depth.should == 0
     #   @tool.file_path.should == 'my_test_app'
-    #   
+    #
     #   @tool.files_generated.should == 5
     # end
-    # 
+    #
     # it "model generator camel case" do
     #   @tool.gen('model', 'MyTestApp.App')
     #   # instance variables
@@ -91,10 +91,10 @@ describe SC::Tools do
     #   @tool.method_name.should == nil
     #   @tool.class_nesting_depth.should == 1
     #   @tool.file_path.should == 'my_test_app'
-    #   
+    #
     #   @tool.files_generated.should == 3
     # end
-    # 
+    #
     # it "model generator lower case" do
     #   @tool.gen('model', 'my_test_app/app')
     #   # instance variables
@@ -104,10 +104,10 @@ describe SC::Tools do
     #   @tool.method_name.should == nil
     #   @tool.class_nesting_depth.should == 1
     #   @tool.file_path.should == 'my_test_app'
-    #   
+    #
     #   @tool.files_generated.should == 3
     # end
-    # 
+    #
     # it "view generator camel case" do
     #   @tool.gen('view', 'MyTestApp.MyAppView')
     #   # instance variables
@@ -117,10 +117,10 @@ describe SC::Tools do
     #   @tool.method_name.should == nil
     #   @tool.class_nesting_depth.should == 1
     #   @tool.file_path.should == 'my_test_app'
-    #   
+    #
     #   @tool.files_generated.should == 2
     # end
-    # 
+    #
     # it "view generator lower case" do
     #   @tool.gen('view', 'my_test_app/my_app_view')
     #   # instance variables
@@ -130,10 +130,10 @@ describe SC::Tools do
     #   @tool.method_name.should == nil
     #   @tool.class_nesting_depth.should == 1
     #   @tool.file_path.should == 'my_test_app'
-    #   
+    #
     #   @tool.files_generated.should == 2
     # end
-    # 
+    #
     # it "controller generator camel case" do
     #   @tool.gen('controller', 'MyTestApp.MyAppController')
     #   # instance variables
@@ -143,10 +143,10 @@ describe SC::Tools do
     #   @tool.method_name.should == nil
     #   @tool.class_nesting_depth.should == 1
     #   @tool.file_path.should == 'my_test_app'
-    #   
+    #
     #   @tool.files_generated.should == 2
     # end
-    # 
+    #
     # it "controller generator lower case" do
     #   @tool.gen('controller', 'my_test_app/my_app_controller')
     #   # instance variables
@@ -156,10 +156,10 @@ describe SC::Tools do
     #   @tool.method_name.should == nil
     #   @tool.class_nesting_depth.should == 1
     #   @tool.file_path.should == 'my_test_app'
-    #   
+    #
     #   @tool.files_generated.should == 2
     # end
-    # 
+    #
     # it "test generator camel case" do
     #   @tool.gen('test', 'MyTestApp.MyTest')
     #   # instance variables
@@ -169,10 +169,10 @@ describe SC::Tools do
     #   @tool.method_name.should == nil
     #   @tool.class_nesting_depth.should == 1
     #   @tool.file_path.should == 'my_test_app'
-    #   
+    #
     #   @tool.files_generated.should == 1
     # end
-    # 
+    #
     # it "test generator camel case with method" do
     #   @tool.gen('test', 'MyTestApp.MyTest.MyMethod')
     #   # instance variables
@@ -182,10 +182,10 @@ describe SC::Tools do
     #   @tool.method_name.should == 'myMethod'
     #   @tool.class_nesting_depth.should == 2
     #   @tool.file_path.should == 'my_test_app'
-    #   
+    #
     #   @tool.files_generated.should == 1
     # end
-    # 
+    #
     # it "language generator camel case" do
     #   @tool.gen('language', 'English')
     #   # instance variables
@@ -195,15 +195,15 @@ describe SC::Tools do
     #   @tool.method_name.should == nil
     #   @tool.class_nesting_depth.should == 0
     #   @tool.file_path.should == 'english.lproj'
-    #   
+    #
     #   @tool.files_generated.should == 1
     # end
-    
+
   end
-  
+
   # executes after each example is run
   after(:each) do
     FileUtils.remove_dir @tmpdir
   end
-  
+
 end

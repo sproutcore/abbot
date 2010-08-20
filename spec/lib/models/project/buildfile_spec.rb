@@ -10,13 +10,13 @@ describe SC::Project, 'buildfile' do
     project.buildfile.loaded_paths.size.should eql(0)
     project.buildfile.tasks.size.should eql(0)
   end
-  
+
   it "should load a buildfile if one is found in project_root" do
     project = SC::Project.new fixture_path('buildfiles', 'installed')
     project.buildfile.loaded_paths.size.should eql(1)
     project.buildfile.tasks.size.should eql(2)
   end
-  
+
   it "should load all files matching SC.env.buildfile_names" do
     SC.env.buildfile_names = ['Buildfile', 'Buildfile2']
     project = SC::Project.new fixture_path('buildfiles', 'installed')
@@ -30,6 +30,6 @@ describe SC::Project, 'buildfile' do
     basic.buildfile.lookup(:installed_task).should_not be_nil
     basic.buildfile.lookup(:test_task1).should_not be_nil
   end
-  
+
 end
 
