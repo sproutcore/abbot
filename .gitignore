@@ -11,3 +11,5 @@ doc
 frameworks
 LOCAL.yml
 
+Gemfile.lock
+devbin
