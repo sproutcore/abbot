@@ -9,7 +9,7 @@ describe SC::Project, 'load_nearest_project' do
     # source directory contains a Buildfile, the _proper_ result here is to
     # actually return the top-level directory...
     project = SC::Project.load_nearest_project fixture_path('buildfiles', 'basic')
-    project.project_root.should eql(fixture_path('..', '..'))
+    project.project_root.should eql(fixture_path("buildfiles", "basic"))
   end
 
   it "should stop if it finds a Buildfile with project! set" do

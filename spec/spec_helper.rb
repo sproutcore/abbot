@@ -60,7 +60,7 @@ module SC
 
     # The builtin project (i.e. default Buildfile)
     def builtin_project
-      SC::Project.new fixture_path('..','..')
+      SC::Project.new fixture_path('..','..','lib')
     end
 
     # Loads a project from fixtures, including the builtin project as
