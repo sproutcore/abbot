@@ -42,10 +42,11 @@ module SC
         yui_root = File.expand_path(File.join(LIBPATH, '..', 'vendor', 'yui-compressor'))
         jar_path = File.join(yui_root, 'yuicompressor-2.4.2.jar')
         FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
-        filecompress = "java -jar " + jar_path + " --charset utf-8 --line-break 0 --nomunge --preserve-semi --disable-optimizations " + entry.source_path + " -o \"" + dst_path + "\" 2>&1"
+        filecompress = "java -jar \"" + jar_path + "\" --charset utf-8 --line-break 0 --nomunge --preserve-semi --disable-optimizations \"" + entry.source_path + "\" -o \"" + dst_path + "\" 2>&1"
         SC.logger.info  'Compressing CSS with YUI .... '+ dst_path
-        SC.logger.debug `#{filecompress}`
-      
+        output = `#{filecompress}`
+        SC.logger.debug '#{output}'
+        
         if $?.exitstatus != 0
           _report_error(output, entry.filename, entry.source_path)
           SC.logger.fatal("!!!!YUI compressor failed, please check that your css code is valid.")
@@ -65,7 +66,7 @@ module SC
         yui_root = File.expand_path(File.join(LIBPATH, '..', 'vendor', 'yui-compressor'))
         jar_path = File.join(yui_root, 'yuicompressor-2.4.2.jar')
         FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
-        filecompress = "java -jar " + jar_path + " --charset utf-8 --line-break 80 " + entry.source_path + " -o \"" + dst_path + "\" 2>&1"
+        filecompress = "java -jar \"" + jar_path + "\" --charset utf-8 --line-break 80 \"" + entry.source_path + "\" -o \"" + dst_path + "\" 2>&1"
         SC.logger.info  'Compressing with YUI:  '+ dst_path + "..."
       
         output = `#{filecompress}`      # It'd be nice to just read STDERR, but
@@ -84,7 +85,7 @@ module SC
       yui_root = File.expand_path(File.join(LIBPATH, '..', 'vendor', 'yui-compressor'))
       jar_path = File.join(yui_root, 'yuicompressor-2.4.2.jar')
       FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
-      filecompress = "java -jar " + jar_path + " --charset utf-8 --line-break 80 " + entry.source_path + " -o \"" + dst_path + "\" 2>&1"
+      filecompress = "java -jar \"" + jar_path + "\" --charset utf-8 --line-break 80 \"" + entry.source_path + "\" -o \"" + dst_path + "\" 2>&1"
       SC.logger.info  'Compressing with YUI:  '+ dst_path + "..."
 
       output = `#{filecompress}`      # It'd be nice to just read STDERR, but
