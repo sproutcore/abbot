@@ -33,7 +33,7 @@ module SC
 
     def inspect
       opts = variation.dup
-      opts[:target] = target.target_name
+      opts[:target] = target[:target_name]
       desc = opts.keys.sort { |a,b| a.to_s <=> b.to_s }.map { |k| [k, opts[k]].join("=") }.join(" ")
       "SC::Manifest(#{desc})"
     end
@@ -360,21 +360,20 @@ module SC
     # Finds a unique staging path starting with the root proposed staging
     # path.
     def unique_staging_path(path)
-      paths = entries(:hidden => true).map { |e| e[:staging_path] }
-      p paths.size
-      while paths.include?(path)
-        path = path.sub(/(__\$[0-9]+)?(\.\w+)?$/,"__#{next_staging_uuid}\\2")
-      end
+      # paths = entries(:hidden => true).map { |e| e[:staging_path] }
+      # while paths.include?(path)
+      #   path = path.sub(/(__\$[0-9]+)?(\.\w+)?$/,"__#{next_staging_uuid}\\2")
+      # end
       return path
     end
 
     # Finds a unique cache path starting with the root proposed staging
     # path.
     def unique_cache_path(path)
-      paths = entries(:hidden => true).map { |e| e[:cache_path] }
-      while paths.include?(path)
-        path = path.sub(/(__\$[0-9]+)?(\.\w+)?$/,"__#{next_staging_uuid}\\2")
-      end
+      # paths = entries(:hidden => true).map { |e| e[:cache_path] }
+      # while paths.include?(path)
+      #   path = path.sub(/(__\$[0-9]+)?(\.\w+)?$/,"__#{next_staging_uuid}\\2")
+      # end
       return path
     end
 

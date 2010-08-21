@@ -14,7 +14,7 @@ module SC
   class Builder::BundleLoaded < Builder::Base
 
     def build(dst_path)
-      writelines dst_path, ["; if ((typeof SC !== 'undefined') && SC && SC.bundleDidLoad) SC.bundleDidLoad('#{entry.target.target_name.to_s.sub(/^\//,'')}');"]
+      writelines dst_path, ["; if ((typeof SC !== 'undefined') && SC && SC.bundleDidLoad) SC.bundleDidLoad('#{entry.target[:target_name].to_s.sub(/^\//,'')}');"]
     end
 
   end

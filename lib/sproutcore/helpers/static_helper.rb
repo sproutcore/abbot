@@ -315,7 +315,7 @@ module SC
           # then load the strings
           strings_entry.stage!
           next if !File.exist?(strings_entry[:staging_path])
-          strings_hash = YAML.load(File.read(strings_entry[:staging_path]))
+          strings_hash = JSON.parse(File.read(strings_entry[:staging_path]))
           next if strings_hash.nil? # could not load...
 
           # if strings loaded, merge into ret...

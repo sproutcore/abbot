@@ -44,14 +44,14 @@ module SC
         targets = @project.targets.values.map do |target|
           target.prepare!
           parent = target.parent_target
-          parent = parent.kind_of?(SC::Target) ? parent.target_name : ''
+          parent = parent.kind_of?(SC::Target) ? parent[:target_name] : ''
           {
-            "name" => target.target_name,
-            "kind" => target.target_type,
+            "name" => target[:target_name],
+            "kind" => target[:target_type],
             "parent" => parent,
-            "link_tests" => [target.url_root, 'en', target.build_number, 'tests', '-index.json'].join('/'),
-            "link_docs"  => [target.url_root, 'en', target.build_number, 'docs', '-index.json'].join('/'),
-            "link_root" => target.url_root
+            "link_tests" => [target[:url_root], 'en', target[:build_number], 'tests', '-index.json'].join('/'),
+            "link_docs"  => [target[:url_root], 'en', target[:build_number], 'docs', '-index.json'].join('/'),
+            "link_root" => target[:url_root]
           }
         end
         targets.to_json
