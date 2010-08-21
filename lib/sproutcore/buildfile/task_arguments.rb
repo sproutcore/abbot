@@ -15,13 +15,33 @@ module SC
 
     attr_reader :names
 
+    # for compatibility with normal TaskArguments
+    def self.new(keys, values, parent = nil)
+      args = super
+      args.setup_with_arrays(keys, values, parent)
+      args
+    end
+
+    def self.with_hash(hash)
+      args = allocate
+      args.setup_with_hash(hash)
+      args
+    end
+
+    def setup_with_hash(hash)
+      @names  = hash.keys
+      @parent = nil
+      @hash   = hash
+    end
+
     # Create a TaskArgument object with a list of named arguments
     # (given by :names) and a set of associated values (given by
     # :values).  :parent is the parent argument object.
-    def initialize(names, values, parent=nil)
-      @names = names
+    def setup_with_arrays(keys, values, parent=nil)
+      @names  = keys
       @parent = parent
-      @hash = {}
+      @hash   = {}
+
       names.each_with_index { |name, i|
         @hash[name.to_sym] = values[i] unless values[i].nil?
       }

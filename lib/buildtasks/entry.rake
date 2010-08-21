@@ -14,8 +14,8 @@ namespace :entry do
   # With this task in place, you can build an entry by simply providing a
   # filename and, optionally a source_path or source_entries.
   task_options :log => :none # no logging -- too much detail
-  task :prepare do
-    entry, manifest = ENTRY, MANIFEST
+  task :prepare do |task, hash|
+    entry, manifest = hash[:entry], hash[:manifest]
 
     filename = entry[:filename]
     raise "All entries must have a filename!" unless filename
@@ -64,7 +64,6 @@ namespace :entry do
     end
 
     entry[:cache_path] = manifest.unique_cache_path(File.join(manifest[:cache_root], filename_parts))
-
   end
 
 end

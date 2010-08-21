@@ -9,89 +9,89 @@
 namespace :build do
 
   desc "copies a single resource"
-  build_task :copy do
+  build_task :copy do |task, env|
     require 'fileutils'
-    FileUtils.mkdir_p(File.dirname(DST_PATH))
-    FileUtils.cp_r(SRC_PATH, DST_PATH)
+    FileUtils.mkdir_p(File.dirname(env[:dst_path]))
+    FileUtils.cp_r(env[:src_path], env[:dst_path])
   end
 
   desc "builds a single css files"
-  build_task :css do
-    SC::Builder::Stylesheet.build ENTRY, DST_PATH
+  build_task :css do |task, env|
+    SC::Builder::Stylesheet.build env[:entry], env[:dst_path]
   end
 
   desc "builds a single sass file"
-  build_task :sass do
-    SC::Builder::Sass.build ENTRY, DST_PATH
+  build_task :sass do |task, env|
+    SC::Builder::Sass.build env[:entry], env[:dst_path]
   end
   
   desc "builds a single scss (sass v3 syntax) file"
-  build_task :scss do
-    SC::Builder::Sass.build ENTRY, DST_PATH, :scss
+  build_task :scss do |task, env|
+    SC::Builder::Sass.build env[:entry], env[:dst_path], :scss
   end
 
   desc "builds a single less file"
-  build_task :less do
-    SC::Builder::Less.build ENTRY, DST_PATH
+  build_task :less do |task, env|
+    SC::Builder::Less.build env[:entry], env[:dst_path]
   end
   
   desc "builds a single javascript file"
-  build_task :javascript do
-    SC::Builder::JavaScript.build ENTRY, DST_PATH
+  build_task :javascript do |task, env|
+    SC::Builder::JavaScript.build env[:entry], env[:dst_path]
   end
   
   desc "builds an html file, possibly executing render tasks"
-  build_task :html do
-    SC::Builder::Html.build ENTRY, DST_PATH
+  build_task :html do |task, env|
+    SC::Builder::Html.build env[:entry], env[:dst_path]
   end
 
   desc "builds a strings file for use by server-side processing"
-  build_task :strings do
-    SC::Builder::Strings.build ENTRY, DST_PATH
+  build_task :strings do |task, env|
+    SC::Builder::Strings.build env[:entry], env[:dst_path]
   end
   
   desc "combines several source files into a single target, using the ordered_entries property if it exists"
-  build_task :combine do
-    SC::Builder::Combine.build ENTRY, DST_PATH
+  build_task :combine do |task, env|
+    SC::Builder::Combine.build env[:entry], env[:dst_path]
   end
   
   namespace :minify do
     
     desc "Minifies a CSS file by invoking CSSmin"
-    build_task :css do
-      SC::Builder::Minify.build ENTRY, DST_PATH, :css
+    build_task :css do |task, env|
+      SC::Builder::Minify.build env[:entry], env[:dst_path], :css
     end
 
     desc "minifies a JavaScript file by invoking the YUI compressor"
-    build_task :javascript do
-      SC::Builder::Minify.build ENTRY, DST_PATH, :javascript
+    build_task :javascript do |task, env|
+      SC::Builder::Minify.build env[:entry], env[:dst_path], :javascript
     end
     
     desc "minifies a Javascript file immediately by invoking the YUI compressor"
-    build_task :inline_javascript do
-      SC::Builder::Minify.build ENTRY, DST_PATH, :inline_javascript
+    build_task :inline_javascript do |task, env|
+      SC::Builder::Minify.build env[:entry], env[:dst_path], :inline_javascript
     end
     
   end
   
   desc "builds a unit test"
-  build_task :test do
-    SC::Builder::Test.build ENTRY, DST_PATH
+  build_task :test do |task, env|
+    SC::Builder::Test.build env[:entry], env[:dst_path]
   end
 
   desc "builds the unit test index, describing the installed unit tests"
-  build_task :test_index do
-    SC::Builder::TestIndex.build ENTRY, DST_PATH
+  build_task :test_index do |task, env|
+    SC::Builder::TestIndex.build env[:entry], env[:dst_path]
   end
   
   desc "builds the bundle_loaded.js file for a framework"
-  build_task :bundle_loaded do
-    SC::Builder::BundleLoaded.build ENTRY, DST_PATH
+  build_task :bundle_loaded do |task, env|
+    SC::Builder::BundleLoaded.build env[:entry], env[:dst_path]
   end
   
   desc "builds the bundle_info.js file for a required framework"
-  build_task :bundle_info do
-    SC::Builder::BundleInfo.build ENTRY, DST_PATH
+  build_task :bundle_info do |task, env|
+    SC::Builder::BundleInfo.build env[:entry], env[:dst_path]
   end
   
 end

@@ -142,8 +142,9 @@ module SC
     end
 
     # Invoke the task if it is needed.  Prerequites are invoked first.
-    def invoke(*args)
-      task_args = TaskArguments.new(arg_names, args)
+    def invoke(hash)
+      task_args = hash
+      task_args = TaskArguments.with_hash(hash) #TaskArguments.new(arg_names, args)
       invoke_with_call_chain(task_args, InvocationChain::EMPTY)
     end
 
@@ -222,7 +223,6 @@ module SC
 
     # Execute the actions associated with this task.
     def execute(args=nil)
-
       @execute_count += 1
       args ||= EMPTY_TASK_ARGS
       return if SC.env[:dryrun]

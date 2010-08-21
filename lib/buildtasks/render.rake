@@ -9,13 +9,13 @@
 namespace :render do
 
   desc "renders erubis including .rhtml and .html.erb files"
-  task :erubis do
-    CONTEXT.compile SC::RenderEngine::Erubis.new(CONTEXT), SRC_PATH
+  task :erubis do |task, env|
+    env[:context].compile SC::RenderEngine::Erubis.new(env[:context]), env[:src_path]
   end
   
   desc "renders haml files"
-  task :haml do
-    CONTEXT.compile SC::RenderEngine::Haml.new(CONTEXT), SRC_PATH
+  task :haml do |task, env|
+    env[:context].compile SC::RenderEngine::Haml.new(env[:context]), env[:src_path]
   end
   
 end

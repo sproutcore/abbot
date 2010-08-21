@@ -212,10 +212,10 @@ module SC
     #  task_name:: the full name of the task, including namespaces
     #  consts:: Optional hash of constant values to set on the env
     def invoke(task_name, consts = nil)
-      original = set_kernel_consts consts
-      self[task_name].invoke
+      original, SproutCore::RakeConstants.constants = SproutCore::RakeConstants.constants, consts
+      self[task_name].invoke(consts)
     ensure
-      set_kernel_consts original
+      SproutCore::RakeConstants.constants = original
     end
 
     # Returns true if the buildfile has the named task defined
@@ -444,37 +444,31 @@ module SC
     end
 
     # For each key in the passed hash, this will register a global
-    def set_kernel_consts(env = nil)
-      return env unless env
-
-      # for each item in the passed environment, convert to uppercase constant
-      # and set in global namespace.  Save the old value so that it can be
-      # restored later.
-      ret = {}
-      env.each do |key, value|
-        const_key = key.to_s.upcase
-
-        # Save the old const value
-        ret[key] = Object.const_get(const_key) if Object.const_defined?(const_key)
-
-        # Reset
-        Object.const_reset(const_key, value)
-      end
-
-      # Also, save env.  Used mostly for logging
-      ret['TASK_ENV'] = Object.const_get('TASK_ENV') if Object.const_defined?("TASK_ENV")
-      Object.const_reset('TASK_ENV', env)
-
-      return ret
+    def set_kernel_consts(env)
+      SC::RakeConstants.constants = env.dup.merge(:task_env => env)
     end
 
   end
 
 end
 
+module SproutCore
+ module RakeConstants
+   class << self
+     attr_accessor :constants
+   end
+
+   def const_missing(name)
+     RakeConstants.constants[name.to_s.downcase.to_sym] || super
+   end
+ end
+end
+
 # Add public method to kernel to remove defined constant using private
 # method.
 class Object
+  extend SproutCore::RakeConstants
+
   def self.const_reset(key, value)
     remove_const(key) if const_defined?(key)
     const_set key, value

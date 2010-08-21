@@ -7,55 +7,59 @@
 # in your buildfiles.
 namespace :target do
 
-  # Invoked whenever a new target is created to prepare standard properties 
+  # Invoked whenever a new target is created to prepare standard properties
   # needed on the build system.  Extend this task to add other standard
   # properties
-  task :prepare do
+  task :prepare do |task, env|
+
+    target = env[:target]
+    config = env[:config]
+    project = env[:project]
 
     # use url_root config or merge url_prefix + target_name
-    if (TARGET[:url_root] = CONFIG[:url_root]).nil? 
-      url = [nil, CONFIG[:url_prefix], TARGET[:target_name]].join('/')
+    if (target[:url_root] = config[:url_root]).nil?
+      url = [nil, config[:url_prefix], target[:target_name]].join('/')
       url = url.gsub(/([^:])\/+/,'\1/').gsub(/^\/+/,'/') # remove extra //
       url = url[1..-1] if url.match(/^\/[^\/]+:\/\//) # look for protocol
-      TARGET[:url_root] = url
-    end
-    
-    
-    # use index_root config or merge index_prefix + target_name
-    if (TARGET[:index_root] = CONFIG[:index_root]).nil? 
-      url = [nil, CONFIG[:index_prefix], TARGET[:target_name]].join('/')
-      url = url.gsub(/([^:])\/+/,'\1/').gsub(/^\/+/,'/') # remove extra //
-      url = url[1..-1] if url.match(/^\/[^\/]+:\/\//) # look for protocol
-      TARGET[:index_root] = url
+      target[:url_root] = url
     end
 
-    url_prefix = CONFIG[:url_prefix]
+
+    # use index_root config or merge index_prefix + target_name
+    if (target[:index_root] = config[:index_root]).nil?
+      url = [nil, config[:index_prefix], target[:target_name]].join('/')
+      url = url.gsub(/([^:])\/+/,'\1/').gsub(/^\/+/,'/') # remove extra //
+      url = url[1..-1] if url.match(/^\/[^\/]+:\/\//) # look for protocol
+      target[:index_root] = url
+    end
+
+    url_prefix = config[:url_prefix]
     url_prefix = url_prefix.gsub(/^[^\/]+:\/\/[^\/]+\//,'') if url_prefix
-    
+
     # Split all of these paths in case we are on windows...
-    TARGET[:build_root] = File.expand_path(CONFIG[:build_root] || 
-      File.join(PROJECT.project_root.to_s, 
-        (CONFIG[:build_prefix] || '').to_s.split('/'), 
-        (url_prefix || '').to_s.split('/'), 
-        TARGET[:target_name].to_s.split('/')))
-        
-    TARGET[:staging_root] = File.expand_path(CONFIG[:staging_root] ||
-      File.join(PROJECT.project_root.to_s, 
-        (CONFIG[:staging_prefix] || '').to_s.split('/'), 
-        (url_prefix || '').to_s.split('/'), 
-        TARGET[:target_name].to_s))
+    target[:build_root] = File.expand_path(config[:build_root] ||
+      File.join(project.project_root.to_s,
+        (config[:build_prefix] || '').to_s.split('/'),
+        (url_prefix || '').to_s.split('/'),
+        target[:target_name].to_s.split('/')))
+
+    target[:staging_root] = File.expand_path(config[:staging_root] ||
+      File.join(project.project_root.to_s,
+        (config[:staging_prefix] || '').to_s.split('/'),
+        (url_prefix || '').to_s.split('/'),
+        target[:target_name].to_s))
 
     # cache is used to store intermediate files
-    TARGET[:cache_root] = File.expand_path(CONFIG[:cache_root] ||
-      File.join(PROJECT.project_root.to_s, 
-        (CONFIG[:cache_prefix] || '').to_s.split('/'), 
-        (url_prefix || '').to_s.split('/'), 
-        TARGET[:target_name].to_s))
-      
-    TARGET.build_number = TARGET.compute_build_number
-    
+    target[:cache_root] = File.expand_path(config[:cache_root] ||
+      File.join(project.project_root.to_s,
+        (config[:cache_prefix] || '').to_s.split('/'),
+        (url_prefix || '').to_s.split('/'),
+        target[:target_name].to_s))
+
+    target.build_number = target.compute_build_number
+
     # The target is loadable if it is an app
-    TARGET[:loadable] = TARGET[:target_type] == :app
+    target[:loadable] = target[:target_type] == :app
   end
-  
+
 end
