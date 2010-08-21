@@ -5,7 +5,7 @@
 #            and contributors
 # ===========================================================================
 
-require 'yaml'
+require 'json'
 require 'fileutils'
 
 module SC
@@ -65,7 +65,7 @@ module SC
     attr_reader :project
 
     def inspect
-      "SC::Target(#{target_name})"
+      "SC::Target(#{self[:target_name]})"
     end
 
     # Invoke this method to make sure the basic paths for the target have
@@ -327,10 +327,11 @@ module SC
 
       else
         @attr_cache_has_changes = false
+        require "pp"
         if @file_attr_cache
           FileUtils.mkdir_p(File.dirname(file_attr_cache_path))
           fp = File.open(file_attr_cache_path, 'w+')
-          fp.write @file_attr_cache.to_yaml
+          fp.write @file_attr_cache.to_json
           fp.close
         end
       end
@@ -346,8 +347,7 @@ module SC
 
       # read cache from disk if needed
       if @file_attr_cache.nil? && File.exists?(file_attr_cache_path)
-        require 'yaml'
-        @file_attr_cache = YAML.load_file file_attr_cache_path
+        @file_attr_cache = JSON.parse File.read(file_attr_cache_path)
 
         # Sometimes the file is corrupted, in this case, clear the cache
         File.delete file_attr_cache_path unless @file_attr_cache
