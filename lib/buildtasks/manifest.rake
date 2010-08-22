@@ -173,7 +173,7 @@ namespace :manifest do
         test_entries << manifest.add_transform(entry,
           :build_task => "build:test",
           :entry_type => :test,
-          :ext        => :html)
+          :ext        => 'html')
 
         # Strip off dirnames, saving each by dirname...
         dirname = entry[:filename]
@@ -188,7 +188,7 @@ namespace :manifest do
         manifest.add_composite filename,
           :build_task     => "build:test",
           :entry_type     => :test,
-          :ext            => :html,
+          :ext            => 'html',
           :source_entries => entries,
           :hide_entries   => false
       end

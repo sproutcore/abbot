@@ -32,6 +32,10 @@ end # module Module
 #
 class String
   rake_extension("ext") do
+    def replace_ext!(newext)
+      sub!(%r(([^/\\])\.[^./\\]*$)) { $1 + newext }
+    end
+
     # Replace the file extension with +newext+.  If there is no extenson on
     # the string, append the new extension to the end.  If the new extension
     # is not given, or is the empty string, remove any existing extension.

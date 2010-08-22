@@ -204,9 +204,10 @@ module SC
 
       # Clone important properties to new transform...
       opts = HashStruct.new(opts)
-      %w(filename build_path url).each do |key|
-        opts[key.to_sym] ||= entry[key.to_sym]
-      end
+
+      opts[:filename]   ||= entry[:filename]
+      opts[:build_path] ||= entry[:build_path]
+      opts[:url]        ||= entry[:url]
 
       # generate a unique staging path.  If the original entry has its
       # staging_path set == to source_root (optimization for build:copy), then
@@ -214,6 +215,7 @@ module SC
       if (staging_path = entry[:staging_path]) == entry[:source_path]
         staging_path = File.join(self[:staging_root], entry[:filename])
       end
+
       opts[:staging_path] ||= unique_staging_path(staging_path)
 
       # generate a unique cache path from the staging page.  just sub the
@@ -221,17 +223,17 @@ module SC
       opts[:cache_path] ||= unique_cache_path(entry[:cache_path])
 
       # copy other useful entries
-      opts.source_entry   = entry
-      opts.source_entries = [entry]
-      opts.composite      = true
-      opts.transform      = true # make .transform? = true
+      opts[:source_entry]   = entry
+      opts[:source_entries] = [entry]
+      opts[:composite]      = true
+      opts[:transform]      = true # make .transform? = true
 
       # Normalize to new extension if provided.  else copy ext from entry...
-      if opts[:ext]
-        %w(filename build_path staging_path url).each do |key|
-          opts[key.to_sym] = opts[key.to_sym].ext(opts[:ext])
-        end
-        opts[:ext] = opts[:ext].to_s
+      if ext = opts[:ext]
+        opts[:url].replace_ext!(ext)
+        opts[:staging_path].replace_ext!(ext)
+        opts[:build_path].replace_ext!(ext)
+        opts[:filename].replace_ext!(ext)
       else
         opts[:ext] = entry[:ext]
       end
