@@ -327,7 +327,6 @@ module SC
 
       else
         @attr_cache_has_changes = false
-        require "pp"
         if @file_attr_cache
           FileUtils.mkdir_p(File.dirname(file_attr_cache_path))
           fp = File.open(file_attr_cache_path, 'w+')
