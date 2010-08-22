@@ -211,7 +211,7 @@ module SC
     # === Params
     #  task_name:: the full name of the task, including namespaces
     #  consts:: Optional hash of constant values to set on the env
-    def invoke(task_name, consts = nil)
+    def invoke(task_name, consts = {})
       original, SproutCore::RakeConstants.constants = SproutCore::RakeConstants.constants, consts
       self[task_name].invoke(consts)
     ensure
@@ -443,11 +443,6 @@ module SC
       return ret
     end
 
-    # For each key in the passed hash, this will register a global
-    def set_kernel_consts(env)
-      SC::RakeConstants.constants = env.dup.merge(:task_env => env)
-    end
-
   end
 
 end
@@ -459,7 +454,7 @@ module SproutCore
    end
 
    def const_missing(name)
-     RakeConstants.constants[name.to_s.downcase.to_sym] || super
+     ret = (RakeConstants.constants && RakeConstants.constants[name.to_s.downcase.to_sym]) || super
    end
  end
 end
@@ -478,6 +473,7 @@ end
 # back-compat
 module Kernel
   def self.const_reset(key, value)
+    SC.logger.warn "const_reset is deprecated. Called from #{caller[0]}"
     Object.const_reset(key, value)
   end
 end

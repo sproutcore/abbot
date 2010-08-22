@@ -1,11 +1,6 @@
 # Sample buildfile.  Just define a test task to ensure the buildfile loads 
 # properly. 
 
-# Set the global RESULTS constant this way to avoid warnings during testing.
-# Normally a Buildfile should only be loaded one time so you won't need to 
-# use this method.
-Kernel.const_reset :RESULTS, {}
-
 task :default => :test_task1
 
 task :test_task1 do

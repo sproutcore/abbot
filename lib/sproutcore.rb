@@ -9,6 +9,8 @@ require 'logger'
 require 'extlib'
 require 'yaml'
 
+$:.delete_if {|f| f =~ /json_pure-/ } if $:.any? {|f| f =~ /json-/ }
+
 # Ruby 1.8 Compatibility
 if (RUBY_VERSION.match(/1\.8/))
   $KCODE = 'u'
@@ -131,6 +133,20 @@ module SproutCore
     @yui_jar ||= begin
       yui_root = File.expand_path("../vendor/yui-compressor", __FILE__)
       File.join(yui_root, 'yuicompressor-2.4.2.jar')
+    end
+  end
+
+  def self.profile(env)
+    if ENV[env]
+      require "ruby-prof"
+      RubyProf.start
+      yield
+      result = RubyProf.stop
+      printer = RubyProf::CallStackPrinter.new(result)
+      printer.print(File.open("output.html", "w"), :min_percent => 0)
+      exit!
+    else
+      yield
     end
   end
 

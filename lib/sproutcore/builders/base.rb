@@ -61,16 +61,15 @@ module SC
 
       # Handles occurances of sc_static() or static_url()
       def replace_static_url(line)
-        return unless (line.valid_encoding?)
-        line.gsub(/(sc_static|static_url|sc_target)\(\s*['"](.+)['"]\s*\)/) do | rsrc |
+        line.gsub!(/(sc_static|static_url|sc_target)\(\s*['"](.+)['"]\s*\)/) do | rsrc |
           entry_name = $2
           entry_name = "#{$2}:index.html" if $1 == 'sc_target'
           static_entry = entry.manifest.find_entry($2)
 
-          if static_entry.nil?
+          if !static_entry
             url = ''
           elsif $1 == 'sc_target'
-            url = static_entry.friendly_url || static_entry.cacheable_url
+            url = static_entry[:friendly_url] || static_entry.cacheable_url
           else
             url = static_entry.cacheable_url
           end
@@ -83,7 +82,7 @@ module SC
       # this is often overridden by subclasses.  the default just wraps in
       # quotes.
       def static_url(url='')
-        ["'", url.gsub('"','\"'),"'"].join('')
+        "'#{url.gsub('"', '\"')}'"
       end
     end # class
 

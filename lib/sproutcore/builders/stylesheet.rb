@@ -18,19 +18,35 @@ module SC
   #
   class Builder::Stylesheet < Builder::Base
 
+    def readlines(src_path)
+      if File.exist?(src_path) && !File.directory?(src_path)
+        File.read(src_path)
+      else
+        ""
+      end
+    end
+
+    def writelines(dst_path, lines)
+      FileUtils.mkdir_p(File.dirname(dst_path))
+      File.open(dst_path, 'w') do |f|
+        f.write lines
+      end
+    end
+
     def build(dst_path)
-      lines = readlines(entry[:source_path]).map { |l| rewrite_inline_code(l) }
-      writelines dst_path, lines
+      code = rewrite_inline_code(readlines(entry[:source_path]))
+      writelines dst_path, code
     end
 
     # Rewrites any inline content such as static urls.  Subclasseses can
     # override this to rewrite any other inline content.
     #
     # The default will rewrite calls to static_url().
-    def rewrite_inline_code(line)
+    def rewrite_inline_code(code)
       # look for sc_require, require or sc_resource.  wrap in comment
-      line = line.gsub(/((sc_require|require|sc_resource)\(\s*['"].*["']\s*\)\s*\;)/, '/* \1 */')
-      line = replace_static_url(line)
+      code.gsub!(/((sc_require|require|sc_resource)\(\s*['"].*["']\s*\)\s*\;)/, '/* \1 */')
+      replace_static_url(code)
+      code
     end
 
     def static_url(url=''); "url('#{url}')" ; end

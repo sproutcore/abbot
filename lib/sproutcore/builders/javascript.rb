@@ -16,8 +16,23 @@ module SC
   # Builder::CombinedJavaScript for more.
   class Builder::JavaScript < Builder::Base
 
+    def readlines(src_path)
+      if File.exist?(src_path) && !File.directory?(src_path)
+        File.read(src_path)
+      else
+        ""
+      end
+    end
+
+    def writelines(dst_path, lines)
+      FileUtils.mkdir_p(File.dirname(dst_path))
+      File.open(dst_path, 'w') do |f|
+        f.write lines
+      end
+    end
+
     def build(dst_path)
-      lines = []
+      lines = ""
       target_name = entry.target[:target_name].to_s.sub(/^\//,'')
 
       if entry[:lazy_instantiation] && entry[:notify_onload]
@@ -34,7 +49,7 @@ SC.LAZY_INSTANTIATION['#{target_name}'].push(
 "
       end
 
-      lines << readlines(entry[:source_path]).map { |l| rewrite_inline_code(l) }
+      lines << rewrite_inline_code(readlines(entry[:source_path]))
 
       # Try to load dependencies if we're not combining javascript.
       if entry[:notify_onload]
@@ -57,29 +72,28 @@ SC.LAZY_INSTANTIATION['#{target_name}'].push(
     # strings.  -- You can name a string key beginning with "@@" and it will
     # be removed.
     def localized_strings?
-      @lstrings ||= entry.localized? && entry[:filename] =~ /strings.js$/
+      @lstrings ||= entry[:localized] && entry[:filename] =~ /strings.js$/
     end
 
     # Rewrites inline content for a single line
-    def rewrite_inline_code(line)
+    def rewrite_inline_code(code)
 
       # Fors strings file, remove server-side keys (i.e '@@foo' = 'bar')
       if localized_strings?
-        line = line.gsub(/["']@@.*["']\s*?:\s*?["'].*["']\s*,\s*$/,'')
+        code.gsub!(/["']@@.*["']\s*?:\s*?["'].*["']\s*,\s*$/,'')
 
       # Otherwise process sc_super
       else
-        return unless (line.valid_encoding?)
-        if line.match(/sc_super\(\s*\)/)
-          line = line.gsub(/sc_super\(\s*\)/, 'arguments.callee.base.apply(this,arguments)')
-        elsif line.match(/sc_super\(.+?\)/)
+        code.gsub!(/sc_super\(\s*\)/, 'arguments.callee.base.apply(this,arguments)')
+        code.gsub!(/sc_super\((.+?)\)/) do
           SC.logger.warn "\nWARNING: Calling sc_super() with arguments is DEPRECATED. Please use sc_super() only.\n\n"
-          line = line.gsub(/sc_super\((.+?)\)/, 'arguments.callee.base.apply(this, \1)')
+          "arguments.callee.base.apply(this, #{$1})"
         end
       end
 
       # and finally rewrite static_url
-      return replace_static_url(line)
+      replace_static_url(code)
+      code
     end
 
   end

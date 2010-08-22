@@ -31,7 +31,8 @@ module SC
     # Returns true if the receiver has all of the options set
     def has_options?(opts = {})
       opts.each do |key, value|
-        return false if self[key.to_sym] != value
+        this_value = self[key.to_sym]
+        return false if (this_value != value)
       end
       return true
     end
@@ -76,6 +77,7 @@ module SC
     end
 
     def print_first_caller(*extras)
+      return unless ENV["DEBUG_HS"]
       first_caller = caller.find {|str| str !~ /hash_struct\.rb/ }
 
       unless first_caller =~ %r{spec/.*(_spec|spec_helper).rb}

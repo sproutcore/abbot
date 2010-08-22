@@ -9,26 +9,28 @@ describe SC::Buildfile, 'load' do
     b = SC::Buildfile.load(p)
 
     b.should_not be_nil
-    b.invoke(:default)
+    results = {}
+    b.invoke(:default, :results => results)
 
     # Found in Buildfile
-    RESULTS[:test_task1].should be_true
+    results[:test_task1].should be_true
 
     # Found in import(task_module)
-    RESULTS[:imported_task].should be_true
+    results[:imported_task].should be_true
   end
 
   it "should be able to load the contents of one builfile on top of another" do
     a = SC::Buildfile.load(fixture_path('buildfiles','installed', 'Buildfile'))
     b = a.dup.load! fixture_path('buildfiles','basic', 'Buildfile')
 
-    b.invoke :default
+    results = {}
+    b.invoke :default, :results => results
 
     # Found in Buildfile
-    RESULTS[:test_task1].should be_true
+    results[:test_task1].should be_true
 
     # Found in installed/Buildfile
-    RESULTS[:installed_task].should be_true
+    results[:installed_task].should be_true
   end
 
   it "should store every loaded path in loaded_paths" do

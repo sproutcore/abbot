@@ -1,5 +1,3 @@
-Kernel.const_reset :RESULTS, {}
-
 task :default => :installed_task
 
 task :installed_task do

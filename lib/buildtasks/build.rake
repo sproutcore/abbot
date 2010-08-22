@@ -17,7 +17,13 @@ namespace :build do
 
   desc "builds a single css files"
   build_task :css do |task, env|
-    SC::Builder::Stylesheet.build env[:entry], env[:dst_path]
+    if env[:dst_path] =~ %r{en/current/menu_item_view.css}
+      SC.profile("PROFILE_CSS") do
+        SC::Builder::Stylesheet.build env[:entry], env[:dst_path]
+      end
+    else
+      SC::Builder::Stylesheet.build env[:entry], env[:dst_path]
+    end
   end
 
   desc "builds a single sass file"

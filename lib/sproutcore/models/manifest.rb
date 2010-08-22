@@ -18,9 +18,8 @@ module SC
 
     attr_reader :target
 
-    def entries(opts={})
-      include_hidden = opts[:hidden] || false
-      return @entries if include_hidden
+    def entries(opts = {})
+      return @entries if (opts[:hidden] || false)
       @entries.reject { |e| e.hidden? }
     end
 
@@ -100,6 +99,7 @@ module SC
     def reset_entries!
       @is_built = false
       @entries = []
+      @filtered_entries = nil
       return self
     end
 
@@ -146,6 +146,8 @@ module SC
       @entries = entry_hashes.map do |opts|
         ManifestEntry.new(self, opts)
       end
+      @filtered_entries = nil
+
       return self
     end
 
@@ -161,6 +163,7 @@ module SC
     def add_entry(filename, opts = {})
       opts[:filename] = filename
       @entries << (ret = ManifestEntry.new(self, opts)).prepare!
+      @filtered_entries = nil
       return ret
     end
 
@@ -175,6 +178,7 @@ module SC
       opts[:source_entries] ||= []
       opts[:composite] = true
       @entries << (ret = ManifestEntry.new(self, opts)).prepare!
+      @filtered_entries = nil
 
       ret[:source_entries].each { |entry| entry.hide! } if should_hide_entries
       return ret
@@ -230,16 +234,17 @@ module SC
 
       # Normalize to new extension if provided.  else copy ext from entry...
       if ext = opts[:ext]
-        opts[:url].replace_ext!(ext)
-        opts[:staging_path].replace_ext!(ext)
-        opts[:build_path].replace_ext!(ext)
-        opts[:filename].replace_ext!(ext)
+        opts[:url] = opts[:url].replace_ext(ext)
+        opts[:staging_path] = opts[:staging_path].replace_ext(ext)
+        opts[:build_path] = opts[:build_path].replace_ext(ext)
+        opts[:filename] = opts[:filename].replace_ext(ext)
       else
         opts[:ext] = entry[:ext]
       end
 
       # Create new entry and hide old one
       @entries << (ret = ManifestEntry.new(self, opts)).prepare!
+
       entry.hide! if should_hide_entries
 
       # done!
@@ -287,7 +292,7 @@ module SC
         manifest.build!
       end
 
-      manifest.entries(:hidden => opts[:hidden]).find do |entry|
+      manifest.entries(opts).find do |entry|
         (entry[:filename] == filename) && entry.has_options?(opts)
       end
     end
@@ -322,7 +327,7 @@ module SC
       rootname = fragment.sub(/#{extname}$/, '')
 
       # look on our own target only if target is named
-      ret = cur_manifest.entries(:hidden => opts[:hidden]).reject do |entry|
+      ret = cur_manifest.entries(opts).reject do |entry|
         if entry.has_options?(opts)
           entry_extname = File.extname(entry[:filename])
           entry_rootname = entry[:filename].sub(/#{entry_extname}$/,'')

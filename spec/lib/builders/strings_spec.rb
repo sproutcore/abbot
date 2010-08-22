@@ -27,6 +27,8 @@ describe SC::Builder::Strings do
   # Note, the string.js fixture file this test loads should stress the
   # builder to make sure it can parse various cases.
   it "generates a yaml file with contents of string.js parsed into a hash" do
+    pending "what is this YAML file used for?"
+
     dst_path = @entry.staging_path
     SC::Builder::Strings.build(@entry, dst_path)
     File.exist?(dst_path).should be_true

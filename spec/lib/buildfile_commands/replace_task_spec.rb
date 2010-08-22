@@ -16,7 +16,7 @@ describe SC::Buildfile::Commands, 'task' do
         RESULTS[:foo] = :original
       end
 
-      replace_task :task1 do
+      replace_task :task1 do |task, env|
         RESULTS[:foo] = :replaced
       end
     end

@@ -185,14 +185,13 @@ module SC
 
           # fine all directives in the source.  use file cache to make this
           # fast later on.
-          results = target.file_attr('scan_source', path) do
-            ret = []
-            File.readlines(path).each do |line|
-              if (line.valid_encoding?)
-                line.scan(regexp) { |result| ret << result }
-              end
+          begin
+            results = target.file_attr('scan_source', path) do
+              File.read(path).scan(regexp)
             end
-            ret
+          rescue ArgumentError
+            puts path
+            raise
           end
 
           results.each { |result| yield(result) }
