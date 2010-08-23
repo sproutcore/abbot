@@ -50,14 +50,17 @@ namespace :manifest do
     manifest = env[:manifest]
 
     source_root = target[:source_root]
-    Dir.glob(File.join(source_root, '**', '*')).each do |path|
-      next if !File.exist?(path) || File.directory?(path)
-      next if target.target_directory?(path)
 
-      # cut source root out to make filename.  make sure path separators are /
-      filename = path.sub /^#{Regexp.escape source_root}\//, ''
-      filename = filename.split(::File::SEPARATOR).join('/')
-      manifest.add_entry filename, :original => true # entry:prepare will fill in the rest
+    SC.profile("PROFILE_CATALOG") do
+      Dir["#{source_root}/**/*"].each do |path|
+        next unless File.file?(path)
+        next if target.target_directory?(path)
+
+        # cut source root out to make filename.  make sure path separators are /
+        filename = path.sub /^#{Regexp.escape source_root}\//, ''
+        filename = filename.split(::File::SEPARATOR).join('/')
+        manifest.add_entry filename, :original => true # entry:prepare will fill in the rest
+      end
     end
   end
 
@@ -105,7 +108,7 @@ namespace :manifest do
       # Is a localized resource!
       if entry[:filename] =~ /^([^\/]+)\.lproj\/(.+)$/
         entry[:language] = (SC::Target::LONG_LANGUAGE_MAP[$1.to_s.downcase.to_sym]) || $1.to_sym
-        entry.localized = true
+        entry[:localized] = true
 
         # remove .lproj dir from build paths as well..
         lang_dir = "#{$1}.lproj/"
@@ -147,7 +150,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
 
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css javascript bundle_info bundle_loaded sass scss less combine html strings)
+    task :all => %w(css javascript bundle_info bundle_loaded sass scss less combine minify html strings tests packed) 
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -462,10 +465,10 @@ namespace :manifest do
       entries_by_resource = {}
 
       entries.each do |entry|
-        entry.entry_type = :html
-        entry.resource = 'index'
+        entry[:entry_type] = :html
+        entry[:resource] = 'index'
 
-        entry.render_task = case entry[:ext]
+        entry[:render_task] = case entry[:ext]
         when 'rhtml'
           'render:erubis'
         when 'erb'

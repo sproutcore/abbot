@@ -102,7 +102,7 @@ module SproutCore
   def self.build_mode=(new_mode)
     new_mode = new_mode.to_sym
     new_mode = :debug if new_mode == :development
-    env.build_mode = new_mode
+    env[:build_mode] = new_mode
     self.build_mode
   end
 
@@ -131,7 +131,7 @@ module SproutCore
 
   def self.yui_jar
     @yui_jar ||= begin
-      yui_root = File.expand_path("../vendor/yui-compressor", __FILE__)
+      yui_root = File.expand_path("../sproutcore/vendor/yui-compressor", __FILE__)
       File.join(yui_root, 'yuicompressor-2.4.2.jar')
     end
   end

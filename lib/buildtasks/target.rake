@@ -56,7 +56,7 @@ namespace :target do
         (url_prefix || '').to_s.split('/'),
         target[:target_name].to_s))
 
-    target.build_number = target.compute_build_number
+    target[:build_number] = target.compute_build_number
 
     # The target is loadable if it is an app
     target[:loadable] = target[:target_type] == :app

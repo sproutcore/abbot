@@ -20,7 +20,6 @@ module SC
       MANIFEST_OPTIONS.merge(:entries => :string, :clean => false))
 
     def build(*targets)
-
       # Copy some key props to the env
       SC.env.build_prefix   = options.buildroot if options.buildroot
       SC.env.staging_prefix = options.stageroot if options.stageroot
@@ -95,7 +94,7 @@ module SC
                                         # I can't find a reasonable, commonly-
                                         # installed, works-on-all-OSes solution.
         SC.logger.info output
-          if $?.exitstatus != 0
+        if $?.exitstatus != 0
           SC.logger.fatal(output)
           SC.logger.fatal("!!!!YUI compressor failed, please check that your js code is valid")
           SC.logger.fatal("!!!!Failed compressing ... "+ $to_minify.join(','))

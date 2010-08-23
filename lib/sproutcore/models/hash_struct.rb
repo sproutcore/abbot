@@ -50,7 +50,9 @@ module SC
     # Pass in any options you want set initially on the manifest entry.
     def initialize(opts = {})
       super()
-      self.merge!(opts)
+      opts.each do |k,v|
+        self[k.to_sym] = v
+      end
     end
 
     # Allow for method-like access to hash also...
@@ -65,7 +67,8 @@ module SC
           method_name = method_name[0..-2]
           value = args[0]
         end
-        self[method_name] = value
+        print_first_caller(method_name)
+        self[method_name.to_sym] = value
 
       # convert property? => !!self[:property]
       elsif method_name =~ /\?$/
@@ -91,12 +94,13 @@ module SC
     # When using the optimized #[] lookup form,require a Symbol
     # def [](key) super end
 
-    def []=(key, value)
-      sym_key = key.to_sym rescue nil
-      raise "HashStruct cannot convert #{key} to symbol" if sym_key.nil?
-
-      super(sym_key, value)
-    end
+    #def []=(key, value)
+    #  print_first_caller(key, value) unless key.is_a?(Symbol)
+    #  sym_key = key.to_sym rescue nil
+    #  raise "HashStruct cannot convert #{key} to symbol" if sym_key.nil?
+    #
+    #  super(sym_key, value)
+    #end
 
     # Reimplement merge! to go through the []=() method so that keys can be
     # symbolized

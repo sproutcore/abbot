@@ -20,8 +20,6 @@ namespace :entry do
     filename = entry[:filename]
     raise "All entries must have a filename!" unless filename
 
-    filename_parts = filename.split('/')
-
     # If this is a composite entry, then the source_paths array should
     # contain the staging_path from the source_entries.   The source_path
     # is simply the first source_paths.
@@ -41,13 +39,13 @@ namespace :entry do
     # Otherwise, the source_path is where we will pull from and source_paths
     # is simply the source_path in an array.
     else
-      entry[:source_path] ||= File.join(manifest[:source_root], filename_parts)
+      entry[:source_path] ||= File.join(manifest[:source_root], filename)
       entry[:source_paths] ||= [entry[:source_path]]
     end
 
     # Construct some easier paths if needed
-    entry[:build_path] ||= File.join(manifest[:build_root], filename_parts)
-    entry[:url] ||= [manifest[:url_root], filename_parts].join('/')
+    entry[:build_path] ||= File.join(manifest[:build_root], filename)
+    entry[:url] ||= [manifest[:url_root], filename].join('/')
 
     # Fill in a default build task
     entry[:build_task] ||= 'build:copy'
@@ -60,10 +58,10 @@ namespace :entry do
     if entry[:build_task] == 'build:copy'
       entry[:staging_path] ||= entry[:source_path]
     else
-      entry[:staging_path] ||= manifest.unique_staging_path(File.join(manifest[:staging_root], filename_parts))
+      entry[:staging_path] ||= manifest.unique_staging_path(File.join(manifest[:staging_root], filename))
     end
 
-    entry[:cache_path] = manifest.unique_cache_path(File.join(manifest[:cache_root], filename_parts))
+    entry[:cache_path] = manifest.unique_cache_path(File.join(manifest[:cache_root], filename))
   end
 
 end

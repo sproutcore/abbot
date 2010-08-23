@@ -17,7 +17,7 @@ module SC
 
     # for compatibility with normal TaskArguments
     def self.new(keys, values, parent = nil)
-      args = super
+      args = super()
       args.setup_with_arrays(keys, values, parent)
       args
     end
@@ -56,7 +56,7 @@ module SC
 
     # Find an argument value by name or index.
     def [](index)
-      lookup(index.to_sym)
+      lookup(index)
     end
 
     # Specify a hash of default values for task arguments. Use the

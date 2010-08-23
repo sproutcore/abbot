@@ -182,18 +182,22 @@ module SC
           end
         end
 
-        t_start = Time.now.to_f * 1000
+        debug = SC.logger.debug?
+
+        t_start = Time.now.to_f * 1000 if debug
 
         invocation_chain = invoke_prerequisites(task_args, invocation_chain)
         @invoke_count += 1
         execute(task_args) if needed?
 
-        t_end = Time.now.to_f * 1000
-        t_diff = t_end - t_start
+        if debug
+          t_end = Time.now.to_f * 1000
+          t_diff = t_end - t_start
 
-        # ignore short tasks
-        if t_diff > 10
-          SC.logger.debug "#{indent}long task ~ #{name}: #{t_diff.to_i} msec"
+          # ignore short tasks
+          if t_diff > 10
+            SC.logger.debug "#{indent}long task ~ #{name}: #{t_diff.to_i} msec"
+          end
         end
         self.class.outdent_logs
 

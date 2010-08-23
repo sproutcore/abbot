@@ -15,18 +15,22 @@ module SC
   # defined by the manifest build tasks.
   #
   class Manifest < HashStruct
-
     attr_reader :target
 
     def entries(opts = {})
-      return @entries if (opts[:hidden] || false)
-      @entries.reject { |e| e.hidden? }
+      opts[:hidden] ? @entries : @entries.visible
+    end
+
+    class EntryList < Array
+      def visible
+        each.reject { |entry| entry.hidden? }
+      end
     end
 
     def initialize(target, opts)
       super(opts)
       @target = target
-      @entries = []
+      @entries = EntryList.new
       @staging_uuid = 0
     end
 
@@ -98,8 +102,7 @@ module SC
     #
     def reset_entries!
       @is_built = false
-      @entries = []
-      @filtered_entries = nil
+      @entries = EntryList.new
       return self
     end
 
@@ -143,10 +146,10 @@ module SC
     def load(hash)
       merge!(hash)
       entry_hashes = self.delete(:entries) || []
-      @entries = entry_hashes.map do |opts|
-        ManifestEntry.new(self, opts)
+      @entries = EntryList.new
+      entry_hashes.each do |opts|
+        @entries << ManifestEntry.new(self, opts)
       end
-      @filtered_entries = nil
 
       return self
     end
@@ -163,7 +166,6 @@ module SC
     def add_entry(filename, opts = {})
       opts[:filename] = filename
       @entries << (ret = ManifestEntry.new(self, opts)).prepare!
-      @filtered_entries = nil
       return ret
     end
 
@@ -178,7 +180,6 @@ module SC
       opts[:source_entries] ||= []
       opts[:composite] = true
       @entries << (ret = ManifestEntry.new(self, opts)).prepare!
-      @filtered_entries = nil
 
       ret[:source_entries].each { |entry| entry.hide! } if should_hide_entries
       return ret
@@ -324,44 +325,33 @@ module SC
       end
 
       extname = File.extname(fragment)
+      extname = nil if extname.empty?
+
       rootname = fragment.sub(/#{extname}$/, '')
 
       # look on our own target only if target is named
-      ret = cur_manifest.entries(opts).reject do |entry|
-        if entry.has_options?(opts)
-          entry_extname = File.extname(entry[:filename])
-          entry_rootname = entry[:filename].sub(/#{entry_extname}$/,'')
-          ext_match = (extname.nil? || extname.size == 0) || (entry_extname == extname)
-        else
-          ext_match = false
-        end
+      ret = cur_manifest.entries(opts).find do |entry|
+        next unless entry.has_options?(opts)
+        next if extname && (entry.extension != extname)
 
-        !(ext_match && (/#{rootname}$/ =~ entry_rootname))
+        entry.rootname[-rootname.length, rootname.length] == rootname
       end
 
-      ret = ret.first
+      return ret if ret
 
       # if no match was found, search the same manifests in required targets
-      if ret.nil?
-        seen = Set.new if seen.nil?
-        seen << cur_manifest.target
-        cur_manifest.target.expand_required_targets(:theme => true).each do |t|
-          next if seen.include?(t) # avoid recursion
+      seen ||= Set.new
+      seen << cur_manifest.target
 
-          manifest = t.manifest_for(self.variation).build!
-          ret = manifest.find_entry(fragment, opts, seen)
-          break unless ret.nil?
-        end
-      end
-      return ret
-    end
+      cur_manifest.target.expand_required_targets(:theme => true).each do |t|
+        next if seen.include?(t) # avoid recursion
 
-    def unique_path(key, path)
-      paths = entries(:hidden => true).map { |e| e[keys] }
-      while paths.include?(path)
-        path = path.sub(/(__\$[0-9]+)?(\.\w+)?$/,"__#{next_staging_uuid}\\2")
+        manifest = t.manifest_for(self.variation).build!
+        ret = manifest.find_entry(fragment, opts, seen)
+        return ret if ret
       end
-      return path
+
+      nil
     end
 
     # Finds a unique staging path starting with the root proposed staging

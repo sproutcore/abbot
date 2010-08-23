@@ -394,7 +394,7 @@ module SC
     #  receiver
     #
     def add_proxy(proxy_path, opts={})
-      @proxies[proxy_path] = HashStruct.new(opts)
+      @proxies[proxy_path.to_sym] = HashStruct.new(opts)
       return self
     end
 
