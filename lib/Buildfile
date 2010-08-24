@@ -79,7 +79,7 @@ mode :all do
     # In design mode, load the designer
     :design_required => ['sproutcore/designer'],
 
-    :use_packed => true,
+    :use_packed => false,
 
 		# If set to true, the specified framework, if loaded via the SC.loadBundle
 		# API, will be set up to be lazily instantiated when loaded.
