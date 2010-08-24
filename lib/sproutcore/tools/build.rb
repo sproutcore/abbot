@@ -90,7 +90,7 @@ module SC
       if $to_minify.length > 0
         yui_root = File.expand_path(File.join(LIBPATH, '..', 'vendor', 'yui-compressor'))
         jar_path = File.join(yui_root, 'SCyuicompressor-2.4.2.jar')
-        filecompress = "java -Xmx128m -jar " + jar_path + " --charset utf-8 --line-break 80 " + $to_minify * ' ' + " 2>&1"
+        filecompress = "java -Xmx128m -jar \"" + jar_path + "\" --charset utf-8 --line-break 80 \"" + $to_minify * "\" \"" + "\" 2>&1"
         SC.logger.info  'Compressing with YUI...'
         
         output = `#{filecompress}`      # It'd be nice to just read STDERR, but
