@@ -181,7 +181,7 @@ module SC
     #  new target
     #
     def add_target(target_name, target_type, options={})
-      targets[target_name] = Target.new(target_name.to_sym,
+      targets[target_name.to_sym] = Target.new(target_name.to_sym,
           target_type.to_sym, options.merge(:project => self))
     end
 

@@ -70,7 +70,7 @@ namespace :manifest do
 
     # these directories are to be excluded unless CONFIG.load_"dirname" = true
     dirnames = %w(debug tests fixtures protocols).reject do |k|
-      env[:config][:"load_#{k}"]
+      CONFIG[:"load_#{k}"]
     end
 
     # loop through entries and hide those that do not below...
@@ -197,7 +197,7 @@ namespace :manifest do
       end
 
       # Add summary entry
-      if env[:config][:load_tests]
+      if CONFIG[:load_tests]
         manifest.add_entry 'tests/-index.json',
           :composite      => true,
           :source_entries => test_entries,
@@ -211,7 +211,7 @@ namespace :manifest do
     desc "scans for javascript files, annotates them and prepares combined entries for each output target"
     task :javascript => :setup do |task, env|
       manifest = env[:manifest]
-      config   = env[:config]
+      config   = CONFIG
 
       # select all original entries with with ext of css
       entries = manifest.entries.select do |e|
@@ -260,7 +260,7 @@ namespace :manifest do
     task :bundle_info => %w(setup) do |task, env|
       target   = env[:target]
       manifest = env[:manifest]
-      config   = env[:config]
+      config   = CONFIG
 
       # Populate bundle_info for all dynamic_required frameworks.
       # Add :debug_dynamic_required and :test_dynamic_required depending on
@@ -314,7 +314,7 @@ namespace :manifest do
     desc "generates combined entries for javascript and css"
     task :combine => %w(setup css javascript bundle_info bundle_loaded sass scss less) do |task, env|
       manifest = env[:manifest]
-      config   = env[:config]
+      config   = CONFIG
 
       # sort entries...
       css_entries = {}
@@ -453,7 +453,7 @@ namespace :manifest do
     task :html => :setup do |task, env|
       target   = env[:target]
       manifest = env[:manifest]
-      config   = env[:config]
+      config   = CONFIG
 
       # select all entries with proper extensions
       known_ext = %w(rhtml erb haml)
@@ -552,7 +552,7 @@ namespace :manifest do
     desc "creates transform entries for all css and Js entries to minify them if needed"
     task :minify => %w(setup javascript bundle_info bundle_loaded css combine sass scss less) do |task, env|
       manifest = env[:manifest]
-      config   = env[:config]
+      config   = CONFIG
 
       minify_css = config[:minify_css]
       minify_css = config[:minify] if minify_css.nil?

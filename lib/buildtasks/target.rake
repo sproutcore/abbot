@@ -13,7 +13,7 @@ namespace :target do
   task :prepare do |task, env|
 
     target = env[:target]
-    config = env[:config]
+    config = CONFIG
     project = env[:project]
 
     # use url_root config or merge url_prefix + target_name

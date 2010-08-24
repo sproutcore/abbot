@@ -97,7 +97,10 @@ module SC
     def hidden?; self[:hidden] ||= false; end
 
     # Sets the entry's hidden? property to true
-    def hide!; self[:hidden] = true; self; end
+    def hide!
+      self[:hidden] = true
+      self
+    end
 
     # true if the manifest entry represents a composite resource built from
     # one or more source entries.  Composite resources will have their
@@ -106,6 +109,14 @@ module SC
 
     # Marks the entry as composite.  Returns self
     def composite!; self[:composite] = true; self; end
+
+    def extension
+      @extension ||= File.extname(self[:filename])
+    end
+
+    def rootname
+      @rootname ||= self[:filename].sub(/#{extension}$/, '')
+    end
 
     # The owner manifest
     attr_accessor :manifest
@@ -211,7 +222,7 @@ module SC
 
       target.begin_attr_changes
 
-      self.required = []
+      self[:required] = []
       entry = self.transform? ? self[:source_entry] : self
       entry.scan_source(BUILD_DIRECTIVES_REGEX) do |matches|
         # strip off any file ext
