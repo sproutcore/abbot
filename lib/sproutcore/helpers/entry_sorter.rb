@@ -7,6 +7,17 @@
 
 require "set"
 
+
+# Backwards compatibility for Ruby 1.8
+class Array
+  unless method_defined?(:sort_by!)
+    def sort_by!(*args, &block)
+      replace(sort_by(*args, &block))
+    end
+  end
+end
+
+
 module SC
 
   module Helpers
