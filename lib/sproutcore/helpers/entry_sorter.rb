@@ -81,7 +81,7 @@ module SC
           end
 
           # force preferred filenames to the front on the list
-          result.unshift (@preferred_filenames.include?(name) ? -1 : 1)
+          result.unshift(@preferred_filenames.include?(name) ? -1 : 1)
         end
 
         # now process each entry to handle requires
