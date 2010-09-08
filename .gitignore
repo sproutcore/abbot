@@ -8,8 +8,6 @@ log
 doc
 *.gem
 .hashinfo.yml
-frameworks
 LOCAL.yml
-
 Gemfile.lock
 devbin

@@ -1,0 +1,3 @@
+[submodule "lib/frameworks/sproutcore"]
+	path = lib/frameworks/sproutcore
+	url = git://github.com/sproutit/sproutcore.git
