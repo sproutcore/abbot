@@ -14,6 +14,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'extlib', ">= 0.9.9"
   s.add_dependency 'erubis', ">= 2.6.2"
   s.add_dependency 'thor', '>= 0.11.7'
+  s.add_dependency 'thin', '~> 1.2.7'
 
   s.add_development_dependency 'gemcutter', ">= 0.1.0"
   s.add_development_dependency 'rspec', ">= 1.2.0"
@@ -23,8 +24,8 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files  = %w[History.txt README.txt]
 
   s.files        = `git ls-files`.split("\n")
-  s.files       += %w(".htaccess frameworks/sproutcore/**/*)
-  s.files       -= %w(.gitignore .gitmodules .DS_Store .hashinfo .svn .git)
+  s.files       += Dir[".htaccess", "lib/frameworks/sproutcore/**/*"]
+  s.files       -= Dir[".gitignore", ".gitmodules", ".DS_Store", ".hashinfo", ".svn", ".git"]
   s.files.reject!  { |file| file =~ %r{^(coverage|tmp)/} }
 
   s.executables  = `git ls-files`.split("\n").map { |f| f[%r{^bin/(.*)}, 1] }.compact
