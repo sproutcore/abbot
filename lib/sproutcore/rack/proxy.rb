@@ -103,6 +103,9 @@ module SC
           value.gsub!(/domain=[^\;]+\;? ?/,'') if key.downcase == 'set-cookie'
           # Location headers should rewrite the hostname if it is included.
           value.gsub!(/^http:\/\/#{http_host}(:[0-9]+)?\//, "http://#{http_host}/") if key.downcase == 'location'
+          # content-length is returning char count not bytesize
+          value = response.body.bytesize.to_s if key.downcase == 'content-length'
+
 
           SC.logger << "   #{key}: #{value}\n"
           response_headers[key] = value
