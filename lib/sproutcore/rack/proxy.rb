@@ -66,6 +66,10 @@ module SC
 
         response = nil
         no_body_method = %w(delete get copy head move options trace)
+
+        done = false
+        tries = 0
+        until done
         ::Net::HTTP.start(http_host, http_port) do |http|
           if no_body_method.include?(http_method)
             response = http.send(http_method, http_path, headers)
@@ -97,6 +101,25 @@ module SC
 
           SC.logger << "   #{key}: #{value}\n"
           response_headers[key] = value
+        end
+
+          if [301, 307].include?(status.to_i)
+            SC.logger << '~ REDIRECTING: '+response_headers['location']
+
+            uri = URI.parse(response_headers['location']);
+            http_host = uri.host
+            http_port = uri.port
+            http_path = uri.path
+            http_path += '?'+uri.query if uri.query
+            headers = {}
+
+            tries += 1
+            if tries > 10
+              raise "Too many redirects!"
+            end
+          else
+            done = true
+          end
         end
 
         return [status, ::Rack::Utils::HeaderHash.new(response_headers), [response.body]]
