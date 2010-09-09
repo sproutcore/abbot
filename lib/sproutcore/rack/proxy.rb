@@ -5,7 +5,7 @@
 #            and contributors
 # ===========================================================================
 
-require 'net/http'
+require 'net/https'
 module SC
   module Rack
 
@@ -71,6 +71,11 @@ module SC
         tries = 0
         until done
         ::Net::HTTP.start(http_host, http_port) do |http|
+          if proxy[:secure]
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          end
+
           if no_body_method.include?(http_method)
             response = http.send(http_method, http_path, headers)
           else
