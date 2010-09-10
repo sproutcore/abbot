@@ -198,7 +198,6 @@ module SC
       end
 
       def monitor_project!
-        return
         if !@should_monitor
           @should_monitor = true
           @project_root = @project.project_root
