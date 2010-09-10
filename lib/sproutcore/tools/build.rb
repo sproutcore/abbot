@@ -16,9 +16,9 @@ module SC
   class Tools
 
     desc "build [TARGET..]", "Builds one or more targets"
-    method_options(
-      MANIFEST_OPTIONS.merge(:entries => :string, :clean => false))
-
+    method_options(MANIFEST_OPTIONS)
+    method_option :entries, :type => :string
+    method_option :clean,   :type => :boolean, :aliases => "-c"
     def build(*targets)
       # Copy some key props to the env
       SC.env.build_prefix   = options.buildroot if options.buildroot
