@@ -1,7 +1,7 @@
 --- 
 :major: 1
 :minor: 4
-:patch: 0.rc
+:patch: 0.rc.2
 :digest: e038ba5746bb757cd0ff2391828c5f03496fbb64
 :dist: 
   frameworks/sproutcore: 637dc82942f2fd5c1e9cd57ce7582fca821a3bfa
