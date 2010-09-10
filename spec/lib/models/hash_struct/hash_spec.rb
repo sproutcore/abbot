@@ -26,37 +26,4 @@ describe SC::HashStruct, 'hash operations' do
     e[:foo].should eql(:bar)
   end
 
-  it "should treat string and hash keys as the same for writing, but not reading" do
-    e = SC::HashStruct.new
-    e['foo'] = :bar
-    e[:foo].should eql(:bar)
-
-    e[:foo2] = :bar
-    e['foo2'].should eql(nil)
-  end
-
-  it "should convert all keys to symbols (i.e. if you get keys, they will always be symbols)" do
-    e = SC::HashStruct.new
-    e['string'] = :foo
-    e[:symbol] = :foo
-
-    expected = [:string, :symbol]
-    idx=0
-    e.keys.sort { |a,b| a.to_s <=> b.to_s }.each do |k|
-      k.should eql(expected[idx])
-      idx += 1
-    end
-  end
-
-  it "should raise error if key cannot be converted to symbol" do
-    a = SC::HashStruct.new
-
-    # numbers respond to to_sym but return nil
-    lambda { a[1] = :foo }.should raise_error
-
-    # Object does not respond to to_sym
-    lambda { a[Object.new] = :foo }.should raise_error
-  end
-
-
 end
