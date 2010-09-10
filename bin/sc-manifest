@@ -6,7 +6,12 @@
 #            and contributors
 # ===========================================================================
 
-require File.expand_path(File.join(File.dirname(__FILE__), %w[.. lib sproutcore]))
+if caller.empty?
+  puts "FATAL: You need to invoke sc-manifest from an installed gem or through bundler. For more information, please visit http://github.com/sproutit/sproutcore-abbot/wiki/Using-Abbot-1.4-From-Source"
+  exit
+end
+
+require "sproutcore"
 
 SC::Tools.invoke :manifest
 

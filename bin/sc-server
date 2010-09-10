@@ -7,11 +7,12 @@
 # ===========================================================================
 
 if caller.empty?
-  puts "FATAL: You need to invoke sc-server from an installed gem or through bundler."
+  puts "FATAL: You need to invoke sc-server from an installed gem or through bundler. For more information, please visit http://github.com/sproutit/sproutcore-abbot/wiki/Using-Abbot-1.4-From-Source"
   exit
 end
 
 require "sproutcore"
+
 SC::Tools.invoke 'server'
 
 # EOF
