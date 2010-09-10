@@ -11,3 +11,4 @@ doc
 LOCAL.yml
 Gemfile.lock
 devbin
+.bundle
