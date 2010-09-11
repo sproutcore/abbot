@@ -104,8 +104,15 @@ module SC
           # Location headers should rewrite the hostname if it is included.
           value.gsub!(/^http:\/\/#{http_host}(:[0-9]+)?\//, "http://#{http_host}/") if key.downcase == 'location'
           # content-length is returning char count not bytesize
-          value = response.body.bytesize.to_s if key.downcase == 'content-length'
-
+          if key.downcase == 'content-length'
+            if response.body.respond_to?(:bytesize)
+              value = response.body.bytesize.to_s
+            elsif response.body.respond_to?(:size)
+              value = response.body.size.to_s
+            else
+              value = '0'
+            end
+          end
 
           SC.logger << "   #{key}: #{value}\n"
           response_headers[key] = value
