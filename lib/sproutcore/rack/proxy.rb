@@ -139,7 +139,10 @@ module SC
           end
         end
 
-        return [status, ::Rack::Utils::HeaderHash.new(response_headers), [response.body]]
+        # Thin doesn't like null bodies
+        response_body = response.body || ''
+
+        return [status, ::Rack::Utils::HeaderHash.new(response_headers), [response_body]]
       end
     end
   end
