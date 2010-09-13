@@ -80,6 +80,8 @@ module SC
               response = http.send(http_method, http_path, headers)
             else
               http_body = env['rack.input']
+              http_body.rewind
+
               some_request = Net::HTTPGenericRequest.new http_method.upcase,
                               true, true, http_path, headers
 
