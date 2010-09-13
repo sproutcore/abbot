@@ -70,53 +70,53 @@ module SC
         done = false
         tries = 0
         until done
-        ::Net::HTTP.start(http_host, http_port) do |http|
-          if proxy[:secure]
-            http.use_ssl = true
-            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-          end
+          ::Net::HTTP.start(http_host, http_port) do |http|
+            if proxy[:secure]
+              http.use_ssl = true
+              http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+            end
 
-          if no_body_method.include?(http_method)
-            response = http.send(http_method, http_path, headers)
-          else
-            http_body = env['rack.input']
-            some_request = Net::HTTPGenericRequest.new http_method.upcase,
-                            true, true, http_path, headers
-
-            some_request.body_stream = http_body
-            response = http.request(some_request)
-          end
-        end
-
-        status = response.code # http status code
-
-        SC.logger << "~ PROXY: #{http_method.upcase} #{status} #{url} -> http://#{http_host}:#{http_port}#{http_path}\n"
-
-        # display and construct specific response headers
-        response_headers = {}
-        ignore_headers = ['transfer-encoding', 'keep-alive', 'connection']
-        response.each do |key, value|
-          next if ignore_headers.include?(key.downcase)
-          # If this is a cookie, strip out the domain.  This technically may
-          # break certain scenarios where services try to set cross-domain
-          # cookies, but those services should not be doing that anyway...
-          value.gsub!(/domain=[^\;]+\;? ?/,'') if key.downcase == 'set-cookie'
-          # Location headers should rewrite the hostname if it is included.
-          value.gsub!(/^http:\/\/#{http_host}(:[0-9]+)?\//, "http://#{http_host}/") if key.downcase == 'location'
-          # content-length is returning char count not bytesize
-          if key.downcase == 'content-length'
-            if response.body.respond_to?(:bytesize)
-              value = response.body.bytesize.to_s
-            elsif response.body.respond_to?(:size)
-              value = response.body.size.to_s
+            if no_body_method.include?(http_method)
+              response = http.send(http_method, http_path, headers)
             else
-              value = '0'
+              http_body = env['rack.input']
+              some_request = Net::HTTPGenericRequest.new http_method.upcase,
+                              true, true, http_path, headers
+
+              some_request.body_stream = http_body
+              response = http.request(some_request)
             end
           end
 
-          SC.logger << "   #{key}: #{value}\n"
-          response_headers[key] = value
-        end
+          status = response.code # http status code
+
+          SC.logger << "~ PROXY: #{http_method.upcase} #{status} #{url} -> http://#{http_host}:#{http_port}#{http_path}\n"
+
+          # display and construct specific response headers
+          response_headers = {}
+          ignore_headers = ['transfer-encoding', 'keep-alive', 'connection']
+          response.each do |key, value|
+            next if ignore_headers.include?(key.downcase)
+            # If this is a cookie, strip out the domain.  This technically may
+            # break certain scenarios where services try to set cross-domain
+            # cookies, but those services should not be doing that anyway...
+            value.gsub!(/domain=[^\;]+\;? ?/,'') if key.downcase == 'set-cookie'
+            # Location headers should rewrite the hostname if it is included.
+            value.gsub!(/^http:\/\/#{http_host}(:[0-9]+)?\//, "http://#{http_host}/") if key.downcase == 'location'
+            # content-length is returning char count not bytesize
+            if key.downcase == 'content-length'
+              if response.body.respond_to?(:bytesize)
+                value = response.body.bytesize.to_s
+              elsif response.body.respond_to?(:size)
+                value = response.body.size.to_s
+              else
+                value = '0'
+              end
+            end
+
+            SC.logger << "   #{key}: #{value}\n"
+            response_headers[key] = value
+          end
 
           if [301, 307].include?(status.to_i)
             SC.logger << '~ REDIRECTING: '+response_headers['location']
