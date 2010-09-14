@@ -704,7 +704,7 @@ module SC
       FileUtils.mkdir_p(build_root)
 
       # Prepare jsdoc opts
-      jsdoc_root    = SC::PATH / 'vendor' / 'jsdoc'
+      jsdoc_root    = SC::LIBPATH / 'vendor' / 'jsdoc'
       jar_path      = jsdoc_root / 'jsrun.jar'
       runjs_path    = jsdoc_root / 'app' / 'run.js'
 
