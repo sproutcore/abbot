@@ -346,7 +346,11 @@ module SC
 
       # read cache from disk if needed
       if @file_attr_cache.nil? && File.exists?(file_attr_cache_path)
-        @file_attr_cache = JSON.parse File.read(file_attr_cache_path)
+        begin
+          @file_attr_cache = JSON.parse File.read(file_attr_cache_path)
+        rescue JSON::ParserError
+          # Unparseable, will be handled by the following conditional
+        end
 
         # Sometimes the file is corrupted, in this case, clear the cache
         File.delete file_attr_cache_path unless @file_attr_cache
