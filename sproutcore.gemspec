@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'json_pure', ">= 1.1.0"
   s.add_dependency 'extlib', ">= 0.9.9"
   s.add_dependency 'erubis', ">= 2.6.2"
-  s.add_dependency 'thor', '>= 0.11.7'
+  s.add_dependency 'thor', '>= 0.14'
   s.add_dependency 'thin', '~> 1.2.7'
 
   s.add_development_dependency 'gemcutter', ">= 0.1.0"
