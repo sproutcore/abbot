@@ -9,15 +9,15 @@ Gem::Specification.new do |s|
   s.homepage = 'http://www.sproutcore.com'
   s.summary = "SproutCore is a platform for building native look-and-feel applications on  the web"
 
-  s.add_dependency 'rack', '>= 0.9.1'
-  s.add_dependency 'json_pure', ">= 1.1.0"
-  s.add_dependency 'extlib', ">= 0.9.9"
-  s.add_dependency 'erubis', ">= 2.6.2"
-  s.add_dependency 'thor', '>= 0.14'
+  s.add_dependency 'rack', '~> 1.2.1'
+  s.add_dependency 'json_pure', "~> 1.4.6"
+  s.add_dependency 'extlib', "~> 0.9.15"
+  s.add_dependency 'erubis', "~> 2.6.6"
+  s.add_dependency 'thor', '~> 0.14.1'
   s.add_dependency 'thin', '~> 1.2.7'
 
-  s.add_development_dependency 'gemcutter', ">= 0.1.0"
-  s.add_development_dependency 'rspec', ">= 1.2.0"
+  s.add_development_dependency 'gemcutter', "~> 0.6.0"
+  s.add_development_dependency 'rspec', "~> 1.3.0"
   s.add_development_dependency 'rake'
 
   s.rubyforge_project = "sproutcore"
