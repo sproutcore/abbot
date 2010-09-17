@@ -29,6 +29,8 @@ Gem::Specification.new do |s|
   s.files.reject!  { |file| file =~ %r{^(coverage|tmp)/} }
 
   s.executables  = `git ls-files`.split("\n").map { |f| f[%r{^bin/(.*)}, 1] }.compact
-  s.description = File.read(File.expand_path("../README.txt", __FILE__))
+  s.description  = "SproutCore is a platform for building native look-and-feel applications on " \
+                   "the web.  This Ruby library includes a copy of the SproutCore JavaScript " \
+                   "framework as well as a Ruby-based build system called Abbot."
 end
 
