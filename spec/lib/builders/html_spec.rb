@@ -535,7 +535,7 @@ describe SC::Builder::Html do
       end
 
       begin
-        gem 'bluecloth'
+        gem 'BlueCloth'
         require 'bluecloth'
 
         it "exposes markdown('foo')" do
