@@ -40,7 +40,7 @@ module SC
         FileUtils.copy(entry.source_path, dst_path)
       else
         FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
-        filecompress = "java -jar " + SC.yui_jar + " --charset utf-8 --line-break 0 --nomunge --preserve-semi --disable-optimizations " + entry.source_path + " -o \"" + dst_path + "\" 2>&1"
+        filecompress = "java -jar \"" + SC.yui_jar + "\" --charset utf-8 --line-break 0 --nomunge --preserve-semi --disable-optimizations \"" + entry.source_path + "\" -o \"" + dst_path + "\" 2>&1"
         SC.logger.info  'Compressing CSS with YUI .... '+ dst_path
         SC.logger.debug `#{filecompress}`
 
@@ -61,7 +61,7 @@ module SC
         FileUtils.copy(entry.source_path, dst_path)
       else
         FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
-        filecompress = "java -jar " + SC.yui_jar + " --charset utf-8 --line-break 80 " + entry.source_path + " -o \"" + dst_path + "\" 2>&1"
+        filecompress = "java -jar \"" + SC.yui_jar + "\" --charset utf-8 --line-break 80 \"" + entry.source_path + "\" -o \"" + dst_path + "\" 2>&1"
         SC.logger.info  'Compressing with YUI:  '+ dst_path + "..."
 
         output = `#{filecompress}`      # It'd be nice to just read STDERR, but
@@ -78,7 +78,7 @@ module SC
     def build_inline_javascript(dst_path)
       SC.logger.info  'Compressing inline Javascript with YUI: ' + dst_path + "..."
       FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
-      filecompress = "java -jar " + SC.yui_jar + " --charset utf-8 --line-break 80 " + entry.source_path + " -o \"" + dst_path + "\" 2>&1"
+      filecompress = "java -jar \"" + SC.yui_jar + "\" --charset utf-8 --line-break 80 \"" + entry.source_path + "\" -o \"" + dst_path + "\" 2>&1"
       SC.logger.info  'Compressing with YUI:  '+ dst_path + "..."
 
       output = `#{filecompress}`      # It'd be nice to just read STDERR, but
