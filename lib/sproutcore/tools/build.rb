@@ -87,7 +87,7 @@ module SC
       end
 
       if $to_minify.length > 0
-        filecompress = "java -jar \"" + SC.yui_jar + "\" --charset utf-8 --line-break 80 \"" + $to_minify * '\" \"' + "\" 2>&1"
+        filecompress = "java -jar \"" + SC.yui_jar + "\" --charset utf-8 --line-break 80 \"" + $to_minify * '" "' + "\" 2>&1"
         SC.logger.info  'Compressing with YUI...'
 
         output = `#{filecompress}`      # It'd be nice to just read STDERR, but
