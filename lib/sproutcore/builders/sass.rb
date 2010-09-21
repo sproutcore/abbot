@@ -36,7 +36,7 @@ module SC
         css = ::Sass::Engine.new(content, :syntax => @@sass_syntax, :load_paths => load_paths).render
         lines = []
         css.each_line { |l| lines << rewrite_inline_code(l) }
-        writelines dst_path, lines
+        writelines dst_path, lines.join
       rescue Exception => e
 
         # explain sass syntax error a bit more...
