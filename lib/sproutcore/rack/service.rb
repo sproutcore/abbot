@@ -51,11 +51,7 @@ module SC
           begin
             server = ::Rack::Handler::Thin
           rescue LoadError => e
-            begin
-              server = ::Rack::Handler::Mongrel
-            rescue LoadError => e
-              server = ::Rack::Handler::WEBrick
-            end
+            server = ::Rack::Handler::Mongrel
           end
         end
         
