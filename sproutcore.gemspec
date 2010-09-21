@@ -1,24 +1,39 @@
 $:.push File.expand_path("../lib", __FILE__)
 require "sproutcore/version"
 
+is_jruby = Gem::Platform.local.os == "java"
+
 Gem::Specification.new do |s|
   s.name = 'sproutcore'
   s.version = SproutCore::VERSION
-  s.authors = 'Sprout Systems, Inc.  Apple Inc. and contributors'
+  s.authors = 'Strobe, Inc., Sprout Systems, Inc.  Apple Inc. and contributors'
   s.email = 'contact@sproutcore.com'
   s.homepage = 'http://www.sproutcore.com'
-  s.summary = "SproutCore is a platform for building native look-and-feel applications on  the web"
+  s.summary = "SproutCore is a platform for building native look-and-feel applications on the web"
+
+  s.platform = 'java' if is_jruby
 
   s.add_dependency 'rack', '~> 1.2.1'
   s.add_dependency 'json_pure', "~> 1.4.6"
   s.add_dependency 'extlib', "~> 0.9.15"
   s.add_dependency 'erubis', "~> 2.6.6"
   s.add_dependency 'thor', '~> 0.14.1'
-  s.add_dependency 'thin', '~> 1.2.7'
+
+  if is_jruby
+    s.add_dependency 'mongrel', '~> 1.1.5'
+  else
+    s.add_dependency 'thin', '~> 1.2.7'
+  end
 
   s.add_development_dependency 'gemcutter', "~> 0.6.0"
   s.add_development_dependency 'rspec', "~> 1.3.0"
   s.add_development_dependency 'rake'
+
+  # Optional features, used in tests
+  s.add_development_dependency 'haml', "~> 3.0.18"
+  s.add_development_dependency 'less', "~> 1.2.21"
+  s.add_development_dependency 'RedCloth', "~> 4.2.3"
+  s.add_development_dependency 'BlueCloth', "~> 1.0.1"
 
   s.rubyforge_project = "sproutcore"
   s.extra_rdoc_files  = %w[History.txt README.txt]
