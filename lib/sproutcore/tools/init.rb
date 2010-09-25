@@ -8,7 +8,7 @@
 module SC
   class Tools
 
-    desc "sc-init PROJECT [APP]",
+    desc "PROJECT [APP]",
       "Generates a SproutCore project with an initial application"
     method_options('--dry-run' => false, :force => false)
     def init(project_name, app_name=nil)
