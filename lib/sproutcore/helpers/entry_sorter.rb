@@ -101,7 +101,8 @@ module SC
         return [] unless required
 
         required.map do |filename|
-          entry = all_entries["source/#{filename}"] || all_entries["source/lproj/#{filename}"]
+          normalized_filename = filename.downcase
+          entry = all_entries["source/#{normalized_filename}"] || all_entries["source/lproj/#{normalized_filename}"]
 
           unless entry
             SC.logger.warn "Could not find entry '#{filename}' required in #{requiring_entry.target[:target_name].to_s.sub(/^\//,'')}:#{requiring_entry[:filename]}"
