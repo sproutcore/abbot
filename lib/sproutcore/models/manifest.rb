@@ -327,14 +327,16 @@ module SC
       extname = File.extname(fragment)
       extname = nil if extname.empty?
 
-      rootname = fragment.sub(/#{extname}$/, '')
+      # Add leading slash and remove extension
+      rootname = fragment.sub(/\/?/, '/').sub(/#{extname}$/, '')
 
       # look on our own target only if target is named
       ret = cur_manifest.entries(opts).find do |entry|
         next unless entry.has_options?(opts)
         next if extname && (entry.extension != extname)
 
-        entry.rootname[-rootname.length, rootname.length] == rootname
+        normalized_rootname = entry.rootname.sub!(/\/?/, '/') # Add leading slash
+        normalized_rootname[-rootname.length, rootname.length] == rootname
       end
 
       return ret if ret

@@ -19,6 +19,7 @@ describe SC::Manifest, 'entry_for' do
     @manifest.add_entry 'images/foo.gif'
     @manifest.add_entry 'images/sprites/foo.png'
     @manifest.add_entry 'foo.png'
+    @manifest.add_entry 'foobar.png'
 
     @manifest.add_entry 'bark/bite.png',   :foo => :foo
     @manifest.add_entry 'bark/bite.png',   :foo => :bar
@@ -43,6 +44,11 @@ describe SC::Manifest, 'entry_for' do
     entry.filename.should == expected_filename
   end
 
+  def should_not_find(find_str, expected_filename)
+    entry = @manifest.find_entry(find_str)
+    entry.should be_nil
+  end
+
   it "matches exact path from url_root" do
       should_find('images/foo.png', 'images/foo.png')
     end
@@ -57,6 +63,10 @@ describe SC::Manifest, 'entry_for' do
 
     it "will match first match if no extension is provided" do
       should_find('images/foo', 'images/foo.png')
+    end
+
+    it "will not match a partial filename" do
+      should_not_find('bar.png', 'foobar.png')
     end
 
     it "providing extension can force match" do
