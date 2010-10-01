@@ -1,3 +1,11 @@
+*SproutCore 1.4.2 (October 1, 2010)*
+
+* Ignore swp files
+* find_entry should not match partial filenames
+* Made sc_static RegExp not greedy
+* Fixed redundancy in sc-init description
+* Fixes to allow uppercase files to be found by sc_require.
+
 *SproutCore 1.4.1 (September 21, 2010)*
 
 * Fixed string escaping issue in call to YUI Compressor [PDW]
