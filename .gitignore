@@ -12,3 +12,4 @@ LOCAL.yml
 Gemfile.lock
 devbin
 .bundle
+*.swp
