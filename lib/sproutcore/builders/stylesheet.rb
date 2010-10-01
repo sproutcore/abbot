@@ -26,13 +26,6 @@ module SC
       end
     end
 
-    def writelines(dst_path, lines)
-      FileUtils.mkdir_p(File.dirname(dst_path))
-      File.open(dst_path, 'w') do |f|
-        f.write lines
-      end
-    end
-
     def build(dst_path)
       code = rewrite_inline_code(readlines(entry[:source_path]))
       writelines dst_path, code

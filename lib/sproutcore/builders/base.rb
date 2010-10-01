@@ -48,15 +48,15 @@ module SC
       # joins the array of lines.  this is where you can also do any final
       # post-processing on the build
       def joinlines(lines)
-        lines * ""
+        lines.is_a?(Array) ? lines.join : lines
       end
 
       # writes the passed lines to the named file
       def writelines(dst_path, lines)
         FileUtils.mkdir_p(File.dirname(dst_path))
-        f = File.open(dst_path, 'w')
-        f.write joinlines(lines)
-        f.close
+        File.open(dst_path, 'w') do |f|
+          f.write joinlines(lines)
+        end
       end
 
       # Handles occurances of sc_static() or static_url()

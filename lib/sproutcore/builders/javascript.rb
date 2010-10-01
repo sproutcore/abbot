@@ -24,13 +24,6 @@ module SC
       end
     end
 
-    def writelines(dst_path, lines)
-      FileUtils.mkdir_p(File.dirname(dst_path))
-      File.open(dst_path, 'w') do |f|
-        f.write lines
-      end
-    end
-
     def build(dst_path)
       lines = ""
       target_name = entry.target[:target_name].to_s.sub(/^\//,'')
