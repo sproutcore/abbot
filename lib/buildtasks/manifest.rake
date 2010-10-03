@@ -202,7 +202,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
 
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css javascript module_info sass scss less combine string_wrap minify string_wrap html strings tests packed)
+    task :all => %w(css javascript coffeescript module_info sass scss less combine string_wrap minify string_wrap html strings tests packed)
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -265,7 +265,7 @@ namespace :manifest do
       manifest = env[:manifest]
       config   = CONFIG
 
-      # select all original entries with with ext of css
+      # select all original entries with with ext of js
       entries = manifest.entries.select do |e|
         e.original? && e[:ext] == 'js'
       end
@@ -286,6 +286,31 @@ namespace :manifest do
 
     end
 
+    desc "scans for coffeescript files, annotates them and prepares combined entries for each output target"
+    task :coffeescript => :setup do |task, env|
+      manifest = env[:manifest]
+      config   = CONFIG
+      # select all original entries with with ext of coffee
+      entries = manifest.entries(:hidden => true).select do |e|
+        e.original? && e[:ext] == 'coffee'
+      end
+
+      # add transform & tag with build directives.
+      entries.each do |entry|
+        entry = manifest.add_transform entry,
+          :lazy_instantiation => config[:lazy_instantiation],
+          :notify_onload => !config[:combine_javascript],
+          :filename   => ['source', entry[:filename]].join('/'),
+          :build_path => File.join(manifest[:build_root], 'source', entry[:filename]),
+          :url => [manifest[:url_root], 'source', entry[:filename]].join("/"),
+          :build_task => 'build:coffeescript',
+          :resource   => 'javascript',
+          :ext => 'js',
+          :entry_type => :javascript
+        entry.discover_build_directives!
+      end
+    end
+    
     desc "scans for css files, creates a transform and annotates them"
     task :css => :setup do |task, env|
       manifest = env[:manifest]
@@ -348,7 +373,7 @@ namespace :manifest do
     task :module_info => :tests # IMPORTANT! to avoid JS including unit tests.
 
     desc "generates combined entries for javascript and css"
-    task :combine => %w(setup css javascript module_info sass scss less) do |task, env|
+    task :combine => %w(setup css javascript coffeescript module_info sass scss less) do |task, env|
       config = env[:target].config
       manifest = env[:manifest]
       config   = CONFIG

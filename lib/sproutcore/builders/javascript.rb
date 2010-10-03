@@ -25,6 +25,13 @@ module SC
     end
 
     def build(dst_path)
+      input_js = readlines(entry[:source_path])
+      lines = build_lines(input_js)
+
+      writelines dst_path, lines
+    end
+
+    def build_lines(input_js)
       lines = ""
       target_name = entry.target[:target_name].to_s.sub(/^\//,'')
 
@@ -42,7 +49,7 @@ SC.LAZY_INSTANTIATION['#{target_name}'].push(
 "
       end
 
-      lines << rewrite_inline_code(readlines(entry[:source_path]))
+      lines << rewrite_inline_code(input_js)
 
       # Try to load dependencies if we're not combining javascript.
       if entry[:notify_onload]
@@ -57,7 +64,7 @@ SC.LAZY_INSTANTIATION['#{target_name}'].push(
 "
       end
 
-      writelines dst_path, lines
+     lines 
     end
 
     # Returns true if the current entry is a localized strings file.  These

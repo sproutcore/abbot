@@ -45,6 +45,11 @@ namespace :build do
     SC::Builder::JavaScript.build env[:entry], env[:dst_path]
   end
   
+  desc "builds a single coffeescript file"
+  build_task :coffeescript do |task, env|
+    SC::Builder::Coffeescript.build env[:entry], env[:dst_path]
+  end
+  
   desc "builds an html file, possibly executing render tasks"
   build_task :html do |task, env|
     SC::Builder::Html.build env[:entry], env[:dst_path]
