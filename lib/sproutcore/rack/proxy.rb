@@ -70,14 +70,16 @@ module SC
         done = false
         tries = 0
         until done
-          ::Net::HTTP.start(http_host, http_port) do |http|
-            if proxy[:secure]
-              http.use_ssl = true
-              http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-            end
+          http = ::Net::HTTP.new(http_host, http_port)
 
+          if proxy[:secure]
+            http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          end
+
+          http.start do |web|
             if no_body_method.include?(http_method)
-              response = http.send(http_method, http_path, headers)
+              response = web.send(http_method, http_path, headers)
             else
               http_body = env['rack.input']
               http_body.rewind
@@ -86,13 +88,14 @@ module SC
                               true, true, http_path, headers
 
               some_request.body_stream = http_body
-              response = http.request(some_request)
+              response = web.request(some_request)
             end
           end
 
           status = response.code # http status code
+          protocol = proxy[:secure] ? 'https' : 'http'
 
-          SC.logger << "~ PROXY: #{http_method.upcase} #{status} #{url} -> http://#{http_host}:#{http_port}#{http_path}\n"
+          SC.logger << "~ PROXY: #{http_method.upcase} #{status} #{url} -> #{protocol}://#{http_host}:#{http_port}#{http_path}\n"
 
           # display and construct specific response headers
           response_headers = {}
