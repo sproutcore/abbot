@@ -123,8 +123,8 @@ module SC
             response_headers[key] = value
           end
 
-          if [301, 307].include?(status.to_i)
-            SC.logger << '~ REDIRECTING: '+response_headers['location']
+          if [301, 302, 303, 307].include?(status.to_i)
+            SC.logger << '~ REDIRECTING: '+response_headers['location']+"\n"
 
             uri = URI.parse(response_headers['location']);
             http_host = uri.host
