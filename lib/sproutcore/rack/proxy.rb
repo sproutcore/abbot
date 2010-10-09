@@ -50,7 +50,7 @@ module SC
         headers['Content-Length'] = env['CONTENT_LENGTH'] if env['CONTENT_LENGTH']
 
         http_host, http_port = proxy[:to].split(':')
-        http_port = '80' if http_port.nil?
+        http_port = proxy[:secure] ? '443' : '80' if http_port.nil?
 
         # added 4/23/09 per Charles Jolley, corrects problem
         # when making requests to virtual hosts
