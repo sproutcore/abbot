@@ -5,7 +5,14 @@
 #            and contributors
 # ===========================================================================
 
-require 'net/https'
+begin
+  require 'net/https'
+  SC::HTTPS_ENABLED = true
+rescue LoadError => e
+  require 'net/http'
+  SC::HTTPS_ENABLED = false
+end
+
 module SC
   module Rack
 
@@ -30,6 +37,12 @@ module SC
       end
 
       def handle_proxy(proxy, proxy_url, env)
+        if proxy[:secure] && !SC::HTTPS_ENABLED
+          SC.logger << "~ WARNING: HTTPS is not supported on your system, using HTTP instead.\n"
+          SC.logger << "    If you are using Ubuntu, you can run `apt-get install libopenssl-ruby`\n"
+          proxy[:secure] = false
+        end
+
         origin_host = env['SERVER_NAME'] # capture the origin host for cookies
         http_method = env['REQUEST_METHOD'].to_s.downcase
         url = env['PATH_INFO']
