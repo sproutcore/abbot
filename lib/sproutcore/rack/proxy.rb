@@ -136,7 +136,7 @@ module SC
             response_headers[key] = value
           end
 
-          if [301, 302, 303, 307].include?(status.to_i)
+          if [301, 302, 303, 307].include?(status.to_i) && proxy[:redirect] != false
             SC.logger << '~ REDIRECTING: '+response_headers['location']+"\n"
 
             uri = URI.parse(response_headers['location']);
@@ -144,7 +144,6 @@ module SC
             http_port = uri.port
             http_path = uri.path
             http_path += '?'+uri.query if uri.query
-            headers = {}
 
             tries += 1
             if tries > 10
