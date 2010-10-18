@@ -19,7 +19,7 @@ describe "manifest:prepare_build_tasks:combine" do
   end
 
   it "should run setup, javascript, css, sass, scss & less as prereq" do
-    %w(setup javascript css sass scss less).each do |task_name|
+    %w(setup javascript coffeescript css sass scss less).each do |task_name|
       should_run("manifest:prepare_build_tasks:#{task_name}") { run_task }
     end
   end
