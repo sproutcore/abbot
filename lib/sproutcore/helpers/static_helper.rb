@@ -343,6 +343,7 @@ module SC
           packed << t 
         else
           packed = []
+          unpacked = []
           packed = targets + [t] 
         end
 
