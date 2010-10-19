@@ -338,11 +338,12 @@ module SC
         targets = expand_required_targets(t)
 
         if t.config[:use_packed] && packed_entry_name # must pass to activate
-          packed, unpacked = SC::Helpers::PackedOptimizer.optimize(targets)
-          unpacked << t # always use unpacked for main target
+          packed = []
+          unpacked = []
+          packed << t 
         else
           packed = []
-          unpacked = targets + [t] # always use unpacked
+          packed = targets + [t] 
         end
 
         # deal with packed targets...
@@ -368,9 +369,6 @@ module SC
           yield(t, entry)
         end
       end
-
-
     end
-
   end
 end

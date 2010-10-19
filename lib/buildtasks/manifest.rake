@@ -331,7 +331,6 @@ namespace :manifest do
           (javascript_entries[entry[:resource]] ||= []) << entry
         end
       end
-
       # build combined CSS entry
       css_entries.each do |resource_name, entries|
         manifest.add_composite resource_name.ext('css'),
@@ -361,11 +360,10 @@ namespace :manifest do
 
     desc "adds a packed entry including javascript.js from required targets"
     task :packed => %w(setup combine) do |task, env|
+      # don't add packed entries for apps.
       target   = env[:target]
       manifest = env[:manifest]
 
-      # don't add packed entries for apps.
-      if target[:target_type] != :app
         # Handle JavaScript version.  get all required targets and find their
         # javascript.js.  Build packed js from that.
         targets = target.expand_required_targets + [target]
@@ -389,7 +387,6 @@ namespace :manifest do
           :targets           => targets,
           :packed            => true
 
-      end
     end
     task :minify => :packed # IMPORTANT: don't want minified version
 
@@ -399,10 +396,10 @@ namespace :manifest do
       manifest = env[:manifest]
 
       # don't add packed entries for apps.
-      if target[:target_type] != :app
+
         # Handle CSS version.  get all required targets and find their
         # stylesheet.css.  Build packed css from that.
-        targets = target.expand_required_targets + [target]
+        targets = target.expand_required_targets(:theme=>true) + [target]
         entries = targets.map do |target|
           m = target.manifest_for(manifest.variation).build!
 
@@ -423,7 +420,6 @@ namespace :manifest do
           :targets           => targets,
           :packed            => true
 
-      end
     end
     task :minify => :packed # IMPORTANT: don't want minified version
 
