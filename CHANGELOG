@@ -1,3 +1,14 @@
+*SproutCore 1.4.3 (October 19, 2010)*
+
+* Better handling of Proxy Redirect
+* Handle cases of missing net/https - Fixes #7
+* Proxy: Use port 443 if secure and no port specified
+* Fixes to Proxy Redirect support
+* Fixes to SSL
+* Cleanup to Builders - Fixes #2
+* Wiped the old Rakefile since it wasn't applicable anymore
+
+
 *SproutCore 1.4.2 (October 1, 2010)*
 
 * Ignore swp files
