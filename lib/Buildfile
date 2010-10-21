@@ -79,6 +79,7 @@ mode :all do
     # In design mode, load the designer
     :design_required => ['sproutcore/designer'],
 
+    # packs all JavaScript and CSS into one file for reduced HTTP requests
     :use_packed => true,
 
 		# If set to true, the specified framework, if loaded via the SC.loadBundle
