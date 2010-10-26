@@ -127,7 +127,7 @@ namespace :manifest do
           end
 
         # if this is a preferred_language, hide unless we've seen one
-        elsif entry.[:language].to_s == preferred_language.to_s
+        elsif entry[:language].to_s == preferred_language.to_s
           if seen[entry[:filename]]
             entry.hide!
           else
