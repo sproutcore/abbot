@@ -131,8 +131,15 @@ module SproutCore
 
   def self.yui_jar
     @yui_jar ||= begin
-      yui_root = File.expand_path("../sproutcore/vendor/yui-compressor", __FILE__)
-      File.join(yui_root, 'SCyuicompressor-2.4.2.jar')
+      yui_root = File.expand_path("../sproutcore/vendor/closure/lib", __FILE__)
+      File.join(yui_root, 'yuicompressor-2.4.2.jar')
+    end
+  end
+
+  def self.closure_jar
+    @closure_jar ||= begin
+      closure_root = File.expand_path("../sproutcore/vendor/closure/lib", __FILE__)
+      File.join(closure_root, 'compiler.jar')
     end
   end
 
