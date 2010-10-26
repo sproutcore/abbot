@@ -35,7 +35,7 @@ module SC
     def build_css(dst_path)
       a = Regexp.new('^'+MANIFEST.build_root)
       if dst_path =~ a
-        $to_minify << dst_path
+        # $to_minify << dst_path
         FileUtils.mkdir_p(File.dirname(dst_path))
         FileUtils.copy(entry.source_path, dst_path)
       else
@@ -56,7 +56,7 @@ module SC
     def build_javascript(dst_path)
       a = Regexp.new('^'+MANIFEST.build_root)
       if dst_path =~ a
-        $to_minify << dst_path
+        # $to_minify << dst_path
         FileUtils.mkdir_p(File.dirname(dst_path))
         FileUtils.copy(entry.source_path, dst_path)
       else

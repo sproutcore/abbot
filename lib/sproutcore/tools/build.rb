@@ -20,6 +20,8 @@ module SC
     method_option :entries, :type => :string
     method_option :clean,   :type => :boolean, :aliases => "-c"
     def build(*targets)
+      t1 = Time.now
+      SC.logger.info  'Starting build process...'
       # Copy some key props to the env
       SC.env.build_prefix   = options.buildroot if options.buildroot
       SC.env.staging_prefix = options.stageroot if options.stageroot
@@ -89,7 +91,8 @@ module SC
       if $to_minify.length > 0
         filecompress = "java -jar \"" + SC.yui_jar + "\" --charset utf-8 --line-break 80 \"" + $to_minify * '" "' + "\" 2>&1"
         SC.logger.info  'Compressing with YUI...'
-
+        SC.logger.info  filecompress
+        
         output = `#{filecompress}`      # It'd be nice to just read STDERR, but
                                         # I can't find a reasonable, commonly-
                                         # installed, works-on-all-OSes solution.
@@ -101,6 +104,11 @@ module SC
           exit(1)
         end
       end
+      t2 = Time.now
+      seconds = t2-t1
+      minutes = seconds/60
+      seconds = seconds%60
+      puts 'Build time '+minutes.floor.to_s+ ' minutes '+seconds.floor.to_s+' secs'
     end
   end
 end
