@@ -36,6 +36,7 @@ module SC
     class_option "mode",         :type => :string
     class_option "logfile",      :type => :string
     class_option "build",        :type => :string
+    class_option "app_name",     :type => :string
     class_option "verbose",      :type => :boolean, :aliases => "-v"
     class_option "very-verbose", :type => :boolean, :aliases => "-V"
     class_option "library",      :type => :string #deprecated
@@ -48,6 +49,7 @@ module SC
       super
       prepare_logger!
       prepare_mode!
+      prepare_app!
       prepare_build_numbers!
     end
 
@@ -108,6 +110,14 @@ module SC
       def prepare_mode!(preferred_mode = 'production')
         build_mode = (options[:mode] || options[:environment] || preferred_mode).to_s.downcase.to_sym
         SC.build_mode = build_mode
+      end
+      
+      def prepare_app!
+        if options[:app_name]
+          SC.env[:app_name] = options[:app_name].split(',')
+        else
+          SC.env[:app_name] = ''
+        end
       end
 
       # Configure the current build numbers.  Handles the --build option.
@@ -190,7 +200,8 @@ module SC
 
         # Filter out any empty target names.  Sometimes this happens when
         # processing arguments.
-        targets.reject! { |x| x.nil? || x.size == 0 }
+        
+        targets.reject! { |x| x.nil? || x.size == 0}
 
         # If targets are specified, find the targets project or parents...
         if targets.size > 0
@@ -219,6 +230,7 @@ module SC
           end
         end
 
+        
         # If include required was specified, merge in all required bundles as
         # well.
         if options[:'include-required']
@@ -230,7 +242,11 @@ module SC
 
           targets = targets.flatten.uniq.compact
         end
-
+        
+        # appname = SC.env[:app_name]
+        #         puts appname
+        #         targets = targets.reject { |x| !x.target_name.to_s.eql? '/'+appname }
+        
         return targets
       end
 

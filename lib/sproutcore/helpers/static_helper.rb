@@ -39,6 +39,9 @@ module SC
         urls = []
         combine_stylesheets = t.config[:combine_stylesheets]
         combined_entries(t, opts, 'stylesheet.css', 'stylesheet-packed.css') do |cur_target, cur_entry|
+
+          $to_minify << cur_entry[:build_path]
+
           # include either the entry URL or URL of ordered entries
           # depending on setup
           if combine_stylesheets
@@ -90,8 +93,11 @@ module SC
         # collect urls from entries
         urls = []
         combine_javascript = t.config[:combine_javascript]
+      
         combined_entries(t, opts, 'javascript.js', 'javascript-packed.js') do |cur_target, cur_entry|
 
+          $to_minify << cur_entry[:build_path]
+          
           # include either the entry URL or URL of ordered entries
           # depending on setup
           if cur_target.config[:combine_javascript]

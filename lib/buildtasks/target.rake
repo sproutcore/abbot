@@ -42,7 +42,7 @@ namespace :target do
         (config[:build_prefix] || '').to_s.split('/'),
         (url_prefix || '').to_s.split('/'),
         target[:target_name].to_s.split('/')))
-      $to_minify << TARGET.build_root
+
 
     target[:staging_root] = File.expand_path(config[:staging_root] ||
       File.join(project.project_root.to_s,

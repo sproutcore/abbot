@@ -87,7 +87,7 @@ module SC
           SC::Helpers::HTML5Manifest.new.build(entry)
         end
       end
-
+      $to_minify.uniq!
       if $to_minify.length > 0
         yui_root = File.expand_path("../../../../vendor/closure", __FILE__)
         jar_path = File.join(yui_root, 'SCClosureCompiler.jar')
