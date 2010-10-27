@@ -243,11 +243,25 @@ module SC
           targets = targets.flatten.uniq.compact
         end
         
-        # appname = SC.env[:app_name]
-        #         puts appname
-        #         targets = targets.reject { |x| !x.target_name.to_s.eql? '/'+appname }
+        appnames = SC.env[:app_name]
+        tar = []
         
-        return targets
+        # if it has the appname argument only build the target with the appname        
+        if appnames.size > 0 
+          targets.each do |target|
+            appnames.each do |appname|
+              if target.target_name.to_s.eql? '/'+appname
+                tar << target
+              end
+            end
+          end
+        else
+          tar = targets
+        end
+        
+
+        
+        return tar
       end
 
       # Wraps around find_targets but raises an exception if no target is
