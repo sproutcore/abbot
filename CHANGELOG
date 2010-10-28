@@ -1,3 +1,9 @@
+*Next revision
+*One JS , one CSS
+*Moved to Google Closure minification
+*Faster build times
+
+
 *SproutCore 1.4.3 (October 19, 2010)*
 
 * Better handling of Proxy Redirect
