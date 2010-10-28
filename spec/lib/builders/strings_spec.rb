@@ -1,4 +1,5 @@
 require "lib/builders/spec_helper"
+require 'yaml'
 
 describe SC::Builder::Strings do
 
