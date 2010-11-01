@@ -44,18 +44,65 @@ namespace :manifest do
   desc "Actually builds a manifest.  This will catalog all entries and then filter them"
   task :build => %w(catalog hide_buildfiles localize prepare_build_tasks:all)
 
-  desc "first step in building a manifest, this adds a simple copy file entry for every file in the source"
+  desc "Builds a manifest, this adds a copy file entry for every whitelisted file in the source"
   task :catalog do |t, env|
     target   = env[:target]
     manifest = env[:manifest]
 
     source_root = target[:source_root]
 
-    SC.profile("PROFILE_CATALOG") do
-      Dir["#{source_root}/**/*"].each do |path|
-        next unless File.file?(path)
-        next if target.target_directory?(path)
+    whitelist = nil
 
+    # Find and parse the BuildWhitelist json file
+    # Right now, the build whitelist is read for every target, can we optimize this?
+    Dir.glob("#{Dir.pwd}/Whitelist").each do |path|
+      next unless File.file?(path)
+
+      contents = File.read(path)
+      parser = JSON.parser.new(contents)
+      whitelist = parser.parse
+    end
+
+    if whitelist
+      acceptableFilesForTarget = whitelist["#{target[:target_name]}"]
+
+      # Always accept these files
+      defaultAcceptableFiles = [
+        '.html',
+        '.rhtml',
+        '.png',
+        '.jpg',
+        '.gif'
+      ]
+
+      if acceptableFilesForTarget.kind_of?(Array)
+        acceptableFilesForTarget += defaultAcceptableFiles
+
+      elsif acceptableFilesForTarget.kind_of?(String)
+        acceptableFilesForTarget = [acceptableFilesForTarget] + defaultAcceptableFiles
+
+      else
+        #WhiteList isn't defined, don't include anything
+        acceptableFilesForTarget = defaultAcceptableFiles
+      end
+    else
+      acceptableFilesForTarget = [".*"]
+    end
+
+    Dir.glob("#{source_root}/**/*").each do |path|
+      next unless File.file?(path)
+      next if target.target_directory?(path)
+
+      valid = false
+
+      acceptableFilesForTarget.each do |acceptableFile|
+        if path =~ Regexp.new(acceptableFile) then
+          valid = true
+          break
+        end
+      end
+
+      if valid
         # cut source root out to make filename.  make sure path separators are /
         filename = path.sub /^#{Regexp.escape source_root}\//, ''
         filename = filename.split(::File::SEPARATOR).join('/')
