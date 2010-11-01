@@ -36,7 +36,7 @@ module SC
     class_option "mode",         :type => :string
     class_option "logfile",      :type => :string
     class_option "build",        :type => :string
-    class_option "app_name",     :type => :string
+    class_option "build_targets",     :type => :string
     class_option "verbose",      :type => :boolean, :aliases => "-v"
     class_option "very-verbose", :type => :boolean, :aliases => "-V"
     class_option "library",      :type => :string #deprecated
@@ -113,10 +113,10 @@ module SC
       end
       
       def prepare_app!
-        if options[:app_name]
-          SC.env[:app_name] = options[:app_name].split(',')
+        if options[:build_targets]
+          SC.env[:build_targets] = options[:build_targets].split(',')
         else
-          SC.env[:app_name] = ''
+          SC.env[:build_targets] = ''
         end
       end
 
@@ -243,7 +243,7 @@ module SC
           targets = targets.flatten.uniq.compact
         end
         
-        appnames = SC.env[:app_name]
+        appnames = SC.env[:build_targets]
         tar = []
         
         # if it has the appname argument only build the target with the appname        

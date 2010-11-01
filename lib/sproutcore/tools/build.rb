@@ -91,7 +91,7 @@ module SC
       if $to_minify.length > 0
         yui_root = File.expand_path("../../../../vendor/closure", __FILE__)
         jar_path = File.join(yui_root, 'SCClosureCompiler.jar')
-        filecompress = "java -Xmx128m -jar \"" + jar_path + "\" \"" + $to_minify * "\" \"" + "\" 2>&1"
+        filecompress = "java -Xmx256m -jar \"" + jar_path + "\" \"" + $to_minify * "\" \"" + "\" 2>&1"
         SC.logger.info  'Compiling with Closure...'
         SC.logger.info  filecompress
         
