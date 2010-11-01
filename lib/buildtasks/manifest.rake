@@ -68,6 +68,8 @@ namespace :manifest do
 
       # Always accept these files
       defaultAcceptableFiles = [
+        '.manifest',
+        '.htm',
         '.html',
         '.rhtml',
         '.png',
