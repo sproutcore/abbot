@@ -14,7 +14,7 @@ module SC
   class Builder::BundleLoaded < Builder::Base
 
     def build(dst_path)
-      writelines dst_path, ["; if ((typeof SC !== 'undefined') && SC && SC.bundleDidLoad) SC.bundleDidLoad('#{entry.target[:target_name].to_s.sub(/^\//,'')}');"]
+      writelines dst_path, ["; if ((typeof SC !== 'undefined') && SC.Module && SC.Module.moduleDidLoad) SC.Module.moduleDidLoad('#{entry.target[:target_name].to_s.sub(/^\//,'')}');"]
     end
 
   end
@@ -33,11 +33,11 @@ module SC
       eruby = Erubis::Eruby.new <<-EOT
         ;(function() {
           var target_name = '<%= @target_name %>' ;
-          if (!SC.BUNDLE_INFO) throw "SC.BUNDLE_INFO is not defined!" ;
-          if (SC.BUNDLE_INFO[target_name]) return ; <%# not an error... %>
+          if (!SC.MODULE_INFO) throw "SC.MODULE_INFO is not defined!" ;
+          if (SC.MODULE_INFO[target_name]) return ; <%# not an error... %>
 
           <%# first time, so add a Hash with this target's bundle_info %>
-          SC.BUNDLE_INFO[target_name] = {
+          SC.MODULE_INFO[target_name] = {
             requires: [<%= @requires.join(',') %>],
             styles:   [<%= @styles.join(',') %>],
             scripts:  [<%= @scripts.join(',') %>]
