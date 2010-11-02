@@ -199,7 +199,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
 
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css javascript bundle_info bundle_loaded sass scss less combine minify html strings tests packed) 
+    task :all => %w(css javascript module_info bundle_loaded sass scss less combine minify html strings tests packed) 
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -305,13 +305,13 @@ namespace :manifest do
       end
     end
 
-    desc "adds a bundle_info.js entry for each dynamic_required target"
-    task :bundle_info => %w(setup) do |task, env|
+    desc "adds a module_info.js entry for each dynamic_required target"
+    task :module_info => %w(setup) do |task, env|
       target   = env[:target]
       manifest = env[:manifest]
       config   = CONFIG
 
-      # Populate bundle_info for all dynamic_required frameworks.
+      # Populate module_info for all dynamic_required frameworks.
       # Add :debug_dynamic_required and :test_dynamic_required depending on
       # the build mode.
       debug = config[:load_debug]
@@ -325,9 +325,9 @@ namespace :manifest do
             source_entries << e
           end
         end
-        manifest.add_entry 'bundle_info.js',
+        manifest.add_entry 'module_info.js',
           :dynamic        => true, # required to get correct timestamp for cacheable_url
-          :build_task     => 'build:bundle_info',
+          :build_task     => 'build:module_info',
           :resource       => 'javascript',
           :entry_type     => :javascript,
           :composite      => true,
@@ -340,7 +340,7 @@ namespace :manifest do
           :theme          => true
       end
     end
-    task :bundle_info => :tests # IMPORTANT! to avoid JS including unit tests.
+    task :module_info => :tests # IMPORTANT! to avoid JS including unit tests.
 
     desc "adds a bundle_loaded.js entry if the target is a framework"
     task :bundle_loaded => %w(setup) do |task, env|
@@ -361,7 +361,7 @@ namespace :manifest do
     task :bundle_loaded => :tests # IMPORTANT! to avoid JS including unit tests.
 
     desc "generates combined entries for javascript and css"
-    task :combine => %w(setup css javascript bundle_info bundle_loaded sass scss less) do |task, env|
+    task :combine => %w(setup css javascript module_info bundle_loaded sass scss less) do |task, env|
       manifest = env[:manifest]
       config   = CONFIG
 
@@ -595,7 +595,7 @@ namespace :manifest do
     end
 
     desc "creates transform entries for all css and Js entries to minify them if needed"
-    task :minify => %w(setup javascript bundle_info bundle_loaded css combine sass scss less) do |task, env|
+    task :minify => %w(setup javascript module_info bundle_loaded css combine sass scss less) do |task, env|
       manifest = env[:manifest]
       config   = CONFIG
 
@@ -631,7 +631,7 @@ namespace :manifest do
     end
 
     desc "adds a loc strings entry that generates a yaml file server-side functions can use"
-    task :strings => %w(setup javascript bundle_info bundle_loaded) do |task, env|
+    task :strings => %w(setup javascript module_info bundle_loaded) do |task, env|
       manifest = env[:manifest]
 
       # find the lproj/strings.js file...

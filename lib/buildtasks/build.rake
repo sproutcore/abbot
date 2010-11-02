@@ -77,7 +77,6 @@ namespace :build do
     build_task :inline_javascript do |task, env|
       SC::Builder::Minify.build env[:entry], env[:dst_path], :inline_javascript
     end
-    
   end
   
   desc "builds a unit test"
@@ -94,10 +93,10 @@ namespace :build do
   build_task :bundle_loaded do |task, env|
     SC::Builder::BundleLoaded.build env[:entry], env[:dst_path]
   end
-  
-  desc "builds the bundle_info.js file for a required framework"
-  build_task :bundle_info do |task, env|
-    SC::Builder::BundleInfo.build env[:entry], env[:dst_path]
+
+  desc "builds the module_info.js file for a required framework"
+  build_task :module_info do |task, env|
+    SC::Builder::ModuleInfo.build env[:entry], env[:dst_path]
   end
   
 end

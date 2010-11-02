@@ -19,15 +19,15 @@ module SC
 
   end
 
-  # Builds a bundle_info.js file which MUST be run *before* the framework is
+  # Builds a module_info.js file which MUST be run *before* the framework is
   # loaded by the application or framework doing the loading.
-  class Builder::BundleInfo < Builder::Base
+  class Builder::ModuleInfo < Builder::Base
 
     def build(dst_path)
       begin
         require 'erubis'
       rescue
-        raise "Cannot render bundle_info.js because erubis is not installed. Try running 'sudo gem install erubis' and try again."
+        raise "Cannot render module_info.js because erubis is not installed. Try running 'sudo gem install erubis' and try again."
       end
 
       eruby = Erubis::Eruby.new <<-EOT
@@ -36,7 +36,7 @@ module SC
           if (!SC.MODULE_INFO) throw "SC.MODULE_INFO is not defined!" ;
           if (SC.MODULE_INFO[target_name]) return ; <%# not an error... %>
 
-          <%# first time, so add a Hash with this target's bundle_info %>
+          <%# first time, so add a Hash with this target's module_info %>
           SC.MODULE_INFO[target_name] = {
             requires: [<%= @requires.join(',') %>],
             styles:   [<%= @styles.join(',') %>],
@@ -47,12 +47,13 @@ module SC
 
       output = ""
       entry.targets.each do |t|
-        bundle_info = t.bundle_info({ :debug => entry[:debug], :test => entry[:test], :theme => entry[:theme], :variation => entry[:variation] })
+        module_info = t.module_info({ :debug => entry[:debug], :test => entry[:test], :theme => entry[:theme], :variation => entry[:variation] })
+
         output << eruby.evaluate({
           :target_name => t[:target_name].to_s.sub(/^\//,''),
-          :requires => bundle_info[:requires].map{ |t| "'#{t[:target_name].to_s.sub(/^\//,'')}'" },
-          :styles   => bundle_info[:css_urls].map{ |url| "'#{url}'" },
-          :scripts  => bundle_info[:js_urls].map{  |url| "'#{url}'" }
+          :requires => module_info[:requires].map{ |t| "'#{t[:target_name].to_s.sub(/^\//,'')}'" },
+          :styles   => module_info[:css_urls].map{ |url| "'#{url}'" },
+          :scripts  => module_info[:js_urls].map{  |url| "'#{url}'" }
         })
       end
       writelines dst_path, [output]

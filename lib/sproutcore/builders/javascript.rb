@@ -46,7 +46,7 @@ SC.LAZY_INSTANTIATION['#{target_name}'].push(
 
       # Try to load dependencies if we're not combining javascript.
       if entry[:notify_onload]
-        lines << "; if ((typeof SC !== 'undefined') && SC && SC.Module.scriptDidLoad) SC.Module.scriptDidLoad('#{target_name}');"
+        lines << "; if ((typeof SC !== 'undefined') && SC && SC.Module && SC.Module.scriptDidLoad) SC.Module.scriptDidLoad('#{target_name}');"
       end
 
       if entry[:lazy_instantiation] && entry[:notify_onload]

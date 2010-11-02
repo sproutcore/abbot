@@ -482,9 +482,9 @@ module SC
     # NOTE: If the target is pre-loaded, an empty HashStruct is returned. The
     # target_name must still be added, but we'll never use the actual contents
     # and don't need to waste bandwidth downloading it.
-    def bundle_info(opts ={})
+    def module_info(opts ={})
       if self[:target_type] == :app
-        raise "bundle_info called on an app target"
+        raise "module_info called on an app target"
       else
         requires = required_targets(opts) # only go one-level deep!
 

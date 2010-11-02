@@ -106,7 +106,7 @@ describe "manifest:prepare_build_tasks:bundle_loaded" do
 
 end
 
-describe "manifest:prepare_build_tasks:bundle_info" do
+describe "manifest:prepare_build_tasks:module_info" do
 
   include SC::SpecHelpers
   include SC::ManifestSpecHelpers
@@ -126,7 +126,7 @@ describe "manifest:prepare_build_tasks:bundle_info" do
     @manifest.build!
   end
 
-  it "should create a bundle_info.js for a dynamic_required target" do
+  it "should create a module_info.js for a dynamic_required target" do
     # run_task
     # entries = @manifest.entries.select { |e| e.entry_type == :javascript }
     # entries.each do |entry|

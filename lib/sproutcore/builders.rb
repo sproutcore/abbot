@@ -1,5 +1,5 @@
 require "sproutcore/builders/base"
-require "sproutcore/builders/bundle"
+require "sproutcore/builders/module"
 require "sproutcore/builders/combine"
 require "sproutcore/builders/html"
 require "sproutcore/builders/javascript"
