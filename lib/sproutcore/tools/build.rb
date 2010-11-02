@@ -91,8 +91,12 @@ module SC
       if $to_minify.length > 0
         yui_root = File.expand_path("../../../../vendor/closure", __FILE__)
         jar_path = File.join(yui_root, 'SCClosureCompiler.jar')
-        filecompress = "java -Xmx256m -jar \"" + jar_path + "\" \"" + $to_minify * "\" \"" + "\" 2>&1"
-        SC.logger.info  'Compiling with Closure...'
+        if SC.env[:yui_minification]
+          filecompress = "java -Xmx256m -jar \"" + jar_path + "\" -yuionly \"" + $to_minify * "\" \"" + "\" 2>&1"
+        else
+          filecompress = "java -Xmx256m -jar \"" + jar_path + "\" \"" + $to_minify * "\" \"" + "\" 2>&1"
+        end
+        SC.logger.info  'Minifying...'
         SC.logger.info  filecompress
         
         output = `#{filecompress}`      # It'd be nice to just read STDERR, but
@@ -101,7 +105,7 @@ module SC
         SC.logger.info output
         if $?.exitstatus != 0
           SC.logger.fatal(output)
-          SC.logger.fatal("!!!!Closure compiler failed, please check that your js code is valid")
+          SC.logger.fatal("!!!!Minifying failed, please check that your js code is valid")
           SC.logger.fatal("!!!!Failed compiling ... "+ $to_minify.join(','))
           exit(1)
         end
