@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
     s.add_dependency 'mongrel', '~> 1.1.5'
   else
     s.add_dependency 'thin', '~> 1.2.7'
+    s.add_dependency 'eventmachine', '>= 0.12.10' # Thin requires wrong version
   end
 
   s.add_development_dependency 'gemcutter', "~> 0.6.0"
