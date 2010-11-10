@@ -52,16 +52,11 @@ module SC
       end
 
       # writes the passed lines to the named file
-      def writeline(dst_path, line)
+      def writelines(dst_path, lines)
         FileUtils.mkdir_p(File.dirname(dst_path))
         File.open(dst_path, 'w') do |f|
-          f.write line
+          f.write joinlines(lines)
         end
-      end
-
-      # writes the passed lines to the named file
-      def writelines(dst_path, lines)
-        writeline(dst_path,joinlines(lines))
       end
 
       # Handles occurances of sc_static() or static_url()

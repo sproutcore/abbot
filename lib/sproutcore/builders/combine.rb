@@ -8,10 +8,6 @@
 require "sproutcore/builders/base"
 require 'fileutils'
 
-#require 'pathname'
-require 'bundler/setup'
-require 'chance'
-
 module SC
 
   # This builder combines several javascript files into a single file.  It is
@@ -20,31 +16,6 @@ module SC
   # build directives such sc_static().
   #
   class Builder::Combine < Builder::Base
-
-    # override this method in subclasses to actually do build
-    def self.buildWithChance(entry, dst_path)
-      new(entry).buildWithChance(dst_path)
-    end
-      
-    def buildWithChance(dst_path)
-      theme_name = entry.target.config[:theme]
-      chance = Chance::Instance.new({:theme => theme_name })
-
-      entries = entry.ordered_entries || entry.source_entries
-  
-      entries.each do |entry|
-        src_path = entry.stage!.source_path
-        next unless File.exist?(src_path)
-
-        chance.map_file(entry.filename, src_path)
-      end
-
-      chance.update
-
-      if chance.css
-        writeline dst_path, chance.css
-      end
-    end
 
     def build(dst_path)
       lines = []
@@ -80,8 +51,7 @@ SC.LAZY_INSTANTIATION['#{target_name}'].push(
   )
 );
 "
-      end
-
+    end
       writelines dst_path, lines
     end
 
