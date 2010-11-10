@@ -123,7 +123,6 @@ module SC
       end
       
       def yui_minification!
-        puts 'yui'
         SC.env[:yui_minification] = options[:yui_minification]
       end
 
