@@ -93,7 +93,10 @@ mode :all do
     # causes the default index.html file to add an overflow:hidden statement
     # to the body tag.  This is usually preferred since it makes drag and drop
     # look nicer
-    :hide_body_overflow => true
+    :hide_body_overflow => true,
+
+    # A hash of additional MIME types, i.e. { '.m4a' => 'audio/mp4a-latm' }
+    :mime_types => {}
 
 end
 
