@@ -1,3 +1,9 @@
+*SproutCore 1.4.4 (November 12, 2010)*
+
+* Support for custom mime-types
+* Pass in SC.build_mode to the app
+
+
 *SproutCore 1.4.3 (October 19, 2010)*
 
 * Better handling of Proxy Redirect
@@ -16,6 +22,7 @@
 * Made sc_static RegExp not greedy
 * Fixed redundancy in sc-init description
 * Fixes to allow uppercase files to be found by sc_require.
+
 
 *SproutCore 1.4.1 (September 21, 2010)*
 
