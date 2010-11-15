@@ -141,6 +141,8 @@ module SC
           end
         end
 
+        ret << %(<script type="text/javascript">SC.buildMode = "#{SC.build_mode}";</script>)
+
         return ret * "\n"
       end
 

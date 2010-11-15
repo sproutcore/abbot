@@ -149,7 +149,7 @@ module SC
         headers = {
           #"Last-Modified"  => File.mtime(build_path).httpdate,
           #"Etag"           => File.mtime(build_path).to_i.to_s,
-          "Content-Type"   => mime_type(build_path),
+          "Content-Type"   => mime_type(build_path, target.config[:mime_types]),
           "Content-Length" => file_size.to_s,
           "Expires"        => (cacheable ? (Time.now + ONE_YEAR) : Time.now).httpdate
         }
@@ -324,7 +324,7 @@ module SC
 
       # Returns the mime type.  Basically this is the Rack mime mapper with
       # a few bug fixes.
-      def mime_type(build_path)
+      def mime_type(build_path, custom = {})
         ext = File.extname(build_path)
 
         case ext
@@ -333,7 +333,7 @@ module SC
         when '.ttf'
           'font/ttf'
         else
-          ::Rack::Mime.mime_type(ext, 'text/plain')
+          custom[ext] || ::Rack::Mime.mime_type(ext, 'text/plain')
         end
 
       end
