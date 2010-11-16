@@ -5,6 +5,9 @@
 
 # Tasks invoked while building Manifest objects.  You can override these
 # tasks in your buildfiles.
+
+require 'chance'
+
 namespace :manifest do
 
   desc "Invoked just before a manifest object is built to setup standard properties"
@@ -42,7 +45,7 @@ namespace :manifest do
   end
 
   desc "Actually builds a manifest.  This will catalog all entries and then filter them"
-  task :build => %w(catalog hide_buildfiles localize prepare_build_tasks:all)
+  task :build => %w(catalog setup_chance hide_buildfiles localize prepare_build_tasks:all)
 
   desc "Builds a manifest, this adds a copy file entry for every whitelisted file in the source"
   task :catalog do |t, env|
@@ -80,6 +83,8 @@ namespace :manifest do
       if acceptableFilesForTarget.kind_of?(Array)
         acceptableFilesForTarget += defaultAcceptableFiles
 
+      # I make an assumption that if the type of acceptableFilesForTarget is String,
+      # then the user wants to match that across any file, so make it an array to accomodate
       elsif acceptableFilesForTarget.kind_of?(String)
         acceptableFilesForTarget = [acceptableFilesForTarget] + defaultAcceptableFiles
 
@@ -113,8 +118,35 @@ namespace :manifest do
     end
   end
 
+  desc "Adds all the images and the css files to the Chance library"
+  task :setup_chance => :catalog do |task, env|
+    manifest = env[:manifest]
+
+    chanceFileTypes = [
+      '.css',
+      '.png',
+      '.jpg',
+      '.jpeg',
+      '.bmp',
+      '.gif'
+    ]
+    
+    # Loop through entries and add each one to chance
+    manifest.entries.each do |entry|
+      src_path = entry.stage!.staging_path
+      next unless File.exist?(src_path)
+
+      file_extension = File.extname(src_path)
+
+      if chanceFileTypes.include? file_extension
+
+        Chance.add_file src_path
+      end
+    end
+  end
+
   desc "hides structural files that do not belong in build include Buildfiles and debug or fixtures if turned off"
-  task :hide_buildfiles => :catalog do |task, env|
+  task :hide_buildfiles => [:catalog, :setup_chance] do |task, env|
     manifest = env[:manifest]
 
     # these directories are to be excluded unless CONFIG.load_"dirname" = true
@@ -145,7 +177,7 @@ namespace :manifest do
   end
 
   desc "localizes files. reject any files from other languages"
-  task :localize => [:catalog, :hide_buildfiles] do |task, env|
+  task :localize => [:catalog, :setup_chance, :hide_buildfiles] do |task, env|
     target   = env[:target]
     manifest = env[:manifest]
 
@@ -199,7 +231,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
 
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css javascript module_info bundle_loaded sass scss less combine minify html strings tests packed) 
+    task :all => %w(css javascript images module_info bundle_loaded sass scss less combine minify html strings tests packed) 
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -305,6 +337,38 @@ namespace :manifest do
       end
     end
 
+    desc "scans for images, creates a transform and annotates them"
+    task :images => :setup do |task, env|
+      
+      manifest = env[:manifest]
+
+      chanceFileTypes = [
+        '.css',
+        '.png',
+        '.jpg',
+        '.jpeg',
+        '.bmp',
+        '.gif'
+      ]
+
+      # select all original entries with with ext of css
+      entries = manifest.entries.select do |e|
+        file_extension = File.extname(e.stage!.staging_path)
+        e.original? && chanceFileTypes.include?(file_extension)
+      end
+
+      # add transform & tag with build directives.
+      entries.each do |entry|
+        entry = manifest.add_transform entry,
+          :filename   => ['source', entry[:filename]].join('/'),
+          :build_path => File.join(manifest[:build_root], 'source', entry[:filename]),
+          :url => [manifest[:url_root], 'source', entry[:filename]].join("/"),
+          :build_task => 'build:image',
+          :resource   => 'image',
+          :entry_type => :image
+      end
+    end
+
     desc "adds a module_info.js entry for each dynamic_required target"
     task :module_info => %w(setup) do |task, env|
       target   = env[:target]
@@ -373,17 +437,17 @@ namespace :manifest do
         next if entry[:resource].nil?
 
         # look for CSS or JS type entries
-        case entry[:entry_type]
-        when :css
-          (css_entries[entry[:resource]] ||= []) << entry
-        when :javascript
+        if entry[:entry_type] == :css or entry[:entry_type] == :image
+          (css_entries["stylesheet"] ||= []) << entry
+        elsif entry[:entry_type] == :javascript
           (javascript_entries[entry[:resource]] ||= []) << entry
         end
       end
+
       # build combined CSS entry
       css_entries.each do |resource_name, entries|
         manifest.add_composite resource_name.ext('css'),
-          :build_task      => 'build:combine',
+          :build_task      => 'build:chance',
           :source_entries  => entries,
           :hide_entries    => config[:combine_stylesheets],
           :ordered_entries => SC::Helpers::EntrySorter.sort(entries),

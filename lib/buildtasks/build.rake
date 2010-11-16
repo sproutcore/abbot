@@ -17,13 +17,12 @@ namespace :build do
 
   desc "builds a single css files"
   build_task :css do |task, env|
-    if env[:dst_path] =~ %r{en/current/menu_item_view.css}
-      SC.profile("PROFILE_CSS") do
-        SC::Builder::Stylesheet.build env[:entry], env[:dst_path]
-      end
-    else
-      SC::Builder::Stylesheet.build env[:entry], env[:dst_path]
-    end
+    SC::Builder::Stylesheet.build env[:entry], env[:dst_path]
+  end
+
+  desc "stub task for images"
+  build_task :image do |task, env|
+    # Doesn't do anything
   end
 
   desc "builds a single sass file"
@@ -59,6 +58,11 @@ namespace :build do
   desc "combines several source files into a single target, using the ordered_entries property if it exists"
   build_task :combine do |task, env|
     SC::Builder::Combine.build env[:entry], env[:dst_path]
+  end
+  
+  desc "adds all the css and image files in the target to chance and lets it run on a per-target basis"
+  build_task :chance do |task, env|
+    SC::Builder::Combine.buildWithChance env[:entry], env[:dst_path]
   end
   
   namespace :minify do
