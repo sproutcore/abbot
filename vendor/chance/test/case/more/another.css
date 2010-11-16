@@ -1,0 +1,4 @@
+
+.ace.button.pointer {
+  @include slice("abc.png", $left: 8, $right: 8);
+}

@@ -18,6 +18,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'extlib', "~> 0.9.15"
   s.add_dependency 'erubis', "~> 2.6.6"
   s.add_dependency 'thor', '~> 0.14.3'
+  s.add_dependency 'sass'
+  s.add_dependency 'compass'
+  s.add_dependency 'chunky_png'
 
   if is_jruby
     s.add_dependency 'mongrel', '~> 1.1.5'
@@ -35,6 +38,9 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'less', "~> 1.2.21"
   s.add_development_dependency 'RedCloth', "~> 4.2.3"
   s.add_development_dependency 'BlueCloth', "~> 1.0.1"
+  
+  s.require_paths << 'lib'
+  s.require_paths << 'vendor/chance/lib'
 
   s.rubyforge_project = "sproutcore"
   s.extra_rdoc_files  = %w[History.txt README.txt]

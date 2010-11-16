@@ -1,0 +1,22 @@
+sc_require("test2.css");
+
+/* */
+a {}
+
+@theme (ace) {
+  $theme.button {
+    @include slices("abc.png", $left: 8, $right: 8, $offset-left: 0 1 );
+  }
+
+  $theme.button:hover {
+    @include slices("more/abc.png", $left: 8, $right: 8, $offset-left: 0 1 );
+  }
+
+  @theme(capsule) {
+    $theme.button {
+      border-radius: 15px;
+    }
+  }
+}
+
+
