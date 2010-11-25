@@ -36,10 +36,13 @@ module SC
         src_path = entry.stage!.source_path
         next unless File.exist?(src_path)
 
+        p "Chance: Mapping #{entry.filename} to #{src_path}"
         chance.map_file(entry.filename, src_path)
       end
 
+      p "Chance: Calling update"
       chance.update
+      p "Chance: Returning from update"
 
       if chance.css
         writeline dst_path, chance.css

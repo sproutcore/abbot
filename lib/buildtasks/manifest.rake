@@ -120,27 +120,32 @@ namespace :manifest do
 
   desc "Adds all the images and the css files to the Chance library"
   task :setup_chance => :catalog do |task, env|
-    manifest = env[:manifest]
-
-    chanceFileTypes = [
-      '.css',
-      '.png',
-      '.jpg',
-      '.jpeg',
-      '.bmp',
-      '.gif'
-    ]
+    config = env[:target].config
     
-    # Loop through entries and add each one to chance
-    manifest.entries.each do |entry|
-      src_path = entry.stage!.staging_path
-      next unless File.exist?(src_path)
+    if config[:use_chance] 
+      puts "here"
+      manifest = env[:manifest]
 
-      file_extension = File.extname(src_path)
+      chanceFileTypes = [
+        '.css',
+        '.png',
+        '.jpg',
+        '.jpeg',
+        '.bmp',
+        '.gif'
+      ]
+      
+      # Loop through entries and add each one to chance
+      manifest.entries.each do |entry|
+        src_path = entry.stage!.staging_path
+        next unless File.exist?(src_path)
 
-      if chanceFileTypes.include? file_extension
+        file_extension = File.extname(src_path)
 
-        Chance.add_file src_path
+        if chanceFileTypes.include? file_extension
+
+          Chance.add_file src_path
+        end
       end
     end
   end
@@ -339,33 +344,36 @@ namespace :manifest do
 
     desc "scans for images, creates a transform and annotates them"
     task :images => :setup do |task, env|
-      
-      manifest = env[:manifest]
+      config = env[:target].config
 
-      chanceFileTypes = [
-        '.css',
-        '.png',
-        '.jpg',
-        '.jpeg',
-        '.bmp',
-        '.gif'
-      ]
+      if config[:use_chance] 
+        manifest = env[:manifest]
 
-      # select all original entries with with ext of css
-      entries = manifest.entries.select do |e|
-        file_extension = File.extname(e.stage!.staging_path)
-        e.original? && chanceFileTypes.include?(file_extension)
-      end
+        chanceFileTypes = [
+          '.css',
+          '.png',
+          '.jpg',
+          '.jpeg',
+          '.bmp',
+          '.gif'
+        ]
 
-      # add transform & tag with build directives.
-      entries.each do |entry|
-        entry = manifest.add_transform entry,
-          :filename   => ['source', entry[:filename]].join('/'),
-          :build_path => File.join(manifest[:build_root], 'source', entry[:filename]),
-          :url => [manifest[:url_root], 'source', entry[:filename]].join("/"),
-          :build_task => 'build:image',
-          :resource   => 'image',
-          :entry_type => :image
+        # select all original entries with with ext of css
+        entries = manifest.entries.select do |e|
+          file_extension = File.extname(e.stage!.staging_path)
+          e.original? && chanceFileTypes.include?(file_extension)
+        end
+
+        # add transform & tag with build directives.
+        entries.each do |entry|
+          entry = manifest.add_transform entry,
+            :filename   => ['source', entry[:filename]].join('/'),
+            :build_path => File.join(manifest[:build_root], 'source', entry[:filename]),
+            :url => [manifest[:url_root], 'source', entry[:filename]].join("/"),
+            :build_task => 'build:image',
+            :resource   => 'image',
+            :entry_type => :image
+        end
       end
     end
 
@@ -426,6 +434,7 @@ namespace :manifest do
 
     desc "generates combined entries for javascript and css"
     task :combine => %w(setup css javascript module_info bundle_loaded sass scss less) do |task, env|
+      config = env[:target].config
       manifest = env[:manifest]
       config   = CONFIG
 
@@ -437,22 +446,47 @@ namespace :manifest do
         next if entry[:resource].nil?
 
         # look for CSS or JS type entries
-        if entry[:entry_type] == :css or entry[:entry_type] == :image
-          (css_entries["stylesheet"] ||= []) << entry
-        elsif entry[:entry_type] == :javascript
-          (javascript_entries[entry[:resource]] ||= []) << entry
+        if config[:use_chance] 
+
+          if entry[:entry_type] == :css or entry[:entry_type] == :image
+            (css_entries["stylesheet"] ||= []) << entry
+
+          elsif entry[:entry_type] == :javascript
+            (javascript_entries[entry[:resource]] ||= []) << entry
+          end
+        else
+
+          if entry[:entry_type] == :css
+            (css_entries["stylesheet"] ||= []) << entry
+
+          elsif entry[:entry_type] == :javascript
+            (javascript_entries[entry[:resource]] ||= []) << entry
+          end
         end
       end
 
-      # build combined CSS entry
-      css_entries.each do |resource_name, entries|
-        manifest.add_composite resource_name.ext('css'),
-          :build_task      => 'build:chance',
-          :source_entries  => entries,
-          :hide_entries    => config[:combine_stylesheets],
-          :ordered_entries => SC::Helpers::EntrySorter.sort(entries),
-          :entry_type      => :css,
-          :combined        => true
+      if config[:use_chance] 
+        # build combined CSS entry
+        css_entries.each do |resource_name, entries|
+          manifest.add_composite resource_name.ext('css'),
+            :build_task      => 'build:chance',
+            :source_entries  => entries,
+            :hide_entries    => config[:combine_stylesheets],
+            :ordered_entries => SC::Helpers::EntrySorter.sort(entries),
+            :entry_type      => :css,
+            :combined        => true
+        end
+      else
+        # build combined CSS entry
+        css_entries.each do |resource_name, entries|
+          manifest.add_composite resource_name.ext('css'),
+            :build_task      => 'build:combine',
+            :source_entries  => entries,
+            :hide_entries    => config[:combine_stylesheets],
+            :ordered_entries => SC::Helpers::EntrySorter.sort(entries),
+            :entry_type      => :css,
+            :combined        => true
+        end
       end
 
       # build combined JS entry
