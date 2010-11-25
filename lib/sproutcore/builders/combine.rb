@@ -45,9 +45,26 @@ module SC
       p "Chance: Returning from update"
 
       if chance.css
-        writeline dst_path, chance.css
+        entry.manifest.entries.each {|e| puts e.source_path }
+        css = chance.css
+        css = rewrite_inline_code(css)
+        writeline dst_path, css
       end
     end
+    
+    # Rewrites any inline content such as static urls.  Subclasseses can
+    # override this to rewrite any other inline content.
+    #
+    # The default will rewrite calls to static_url().
+    def rewrite_inline_code(code)
+      # look for sc_require, require or sc_resource.  wrap in comment
+      code.gsub!(/((sc_require|require|sc_resource)\(\s*['"].*["']\s*\)\s*\;)/, '/* \1 */')
+      replace_static_url(code)
+      code
+    end
+    
+    def static_url(url=''); "url('#{url}')" ; end
+    
 
     def build(dst_path)
       lines = []
