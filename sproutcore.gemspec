@@ -18,9 +18,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'extlib', "~> 0.9.15"
   s.add_dependency 'erubis', "~> 2.6.6"
   s.add_dependency 'thor', '~> 0.14.3'
-  s.add_dependency 'haml'
-  s.add_dependency 'compass'
-  s.add_dependency 'chunky_png'
+  s.add_dependency 'haml', '~> 3.0.22'
+  s.add_dependency 'compass', '~> 0.10.5'
+  s.add_dependency 'chunky_png', '~> 0.10.4'
 
   if is_jruby
     s.add_dependency 'mongrel', '~> 1.1.5'
