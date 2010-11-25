@@ -240,11 +240,14 @@ module Chance
 
         break if scanner.match?(/\}/)
 
-
-        # you're still here, are you?
-        # this is a slow way, but the other ways are more logically
-        # complicated, as far as I can tell, and I'm tired atm.
-        output += scanner.getch
+        # skip over anything that our tokens do not start with
+        res = scanner.scan(/[^{}@$]+/)
+        if res.nil?
+          output += scanner.getch
+        else
+          output += res
+        end
+        
       end
 
       return output
