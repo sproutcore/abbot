@@ -31,7 +31,7 @@ module Chance
       @options[:theme] = "" if @options[:theme].nil?
       
       if @options[:theme].length > 0 and @options[:theme][0] != "."
-        @options[:theme] = "." + @options[:theme]
+        @options[:theme] = "." + @options[:theme].to_s
       end
       
       @files = { }
