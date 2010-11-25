@@ -461,55 +461,31 @@ namespace :manifest do
       config   = CONFIG
 
       # sort entries...
-      css_entries = {}
+      css_entries = []
       javascript_entries = {}
       manifest.entries.each do |entry|
         # we can only combine entries with a resource property.
         next if entry[:resource].nil?
 
         # look for CSS or JS type entries
-        if config[:use_chance] 
-
-          if entry[:entry_type] == :css or entry[:entry_type] == :image
-            (css_entries["stylesheet"] ||= []) << entry
-
-          elsif entry[:entry_type] == :javascript
-            (javascript_entries[entry[:resource]] ||= []) << entry
-          end
-        else
-
-          if entry[:entry_type] == :css
-            (css_entries["stylesheet"] ||= []) << entry
-
-          elsif entry[:entry_type] == :javascript
-            (javascript_entries[entry[:resource]] ||= []) << entry
-          end
+        if entry[:entry_type] == :css
+          css_entries << entry
+          entry.hide! if config[:combine_stylesheets] 
+        elsif entry[:entry_type] == :image and config[:use_chance]
+          css_entries << entry
+        elsif entry[:entry_type] == :javascript
+          (javascript_entries[entry[:resource]] ||= []) << entry
         end
       end
 
-      if config[:use_chance] 
-        # build combined CSS entry
-        css_entries.each do |resource_name, entries|
-          manifest.add_composite resource_name.ext('css'),
-            :build_task      => 'build:chance',
-            :source_entries  => entries,
-            :hide_entries    => config[:combine_stylesheets],
-            :ordered_entries => SC::Helpers::EntrySorter.sort(entries),
-            :entry_type      => :css,
-            :combined        => true
-        end
-      else
-        # build combined CSS entry
-        css_entries.each do |resource_name, entries|
-          manifest.add_composite resource_name.ext('css'),
-            :build_task      => 'build:combine',
-            :source_entries  => entries,
-            :hide_entries    => config[:combine_stylesheets],
-            :ordered_entries => SC::Helpers::EntrySorter.sort(entries),
-            :entry_type      => :css,
-            :combined        => true
-        end
-      end
+      # build combined CSS entry
+      manifest.add_composite 'stylesheet.css',
+        :build_task      => config[:use_chance] ? 'build:chance' : 'build:combine',
+        :source_entries  => css_entries,
+        :hide_entries    => false, # we hide entries manually above
+        :ordered_entries => SC::Helpers::EntrySorter.sort(css_entries),
+        :entry_type      => :css,
+        :combined        => true
 
       # build combined JS entry
       javascript_entries.each do |resource_name, entries|
