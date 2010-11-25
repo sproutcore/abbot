@@ -22,7 +22,9 @@ namespace :build do
 
   desc "stub task for images"
   build_task :image do |task, env|
-    # Doesn't do anything
+    require 'fileutils'
+    FileUtils.mkdir_p(File.dirname(env[:dst_path]))
+    FileUtils.cp_r(env[:src_path], env[:dst_path])
   end
 
   desc "builds a single sass file"
