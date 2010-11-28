@@ -46,8 +46,16 @@ module SC
       EOT
 
       output = ""
+      
       entry.targets.each do |t|
+        manifest = t.manifests[0]
+
+        static_entry = manifest.find_entry("javascript.js")
+        static_url = static_entry.cacheable_url
+
         module_info = t.module_info({ :debug => entry[:debug], :test => entry[:test], :theme => entry[:theme], :variation => entry[:variation] })
+
+        module_info[:js_urls] = [static_url]
 
         output << eruby.evaluate({
           :target_name => t[:target_name].to_s.sub(/^\//,''),

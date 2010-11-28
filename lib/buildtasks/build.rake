@@ -57,6 +57,7 @@ namespace :build do
   
   desc "combines several source files into a single target, using the ordered_entries property if it exists"
   build_task :combine do |task, env|
+    env[:entry].dst_path = env[:dst_path]
     SC::Builder::Combine.build env[:entry], env[:dst_path]
   end
   

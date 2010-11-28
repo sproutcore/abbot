@@ -503,7 +503,8 @@ module SC
         # sort entries...
         css_entries = {}
         javascript_entries = {}
-         manifest_for(opts[:variation]).build!.entries.each do |entry|
+
+        manifest_for(opts[:variation]).build!.entries.each do |entry|
           if entry[:resource].nil?
             entry[:resource] = ''
           end
