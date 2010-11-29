@@ -124,7 +124,7 @@ namespace :manifest do
   task :setup_chance => :catalog do |task, env|
     config = env[:target].config
     
-    if config[:use_chance] 
+    if not config[:no_chance] 
       puts "here"
       manifest = env[:manifest]
 
@@ -348,7 +348,7 @@ namespace :manifest do
     task :images => :setup do |task, env|
       config = env[:target].config
 
-      if config[:use_chance] 
+      if not config[:no_chance] 
         manifest = env[:manifest]
 
         chanceFileTypes = [
@@ -471,7 +471,7 @@ namespace :manifest do
         if entry[:entry_type] == :css
           css_entries << entry
           entry.hide! if config[:combine_stylesheets] 
-        elsif entry[:entry_type] == :image and config[:use_chance]
+        elsif entry[:entry_type] == :image and not config[:no_chance]
           css_entries << entry
         elsif entry[:entry_type] == :javascript
           (javascript_entries[entry[:resource]] ||= []) << entry
@@ -480,7 +480,7 @@ namespace :manifest do
 
       # build combined CSS entry
       manifest.add_composite 'stylesheet.css',
-        :build_task      => config[:use_chance] ? 'build:chance' : 'build:combine',
+        :build_task      => config[:no_chance] ? 'build:combine' : 'build:chance',
         :source_entries  => css_entries,
         :hide_entries    => false, # we hide entries manually above
         :ordered_entries => SC::Helpers::EntrySorter.sort(css_entries),
