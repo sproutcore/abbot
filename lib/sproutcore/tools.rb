@@ -37,7 +37,7 @@ module SC
     class_option "logfile",      :type => :string
     class_option "build",        :type => :string
     class_option "build_targets",:type => :string
-    class_option "no_chance",   :type => :boolean
+    class_option "no_chance",    :type => :boolean
     class_option "yui_minification",     :type => :boolean
     class_option "verbose",      :type => :boolean, :aliases => "-v"
     class_option "very-verbose", :type => :boolean, :aliases => "-V"
