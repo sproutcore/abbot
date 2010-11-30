@@ -17,8 +17,6 @@ namespace :manifest do
     manifest = env[:manifest]
     target   = env[:target]
 
-    puts "manifest.rake#prepare: target = #{target[:target_name]}"
-
     # make sure a language was set
     manifest[:language] ||= :en
 
@@ -125,7 +123,6 @@ namespace :manifest do
     config = env[:target].config
     
     if not config[:no_chance] 
-      puts "here"
       manifest = env[:manifest]
 
       chanceFileTypes = [
