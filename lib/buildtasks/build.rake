@@ -65,6 +65,11 @@ namespace :build do
     SC::Builder::Combine.buildWithChance env[:entry], env[:dst_path]
   end
   
+  desc "wraps the entry into a string for prefetched modules"
+  build_task :string_wrap do |task, env|
+    SC::Builder::StringWrapper.build env[:entry], env[:dst_path]
+  end
+
   namespace :minify do
     
     desc "Minifies a CSS file by invoking CSSmin"

@@ -121,8 +121,8 @@ namespace :manifest do
   desc "Adds all the images and the css files to the Chance library"
   task :setup_chance => :catalog do |task, env|
     config = env[:target].config
-    
-    if not config[:no_chance] 
+
+    if not config[:no_chance]
       manifest = env[:manifest]
 
       chanceFileTypes = [
@@ -133,7 +133,7 @@ namespace :manifest do
         '.bmp',
         '.gif'
       ]
-      
+
       # Loop through entries and add each one to chance
       manifest.entries.each do |entry|
         src_path = entry[:source_path]
@@ -235,7 +235,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
 
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css javascript module_info bundle_loaded sass scss less combine minify html strings tests packed) 
+    task :all => %w(css javascript images module_info bundle_loaded sass scss less combine string_wrap minify html strings tests packed)
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -464,6 +464,24 @@ namespace :manifest do
 
     end
 
+    desc "Wraps the javascript.js file into a string if the target is a prefetched module"
+    task :string_wrap => %w(setup css javascript module_info bundle_loaded sass scss less combine) do |task, env|
+      manifest = env[:manifest]
+      target   = env[:target]
+
+      next unless target[:prefetched]
+
+      entry = manifest.entry_for "javascript.js"
+
+      next if not entry
+
+      manifest.add_transform entry,
+        :build_task => 'build:string_wrap',
+        :entry_type => :javascript,
+        :minified   => false,
+        :packed     => entry.packed? # carry forward
+    end
+
     desc "adds a packed entry including javascript.js from required targets"
     task :packed => %w(setup combine) do |task, env|
       # don't add packed entries for apps.
@@ -494,6 +512,7 @@ namespace :manifest do
           :packed            => true
 
     end
+
     task :minify => :packed # IMPORTANT: don't want minified version
 
     desc "adds a packed entry including stylesheet.css from required targets"
