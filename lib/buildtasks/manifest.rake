@@ -344,7 +344,7 @@ namespace :manifest do
       end
     end
 
-    desc "adds a module_info.js entry for each deferred_modules target"
+    desc "adds a module_info.js entry for all deferred and prefetched modules"
     task :module_info => %w(setup) do |task, env|
       target   = env[:target]
       manifest = env[:manifest]
@@ -356,9 +356,10 @@ namespace :manifest do
       debug = config[:load_debug]
       test = config[:load_tests]
 
-      targets = target.deferred_modules_targets({ :debug => debug, :test => test, :theme => true })
-      unless targets.size == 0
+      # find all of the modules required by this target
+      targets = target.modules({ :debug => debug, :test => test, :theme => true })
 
+      unless targets.size == 0
         source_entries = []
         targets.each do |t|
           t.manifest_for(manifest.variation).build!.entries.each do |e|
@@ -381,6 +382,7 @@ namespace :manifest do
           :theme          => true
       end
     end
+
     task :module_info => :tests # IMPORTANT! to avoid JS including unit tests.
 
     desc "adds a bundle_loaded.js entry if the target is a framework"

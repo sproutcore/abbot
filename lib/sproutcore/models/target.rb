@@ -210,8 +210,7 @@ module SC
     # === Returns
     #  Array of Targets
     #
-    def deferred_modules_targets(opts={})
-
+    def modules(opts={})
       # compute cache key for these options
       key = [:debug, :test, :theme].map do |k|
         opts[k] ? k : nil
@@ -222,8 +221,22 @@ module SC
       ret = (@dynamic_targets ||= {})[key]
       return ret unless ret.nil?
 
+      # Get the list of targets that should be treated as prefetched modules
+      # from the Buildfile
+      prefetched_modules = config[:prefetched_modules]
+      if prefetched_modules
+        # Go through each module and mark it as prefetched.
+        # This way, we can later distinguish between deferred and prefetched
+        # modules when generating the module_info.js file.
+        prefetched_modules.each do |m|
+          target = target_for(m)
+          target[:prefetched] = true
+        end
+      end
+
       # else compute return value, respecting options
-      ret = [config[:deferred_modules]]
+      ret = [config[:deferred_modules], config[:prefetched_modules]]
+
       if opts[:debug] && config[:debug_deferred_modules]
         ret << config[:debug_deferred_modules]
       end

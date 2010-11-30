@@ -154,7 +154,7 @@ describe "manifest:prepare_build_tasks:module_info" do
       end
 
       # make sure all targets have the same settings...
-      @target.deferred_modules_targets.each do |t|
+      @target.modules.each do |t|
         t.config.timestamp_urls = false
       end
 
@@ -206,7 +206,7 @@ describe "manifest:prepare_build_tasks:module_info" do
     end
 
     it "should not require a dynamic framework" do
-      (req = @target.deferred_modules_targets).size.should == 0
+      (req = @target.modules).size.should == 0
     end
 
     it "should not create a bundle_info.js entry" do
@@ -242,7 +242,7 @@ describe "manifest:prepare_build_tasks:module_info" do
     end
 
     it "should require its own dynamic framework" do
-      (req = @target.deferred_modules_targets).size.should == 1
+      (req = @target.modules).size.should == 1
     end
 
     it "should create a bundle_info.js entry" do

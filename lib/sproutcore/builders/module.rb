@@ -40,7 +40,9 @@ module SC
           SC.MODULE_INFO[target_name] = {
             requires: [<%= @requires.join(',') %>],
             styles:   [<%= @styles.join(',') %>],
-            scripts:  [<%= @scripts.join(',') %>]
+            scripts:  [<%= @scripts.join(',') %>]<% if @prefetched %>,
+            isPrefetched: YES
+            <% end %>
           }
         })();
       EOT
@@ -66,7 +68,8 @@ module SC
           :target_name => t[:target_name].to_s.sub(/^\//,''),
           :requires => module_info[:requires].map{ |t| "'#{t[:target_name].to_s.sub(/^\//,'')}'" },
           :styles   => module_info[:css_urls].map{ |url| "'#{url}'" },
-          :scripts  => module_info[:js_urls].map{  |url| "'#{url}'" }
+          :scripts  => module_info[:js_urls].map{  |url| "'#{url}'" },
+          :prefetched => t[:prefetched]
         })
       end
       writelines dst_path, [output]
