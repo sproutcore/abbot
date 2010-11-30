@@ -390,31 +390,13 @@ namespace :manifest do
 
       targets = target.dynamic_required_targets({ :debug => debug, :test => test, :theme => true })
       unless targets.size == 0
+
         source_entries = []
-        entries = targets.map do |target|
-
-          m = target.manifest_for(manifest.variation).build!
-
-          # need to find the version that is not minified
-          entry = m.entry_for('javascript.js')
-          entry = entry.source_entry while entry && entry.minified?
-          entry
-
-          #t.manifest_for(manifest.variation).build!.entries.each do |e|
-            #source_entries << e
-          #end
+        targets.each do |t|
+          t.manifest_for(manifest.variation).build!.entries.each do |e|
+            source_entries << e
+          end
         end
-
-        entries.compact!
-        manifest.add_composite 'javascript-packed.js',
-          :build_task        => 'build:combine',
-          :source_entries    => entries,
-          :hide_entries      => false,
-          :entry_type        => :javascript,
-          :combined          => true,
-          :ordered_entries   => entries, # orderd by load order
-          :targets           => targets,
-          :packed            => true
 
         manifest.add_entry 'module_info.js',
           :dynamic        => true, # required to get correct timestamp for cacheable_url

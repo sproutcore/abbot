@@ -48,7 +48,7 @@ module SC
       output = ""
       
       entry.targets.each do |t|
-        manifest = t.manifests[0]
+        manifest = t.manifest_for(entry.manifest.variation)
 
         static_entry = manifest.find_entry("javascript.js")
         static_url = static_entry.cacheable_url
