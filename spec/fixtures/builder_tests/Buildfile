@@ -7,7 +7,7 @@ config :html_test,
   
 config :req_target_2,
   :required => [:req_target_1],
-  :dynamic_required => [:dynamic_req_target_1]
+  :deferred_modules => [:dynamic_req_target_1]
 
 config :test_test,
   :test_layout   => 'lib/test_layout.rhtml',
@@ -17,4 +17,4 @@ config :test_test,
 
 config :bundle_test,
   :required => [:req_target_1],
-  :dynamic_required => [:req_target_2]
+  :deferred_modules => [:req_target_2]

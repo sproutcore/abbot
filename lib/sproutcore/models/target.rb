@@ -197,7 +197,7 @@ module SC
     end
 
     # Returns all of the targets dynamically required by this target.  This
-    # will use the "dynamic_required" config, resolving the target names using
+    # will use the "deferred_modules" config, resolving the target names using
     # target_for().
     #
     # You may pass some additional options in which will select the set
@@ -210,7 +210,7 @@ module SC
     # === Returns
     #  Array of Targets
     #
-    def dynamic_required_targets(opts={})
+    def deferred_modules_targets(opts={})
 
       # compute cache key for these options
       key = [:debug, :test, :theme].map do |k|
@@ -223,12 +223,12 @@ module SC
       return ret unless ret.nil?
 
       # else compute return value, respecting options
-      ret = [config[:dynamic_required]]
-      if opts[:debug] && config[:debug_dynamic_required]
-        ret << config[:debug_dynamic_required]
+      ret = [config[:deferred_modules]]
+      if opts[:debug] && config[:debug_deferred_modules]
+        ret << config[:debug_deferred_modules]
       end
-      if opts[:test] && config[:test_dynamic_required]
-        ret << config[:test_dynamic_required]
+      if opts[:test] && config[:test_deferred_modules]
+        ret << config[:test_deferred_modules]
       end
       if opts[:theme] && self.loads_theme? && config[:theme]
         # verify theme is a theme target type - note that if no matching

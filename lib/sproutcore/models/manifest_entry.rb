@@ -126,10 +126,10 @@ module SC
     # The owner target
     def target; @target ||= manifest.target; end
 
-    # dynamic_required targets, only applicable to bundle_info entries
+    # deferred_modules targets, only applicable to bundle_info entries
     def targets; self[:targets]; end
 
-    # variation for dynamic_required targets, only applicable to bundle_info
+    # variation for deferred_modules targets, only applicable to bundle_info
     # entries
     def variation; self[:variation]; end
 

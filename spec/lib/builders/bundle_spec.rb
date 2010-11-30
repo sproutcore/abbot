@@ -36,7 +36,7 @@ describe SC::Builder::BundleLoaded do
     end
 
     it "should require one dynamic target" do
-      (req = @target.dynamic_required_targets).size.should == 1
+      (req = @target.deferred_modules_targets).size.should == 1
       req.first.target_name.should == :'/req_target_2'
     end
 
@@ -133,7 +133,7 @@ describe SC::Builder::BundleInfo do
       end
 
       # make sure all targets have the same settings...
-      @target.dynamic_required_targets.each do |t|
+      @target.deferred_modules_targets.each do |t|
         t.config.timestamp_urls = false
       end
 
@@ -157,7 +157,7 @@ describe SC::Builder::BundleInfo do
     end
 
     it "should require one dynamic target" do
-      (req = @target.dynamic_required_targets).size.should == 1
+      (req = @target.deferred_modules_targets).size.should == 1
       req.first.target_name.should == :'/req_target_2'
     end
 
@@ -168,7 +168,7 @@ describe SC::Builder::BundleInfo do
     describe "bundle_info.js" do
 
       it "should have SC::Target#bundle_info return the correct requires, css_urls and js_urls" do
-        dynamic_target = @target.dynamic_required_targets[0]
+        dynamic_target = @target.deferred_modules_targets[0]
         dynamic_target.should_not be_nil
 
         bundle_info = dynamic_target.bundle_info({ :variation => @manifest.variation })
@@ -217,7 +217,7 @@ describe SC::Builder::BundleInfo do
     end
 
     it "should not require a dynamic framework" do
-      (req = @target.dynamic_required_targets).size.should == 0
+      (req = @target.deferred_modules_targets).size.should == 0
     end
 
     it "should not create a bundle_info.js entry" do
@@ -243,7 +243,7 @@ describe SC::Builder::BundleInfo do
       end
 
       # make sure all targets have the same settings...
-      @target.dynamic_required_targets.each do |t|
+      @target.deferred_modules_targets.each do |t|
         t.config.timestamp_urls = false
       end
 
@@ -262,7 +262,7 @@ describe SC::Builder::BundleInfo do
     end
 
     it "should require its own dynamic framework" do
-      (req = @target.dynamic_required_targets).size.should == 1
+      (req = @target.deferred_modules_targets).size.should == 1
     end
 
     it "should create a bundle_info.js entry" do
@@ -272,7 +272,7 @@ describe SC::Builder::BundleInfo do
     describe "bundle_info.js" do
 
       it "should have SC::Target#bundle_info return the correct requires, css_urls and js_urls" do
-        dynamic_target = @target.dynamic_required_targets[0]
+        dynamic_target = @target.deferred_modules_targets[0]
         dynamic_target.should_not be_nil
 
         bundle_info = dynamic_target.bundle_info({ :variation => @manifest.variation })

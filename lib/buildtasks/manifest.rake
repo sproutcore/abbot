@@ -376,19 +376,19 @@ namespace :manifest do
       end
     end
 
-    desc "adds a module_info.js entry for each dynamic_required target"
+    desc "adds a module_info.js entry for each deferred_modules target"
     task :module_info => %w(setup) do |task, env|
       target   = env[:target]
       manifest = env[:manifest]
       config   = CONFIG
 
-      # Populate module_info for all dynamic_required frameworks.
-      # Add :debug_dynamic_required and :test_dynamic_required depending on
+      # Populate module_info for all deferred_modules frameworks.
+      # Add :debug_deferred_modules and :test_deferred_modules depending on
       # the build mode.
       debug = config[:load_debug]
       test = config[:load_tests]
 
-      targets = target.dynamic_required_targets({ :debug => debug, :test => test, :theme => true })
+      targets = target.deferred_modules_targets({ :debug => debug, :test => test, :theme => true })
       unless targets.size == 0
 
         source_entries = []

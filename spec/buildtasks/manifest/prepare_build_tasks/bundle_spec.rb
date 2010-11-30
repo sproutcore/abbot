@@ -126,7 +126,7 @@ describe "manifest:prepare_build_tasks:module_info" do
     @manifest.build!
   end
 
-  it "should create a module_info.js for a dynamic_required target" do
+  it "should create a module_info.js for a deferred_modules target" do
     # run_task
     # entries = @manifest.entries.select { |e| e.entry_type == :javascript }
     # entries.each do |entry|
@@ -154,7 +154,7 @@ describe "manifest:prepare_build_tasks:module_info" do
       end
 
       # make sure all targets have the same settings...
-      @target.dynamic_required_targets.each do |t|
+      @target.deferred_modules_targets.each do |t|
         t.config.timestamp_urls = false
       end
 
@@ -206,7 +206,7 @@ describe "manifest:prepare_build_tasks:module_info" do
     end
 
     it "should not require a dynamic framework" do
-      (req = @target.dynamic_required_targets).size.should == 0
+      (req = @target.deferred_modules_targets).size.should == 0
     end
 
     it "should not create a bundle_info.js entry" do
@@ -242,7 +242,7 @@ describe "manifest:prepare_build_tasks:module_info" do
     end
 
     it "should require its own dynamic framework" do
-      (req = @target.dynamic_required_targets).size.should == 1
+      (req = @target.deferred_modules_targets).size.should == 1
     end
 
     it "should create a bundle_info.js entry" do
