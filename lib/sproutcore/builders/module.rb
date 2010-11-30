@@ -51,11 +51,16 @@ module SC
         manifest = t.manifest_for(entry.manifest.variation)
 
         static_entry = manifest.find_entry("javascript.js")
-        static_url = static_entry.cacheable_url
+
+        if static_entry
+          static_url = static_entry.cacheable_url
+        end
 
         module_info = t.module_info({ :debug => entry[:debug], :test => entry[:test], :theme => entry[:theme], :variation => entry[:variation] })
 
-        module_info[:js_urls] = [static_url]
+        if static_entry
+          module_info[:js_urls] = [static_url]
+        end
 
         output << eruby.evaluate({
           :target_name => t[:target_name].to_s.sub(/^\//,''),
