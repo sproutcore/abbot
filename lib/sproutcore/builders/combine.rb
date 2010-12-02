@@ -8,6 +8,8 @@
 require "sproutcore/builders/base"
 require 'fileutils'
 
+require 'profiler'
+
 #require 'pathname'
 require 'bundler/setup'
 require 'chance'
@@ -26,16 +28,17 @@ module SC
       new(entry).buildWithChance(dst_path)
     end
       
-    def buildWithChance(dst_path)
+    def buildWithChance(dst_path)      
       theme_name = entry.target.config[:theme]
+      
       chance = Chance::Instance.new({:theme => theme_name })
 
       entries = entry.ordered_entries || entry.source_entries
   
       entries.each do |entry|
-        src_path = entry.stage!.source_path
+        src_path = entry[:source_path]
         next unless File.exist?(src_path)
-
+        
         chance.map_file(entry.filename, src_path)
       end
 

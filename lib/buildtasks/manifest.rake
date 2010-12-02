@@ -136,7 +136,7 @@ namespace :manifest do
       
       # Loop through entries and add each one to chance
       manifest.entries.each do |entry|
-        src_path = entry.stage!.staging_path
+        src_path = entry[:source_path]
         next unless File.exist?(src_path)
 
         file_extension = File.extname(src_path)
@@ -322,22 +322,25 @@ namespace :manifest do
     desc "scans for css files, creates a transform and annotates them"
     task :css => :setup do |task, env|
       manifest = env[:manifest]
+      config = env[:target].config
 
-      # select all original entries with with ext of css
-      entries = manifest.entries.select do |e|
-        e.original? && e[:ext] == 'css'
-      end
+      if config[:no_chance]
+        # select all original entries with with ext of css
+        entries = manifest.entries.select do |e|
+          e.original? && e[:ext] == 'css'
+        end
 
-      # add transform & tag with build directives.
-      entries.each do |entry|
-        entry = manifest.add_transform entry,
-          :filename   => ['source', entry[:filename]].join('/'),
-          :build_path => File.join(manifest[:build_root], 'source', entry[:filename]),
-          :url => [manifest[:url_root], 'source', entry[:filename]].join("/"),
-          :build_task => 'build:css',
-          :resource   => 'stylesheet',
-          :entry_type => :css
-        entry.discover_build_directives!
+        # add transform & tag with build directives.
+        entries.each do |entry|
+          entry = manifest.add_transform entry,
+            :filename   => ['source', entry[:filename]].join('/'),
+            :build_path => File.join(manifest[:build_root], 'source', entry[:filename]),
+            :url => [manifest[:url_root], 'source', entry[:filename]].join("/"),
+            :build_task => 'build:css',
+            :resource   => 'stylesheet',
+            :entry_type => :css
+          entry.discover_build_directives!
+        end
       end
     end
 
@@ -357,9 +360,9 @@ namespace :manifest do
           '.gif'
         ]
 
-        # select all original entries with with ext of css
+        # select all original entries with with an image extension
         entries = manifest.entries.select do |e|
-          file_extension = File.extname(e.stage!.staging_path)
+          file_extension = File.extname(e[:filename])
           e.original? && chanceFileTypes.include?(file_extension)
         end
 
