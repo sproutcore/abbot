@@ -97,7 +97,7 @@ module Chance
         end
 
         # So now, if we are actually slicing, we nee
-        base64Image = Base64.encode64(canvas.to_blob)
+        base64Image = Base64.encode64(canvas.to_blob({ :fast_rgba => true }))
         output += base64Image
 
         output += '"'
