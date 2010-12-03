@@ -97,11 +97,6 @@ namespace :build do
   build_task :test_index do |task, env|
     SC::Builder::TestIndex.build env[:entry], env[:dst_path]
   end
-  
-  desc "builds the bundle_loaded.js file for a framework"
-  build_task :bundle_loaded do |task, env|
-    SC::Builder::BundleLoaded.build env[:entry], env[:dst_path]
-  end
 
   desc "builds the module_info.js file for a required framework"
   build_task :module_info do |task, env|

@@ -28,8 +28,7 @@ module SC
     # the top.  If you don't specify any filenames, then the entries will be
     # sorted alphabetically except for requires.
     #
-    # When bundle_info.js is present, it will always be sorted first.
-    # When bundle_loaded.js is present, it will always be sorted last.
+    # When module_info.js is present, it will always be sorted first.
     class EntrySorter
 
       def self.sort(entries, preferred_filenames = [])
@@ -57,9 +56,6 @@ module SC
         entries = entries.select do |entry|
           if entry.normalized_filename == 'bundle_info.js'
             bundleInfoEntry = [entry]
-            false
-          elsif entry.normalized_filename == 'bundle_loaded.js'
-            bundleLoadedEntry = [entry]
             false
           else
             true
@@ -91,7 +87,7 @@ module SC
           add_entry_to_set(cur, ret, seen, entries, all_entries)
         end
 
-        return bundleInfoEntry + ret + bundleLoadedEntry
+        return bundleInfoEntry + ret
       end
 
       protected

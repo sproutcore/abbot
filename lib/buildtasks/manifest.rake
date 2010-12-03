@@ -235,7 +235,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
 
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css javascript module_info bundle_loaded sass scss less combine string_wrap minify html strings tests packed)
+    task :all => %w(css javascript module_info sass scss less combine string_wrap minify html strings tests packed)
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -377,26 +377,8 @@ namespace :manifest do
 
     task :module_info => :tests # IMPORTANT! to avoid JS including unit tests.
 
-    desc "adds a bundle_loaded.js entry if the target is a framework"
-    task :bundle_loaded => %w(setup) do |task, env|
-      target   = env[:target]
-      manifest = env[:manifest]
-
-      if target[:target_type] == :framework
-        manifest.add_entry 'bundle_loaded.js',
-          :build_task  => 'build:bundle_loaded',
-          :resource    => 'javascript',
-          :entry_type  => :javascript,
-          :composite   => true, # does not have a source
-          :source_entries => [],
-          :target      => target
-      end
-
-    end
-    task :bundle_loaded => :tests # IMPORTANT! to avoid JS including unit tests.
-
     desc "generates combined entries for javascript and css"
-    task :combine => %w(setup css javascript module_info bundle_loaded sass scss less) do |task, env|
+    task :combine => %w(setup css javascript module_info sass scss less) do |task, env|
       config = env[:target].config
       manifest = env[:manifest]
       config   = CONFIG
@@ -457,7 +439,7 @@ namespace :manifest do
     end
 
     desc "Wraps the javascript.js file into a string if the target is a prefetched module"
-    task :string_wrap => %w(setup css javascript module_info bundle_loaded sass scss less combine) do |task, env|
+    task :string_wrap => %w(setup css javascript module_info sass scss less combine) do |task, env|
       manifest = env[:manifest]
       target   = env[:target]
 
@@ -663,7 +645,7 @@ namespace :manifest do
     end
 
     desc "creates transform entries for all css and Js entries to minify them if needed"
-    task :minify => %w(setup javascript module_info bundle_loaded css combine sass scss less) do |task, env|
+    task :minify => %w(setup javascript module_info css combine sass scss less) do |task, env|
       manifest = env[:manifest]
       config   = CONFIG
 
@@ -699,7 +681,7 @@ namespace :manifest do
     end
 
     desc "adds a loc strings entry that generates a yaml file server-side functions can use"
-    task :strings => %w(setup javascript module_info bundle_loaded) do |task, env|
+    task :strings => %w(setup javascript module_info) do |task, env|
       manifest = env[:manifest]
 
       # find the lproj/strings.js file...
