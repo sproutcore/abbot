@@ -235,7 +235,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
 
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css javascript images module_info bundle_loaded sass scss less combine string_wrap minify html strings tests packed)
+    task :all => %w(css javascript module_info bundle_loaded sass scss less combine string_wrap minify html strings tests packed)
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
