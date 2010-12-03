@@ -235,7 +235,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
 
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css javascript images module_info bundle_loaded sass scss less combine minify html strings tests packed) 
+    task :all => %w(css javascript module_info bundle_loaded sass scss less combine minify html strings tests packed) 
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -344,41 +344,6 @@ namespace :manifest do
       end
     end
 
-    desc "scans for images, creates a transform and annotates them"
-    task :images => :setup do |task, env|
-      config = env[:target].config
-
-      if not config[:no_chance] 
-        manifest = env[:manifest]
-
-        chanceFileTypes = [
-          '.css',
-          '.png',
-          '.jpg',
-          '.jpeg',
-          '.bmp',
-          '.gif'
-        ]
-
-        # select all original entries with with an image extension
-        entries = manifest.entries.select do |e|
-          file_extension = File.extname(e[:filename])
-          e.original? && chanceFileTypes.include?(file_extension)
-        end
-
-        # add transform & tag with build directives.
-        entries.each do |entry|
-          entry = manifest.add_transform entry,
-            :filename   => ['source', entry[:filename]].join('/'),
-            :build_path => File.join(manifest[:build_root], 'source', entry[:filename]),
-            :url => [manifest[:url_root], 'source', entry[:filename]].join("/"),
-            :build_task => 'build:image',
-            :resource   => 'image',
-            :entry_type => :image
-        end
-      end
-    end
-
     desc "adds a module_info.js entry for each deferred_modules target"
     task :module_info => %w(setup) do |task, env|
       target   = env[:target]
@@ -442,18 +407,30 @@ namespace :manifest do
       manifest = env[:manifest]
       config   = CONFIG
 
+      chance_types = [
+        '.css',
+        '.jpg',
+        '.png',
+        '.gif'
+      ]
+
       # sort entries...
       css_entries = []
       javascript_entries = {}
       manifest.entries.each do |entry|
+        is_chance_file = false
+        if not config[:no_chance] and chance_types.include?(File.extname(entry[:filename]))
+          is_chance_file = true
+        end
+        
         # we can only combine entries with a resource property.
-        next if entry[:resource].nil?
+        next if entry[:resource].nil? and not is_chance_file
 
         # look for CSS or JS type entries
-        if entry[:entry_type] == :css
+        if entry[:entry_type] == :css or (is_chance_file and File.extname(entry[:filename]) == '.css')
           css_entries << entry
           entry.hide! if config[:combine_stylesheets] 
-        elsif entry[:entry_type] == :image and not config[:no_chance]
+        elsif is_chance_file
           css_entries << entry
         elsif entry[:entry_type] == :javascript
           (javascript_entries[entry[:resource]] ||= []) << entry
