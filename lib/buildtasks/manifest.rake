@@ -360,20 +360,12 @@ namespace :manifest do
       targets = target.modules({ :debug => debug, :test => test, :theme => true })
 
       unless targets.size == 0
-        source_entries = []
-        targets.each do |t|
-          t.manifest_for(manifest.variation).build!.entries.each do |e|
-            source_entries << e
-          end
-        end
-
         manifest.add_entry 'module_info.js',
           :dynamic        => true, # required to get correct timestamp for cacheable_url
           :build_task     => 'build:module_info',
           :resource       => 'javascript',
           :entry_type     => :javascript,
           :composite      => true,
-          :source_entries => source_entries,
           :target         => target,
           :targets        => targets,
           :variation      => manifest.variation,
