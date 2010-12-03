@@ -136,7 +136,7 @@ namespace :manifest do
       
       # Loop through entries and add each one to chance
       manifest.entries.each do |entry|
-        src_path = entry.stage!.staging_path
+        src_path = entry[:source_path]
         next unless File.exist?(src_path)
 
         file_extension = File.extname(src_path)
@@ -235,7 +235,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
 
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css javascript images module_info bundle_loaded sass scss less combine minify html strings tests packed) 
+    task :all => %w(css javascript module_info bundle_loaded sass scss less combine minify html strings tests packed) 
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -322,45 +322,12 @@ namespace :manifest do
     desc "scans for css files, creates a transform and annotates them"
     task :css => :setup do |task, env|
       manifest = env[:manifest]
-
-      # select all original entries with with ext of css
-      entries = manifest.entries.select do |e|
-        e.original? && e[:ext] == 'css'
-      end
-
-      # add transform & tag with build directives.
-      entries.each do |entry|
-        entry = manifest.add_transform entry,
-          :filename   => ['source', entry[:filename]].join('/'),
-          :build_path => File.join(manifest[:build_root], 'source', entry[:filename]),
-          :url => [manifest[:url_root], 'source', entry[:filename]].join("/"),
-          :build_task => 'build:css',
-          :resource   => 'stylesheet',
-          :entry_type => :css
-        entry.discover_build_directives!
-      end
-    end
-
-    desc "scans for images, creates a transform and annotates them"
-    task :images => :setup do |task, env|
       config = env[:target].config
 
-      if not config[:no_chance] 
-        manifest = env[:manifest]
-
-        chanceFileTypes = [
-          '.css',
-          '.png',
-          '.jpg',
-          '.jpeg',
-          '.bmp',
-          '.gif'
-        ]
-
+      if config[:no_chance]
         # select all original entries with with ext of css
         entries = manifest.entries.select do |e|
-          file_extension = File.extname(e.stage!.staging_path)
-          e.original? && chanceFileTypes.include?(file_extension)
+          e.original? && e[:ext] == 'css'
         end
 
         # add transform & tag with build directives.
@@ -369,9 +336,10 @@ namespace :manifest do
             :filename   => ['source', entry[:filename]].join('/'),
             :build_path => File.join(manifest[:build_root], 'source', entry[:filename]),
             :url => [manifest[:url_root], 'source', entry[:filename]].join("/"),
-            :build_task => 'build:image',
-            :resource   => 'image',
-            :entry_type => :image
+            :build_task => 'build:css',
+            :resource   => 'stylesheet',
+            :entry_type => :css
+          entry.discover_build_directives!
         end
       end
     end
@@ -439,18 +407,30 @@ namespace :manifest do
       manifest = env[:manifest]
       config   = CONFIG
 
+      chance_types = [
+        '.css',
+        '.jpg',
+        '.png',
+        '.gif'
+      ]
+
       # sort entries...
       css_entries = []
       javascript_entries = {}
       manifest.entries.each do |entry|
+        is_chance_file = false
+        if not config[:no_chance] and chance_types.include?(File.extname(entry[:filename]))
+          is_chance_file = true
+        end
+        
         # we can only combine entries with a resource property.
-        next if entry[:resource].nil?
+        next if entry[:resource].nil? and not is_chance_file
 
         # look for CSS or JS type entries
-        if entry[:entry_type] == :css
+        if entry[:entry_type] == :css or (is_chance_file and File.extname(entry[:filename]) == '.css')
           css_entries << entry
           entry.hide! if config[:combine_stylesheets] 
-        elsif entry[:entry_type] == :image and not config[:no_chance]
+        elsif is_chance_file
           css_entries << entry
         elsif entry[:entry_type] == :javascript
           (javascript_entries[entry[:resource]] ||= []) << entry

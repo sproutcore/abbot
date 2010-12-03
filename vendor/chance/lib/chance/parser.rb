@@ -42,11 +42,24 @@
 # its file name, the rectangle to slice, etc.
 require "json"
 require "set"
+require "stringio"
 
 module Chance
 
   class Parser
     attr_reader :slices, :css
+    
+    UNTIL_SINGLE_QUOTE = /(?!\\)'/
+    UNTIL_DOUBLE_QUOTE = /(?!\\)"/
+    
+    BEGIN_SCOPE = /\{/
+    END_SCOPE = /\}/
+    THEME_DIRECTIVE = /@theme\s*/
+    SELECTOR_THEME_VARIABLE = /\$theme\./
+    INCLUDE_SLICES_DIRECTIVE = /@include\s+slices\s*/
+    INCLUDE_SLICE_DIRECTIVE = /@include\s+slice\s*/
+    CHANCE_FILE_DIRECTIVE = /@_chance_file /
+    NORMAL_SCAN_UNTIL = /[^{}@$]+/
 
     @@uid = 0
 
@@ -202,60 +215,62 @@ module Chance
     # to mean that this is a recursive call.
     def _parse
       scanner = @scanner
-      output = ""
+      
+      output = []
 
       while not scanner.eos? do
-        output += handle_empty
+        output << handle_empty
         break if scanner.eos?
 
-        if scanner.match?(/\{/)
-          output += handle_scope
+        if scanner.match?(BEGIN_SCOPE)
+          output << handle_scope
           next
         end
 
-        if scanner.match?(/@theme\s*/)
-          output += handle_theme
+        if scanner.match?(THEME_DIRECTIVE)
+          output << handle_theme
           next
         end
 
-        if scanner.match?(/\$theme\./)
-          output += handle_theme_variable
+        if scanner.match?(SELECTOR_THEME_VARIABLE)
+          output << handle_theme_variable
           next
         end
 
-        if scanner.match?(/@include\s+slices\s*/)
-          output += handle_slices
+        if scanner.match?(INCLUDE_SLICES_DIRECTIVE)
+          output << handle_slices
           next
         end
 
-        if scanner.match?(/@include\s+slice\s*/)
-          output += handle_slice_include
+        if scanner.match?(INCLUDE_SLICE_DIRECTIVE)
+          output << handle_slice_include
           next
         end
         
-        if scanner.match?(/@_chance_file\s*/)
+        if scanner.match?(CHANCE_FILE_DIRECTIVE)
           handle_file_change
           next
         end
 
-        break if scanner.match?(/\}/)
+        break if scanner.match?(END_SCOPE)
 
         # skip over anything that our tokens do not start with
-        res = scanner.scan(/[^{}@$]+/)
+        res = scanner.scan(NORMAL_SCAN_UNTIL)
         if res.nil?
-          output += scanner.getch
+          output << scanner.getch
         else
-          output += res
+          output << res
         end
         
       end
 
+      output = output.join
       return output
     end
 
     def handle_comment
       scanner = @scanner
-      scanner.scan /\/\*/
+      scanner.pos += 2
       scanner.scan_until /\*\//
     end
 
@@ -264,7 +279,7 @@ module Chance
       # This will fail with strings quoted with "'", so I'm
       # just not bothering for now. At some point, I should either make 
       # this function more proper or use some other function...
-      if not cssString[0] =~ /^["]/
+      if not cssString[0] == '"'
         return cssString
       end
 
@@ -273,26 +288,24 @@ module Chance
 
     def handle_string
       scanner = @scanner
-      str = ""
 
-      ch = scanner.scan /['"]/
-      str += ch
-
-      str += scanner.scan_until (Regexp.new("(?!\\\\)" + ch))
+      str = scanner.getch
+      str += scanner.scan_until (str == "'" ? UNTIL_SINGLE_QUOTE : UNTIL_DOUBLE_QUOTE)
 
       return str
     end
 
     def handle_empty
-      output = ""
       scanner = @scanner
+      output = ""
+      
       while true do
-        if scanner.match?(/\/\*/)
-          handle_comment
-          next
-        end
         if scanner.match?(/\s+/)
           output += scanner.scan /\s+/
+          next
+        end
+        if scanner.match?(/\/\*/)
+          handle_comment
           next
         end
         break
@@ -306,8 +319,7 @@ module Chance
 
       scanner.scan /\{/
 
-      output = ""
-      output += '{'
+      output = '{'
       output += _parse
       output += '}'
 
@@ -318,7 +330,7 @@ module Chance
 
     def handle_theme
       scanner = @scanner
-      scanner.scan /@theme\s*/
+      scanner.scan THEME_DIRECTIVE
 
       if scanner.scan(/\((.+?)\)\s*/).nil?
         raise SyntaxError, "Expected (theme-name) after @theme"
@@ -347,7 +359,7 @@ module Chance
 
     def handle_theme_variable
       scanner = @scanner
-      scanner.scan /\$theme\./
+      scanner.scan SELECTOR_THEME_VARIABLE
 
       output = "\#{$theme}."
 
@@ -360,7 +372,7 @@ module Chance
     # files.
     def handle_file_change
       scanner = @scanner
-      scanner.scan /@_chance_file\s*/
+      scanner.scan CHANCE_FILE_DIRECTIVE
       
       path = scanner.scan_until /;/
       path = path[0..-1]

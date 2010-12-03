@@ -1,5 +1,5 @@
 require "chance/instance"
-require "chunky_png"
+require "oily_png"
 
 module Chance
   CONFIG = {
@@ -89,6 +89,7 @@ module Chance
       if file[:content].nil?
         f = File.open(path, "rb")
         file[:content] = f.read
+        f.close
       end
       
       if not file[:preprocessed]

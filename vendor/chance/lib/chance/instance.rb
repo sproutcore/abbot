@@ -6,6 +6,9 @@ require 'chance/parser'
 require 'chance/imagers/data_url'
 require 'chance/sass_extensions'
 
+require 'chance/perf'
+require 'chance/slicing'
+
 Compass.discover_extensions!
 Compass.configure_sass_plugin!
 
@@ -22,6 +25,8 @@ module Chance
   # When you call update(), Chance will process everything (or
   # re-process it) and put the result in its "css" property.
   class Instance
+    include Slicing
+    
     @@round = 0
 
     attr_accessor :css
@@ -93,15 +98,20 @@ module Chance
         parser = Chance::Parser.new(css, @options)
         parser.parse
 
-        # Step 2: get parsed slices and add the CSS it generates it to parsed output CSS
-        # note that it is saved to @slices so that the slices may be found by the SCSS
+        # Step 2: get parsed slices, slice images as needed, generate CSS for the slices,
+        # and add the CSS it generates to parsed output CSS.
+        
+         # note that it is saved to @slices so that the slices may be found by the SCSS
         # extensions that help find offset, etc.
         @slices = parser.slices
+        slice_images
+        
         imager = Chance::DataURLImager.new(parser.slices, self) # for now, only DataURLs
+        
         css = parser.css + "\n" + imager.css
 
         # Step 3: Create output
-        engine = Sass::Engine.new(css, Compass.sass_engine_options.merge({ :syntax => :scss }))
+        engine = Sass::Engine.new(css, Compass.sass_engine_options.merge({ :syntax => :scss }))  
         css = engine.render
       ensure
         Chance._current_instance = nil
