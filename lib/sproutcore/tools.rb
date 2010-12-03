@@ -36,9 +36,9 @@ module SC
     class_option "mode",         :type => :string
     class_option "logfile",      :type => :string
     class_option "build",        :type => :string
-    class_option "build_targets",:type => :string
-    class_option "no_chance",    :type => :boolean
-    class_option "yui_minification",     :type => :boolean
+    class_option "build-targets",:type => :string
+    class_option "no-chance",    :type => :boolean
+    class_option "yui-minification",     :type => :boolean
     class_option "verbose",      :type => :boolean, :aliases => "-v"
     class_option "very-verbose", :type => :boolean, :aliases => "-V"
     class_option "library",      :type => :string #deprecated
@@ -116,13 +116,13 @@ module SC
       end
       
       def prepare_app!
-        if options[:build_targets]
-          SC.env[:build_targets] = options[:build_targets].split(',')
+        if options[:'build-targets']
+          SC.env[:build_targets] = options[:'build-targets'].split(',')
         else
           SC.env[:build_targets] = ''
         end
 
-        if options[:no_chance]
+        if options[:'no-chance']
           SC.env[:no_chance] = true
         else
           SC.env[:no_chance] = false
@@ -130,7 +130,7 @@ module SC
       end
       
       def yui_minification!
-        SC.env[:yui_minification] = options[:yui_minification]
+        SC.env[:yui_minification] = options[:'yui-minification']
       end
 
       # Configure the current build numbers.  Handles the --build option.
