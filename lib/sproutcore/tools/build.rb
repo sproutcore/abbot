@@ -89,8 +89,8 @@ module SC
       end
       $to_minify.uniq!
       if $to_minify.length > 0
-        yui_root = File.expand_path("../../../../vendor/closure", __FILE__)
-        jar_path = File.join(yui_root, 'SCClosureCompiler.jar')
+        yui_root = File.expand_path("../../../../vendor/sproutcore", __FILE__)
+        jar_path = File.join(yui_root, 'SCCompiler.jar')
         if SC.env[:yui_minification]
           filecompress = "java -Xmx256m -jar \"" + jar_path + "\" -yuionly \"" + $to_minify * "\" \"" + "\" 2>&1"
         else
