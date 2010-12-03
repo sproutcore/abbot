@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency "thor", "~>0.14.2"
   s.add_dependency "fssm", "~>0.1.4"
-  s.add_dependency "haml", "~>3.0.21"
+  s.add_dependency "haml", "~>3.0.24"
   s.add_dependency "compass", "~>0.10.5"
   s.add_dependency 'oily_png', '~> 0.2.0'
   
