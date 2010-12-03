@@ -443,17 +443,17 @@ namespace :manifest do
       manifest = env[:manifest]
       target   = env[:target]
 
-      next unless target[:prefetched]
+      next unless target[:target_type] == :module
 
       entry = manifest.entry_for "javascript.js"
 
       next if not entry
-
-      manifest.add_transform entry,
-        :build_task => 'build:string_wrap',
-        :entry_type => :javascript,
-        :minified   => false,
-        :packed     => entry.packed? # carry forward
+      transform = manifest.add_composite 'javascript-strings.js',
+        :build_task     => 'build:string_wrap',
+        :entry_type     => :javascript,
+        :hide_entries   => false,
+        :source_entries => [entry],
+        :packed         => entry.packed? # carry forward
     end
 
     desc "adds a packed entry including javascript.js from required targets"
