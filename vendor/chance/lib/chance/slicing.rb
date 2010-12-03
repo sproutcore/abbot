@@ -31,7 +31,7 @@ module Chance
       end
       
       # Creates the final slice rectangle from the image width and height
-      # returns nil if no rectangle
+      # returns nil if no rectangle or if the slice is the full image
       def slice_rect(slice, image_width, image_height)
         left = slice[:left]
         top = slice[:top]
@@ -92,7 +92,11 @@ module Chance
           rect[:top] = 0
           rect[:height] = image_height
         end
-
+        
+        if rect[:left] == 0 and rect[:top] == 0 and rect[:width] == image_width and rect[:height] == image_height
+          return nil
+        end
+        
         return rect
       end
     end
