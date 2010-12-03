@@ -8,8 +8,6 @@
 require "sproutcore/builders/base"
 require 'fileutils'
 
-require 'profiler'
-
 #require 'pathname'
 require 'bundler/setup'
 require 'chance'
@@ -28,7 +26,7 @@ module SC
       new(entry).buildWithChance(dst_path)
     end
       
-    def buildWithChance(dst_path)      
+    def buildWithChance(dst_path)
       theme_name = entry.target.config[:theme]
       
       chance = Chance::Instance.new({:theme => theme_name })
@@ -47,8 +45,10 @@ module SC
       if chance.css
         css = chance.css
         css = rewrite_inline_code(css)
+        
         writeline dst_path, css
       end
+      
     end
     
     # Rewrites any inline content such as static urls.  Subclasseses can
