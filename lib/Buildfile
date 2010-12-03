@@ -31,7 +31,7 @@ mode :all do
       :pages      => :app, # used for static pages with your site
       :frameworks => :framework,
       :themes     => :theme,
-      :modules    => :framework
+      :modules    => :module
     },
 
     # Allows the target to have other targets nested inside of it.  Override
