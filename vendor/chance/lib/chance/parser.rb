@@ -42,6 +42,7 @@
 # its file name, the rectangle to slice, etc.
 require "json"
 require "set"
+require "stringio"
 
 module Chance
 
@@ -202,34 +203,34 @@ module Chance
     # to mean that this is a recursive call.
     def _parse
       scanner = @scanner
-      output = ""
+      output = StringIO.new
 
       while not scanner.eos? do
-        output += handle_empty
+        output << handle_empty
         break if scanner.eos?
 
         if scanner.match?(/\{/)
-          output += handle_scope
+          output << handle_scope
           next
         end
 
         if scanner.match?(/@theme\s*/)
-          output += handle_theme
+          output << handle_theme
           next
         end
 
         if scanner.match?(/\$theme\./)
-          output += handle_theme_variable
+          output << handle_theme_variable
           next
         end
 
         if scanner.match?(/@include\s+slices\s*/)
-          output += handle_slices
+          output << handle_slices
           next
         end
 
         if scanner.match?(/@include\s+slice\s*/)
-          output += handle_slice_include
+          output << handle_slice_include
           next
         end
         
@@ -243,14 +244,14 @@ module Chance
         # skip over anything that our tokens do not start with
         res = scanner.scan(/[^{}@$]+/)
         if res.nil?
-          output += scanner.getch
+          output << scanner.getch
         else
-          output += res
+          output << res
         end
         
       end
 
-      return output
+      return output.string
     end
 
     def handle_comment
