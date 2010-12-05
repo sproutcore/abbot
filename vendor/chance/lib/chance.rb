@@ -16,12 +16,12 @@ module Chance
     def add_file(path, content=nil)
       mtime = 0
       if content.nil?
-        mtime = File.new(path).mtime
+        mtime = File.mtime(path).to_f
       end
       
       if @files[path]
-        mtime = File.new(path).mtime
-        update_file(path) if mtime > @files[path][:mtime]
+        mtime = File.mtime(path).to_f
+        update_file(path, content) if mtime > @files[path][:mtime]
         return
       end
       
@@ -44,7 +44,7 @@ module Chance
       
       mtime = 0
       if content.nil?
-        mtime = File.new(path).mtime
+        mtime = File.mtime(path).to_f
       end
 
       file = {
@@ -87,7 +87,8 @@ module Chance
       file = @files[path]
       
       if file[:content].nil?
-        f = File.open(path, "rb")
+        # note: CSS files should be opened as UTF-8.
+        f = File.open(path, path =~ /css$/ ? 'r:UTF-8' : 'rb')
         file[:content] = f.read
         f.close
       end
