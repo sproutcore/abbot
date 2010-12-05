@@ -37,6 +37,7 @@ module SC
         src_path = entry[:source_path]
         next unless File.exist?(src_path)
         
+        Chance.add_file src_path
         chance.map_file(entry.filename, src_path)
       end
 
