@@ -9,63 +9,13 @@ require 'chance/sass_extensions'
 require 'chance/perf'
 require 'chance/slicing'
 
+require 'chance/importer'
+
 Compass.discover_extensions!
 Compass.configure_sass_plugin!
 
 
 module Chance
-  class Importer < Sass::Importers::Base
-    
-    def initialize(imager)
-      @imager = imager
-    end
-    
-    # SCSS's cache tries to serialize this; we can't allow that.
-    def marshal_dump
-      return ""
-    end
-    
-    def marshal_load(data)
-      
-    end
-  
-    def find_relative(name, base, options)
-      find(name, options)
-    end
-    
-    def find(name, options)
-      if name == "chance_images"
-        css = @imager.css
-        name = "_chance_images.scss"
-      else
-        css = Chance.get_file(name[0..-6])
-        
-        if css.nil?
-          return nil
-        end
-        
-        css = css[:parsed_css]
-      end
-      
-      Sass::Engine.new(css, options.merge({
-        :syntax => :scss,
-        :importer => self,
-        :filename => name
-      }))
-    end
-    
-    def mtime(name, options)
-      Chance.get_file(name[0..-6])[:mtime]
-    end
-    
-    def key(name, options)
-      [self.class.name + ":" + name, File.basename(name)]
-    end
-    
-    def to_s
-      "Chance Importer"
-    end
-  end
   
   # Chance::Instance represents an instance of the chance processor.
   # In a SproutCore package, an "instance" would likely be a language folder.
@@ -80,7 +30,7 @@ module Chance
   class Instance
     include Slicing
     
-    @@round = 0
+    @@generation = 0
 
     attr_accessor :css
     
@@ -109,11 +59,6 @@ module Chance
 
       return file_not_found(identifier) if not file
 
-      # Not overly efficient at the moment; that above is just
-      # fact-checking, as we recombine on any update() call, and
-      # when we do so, we aren't doing it by keeping references to
-      # the individual files; we are doing it by finding them in the
-      # files hash.
       @files[path] = identifier
     end
 
@@ -137,28 +82,33 @@ module Chance
     end
 
     # Generates the output CSS.
-    # This combines the input CSS file(s), parses it, prepares the images,
-    # and generates the final output (which it will store in css).
+    # This parses the imput files, prepares the images, and runs the CSS
+    # through SCSS. The resulting CSS is saved in the css attribute.
     def update
       begin
         # SCSS code executing needs to know what the current instance of Chance is,
         # so that lookups for slices, etc. work.
         Chance._current_instance = self
 
-        # Step 1: parse CSS
+        # Step 1: preprocess CSS, determining order and parsing the slices out.
+        # The output of this process is a "virtual" file that imports all of the 
+        # SCSS files used by this Chance instance. This also sets up the @slices hash.
         import_css = _preprocess
         
-        # Step 2: get parsed slices, slice images as needed, generate CSS for the slices,
-        # and add the CSS it generates to parsed output CSS.
-        
-         # note that it is saved to @slices so that the slices may be found by the SCSS
-        # extensions that help find offset, etc.
+        # Step 2: Slice images. The sliced canvases are saved in the individual slice
+        # hashes.
         slice_images
-        @imager = Chance::DataURLImager.new(@slices, self) # for now, only DataURLs
         
+        # Step 3: Generate CSS and images needed for output. For now, we hard-code
+        # data url imager. Later, we will have a spriting imager.
+        @imager = Chance::DataURLImager.new(@slices, self)
+        
+        # The main CSS file we pass to the Sass Engine will import the CSS the imager
+        # created, and then all of the individual files (using the import CSS generated
+        # in Step 1)
         css = "@import 'chance_images';\n" + import_css
 
-        # Step 3: Create output
+        # Step 4: Apply Sass Engine
         engine = Sass::Engine.new(css, Compass.sass_engine_options.merge({
           :syntax => :scss,
           :importer => Importer.new(@imager),
@@ -190,6 +140,9 @@ module Chance
     # _include_file is the recursive method in the depth-first-search
     # that creates the ordered list of files.
     #
+    # To determine if a file is already included, we use the class variable
+    # "generation", which we increment each pass.
+    #
     # The list is created in the variable @file_list.
     #
     def _include_file(file)
@@ -198,30 +151,32 @@ module Chance
       file = Chance.get_file(file)
 
       return if file.nil?
-      return if file[:included] === @@round
+      return if file[:included] === @@generation
 
       requires = file[:requires]
       requires.each {|r| _include_file(@files[r]) } unless requires.nil?
 
-      file[:included] = @@round
+      file[:included] = @@generation
 
       @file_list.push(file)
     end
 
-    # _combine coordinates the combination process; it loops over the
-    # raw set of files we have, and for each one, calls _include_file,
-    # and finally, combines all of them into one giant string.
+    # Determines the order of the files, parses them using the Chance parser,
+    # and returns a file with an SCSS @import directive for each file.
     def _preprocess
       @slices = {}
       
-      @@round = @@round + 1
+      @@generation = @@generation + 1
       files = @files.values
       @file_list = []
 
       files.each {|f| _include_file(f) }
 
       @file_list.map {|file|
-        # parse file
+        # The parser accepts single files that contain many files. As such,
+        # its method of determing the current file name is a marker in the
+        # file. We may want to consider changing this to a parser option
+        # now that we don't need this feature so much, but this works for now.
         content = "@_chance_file " + @files.key(file[:path]) + ";\n" + file[:content]
         
         parser = Chance::Parser.new(content, @options)
