@@ -489,7 +489,7 @@ module Chance
       output += "background-position: "
       output += "_slice_offset_x(" + slice[:name].dump + ", " + slice[:offset_x].to_s + ") "
       output += "_slice_offset_y(" + slice[:name].dump + ", " + slice[:offset_y].to_s + ");"
-      output += "background-repeat: " + slice[:repeat] + ";"
+      output += "background-repeat: " + slice[:repeat]
       return output
     end
     
