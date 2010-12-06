@@ -4,6 +4,7 @@ require "base64"
 
 module Chance
 
+  # The DataURL Imager creates CSS with data urls for each slice.
   class DataURLImager < Chance::Imager
 
     def css
