@@ -27,7 +27,7 @@ module SC
     end
       
     def buildWithChance(dst_path)
-      theme_name = entry.target.config[:theme]
+      theme_name = entry.target.config[:css_theme]
       
       chance = Chance::Instance.new({:theme => theme_name })
 
