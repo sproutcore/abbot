@@ -43,6 +43,7 @@
 require "json"
 require "set"
 require "stringio"
+require "pathname"
 
 module Chance
 
@@ -65,22 +66,14 @@ module Chance
 
     def initialize(string, opts = {})
       @opts = { :theme => "", :compress => true }
-      @opts = @opts.merge(opts)
+      @opts.merge!(opts)
       @path = ""
 
       
       @input = string
       @css = ""
 
-      # the goal is to have short selectors. To accomplish, more detail is added for any
-      # given absolute path so it may have a unique name.
-      #
-      # By default, the last two parts of the path are included.
-      #
-      # In any case, we need to keep track of what names we have created, and what
-      # paths they are mapped to.
-      @slices = {}  # slice names to slice objects
-      @image_names = {} # image names (paths) to slice names
+      @slices = @opts[:slices]  # we update the slices given to us
       
       @theme = @opts[:theme]
       
@@ -100,6 +93,7 @@ module Chance
       # Create a path
       path = File.join(relative, filename)
       path = path[2..-1] if path[0,2] == "./"
+      path = Pathname.new(path).cleanpath.to_s
 
       opts = opts.merge ({ :path => path })
       opts = normalize_rectangle(opts)
@@ -133,9 +127,8 @@ module Chance
       # (left top width height) and use that instead of showing all six digits.
       slice_path = "%s_%s_%s_%s_%s_%s_%s" % slice_name_params
 
-      if @image_names.has_key? (slice_path)
-        name = @image_names[slice_path]
-        slice = @slices[name]
+      if @slices.has_key? (slice_path)
+        slice = @slices[slice_path]
         slice[:min_offset_x] = [slice[:min_offset_x], opts[:offset_x]].min
         slice[:min_offset_y] = [slice[:min_offset_y], opts[:offset_y]].min
         
@@ -143,15 +136,14 @@ module Chance
         slice[:max_offset_y] = [slice[:max_offset_y], opts[:offset_y]].max
       else
         parts = slice_path.split("/")
-        name = "__slice_" + parts.join("_")
+        css_name = "__slice_" + parts.join("_")
 
-        css_name = name
         if @opts[:compress]
           css_name = "__s" + @uid.to_s + "_" + @slices.length.to_s
         end
 
         slice = opts.merge ({ 
-          :name => name, 
+          :name => slice_path, 
           :path => path,
           :css_name => css_name,
           :min_offset_x => opts[:offset_x], # these will be taken into account when spriting.
@@ -162,8 +154,7 @@ module Chance
           :imaged_offset_y => 0
         })
 
-        @image_names[slice_path] = name
-        @slices[name] = slice
+        @slices[slice_path] = slice
       end
 
       return slice
@@ -199,7 +190,6 @@ module Chance
     def parse
       @scanner = StringScanner.new(@input)
 
-      @slices = {}
       @image_names = {}
       @css = _parse
 

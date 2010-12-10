@@ -127,8 +127,7 @@ module Chance
     # Looks up a slice that has been found by parsing the CSS. This is used by
     # the Sass extensions that handle writing things like slice offset, etc.
     def get_slice(name)
-      key = @slices.keys[0]
-      return @slices[name]
+      return @slices[name] 
     end
 
   private
@@ -165,6 +164,7 @@ module Chance
     # and returns a file with an SCSS @import directive for each file.
     def _preprocess
       @slices = {}
+      @options[:slices] = @slices
       
       @@generation = @@generation + 1
       files = @files.values
@@ -184,8 +184,6 @@ module Chance
         parser = Chance::Parser.new(content, @options)
         parser.parse
         file[:parsed_css] = parser.css
-        
-        @slices.merge! parser.slices
         
         "@import \"" + file[:path] + ".scss\";"
       }.join("\n")
