@@ -14,7 +14,7 @@ module Chance
       slices.each do |name, slice|
         # so, the path should be the path in the chance instance
         output += "." + slice[:css_name] + " { "
-        output += "background-image: url("
+        output += "background: url("
         output += '"data:image/png;base64,'
         
         base64Image = Base64.encode64(slice[:image].to_blob({ :fast_rgba => true }))
