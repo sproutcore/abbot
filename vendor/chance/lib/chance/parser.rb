@@ -525,7 +525,7 @@ module Chance
       layout_properties = [:left, :top, :right, :bottom]
 
       if not slice[:repeat].nil?
-        output += "repeat: " + slice[:repeat] + "; \n"
+        output += "background-repeat: " + slice[:repeat] + "; \n"
       end
 
       if slice[:right].nil? or slice[:left].nil?
