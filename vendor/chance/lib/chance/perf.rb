@@ -9,7 +9,7 @@ module ChunkyPNG
       
       new_pixels = Array.new(crop_width * crop_height)
       for cy in 0...crop_height do
-        new_pixels[(cy+y)*crop_width, crop_width] = pixels.slice((cy + y) * width + x, crop_width)
+        new_pixels[cy*crop_width, crop_width] = pixels.slice((cy + y) * width + x, crop_width)
       end
       ChunkyPNG::Canvas.new(crop_width, crop_height, new_pixels)
     end
