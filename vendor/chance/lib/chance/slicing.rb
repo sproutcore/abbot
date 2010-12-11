@@ -1,4 +1,4 @@
-
+require "chance/perf"
 
 module Chance
   class Instance
@@ -82,7 +82,7 @@ module Chance
         elsif not bottom.nil?
           # in this case it must be bottom+height
           if not height.nil?
-            rect[:top] = image_height - bottom - top
+            rect[:top] = image_height - height - bottom
             rect[:height] = height
           else
             rect[:top] = image_height - bottom
