@@ -446,7 +446,7 @@ module Chance
           idx += 1
         end
 
-        args[arg[:key]] = arg[:value]
+        args[arg[:key]] = arg[:value].strip
 
         scanner.scan /,/
       end
