@@ -554,8 +554,11 @@ module Chance
       right = arguments[:right]
       bottom = arguments[:bottom]
 
-      fill_width = 1
-      fill_height = 0
+      # determine fill method
+      fill = arguments[:fill] || "1 0"
+      fill = fill.strip.split(/\s+/)
+      fill_width = Integer(fill[0])
+      fill_height = Integer(fill[1])
 
       skip_top_left = values.include? 'skip-top-left'
       skip_top = values.include? 'skip-top'
@@ -602,7 +605,7 @@ module Chance
 
       bottom_left_slice = {
         :left => 0,
-        :bottom => bottom,
+        :bottom => 0,
         :width => left,
         :height => bottom,
 
@@ -812,7 +815,7 @@ module Chance
       end
 
       if should_include_slice?(bottom_right_slice) and not skip_bottom_right
-        output += ".bottom-left {\n"
+        output += ".bottom-right {\n"
         output += generate_slice_include(bottom_right_slice) + ";"
 
         output += "\nposition: absolute;\n"
