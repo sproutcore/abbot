@@ -107,16 +107,16 @@ module Chance
         # in Step 1)
         # 
 
-        # Importer, if we support it
-        if Chance::SUPPORTS_IMPORTERS
-          importer = Importer.new(@imager)
-          css = "@import 'chance_images';\n" + import_css
-          cache_store = Sass::CacheStores::Filesystem.new("./tmp/.scss-cache")
-        else
+        # Importer, if we support it; we'll just keep it off for now.
+        # if Chance::SUPPORTS_IMPORTERS
+        #   importer = Importer.new(@imager)
+        #   css = "@import 'chance_images';\n" + import_css
+        #   cache_store = Sass::CacheStores::Filesystem.new("./tmp/.scss-cache")
+        # else
           importer = nil
           css = @imager.css + "\n" + import_css
           cache_store = nil
-        end
+        # end
 
         # Step 4: Apply Sass Engine
         engine = Sass::Engine.new(css, Compass.sass_engine_options.merge({
@@ -195,10 +195,10 @@ module Chance
         parser.parse
         file[:parsed_css] = parser.css
         
-        # Instead:
-        if Chance::SUPPORTS_IMPORTERS
-          css = "@import \"" + file [:path] + ".scss\";"
-        else
+        # NO IMPORTERS FOR NOW
+        #if Chance::SUPPORTS_IMPORTERS
+        #  css = "@import \"" + file [:path] + ".scss\";"
+        #else
           tmp_path = "./tmp/chance/" + file[:path] + ".scss"
           FileUtils.mkdir_p(File.dirname(tmp_path))
           
@@ -207,7 +207,7 @@ module Chance
           f.close
           
           css = "@import \"" + tmp_path + "\";"
-        end
+        # end
         
         css
       }.join("\n")

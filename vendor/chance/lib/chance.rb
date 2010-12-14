@@ -1,5 +1,8 @@
 require "chance/instance"
 
+require 'sass'
+
+# If available, use oily_png, which is faster
 begin
   require "oily_png"
 rescue Exception
@@ -7,19 +10,10 @@ rescue Exception
 end
 
 module Chance
-  supports_importers = false
-  begin
-    require 'chance/importer'
-    supports_importers = true
-  rescue Exception
-    require 'sass'
-  end
   
   CONFIG = {
     :verbose => false
   }
-  
-  SUPPORTS_IMPORTERS = supports_importers
 
   @_current_instance = nil
 
