@@ -20,10 +20,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'thor', '~> 0.14.3'
   s.add_dependency 'haml', '~> 3.0.24'
   
-  # Chance requires Importers, a feature from Sass 3.1 prerelease.
-  s.add_dependency 'sass', '~> 3.1.0'
   s.add_dependency 'compass', '~> 0.10.5'
-  s.add_dependency 'oily_png', '~> 0.2.0'
+  s.add_dependency 'chunky_png', '~> 0.12.0'
 
   if is_jruby
     s.add_dependency 'mongrel', '~> 1.1.5'

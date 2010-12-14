@@ -1,5 +1,5 @@
 require "chance/instance"
-require "oily_png"
+require "chunky_png"
 
 module Chance
   CONFIG = {
