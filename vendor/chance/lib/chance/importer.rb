@@ -46,7 +46,10 @@ module Chance
     end
   
     def mtime(name, options)
-      Chance.get_file(name[0..-6])[:mtime]
+      f = Chance.get_file(name[0..-6])
+      return nil if f.nil?
+      
+      return f[:mtime]
     end
   
     def key(name, options)
