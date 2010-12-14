@@ -1,5 +1,4 @@
 require 'set'
-require 'sass'
 require 'compass'
 
 require 'chance/parser'
@@ -9,7 +8,7 @@ require 'chance/sass_extensions'
 require 'chance/perf'
 require 'chance/slicing'
 
-# require 'chance/importer'
+
 
 Compass.discover_extensions!
 Compass.configure_sass_plugin!
@@ -106,16 +105,25 @@ module Chance
         # The main CSS file we pass to the Sass Engine will import the CSS the imager
         # created, and then all of the individual files (using the import CSS generated
         # in Step 1)
-        # css = "@import 'chance_images';\n" + import_css
-        # Can't use importers for now, so:
-        css = @imager.css + "\n" + import_css
+        # 
+
+        # Importer, if we support it
+        if Chance::SUPPORTS_IMPORTERS
+          importer = Importer.new(@imager)
+          css = "@import 'chance_images';\n" + import_css
+          cache_store = Sass::CacheStores::Filesystem.new("./tmp/.scss-cache")
+        else
+          importer = nil
+          css = @imager.css + "\n" + import_css
+          cache_store = nil
+        end
 
         # Step 4: Apply Sass Engine
         engine = Sass::Engine.new(css, Compass.sass_engine_options.merge({
           :syntax => :scss,
-          # :importer => Importer.new(@imager),
-          :filename => "chance_main.css"
-          # :cache_store => Sass::CacheStores::Filesystem.new("./tmp/.scss-cache")
+          :importer => importer,
+          :filename => "chance_main.css",
+          :cache_store => cache_store
         }))
         
         css = engine.render
@@ -187,12 +195,21 @@ module Chance
         parser.parse
         file[:parsed_css] = parser.css
         
-        # No importers...
-        # So we can't do this:
-        #"@import \"" + file[:path] + ".scss\";"
-        
         # Instead:
-        parser.css
+        if Chance::SUPPORTS_IMPORTERS
+          css = "@import \"" + file [:path] + ".scss\";"
+        else
+          tmp_path = "./tmp/chance/" + file[:path] + ".scss"
+          FileUtils.mkdir_p(File.dirname(tmp_path))
+          
+          f = File.new(tmp_path, "w")
+          f.write(parser.css)
+          f.close
+          
+          css = "@import \"" + tmp_path + "\";"
+        end
+        
+        css
       }.join("\n")
     end
 

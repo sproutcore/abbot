@@ -42,6 +42,7 @@ Gem::Specification.new do |s|
   s.require_paths << 'lib'
   s.require_paths << 'vendor/chance/lib'
 
+
   s.rubyforge_project = "sproutcore"
   s.extra_rdoc_files  = %w[History.txt README.txt]
 

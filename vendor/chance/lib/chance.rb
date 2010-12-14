@@ -1,10 +1,25 @@
 require "chance/instance"
-require "chunky_png"
+
+begin
+  require "oily_png"
+rescue Exception
+  require "chunky_png"
+end
 
 module Chance
+  supports_importers = false
+  begin
+    require 'chance/importer'
+    supports_importers = true
+  rescue Exception
+    require 'sass'
+  end
+  
   CONFIG = {
     :verbose => false
   }
+  
+  SUPPORTS_IMPORTERS = supports_importers
 
   @_current_instance = nil
 
