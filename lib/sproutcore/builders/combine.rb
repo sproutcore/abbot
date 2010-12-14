@@ -8,8 +8,6 @@
 require "sproutcore/builders/base"
 require 'fileutils'
 
-#require 'pathname'
-require 'bundler/setup'
 require 'chance'
 
 module SC
