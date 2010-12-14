@@ -97,8 +97,13 @@ mode :all do
     :hide_body_overflow => true,
 
     # A hash of additional MIME types, i.e. { '.m4a' => 'audio/mp4a-latm' }
-    :mime_types => {}
-
+    :mime_types => {},
+    
+    # Whether to generate an app.manifest file for HTML5 application caching
+    :html5_manifest => false,
+    # Which networks/URLs to allow if HTML5 application caching is turned on
+    :html5_manifest_networks => []
+    
 end
 
 
@@ -138,7 +143,10 @@ mode :debug do
 
     # Do not pack javascripts in development mode, we want each file to
     # load independently.
-    :use_packed => false
+    :use_packed => false,
+    
+    # Turn off HTML5 application caching by default in debug mode
+    :html5_manifest => false
 end
 
 
