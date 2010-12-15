@@ -88,7 +88,7 @@ module SC
         end
       end
       $to_minify.uniq!
-      if $to_minify.length > 0
+      if $to_minify.length > 0 and !SC.env[:dont_minify]
         yui_root = File.expand_path("../../../../vendor/sproutcore", __FILE__)
         jar_path = File.join(yui_root, 'SCCompiler.jar')
         if SC.env[:yui_minification]

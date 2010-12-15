@@ -39,6 +39,7 @@ module SC
     class_option "build-targets",:type => :string
     class_option "no-chance",    :type => :boolean
     class_option "yui-minification",     :type => :boolean
+    class_option "dont-minify",     :type => :boolean
     class_option "verbose",      :type => :boolean, :aliases => "-v"
     class_option "very-verbose", :type => :boolean, :aliases => "-V"
     class_option "library",      :type => :string #deprecated
@@ -52,6 +53,7 @@ module SC
       prepare_logger!
       prepare_mode!
       yui_minification!
+      dont_minify!
       prepare_app!
       prepare_build_numbers!
     end
@@ -131,6 +133,10 @@ module SC
       
       def yui_minification!
         SC.env[:yui_minification] = options[:'yui-minification']
+      end
+      
+      def dont_minify!
+        SC.env[:dont_minify] = options[:'dont-minify']
       end
 
       # Configure the current build numbers.  Handles the --build option.
