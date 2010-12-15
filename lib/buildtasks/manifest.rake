@@ -358,6 +358,9 @@ namespace :manifest do
 
       # find all of the modules required by this target
       targets = target.modules({ :debug => debug, :test => test, :theme => true })
+      targets.each do |target|
+        target.manifest_for(manifest.variation).build!
+      end
 
       unless targets.size == 0
         manifest.add_entry 'module_info.js',
