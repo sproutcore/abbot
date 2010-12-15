@@ -42,7 +42,7 @@ module SC
       attr_reader :preferred_filenames
 
       def sort(entries)
-        bundleInfoEntry = []
+        moduleInfoEntry = []
         bundleLoadedEntry = []
 
         all_entries = {}
@@ -54,8 +54,8 @@ module SC
 
         # first remove bundle entries which MUST be first or last
         entries = entries.select do |entry|
-          if entry.normalized_filename == 'bundle_info.js'
-            bundleInfoEntry = [entry]
+          if entry.normalized_filename == 'module_info.js'
+            moduleInfoEntry = [entry]
             false
           else
             true
@@ -87,7 +87,7 @@ module SC
           add_entry_to_set(cur, ret, seen, entries, all_entries)
         end
 
-        return bundleInfoEntry + ret
+        return moduleInfoEntry + ret
       end
 
       protected
