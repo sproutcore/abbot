@@ -46,9 +46,11 @@ module SC
         manifest = t.manifest_for(entry.manifest.variation)
 
         script_entry = manifest.find_entry('javascript.js')
+        next if not script_entry
         script_url = script_entry.cacheable_url
 
         string_entry = manifest.find_entry('javascript-strings.js')
+        next if not string_entry
         string_url = string_entry.cacheable_url
 
         module_info = t.module_info({ :debug => entry[:debug], :test => entry[:test], :theme => entry[:theme], :variation => entry[:variation] })
