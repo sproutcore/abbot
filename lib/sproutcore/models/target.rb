@@ -497,8 +497,10 @@ module SC
         minify_css  = config[:minify] if minify_css.nil?
         minify_js   = config[:minify_javascript]
         minify_js   = config[:minify] if minify_js.nil?
-        pack_css    = config[:use_packed]
-        pack_js     = config[:use_packed]
+        pack_css    = config[:use_packed_stylesheet]
+        pack_css    = config[:use_packed] if pack_css.nil?
+        pack_js     = config[:use_packed_javascript]
+        pack_js     = config[:use_packed] if pack_js.nil?
 
         # sort entries...
         css_entries = {}
@@ -517,18 +519,12 @@ module SC
           end
         end
 
+        # TODO: For bundles, a stylesheet-packed.css file is only created. This is a bug and needs to be
+        #       addressed.
         css_urls = []
         css_entries.each do |resource_name, entries|
           SC::Helpers::EntrySorter.sort(entries).each do |entry|
-            if minify_css && entry[:minified]
-              css_urls << entry.cacheable_url
-            elsif pack_css && entry[:packed] && !entry[:minified]
-              css_urls << entry.cacheable_url
-            elsif combine_css && entry[:combined] && !entry[:packed] && !entry[:minified]
-              css_urls << entry.cacheable_url
-            elsif !entry[:combined] && !entry[:packed] && !entry[:minified]
-              css_urls << entry.cacheable_url
-            end
+            css_urls << entry.cacheable_url if _include_entry?(entry, minify_css, pack_css, combine_css)
           end
         end
 
@@ -537,15 +533,7 @@ module SC
           resource_name = resource_name.ext('js')
           pf = (resource_name == 'javascript.js') ? %w(source/lproj/strings.js source/core.js source/utils.js) : []
           SC::Helpers::EntrySorter.sort(entries, pf).each do |entry|
-            if minify_js && entry[:minified]
-              js_urls << entry.cacheable_url
-            elsif pack_js && entry[:packed] && !entry[:minified]
-              js_urls << entry.cacheable_url
-            elsif combine_js && entry[:combined] && !entry[:packed] && !entry[:minified]
-              js_urls << entry.cacheable_url
-            elsif !entry[:combined] && !entry[:packed] && !entry[:minified]
-              js_urls << entry.cacheable_url
-            end
+            js_urls << entry.cacheable_url if _include_entry?(entry, minify_js, pack_js, combine_js)
           end
         end
 
@@ -751,6 +739,20 @@ module SC
       end
 
       puts "Finished."
+    end
+    
+  private
+
+    # Check if the given entry should be considered included
+    def _include_entry?(entry, minified, packed, combined)
+      # The order matters here
+      return false if !minified && entry[:minified]
+      return false if !packed && entry[:packed]
+      return true if minified && entry[:minified]
+      return true if packed && entry[:packed]
+      return true if combined && entry[:combined] && !entry[:packed] && !entry[:minified]
+      return true if !entry[:combined] && !entry[:packed] && !entry[:minified]
+      return false
     end
 
   end
