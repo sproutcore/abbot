@@ -21,7 +21,7 @@ module SC
       # variable or by calling yield(:area_name)
       #
       def content_for(name, &block)
-        eval "@content_for_#{name} = (@content_for_#{name} || '') + (capture(&block) || '')"
+        eval "@content_for_#{name} = (@content_for_#{name} || '') + (capture(&block) || '')", binding, __FILE__, __LINE__
         return '' # incase user does <%= content_for ... %>
       end
 
