@@ -96,7 +96,7 @@ module SC
           # depending on setup
           if cur_target.config[:combine_javascript]
             urls << cur_entry.cacheable_url
-          else
+          elsif cur_entry[:ordered_entries]
             urls += cur_entry[:ordered_entries].map { |e| e.cacheable_url }
           end
 
