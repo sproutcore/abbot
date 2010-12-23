@@ -35,3 +35,10 @@ To update the gem:
 END
 
 end
+
+begin
+  require 'spec/rake/spectask'
+  Spec::Rake::SpecTask.new
+rescue LoadError
+  puts "RSpec is not installed. Please install if you want to run tests."
+end
