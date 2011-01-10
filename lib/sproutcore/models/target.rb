@@ -221,9 +221,11 @@ module SC
       ret = (@dynamic_targets ||= {})[key]
       return ret unless ret.nil?
 
-      # Get the list of targets that should be treated as prefetched modules
-      # from the Buildfile
+      # Get the list of targets that should be treated as prefetched or deferred 
+      # modules from the Buildfile
       prefetched_modules = config[:prefetched_modules]
+      deferred_modules = config[:deferred_modules]
+
       if prefetched_modules
         # Go through each module and mark it as prefetched.
         # This way, we can later distinguish between deferred and prefetched
@@ -231,6 +233,16 @@ module SC
         prefetched_modules.each do |m|
           target = target_for(m)
           target[:prefetched] = true
+        end
+      end
+
+      if deferred_modules
+        # Go through each module and mark it as deferred.
+        # This way, we can later distinguish between deferred and prefetched
+        # modules and non-deferred modules
+        deferred_modules.each do |m|
+          target = target_for(m)
+          target[:deferred] = true
         end
       end
 
@@ -499,6 +511,15 @@ module SC
       if self[:target_type] == :app
         raise "module_info called on an app target"
       else
+
+        # Majd: I added this because modules shouldn't have the debug_required
+        # and test_required frameworks applied to them since a module shouldn't
+        # require a framework if the module is either deferred or prefetched
+        if self[:deferred] or self[:prefetched]
+          opts[:debug] = false
+          opts[:test] = false
+        end
+
         requires = required_targets(opts) # only go one-level deep!
 
         # Targets that aren't pre-loaded can't be packed together. That leaves
