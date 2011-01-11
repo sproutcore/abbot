@@ -27,7 +27,7 @@ describe "manifest:prepare_build_tasks:combine" do
   #######################################
   # stylesheet.css support
   #
-  describe "whem CONFIG.combine_stylesheets = true" do
+  describe "when CONFIG.combine_stylesheets = true" do
 
     before do
       @config.combine_stylesheets = true
