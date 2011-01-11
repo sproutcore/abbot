@@ -196,12 +196,10 @@ module SC
       return ret
     end
 
-    # Returns all of the targets dynamically required by this target.  This
-    # will use the "deferred_modules" config, resolving the target names using
-    # target_for().
+    # Returns all of the modules under this target.  This
+    # will use the deferred_modules, prefetched_modules, and inline_modules config
+    # options from the Buildfile.
     #
-    # You may pass some additional options in which will select the set
-    # of targets you want returned.
     #
     # === Options
     #  :debug:: if true, config.debug_required will be included
@@ -218,21 +216,34 @@ module SC
       key = key.compact.join('.')
 
       # Return cache value if found
-      ret = (@dynamic_targets ||= {})[key]
+      ret = (@modules ||= {})[key]
       return ret unless ret.nil?
 
-      # Get the list of targets that should be treated as prefetched or deferred 
-      # modules from the Buildfile
+      # Get the list of targets that should be treated as prefetched, deferred
+      # or inline modules from the Buildfile
       prefetched_modules = config[:prefetched_modules]
       deferred_modules = config[:deferred_modules]
+      inline_modules = config[:inline_modules]
+
+      # else compute return value, respecting options
+      ret = [deferred_modules, prefetched_modules, inline_modules]
+      return [] if ret.compact.empty?
+
+      #puts "\n1- Target: #{self.target_name} ret = #{ret}"
 
       if prefetched_modules
         # Go through each module and mark it as prefetched.
         # This way, we can later distinguish between deferred and prefetched
         # modules when generating the module_info.js file.
-        prefetched_modules.each do |m|
+        dependencies = prefetched_modules.map do |m|
           target = target_for(m)
-          target[:prefetched] = true
+          target[:prefetched_module] = true
+
+          target.required_targets(opts)
+        end
+
+        dependencies.each do |dependency|
+          ret << dependency[:target_name]
         end
       end
 
@@ -240,31 +251,37 @@ module SC
         # Go through each module and mark it as deferred.
         # This way, we can later distinguish between deferred and prefetched
         # modules and non-deferred modules
-        deferred_modules.each do |m|
+        dependencies = deferred_modules.map do |m|
           target = target_for(m)
-          target[:deferred] = true
+          target[:deferred_module] = true
+
+          target.required_targets(opts)
+        end
+
+        dependencies.flatten.compact.each do |dependency|
+          ret << dependency.target_name
         end
       end
 
-      # else compute return value, respecting options
-      ret = [config[:deferred_modules], config[:prefetched_modules]]
+      if inlined_modules
+        # Go through each module and mark it as inline.
+        dependencies = inline_modules.map do |m|
+          target = target_for(m)
+          target[:inline_module] = true
 
-      if opts[:debug] && config[:debug_deferred_modules]
-        ret << config[:debug_deferred_modules]
-      end
-      if opts[:test] && config[:test_deferred_modules]
-        ret << config[:test_deferred_modules]
-      end
-      if opts[:theme] && self.loads_theme? && config[:theme]
-        # verify theme is a theme target type - note that if no matching
-        # target is found, we'll just let this go through so the standard
-        # not found warning can show.
-        t = target_for(config[:theme])
-        if t && t[:target_type] != :theme
-          SC.logger.warn "Target #{config[:theme]} was set as theme for #{target_name} but it is not a theme."
-        else
-          ret << config[:theme]
+          target.required_targets(opts)
         end
+
+        dependencies.each do |dependency|
+          ret << dependency[:target_name]
+        end
+      end
+
+      if opts[:debug] && config[:debug_required]
+        ret << config[:debug_required]
+      end
+      if opts[:test] && config[:test_required]
+        ret << config[:test_required]
       end
 
       ret = ret.flatten.compact.map do |n|
@@ -275,7 +292,7 @@ module SC
       end
       ret = ret.compact.uniq
 
-      @dynamic_targets[key] = ret
+      @modules[key] = ret
       return ret
     end
 
@@ -515,7 +532,7 @@ module SC
         # Majd: I added this because modules shouldn't have the debug_required
         # and test_required frameworks applied to them since a module shouldn't
         # require a framework if the module is either deferred or prefetched
-        if self[:deferred] or self[:prefetched]
+        if self[:deferred_module] or self[:prefetched_module]
           opts[:debug] = false
           opts[:test] = false
         end
