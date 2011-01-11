@@ -53,7 +53,7 @@ module SC
         next if not string_entry
         string_url = string_entry.cacheable_url
 
-        module_info = t.module_info({ :debug => entry[:debug], :test => entry[:test], :theme => entry[:theme], :variation => entry[:variation] })
+        module_info = t.module_info({ :variation => entry[:variation] })
 
         output << eruby.evaluate({
           :target_name => t[:target_name].to_s.sub(/^\//,''),
