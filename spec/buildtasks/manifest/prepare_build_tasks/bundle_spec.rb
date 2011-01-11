@@ -30,12 +30,6 @@ describe "manifest:prepare_build_tasks:bundle_loaded" do
     it "should run manifest:prepare_build_tasks:setup as prereq" do
       should_run('manifest:prepare_build_tasks:setup') { run_task }
     end
-
-    it "should not create a bundle_loaded.js entry for an app" do
-      run_task
-      @manifest.entry_for('bundle_loaded.js').should be_nil
-    end
-
   end
 
   describe "static framework target" do
@@ -62,11 +56,6 @@ describe "manifest:prepare_build_tasks:bundle_loaded" do
 
     it "should run manifest:prepare_build_tasks:setup as prereq" do
       should_run('manifest:prepare_build_tasks:setup') { run_task }
-    end
-
-    it "should create a bundle_loaded.js entry" do
-      run_task
-      @manifest.entry_for('bundle_loaded.js').should_not be_nil
     end
 
   end
@@ -96,12 +85,6 @@ describe "manifest:prepare_build_tasks:bundle_loaded" do
     it "should run manifest:prepare_build_tasks:setup as prereq" do
       should_run('manifest:prepare_build_tasks:setup') { run_task }
     end
-
-    it "should create a bundle_loaded.js entry" do
-      run_task
-      @manifest.entry_for('bundle_loaded.js').should_not be_nil
-    end
-
   end
 
 end
@@ -172,11 +155,6 @@ describe "manifest:prepare_build_tasks:module_info" do
     it "should run manifest:prepare_build_tasks:setup as prereq" do
       should_run('manifest:prepare_build_tasks:setup') { run_task }
     end
-
-    it "should create a bundle_info.js entry for its dynamic target" do
-      @manifest.entry_for('bundle_info.js').should_not be_nil
-    end
-
   end
 
   describe "static framework target" do
@@ -208,11 +186,6 @@ describe "manifest:prepare_build_tasks:module_info" do
     it "should not require a dynamic framework" do
       (req = @target.modules).size.should == 0
     end
-
-    it "should not create a bundle_info.js entry" do
-      @manifest.entry_for('bundle_info.js').should be_nil
-    end
-
   end
 
   describe "dynamic framework target" do
@@ -244,11 +217,6 @@ describe "manifest:prepare_build_tasks:module_info" do
     it "should require its own dynamic framework" do
       (req = @target.modules).size.should == 1
     end
-
-    it "should create a bundle_info.js entry" do
-      @manifest.entry_for('bundle_info.js').should_not be_nil
-    end
-
   end
 
 end
