@@ -316,18 +316,20 @@ namespace :manifest do
       config   = CONFIG
 
       # Populate module_info for all deferred_modules frameworks.
-      # Add :debug_deferred_modules and :test_deferred_modules depending on
+      # Add :debug_required and :test_required depending on
       # the build mode.
       debug = config[:load_debug]
       test = config[:load_tests]
 
       # find all of the modules required by this target
       targets = target.modules({ :debug => debug, :test => test, :theme => true })
-      targets.each do |target|
-        target.manifest_for(manifest.variation).build!
-      end
 
       unless targets.size == 0
+
+        targets.each do |target|
+          target.manifest_for(manifest.variation).build!
+        end
+
         manifest.add_entry 'module_info.js',
           :dynamic        => true, # required to get correct timestamp for cacheable_url
           :build_task     => 'build:module_info',
