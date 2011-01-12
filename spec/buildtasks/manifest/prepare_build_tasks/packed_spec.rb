@@ -24,15 +24,23 @@ describe "manifest:prepare_build_tasks:packed" do
     end
   end
 
-  it "should not add packed entries for apps" do
+  it "should add packed entries for apps" do
     @target = @project.target_for(:contacts)
     @target.target_type.should == :app # precondition
 
     @manifest = @target.manifest_for(:language => :en)
     run_task
 
-    @manifest.entry_for('javascript-packed.js').should be_nil
-    @manifest.entry_for('stylesheet-packed.css').should be_nil
+    @manifest.entry_for('javascript-packed.js').should_not be_nil
+    @manifest.entry_for('stylesheet-packed.css').should_not be_nil
+  end
+
+  it "should remove non-packed JS entries from apps" do
+    @manifest.entries.each do |entry|
+      if entry[:entry_type] == :javascript
+        entry[:filename].should eq 'javascript-packed.js'
+      end
+    end
   end
 
   it "should add packed entries for frameworks" do
