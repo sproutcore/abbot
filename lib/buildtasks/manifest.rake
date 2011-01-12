@@ -291,23 +291,21 @@ namespace :manifest do
       manifest = env[:manifest]
       config = env[:target].config
 
-      if config[:no_chance]
-        # select all original entries with with ext of css
-        entries = manifest.entries.select do |e|
-          e.original? && e[:ext] == 'css'
-        end
+      # select all original entries with with ext of css
+      entries = manifest.entries.select do |e|
+        e.original? && e[:ext] == 'css'
+      end
 
-        # add transform & tag with build directives.
-        entries.each do |entry|
-          entry = manifest.add_transform entry,
-            :filename   => ['source', entry[:filename]].join('/'),
-            :build_path => File.join(manifest[:build_root], 'source', entry[:filename]),
-            :url => [manifest[:url_root], 'source', entry[:filename]].join("/"),
-            :build_task => 'build:css',
-            :resource   => 'stylesheet',
-            :entry_type => :css
-          entry.discover_build_directives!
-        end
+      # add transform & tag with build directives.
+      entries.each do |entry|
+        entry = manifest.add_transform entry,
+          :filename   => ['source', entry[:filename]].join('/'),
+          :build_path => File.join(manifest[:build_root], 'source', entry[:filename]),
+          :url => [manifest[:url_root], 'source', entry[:filename]].join("/"),
+          :build_task => 'build:css',
+          :resource   => 'stylesheet',
+          :entry_type => :css
+        entry.discover_build_directives!
       end
     end
 
@@ -353,44 +351,45 @@ namespace :manifest do
       manifest = env[:manifest]
       config   = CONFIG
 
-      chance_types = [
-        '.css',
-        '.jpg',
-        '.png',
-        '.gif'
-      ]
+      chance_types = ['.jpg', '.png', '.gif']
 
       # sort entries...
-      css_entries = []
+      css_entries = {}
+      chance_entries = []
       javascript_entries = {}
+
       manifest.entries.each do |entry|
-        is_chance_file = false
-        if not config[:no_chance] and chance_types.include?(File.extname(entry[:filename]))
-          is_chance_file = true
-        end
-        
+        # Chance needs to know about image files so it can embed as data URIs in the
+        # CSS. For this reason, if Chance is enabled, we need to send entries for image
+        # files to the 'build:chance' buildtask.
+        is_chance_file = chance_types.include?(File.extname(entry[:filename]))
+
         # we can only combine entries with a resource property.
         next if entry[:resource].nil? and not is_chance_file
 
-        # look for CSS or JS type entries
-        if entry[:entry_type] == :css or (is_chance_file and File.extname(entry[:filename]) == '.css')
-          css_entries << entry
-          entry.hide! if config[:combine_stylesheets] 
-        elsif is_chance_file
-          css_entries << entry
+        # look for CSS, JS and image files entries
+        if is_chance_file
+          chance_entries << entry
+        elsif entry[:entry_type] == :css
+          (css_entries[entry[:resource]] ||= []) << entry
         elsif entry[:entry_type] == :javascript
           (javascript_entries[entry[:resource]] ||= []) << entry
         end
       end
 
       # build combined CSS entry
-      manifest.add_composite 'stylesheet.css',
-        :build_task      => config[:no_chance] ? 'build:combine' : 'build:chance',
-        :source_entries  => css_entries,
-        :hide_entries    => false, # we hide entries manually above
-        :ordered_entries => SC::Helpers::EntrySorter.sort(css_entries),
-        :entry_type      => :css,
-        :combined        => true
+      css_entries.each do |resource_name, entries|
+        resource_name = resource_name.ext('css')
+        # Send image files to the build task if Chance is being used
+        entries.concat chance_entries unless config[:no_chance]
+        manifest.add_composite resource_name,
+          :build_task      => config[:no_chance] ? 'build:combine' : 'build:chance',
+          :source_entries  => entries,
+          :hide_entries    => config[:combine_stylesheets],
+          :ordered_entries => SC::Helpers::EntrySorter.sort(entries),
+          :entry_type      => :css,
+          :combined        => true
+      end
 
       # build combined JS entry
       javascript_entries.each do |resource_name, entries|
