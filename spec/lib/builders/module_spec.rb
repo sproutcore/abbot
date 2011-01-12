@@ -1,6 +1,6 @@
 require "lib/builders/spec_helper"
 
-describe 'SC::Builder::BundleLoaded' do
+describe 'SC::Builder::Module' do
 
   include SC::SpecHelpers
   include SC::BuilderSpecHelper
