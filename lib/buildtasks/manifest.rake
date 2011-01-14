@@ -467,7 +467,7 @@ namespace :manifest do
 
         # Handle CSS version.  get all required targets and find their
         # stylesheet.css.  Build packed css from that.
-        targets = target.expand_required_targets(:theme=>true) + [target]
+        targets = target.expand_required_targets + [target]
         entries = targets.map do |target|
           m = target.manifest_for(manifest.variation).build!
 
