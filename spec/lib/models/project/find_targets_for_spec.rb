@@ -33,7 +33,7 @@ describe SC::Project, 'find_targets_for' do
     target_types[:clients].should eql(:app)
     target_types[:frameworks].should eql(:framework)
     target_types[:themes].should eql(:theme)
-    target_types[:bundles].should eql(:framework)
+    target_types[:modules].should eql(:module)
     project.config.allow_nested_targets.should be_true
 
     # Note, this expectation assumes the fixtures in find_targets/standard has
