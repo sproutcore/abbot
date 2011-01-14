@@ -372,6 +372,7 @@ namespace :manifest do
           chance_entries << entry
         elsif entry[:entry_type] == :css
           (css_entries[entry[:resource]] ||= []) << entry
+          entry.hide! if config[:combine_stylesheets]
         elsif entry[:entry_type] == :javascript
           (javascript_entries[entry[:resource]] ||= []) << entry
         end
@@ -382,10 +383,16 @@ namespace :manifest do
         resource_name = resource_name.ext('css')
         # Send image files to the build task if Chance is being used
         entries.concat chance_entries unless config[:no_chance]
+
+        # Add a composite entry for the combined CSS.
+        # Note that we manually hid the CSS entries above, but, if Chance
+        # is enabled, we need to keep the images visible so they are still
+        # copied into the final product.
+
         manifest.add_composite resource_name,
           :build_task      => config[:no_chance] ? 'build:combine' : 'build:chance',
           :source_entries  => entries,
-          :hide_entries    => config[:combine_stylesheets],
+          :hide_entries    => false, # We hid entries manually above
           :ordered_entries => SC::Helpers::EntrySorter.sort(entries),
           :entry_type      => :css,
           :combined        => true
