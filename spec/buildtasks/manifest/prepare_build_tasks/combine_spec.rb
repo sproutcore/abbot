@@ -68,7 +68,7 @@ describe "manifest:prepare_build_tasks:combine" do
     it "hides source entries" do
       %w(stylesheet.css bar.css).each do |filename|
         entry_for(filename).source_entries.each do |entry|
-          entry.should be_hidden
+          entry.should be_hidden if entry[:entry_type] == :css
         end
       end
     end
