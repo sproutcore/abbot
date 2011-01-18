@@ -1,1 +1,0 @@
-alert('bundle_test');

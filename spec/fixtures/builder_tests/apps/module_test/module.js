@@ -1,0 +1,1 @@
+alert('module_test');
