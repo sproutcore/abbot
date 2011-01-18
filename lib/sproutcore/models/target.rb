@@ -192,8 +192,44 @@ module SC
       end
       ret = ret.compact.uniq
 
+      if self[:target_type].eql? :app
+        reqs = self.find_required_modules
+
+        if reqs.empty?
+          reqs = project.targets.values.select { |target| target[:target_type] == :module }
+          ret = ret.concat(reqs)
+        end
+      end
+
       @required_targets[key] = ret
       return ret
+    end
+
+    # Returns the recursive list of required modules for this target.
+    #
+    # === Returns
+    #  Array of targets
+    #
+    def find_required_modules(opts ={})
+      _find_required_modules(opts, [self])
+    end
+
+    def _find_required_modules(opts, seen)
+      ret = []
+      modules(opts).each do |target|
+        next if seen.include?(target)
+        seen << target # avoid loading again
+
+        # add required targets, if not already seend...
+        target._find_required_modules(opts, seen).each do |required|
+          ret << required
+          seen << required
+        end
+
+        # then add my own target...
+        ret << target
+      end
+      return ret.uniq.compact
     end
 
     # Returns all of the modules under this target.  This
