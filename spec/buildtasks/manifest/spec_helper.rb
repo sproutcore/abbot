@@ -20,6 +20,10 @@ module SC::ManifestSpecHelpers
       :config =>   @config
   end
 
+  def target_for(targetname)
+    @target.target_for(targetname)
+  end
+
   def entry_for(filename, opts={})
     @manifest.entry_for(filename, opts) || @manifest.entry_for(filename, opts.merge(:hidden => true))
   end

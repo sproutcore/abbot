@@ -251,4 +251,67 @@ describe "manifest:prepare_build_tasks:combine" do
     end
   end
 
+  describe "when no modules are specified for an app"  do
+
+    before do
+      run_task
+    end
+
+    it "contains all modules as requirements" do
+      target = target_for('calendar')
+      requirements = target.required_targets
+
+      preferences_modules = target_for('calendar/preferences')
+      requirements.should include(preferences_modules)
+    end
+  end
+
+  describe "when a subset of modules are specified "  do
+
+    before do
+      run_task
+    end
+
+    it "does not require any modules in its requried_targets" do
+      target = target_for('contacts')
+      requirements = target.required_targets
+
+      modules = requirements.select{ |target| target[:target_type] == :module }
+
+      modules.should be_empty
+    end
+
+    it "contains only the specified modules" do
+      target = target_for('contacts')
+      modules = target.modules
+
+      preferences_module = target_for('contacts/preferences')
+      printing_module = target_for('contacts/printing')
+
+      modules.should include(preferences_module)
+      modules.should_not include(printing_module)
+    end
+  end
+
+  describe "when a deferred modules requires another module "  do
+
+    before do
+      run_task
+    end
+
+    it "the deferred module should list the required module in its requirements" do
+      target = target_for('mail')
+      target_requirements = target.required_targets
+
+      preferences_module = target.target_for('mail/preferences')
+      printing_module = target.target_for('mail/printing')
+
+      preferences_requirements = preferences_module.required_targets
+
+      target_requirements.should_not include(preferences_module)
+      preferences_requirements.should include(printing_module)
+    end
+
+  end
+
 end
