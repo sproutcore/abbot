@@ -109,17 +109,18 @@ module SC
           SC.logger.fatal("!!!!Failed compiling ... "+ $to_minify.join(','))
           exit(1)
         end
+
         paths = $to_minify.join(',')
         paths = paths.gsub("javascript-packed.js","javascript.js")
         paths = paths.gsub("stylesheet-packed.css","stylesheet.css")
         puts "Removing unnecessary files..."
         paths_array = paths.split(",")
         paths_array.each do |entry|
-          if not entry.include? "index.html"
-            if File.exist? (entry)
-              puts "Deleting "+entry
-              File.delete(entry)
-            end
+          # We won't have tests unless :load_tests => true in Buildfile in which case we want to keep them
+          next if entry.include?("index.html") || entry.include?("tests")
+          if File.exist?(entry)
+            puts "Deleting "+entry
+            File.delete(entry)
           end
         end
       end
