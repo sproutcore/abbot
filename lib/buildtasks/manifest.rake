@@ -283,7 +283,6 @@ namespace :manifest do
           :entry_type => :javascript
         entry.discover_build_directives!
       end
-
     end
 
     desc "scans for css files, creates a transform and annotates them"
@@ -413,7 +412,6 @@ namespace :manifest do
           :entry_type      => :javascript,
           :combined        => true
       end
-
     end
 
     desc "Wraps the javascript.js file into a string if the target is a prefetched module"
@@ -564,7 +562,6 @@ namespace :manifest do
           end
           (entries_by_resource[entry[:resource]] ||= []) << entry
         end
-
       end
 
       # even if no resource was found for the index.html, add one anyway if
@@ -618,7 +615,6 @@ namespace :manifest do
             is_hidden = true if (rep_cnt>=2) && !is_pref_lang
           end
         end
-
       end
     end
 
@@ -653,9 +649,7 @@ namespace :manifest do
               :packed     => entry.packed? # carry forward
           end
         end
-
       end
-
     end
 
     desc "adds a loc strings entry that generates a yaml file server-side functions can use"
@@ -680,9 +674,5 @@ namespace :manifest do
     desc "..."
     task :image => :setup do
     end
-
-
   end
-
-
 end
