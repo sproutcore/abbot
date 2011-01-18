@@ -9,4 +9,9 @@ project!
 # trouble.
 config :all, :required => :sproutcore
 
+config :contacts, :deferred_modules => ['contacts/preferences']
+
+config :mail, :deferred_modules => ['mail/preferences']
+config 'mail/preferences', :required => 'mail/printing'
+
 config :mobile_photos, :required => 'sproutcore/mobile'
