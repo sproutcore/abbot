@@ -23,18 +23,18 @@ module SC
     def self.buildWithChance(entry, dst_path)
       new(entry).buildWithChance(dst_path)
     end
-      
+
     def buildWithChance(dst_path)
       theme_name = entry.target.config[:css_theme]
-      
+
       chance = Chance::Instance.new({:theme => theme_name })
 
       entries = entry.ordered_entries || entry.source_entries
-  
+
       entries.each do |entry|
         src_path = entry[:source_path]
         next unless File.exist?(src_path)
-        
+
         Chance.add_file src_path
         chance.map_file(entry.filename, src_path)
       end
@@ -44,12 +44,12 @@ module SC
       if chance.css
         css = chance.css
         css = rewrite_inline_code(css)
-        
+
         writeline dst_path, css
       end
-      
+
     end
-    
+
     # Rewrites any inline content such as static urls.  Subclasseses can
     # override this to rewrite any other inline content.
     #
@@ -60,9 +60,9 @@ module SC
       replace_static_url(code)
       code
     end
-    
+
     def static_url(url=''); "url('#{url}')" ; end
-    
+
 
     def build(dst_path)
       lines = []
