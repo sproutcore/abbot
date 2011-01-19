@@ -4,7 +4,7 @@ config :html_test,
   :layout   => 'lib/layout_template.rhtml',
   :debug_required => [:debug],
   :test_required  => [:qunit]
-  
+
 config :req_target_2,
   :required => [:req_target_1],
   :deferred_modules => [:dynamic_req_target_1]
@@ -15,6 +15,6 @@ config :test_test,
   :test_required  => [:qunit],
   :theme => nil
 
-config :bundle_test,
+config :module_test,
   :required => [:req_target_1],
   :deferred_modules => [:req_target_2]

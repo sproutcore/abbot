@@ -2,7 +2,7 @@
 
 # required because this buildfile lives inside of the source dir which itself
 # has a Buildfile
-project! 
+project!
 
 # This is the generic requirement for most apps.  Of course SproutCore will
 # override this for itself, so you don't have to worry about it causing 
@@ -13,5 +13,8 @@ config :contacts, :deferred_modules => ['contacts/preferences']
 
 config :mail, :deferred_modules => ['mail/preferences']
 config 'mail/preferences', :required => 'mail/printing'
+
+config :photos, :inline_modules => ['photos/preferences'],
+                :deferred_modules => ['photos/email']
 
 config :mobile_photos, :required => 'sproutcore/mobile'
