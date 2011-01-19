@@ -42,7 +42,7 @@ describe "manifest:prepare_build_tasks:module_info" do
       @target.config.use_packed = false
       @target.config.timestamp_urls = false
 
-      @target.modules.length should (be > 0)
+      @target.modules.length.should be > 0
 
       # make sure all targets have the same settings...
       @target.expand_required_targets.each do |t|
