@@ -270,8 +270,6 @@ module SC
       ret = [deferred_modules, prefetched_modules, inline_modules]
       return [] if ret.compact.empty?
 
-      #puts "\n1- Target: #{self.target_name} ret = #{ret}"
-
       if prefetched_modules
         # Go through each module and mark it as prefetched.
         # This way, we can later distinguish between deferred and prefetched
