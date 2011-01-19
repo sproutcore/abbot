@@ -160,7 +160,7 @@ module SC
       return ret unless ret.nil?
 
       # else compute return value, respecting options
-      ret = [config[:required]]
+      ret = [config[:required], config[:inline_modules]]
       if opts[:debug] && config[:debug_required]
         ret << config[:debug_required]
       end
