@@ -294,7 +294,6 @@ describe "manifest:prepare_build_tasks:combine" do
   end
 
   describe "when a deferred modules requires another module "  do
-
     before do
       run_task
     end
@@ -311,7 +310,22 @@ describe "manifest:prepare_build_tasks:combine" do
       target_requirements.should_not include(preferences_module)
       preferences_requirements.should include(printing_module)
     end
-
   end
 
+  describe "when an inline_module is defined"  do
+    before do
+      run_task
+    end
+
+    it " should be included in the requirements" do
+      target = target_for('photos')
+      target_requirements = target.required_targets
+
+      preferences_module = target.target_for('photos/preferences')
+      email_module = target.target_for('photos/email')
+
+      target_requirements.should include(preferences_module)
+      target_requirements.should_not include(email_module)
+    end
+  end
 end
