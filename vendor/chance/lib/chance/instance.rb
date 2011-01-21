@@ -123,7 +123,8 @@ module Chance
           :syntax => :scss,
           :importer => importer,
           :filename => "chance_main.css",
-          :cache_store => cache_store
+          :cache_store => cache_store,
+          :cache_location => "./tmp/sass-cache"
         }))
         
         css = engine.render
