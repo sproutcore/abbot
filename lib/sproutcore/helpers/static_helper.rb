@@ -19,8 +19,10 @@ module SC
       # client will be used.
       #
       # bundle_name = the name of the bundle to render or nil to use the
-      # current :language => the language to render. defaults to current
-      # language
+      # current
+      #
+      # :language   => the language to render. defaults to current language
+      # :x2         => if true, returns URLs for 2x stylesheets.
       #
       def stylesheets_for_client(target_name = nil, opts = nil)
 
@@ -67,11 +69,15 @@ module SC
         # process options
         include_method = opts[:include_method] ||= :link
         t = target_name ? target.target_for(target_name) : target
-        
+
+        # figure out stylesheet name (whether it is x2 or not)
+        name = "stylesheet"
+        name += "-2x" if opts[:x2]
+
         # collect urls from entries
         urls = []
         combine_stylesheets = t.config[:combine_stylesheets]
-        combined_entries(t, opts, 'stylesheet.css', 'stylesheet-packed.css') do |cur_target, cur_entry|
+        combined_entries(t, opts, name + '.css', name + '-packed.css') do |cur_target, cur_entry|
 
           # include either the entry URL or URL of ordered entries
           # depending on setup
