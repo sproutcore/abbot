@@ -68,9 +68,9 @@ namespace :build do
     SC::Builder::Chance.build env[:entry], env[:dst_path]
   end
 
-  desc "extracts the JavaScript from the Chance entries"
-  build_task :chance_javascript do |task, env|
-    SC::Builder::ChanceJavaScript.build env[:entry], env[:dst_path]
+  desc "extracts a file from the Chance entries"
+  build_task :chance_file do |task, env|
+    SC::Builder::ChanceFile.build env[:entry], env[:dst_path]
   end
   
   desc "wraps the entry into a string for prefetched modules"

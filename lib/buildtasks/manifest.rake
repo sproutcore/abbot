@@ -423,13 +423,23 @@ namespace :manifest do
       end
 
       unless config[:no_chance]
+
         manifest.add_composite "__sc_chance.js",
-          :build_task       => 'build:chance_javascript',
+          :build_task       => 'build:chance_file',
           :source_entries   => chance_entries,
           :hide_entries     => false,
           :ordered_entries  => chance_entries,
           :entry_type       => :javascript,
-          :resource         => "javascript"
+          :resource         => "javascript",
+          :chance_file      => "chance.js"
+
+        manifest.add_composite "__sc_chance_mhtml.txt",
+          :build_task       => 'build:chance_file',
+          :source_entries   => chance_entries,
+          :hide_entries     => false,
+          :ordered_entries  => chance_entries,
+          :entry_type       => :mhtml,
+          :chance_file      => "chance-mhtml.txt"
       end
     end
 
