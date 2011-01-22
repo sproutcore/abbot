@@ -400,10 +400,9 @@ namespace :manifest do
       end
 
       chance_entries = []
+
       # build combined CSS entry
       css_entries.each do |resource_name, entries|
-        resource_name = resource_name.ext('css')
-
         # Send image files to the build task if Chance is being used
         entries.concat global_chance_entries unless config[:no_chance]
 
@@ -411,7 +410,7 @@ namespace :manifest do
         # Note that we manually hid the CSS entries above, but, if Chance
         # is enabled, we need to keep the images visible so they are still
         # copied into the final product.
-        entry = manifest.add_composite resource_name,
+        entry = manifest.add_composite resource_name.ext('css'),
           :build_task      => config[:no_chance] ? 'build:combine' : 'build:chance',
           :source_entries  => entries,
           :hide_entries    => false, # We hid entries manually above
@@ -420,10 +419,26 @@ namespace :manifest do
           :combined        => true
 
         chance_entries << entry
+
+        # ADD A 2X version
+        # todo: check config to see if 2x is enabled
+        unless config[:no_chance] # and we want 2x
+          # Rather than run Chance an extra time for 2x, we create a composite entry
+          # referencing the chance entry as a source
+          manifest.add_composite resource_name + "-2x.css",
+            :build_task      => 'build:chance_file',
+            :source_entries  => [entry],
+            :hide_entries    => false,
+            :ordered_entries => [entry],
+            :entry_type      => :css,
+            :combined        => true,
+            :chance_file     => "chance-2x.css"
+
+        end
+
       end
 
       unless config[:no_chance]
-
         manifest.add_composite "__sc_chance.js",
           :build_task       => 'build:chance_file',
           :source_entries   => chance_entries,
@@ -532,7 +547,7 @@ namespace :manifest do
       target   = env[:target]
       manifest = env[:manifest]
 
-      # don't add packed entries for apps.
+      %w(stylesheet stylesheet-2x).each {|resource|
 
         # Handle CSS version.  get all required targets and find their
         # stylesheet.css.  Build packed css from that.
@@ -541,23 +556,26 @@ namespace :manifest do
           m = target.manifest_for(manifest.variation).build!
 
           # need to find the version that is not minified
-          entry = m.entry_for('stylesheet.css')
+          entry = m.entry_for(resource + ".css")
           entry = entry.source_entry while entry && entry.minified?
           entry
         end
 
         entries.compact!
-        manifest.add_composite 'stylesheet-packed.css',
+        manifest.add_composite resource + '-packed.css',
           :build_task        => 'build:combine',
           :source_entries    => entries,
           :hide_entries      => false,
           :entry_type        => :css,
           :combined          => true,
-          :ordered_entries   => entries, # orderd by load order
+          :ordered_entries   => entries, # ordered by load order
           :targets           => targets,
           :packed            => true
 
+      }
+
     end
+
     task :minify => :packed # IMPORTANT: don't want minified version
 
     #Create builder tasks for sass, scss (sass v3) and less in a DRY way
