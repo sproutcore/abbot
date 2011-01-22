@@ -146,6 +146,7 @@ module Chance
       @files["chance.css"] = css
       @files["chance-x2.css"] = css
       @files["chance.js"] = preload_javascript
+      @files["chance-mhtml.txt"] = "MHTML HERE"
     end
     
     # Looks up a slice that has been found by parsing the CSS. This is used by
