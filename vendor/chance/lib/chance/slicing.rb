@@ -9,23 +9,50 @@ module Chance
     module Slicing
       # performs the slicing indicated by each slice definition, and puts the resulting
       # image in the slice definition's :image property.
-      def slice_images
+      #
+      # if x2 is supplied, it will use @2x images if present
+      def slice_images(x2=false)
         slices = @slices
         output = ""
         
         slices.each do |name, slice|
-          file = get_file(slice[:path])
+          path = slice[:path]
+          file = nil
+
+          slice_is_x2 = false
+          f = 1 # scale factor
+
+          # handle @2x
+          if x2 and path.strip.downcase.end_with? ".png"
+            begin
+              file = get_file(path[0..-5] + "@2x.png")
+              slice_is_x2 = true
+              f = 2
+            rescue
+            end
+          end
+
+          if file.nil?
+            slice_is_x2 = false
+            f = 1
+            file = get_file(path)
+          end
+
           raise "File does not exist: " + slice[:path] unless file
 
           # we should have already loaded a chunkypng canvas for the png
           canvas = file[:content]
-          rect = slice_rect(slice, canvas.width, canvas.height)
+          rect = slice_rect(slice, canvas.width / f, canvas.height / f)
 
           # but, if we are slicing...
           if not rect.nil?
-            canvas = canvas.crop(rect[:left], rect[:top], rect[:width], rect[:height])
+            canvas = canvas.crop(rect[:left] * f, rect[:top] * f, rect[:width] * f, rect[:height] * f)
           end
 
+          slice[:target_width] = canvas.width / f
+          slice[:target_height] = canvas.height / f
+
+          slice[:x2] = slice_is_x2
           slice[:image] = canvas
         end
       end

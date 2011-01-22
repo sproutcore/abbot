@@ -103,12 +103,8 @@ module Chance
         # The output of this process is a "virtual" file that imports all of the 
         # SCSS files used by this Chance instance. This also sets up the @slices hash.
         import_css = _preprocess
-        
-        # Step 2: Slice images. The sliced canvases are saved in the individual slice
-        # hashes.
-        slice_images
-        
-        # Step 3: Generate CSS and images needed for output. For now, we hard-code
+
+        # Step 2: Generate CSS and images needed for output. For now, we hard-code
         # data url imager. Later, we will have a spriting imager.
         @imager = Chance::DataURLImager.new(@slices, self)
         
@@ -129,7 +125,7 @@ module Chance
           cache_store = nil
         # end
 
-        # Step 4: Apply Sass Engine
+        # Step 3: Apply Sass Engine
         engine = Sass::Engine.new(css, Compass.sass_engine_options.merge({
           :syntax => :scss,
           :importer => importer,
@@ -139,12 +135,20 @@ module Chance
         }))
         
         css = engine.render
+
+        # STEP 4: Slice images and postprocess into CSS
+        slice_images
+
+        css_normal = @imager.postprocess_css css, @slices
+
+        slice_images(true)
+        css_2x = @imager.postprocess_css_2x css, @slices
       ensure
         Chance._current_instance = nil
       end
 
-      @files["chance.css"] = css
-      @files["chance-2x.css"] = css
+      @files["chance.css"] = css_normal
+      @files["chance-2x.css"] = css_2x
       @files["chance.js"] = preload_javascript
       @files["chance-mhtml.txt"] = "MHTML HERE"
     end
