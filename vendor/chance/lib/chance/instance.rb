@@ -31,18 +31,28 @@ module Chance
     
     @@generation = 0
 
-    attr_accessor :css
-    
+    attr_accessor :files
+
     def initialize(options = {})
       @options = options
       @options[:theme] = "" if @options[:theme].nil?
-      
+
       if @options[:theme].length > 0 and @options[:theme][0] != "."
         @options[:theme] = "." + @options[:theme].to_s
       end
-      
-      @files = { }
-      @css = nil
+
+      # The mapped files are a map from file names in the Chance Instance to
+      # their identifiers in Chance itself.
+      @mapped_files = { }
+
+      # The @files set is the set of output files. The user of Chance should
+      # make each of these files available. Also, the files must be able to
+      # reference each other. You can supply a wrapper (in the :url_wrapper
+      # option).
+      #
+      # The Abbot build tools supply `static_url($url);`, which wraps all of
+      # the URLs with `static_url` so they can be replaced.
+      @files = {}
     end
 
     # maps a path relative to the instance to a file identifier
@@ -58,14 +68,14 @@ module Chance
 
       return file_not_found(identifier) if not file
 
-      @files[path] = identifier
+      @mapped_files[path] = identifier
     end
 
     # unmaps a path from its identifier. In short, removes a file
     # from this Chance instance. The file will remain in Chance's "virtual filesystem".
     def unmap_file(path)
       path = path.to_s
-      @files.delete path
+      @mapped_files.delete path
     end
 
     # Using a path relative to this instance, gets an actual Chance file
@@ -73,11 +83,11 @@ module Chance
     # content will have been read, and if it is an image file, will have been
     # loaded as an actual image.
     def get_file(path)
-      if not @files[path]
+      if not @mapped_files[path]
         file_not_found(path)
       end
       
-      return Chance.get_file(@files[path])
+      return Chance.get_file(@mapped_files[path])
     end
 
     # Generates the output CSS.
@@ -115,6 +125,7 @@ module Chance
         # else
           importer = nil
           css = @imager.css + "\n" + import_css
+          preload_javascript = @imager.preload_javascript
           cache_store = nil
         # end
 
@@ -132,7 +143,9 @@ module Chance
         Chance._current_instance = nil
       end
 
-      @css = css
+      @files["chance.css"] = css
+      @files["chance-x2.css"] = css
+      @files["chance.js"] = preload_javascript
     end
     
     # Looks up a slice that has been found by parsing the CSS. This is used by
@@ -164,7 +177,7 @@ module Chance
       return if file[:included] === @@generation
 
       requires = file[:requires]
-      requires.each {|r| _include_file(@files[r]) } unless requires.nil?
+      requires.each {|r| _include_file(@mapped_files[r]) } unless requires.nil?
 
       file[:included] = @@generation
 
@@ -178,7 +191,7 @@ module Chance
       @options[:slices] = @slices
       
       @@generation = @@generation + 1
-      files = @files.values
+      files = @mapped_files.values
       @file_list = []
 
       files.each {|f| _include_file(f) }
@@ -188,7 +201,7 @@ module Chance
         # its method of determing the current file name is a marker in the
         # file. We may want to consider changing this to a parser option
         # now that we don't need this feature so much, but this works for now.
-        content = "@_chance_file " + @files.key(file[:path]) + ";\n"
+        content = "@_chance_file " + @mapped_files.key(file[:path]) + ";\n"
         content += "$theme: '" + @options[:theme] + "';"
         content += file[:content]
         

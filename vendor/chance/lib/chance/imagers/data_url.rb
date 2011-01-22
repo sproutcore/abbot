@@ -29,6 +29,15 @@ module Chance
       return output
     end
     
+
+    def preload_javascript
+      slices = @slices
+
+      output = "if (typeof CHANCE_SLICES === 'undefined') var CHANCE_SLICES = [];"
+      output += "CHANCE_SLICES = CHANCE_SLICES.concat(["
+      output += slices.map {|name, slice| "'" + slice[:css_name] + "'" }.join(",\n")
+      output += "]);"
+    end
   end
 
 end
