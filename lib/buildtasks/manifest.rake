@@ -308,6 +308,28 @@ namespace :manifest do
       end
     end
 
+    desc "scans for image files, creates a transform and annotates them"
+    task :images => :setup do |task, env|
+      manifest = env[:manifest]
+      config = env[:target].config
+
+      # select all original entries with with ext of png
+      entries = manifest.entries.select do |e|
+        e.original? && e[:ext] == 'png'
+      end
+
+      # add transform & tag with build directives.
+      entries.each do |entry|
+        entry = manifest.add_transform entry,
+          :filename   => ['source', entry[:filename]].join('/'),
+          :build_path => File.join(manifest[:build_root], 'source', entry[:filename]),
+          :url => [manifest[:url_root], 'source', entry[:filename]].join("/"),
+          :build_task => 'build:image',
+          :entry_type => :image
+      end
+
+    end
+
     desc "adds a module_info.js entry for all deferred and prefetched modules"
     task :module_info => %w(setup) do |task, env|
       target   = env[:target]
@@ -346,18 +368,19 @@ namespace :manifest do
 
     task :module_info => :tests # IMPORTANT! to avoid JS including unit tests.
 
-    desc "generates combined entries for javascript and css"
-    task :combine => %w(setup css javascript module_info sass scss less) do |task, env|
-      config = env[:target].config
+    desc "generates combined entries for CSS"
+    task :chance => %w(setup images javascript module_info css sass scss less) do |task, env|
+      config = CONFIG
       manifest = env[:manifest]
-      config   = CONFIG
 
-      chance_types = ['.jpg', '.png', '.gif']
+      chance_types = ['.png']
 
-      # sort entries...
+      # the image files will be shared between all css_entries-- that is,
+      # all instances of Chance created
+      global_chance_entries = []
+
+      # For each "resource" a separate css entry will be created.
       css_entries = {}
-      chance_entries = []
-      javascript_entries = {}
 
       manifest.entries.each do |entry|
         # Chance needs to know about image files so it can embed as data URIs in the
@@ -365,39 +388,68 @@ namespace :manifest do
         # files to the 'build:chance' buildtask.
         is_chance_file = chance_types.include?(File.extname(entry[:filename]))
 
-        # we can only combine entries with a resource property.
         next if entry[:resource].nil? and not is_chance_file
 
-        # look for CSS, JS and image files entries
         if is_chance_file
-          chance_entries << entry
+          global_chance_entries << entry
         elsif entry[:entry_type] == :css
           (css_entries[entry[:resource]] ||= []) << entry
           entry.hide! if config[:combine_stylesheets]
-        elsif entry[:entry_type] == :javascript
-          (javascript_entries[entry[:resource]] ||= []) << entry
         end
+
       end
 
+      chance_entries = []
       # build combined CSS entry
       css_entries.each do |resource_name, entries|
         resource_name = resource_name.ext('css')
+
         # Send image files to the build task if Chance is being used
-        entries.concat chance_entries unless config[:no_chance]
+        entries.concat global_chance_entries unless config[:no_chance]
 
         # Add a composite entry for the combined CSS.
         # Note that we manually hid the CSS entries above, but, if Chance
         # is enabled, we need to keep the images visible so they are still
         # copied into the final product.
-
-        manifest.add_composite resource_name,
+        entry = manifest.add_composite resource_name,
           :build_task      => config[:no_chance] ? 'build:combine' : 'build:chance',
           :source_entries  => entries,
           :hide_entries    => false, # We hid entries manually above
           :ordered_entries => SC::Helpers::EntrySorter.sort(entries),
           :entry_type      => :css,
           :combined        => true
+
+        chance_entries << entry
       end
+
+      unless config[:no_chance]
+        manifest.add_composite "__sc_chance.js",
+          :build_task       => 'build:chance_javascript',
+          :source_entries   => chance_entries,
+          :hide_entries     => false,
+          :ordered_entries  => chance_entries,
+          :entry_type       => :javascript,
+          :resource         => "javascript"
+      end
+    end
+
+    desc "generates combined entries for javascript"
+    task :combine => %w(setup chance javascript module_info) do |task, env|
+      config = env[:target].config
+      manifest = env[:manifest]
+      config   = CONFIG
+
+      javascript_entries = {}
+
+      manifest.entries.each do |entry|
+        # we can only combine entries with a resource property.
+        next if entry[:resource].nil?
+
+        if entry[:entry_type] == :javascript
+          (javascript_entries[entry[:resource]] ||= []) << entry
+        end
+      end
+
 
       # build combined JS entry
       javascript_entries.each do |resource_name, entries|

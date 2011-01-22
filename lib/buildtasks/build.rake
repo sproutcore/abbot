@@ -22,7 +22,10 @@ namespace :build do
 
   desc "stub task for images"
   build_task :image do |task, env|
-
+    # by default, just copy images
+    require 'fileutils'
+    FileUtils.mkdir_p(File.dirname(env[:dst_path]))
+    FileUtils.cp_r(env[:src_path], env[:dst_path])
   end
 
   desc "builds a single sass file"
@@ -62,7 +65,12 @@ namespace :build do
   
   desc "adds all the css and image files in the target to chance and lets it run on a per-target basis"
   build_task :chance do |task, env|
-    SC::Builder::Combine.buildWithChance env[:entry], env[:dst_path]
+    SC::Builder::Chance.build env[:entry], env[:dst_path]
+  end
+
+  desc "extracts the JavaScript from the Chance entries"
+  build_task :chance_javascript do |task, env|
+    SC::Builder::ChanceJavaScript.build env[:entry], env[:dst_path]
   end
   
   desc "wraps the entry into a string for prefetched modules"
