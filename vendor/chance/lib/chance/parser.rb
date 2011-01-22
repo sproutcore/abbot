@@ -461,7 +461,7 @@ module Chance
       # and preprocess any arguments, before we can call create_slice to get the real
       # slice definition
       slice[:offset] = "0 0" if slice[:offset].nil?
-      slice[:repeat] = "none" if slice[:repeat].nil?
+      slice[:repeat] = "no-repeat" if slice[:repeat].nil?
 
       # the offset will be given to us as one string; however, it has two parts.
       # splitting by whitespace doesn't handle everything, so we may want to refine
