@@ -1,7 +1,7 @@
 # ===========================================================================
 # Project:   Abbot - SproutCore Build Tools
 # Copyright: ©2009 Mike Subelsky
-#            portions copyright @2006-2009 Sprout Systems, Inc.
+#            portions copyright @2006-2011 Strobe Inc.
 #            and contributors
 # ===========================================================================
 

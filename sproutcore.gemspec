@@ -6,7 +6,7 @@ is_jruby = Gem::Platform.local.os == "java"
 Gem::Specification.new do |s|
   s.name = 'sproutcore'
   s.version = SproutCore::VERSION
-  s.authors = 'Strobe, Inc., Sprout Systems, Inc.  Apple Inc. and contributors'
+  s.authors = 'Strobe Inc., Apple Inc. and contributors'
   s.email = 'contact@sproutcore.com'
   s.homepage = 'http://www.sproutcore.com'
   s.summary = "SproutCore is a platform for building native look-and-feel applications on the web"

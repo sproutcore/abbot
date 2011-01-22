@@ -1,6 +1,6 @@
 # ===========================================================================
 # SC::Manifest Buildtasks
-# copyright 2008, Sprout Systems, Inc. and Apple Inc. all rights reserved
+# copyright 2011, Strobe Inc. and Apple Inc. all rights reserved
 # ===========================================================================
 
 # Tasks invoked while building Manifest objects.  You can override these
