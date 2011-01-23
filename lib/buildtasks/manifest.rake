@@ -421,8 +421,7 @@ namespace :manifest do
         chance_entries << entry
 
         # ADD A 2X version
-        # todo: check config to see if 2x is enabled
-        unless config[:no_chance] # and we want 2x
+        unless config[:no_chance]
           # Rather than run Chance an extra time for 2x, we create a composite entry
           # referencing the chance entry as a source
           manifest.add_composite resource_name + "-2x.css",

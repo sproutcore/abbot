@@ -10,7 +10,8 @@ module Chance
       # performs the slicing indicated by each slice definition, and puts the resulting
       # image in the slice definition's :image property.
       #
-      # if x2 is supplied, it will use @2x images if present
+      # if x2 is supplied, this will assume it is a second pass to locate any @2x images
+      # and use them to replace the originals.
       def slice_images(x2=false)
         slices = @slices
         output = ""
@@ -23,17 +24,19 @@ module Chance
           f = 1 # scale factor
 
           # handle @2x
-          if x2 and path.strip.downcase.end_with? ".png"
+          if x2
             begin
               file = get_file(path[0..-5] + "@2x.png")
               slice_is_x2 = true
               f = 2
             rescue
             end
-          end
 
-          if file.nil?
-            slice_is_x2 = false
+            # if we are in 2x mode, but there is no 2x file, we've already
+            # sliced it in the 1x pass. So, do nothing.
+            next if file.nil?
+          else
+            slice_is_2x = false
             f = 1
             file = get_file(path)
           end
