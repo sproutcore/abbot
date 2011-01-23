@@ -36,7 +36,9 @@ module Chance
         base64Image = Base64.encode64(slice[:image].to_blob(:fast_rgba)).gsub("\n", "")
         output += base64Image
 
-        output += '");'
+        output += '");\n'
+
+        output
       }
     end
 
@@ -53,6 +55,8 @@ module Chance
 
         output += "\n-webkit-background-size: " + slice[:target_width].to_s + "px "
         output += slice[:target_height].to_s + "px;"
+
+        output
       }
     end
 
