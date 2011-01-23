@@ -139,8 +139,11 @@ module Chance
         # STEP 4: Slice images and postprocess into CSS
         slice_images
 
+        # Normal variant (with IE7 compat)
         css_normal = @imager.postprocess_css css, @slices
+        mhtml = @imager.mhtml(@slices)
 
+        # 2x variant
         slice_images(true)
         css_2x = @imager.postprocess_css_2x css, @slices
       ensure
@@ -150,7 +153,7 @@ module Chance
       @files["chance.css"] = css_normal
       @files["chance-2x.css"] = css_2x
       @files["chance.js"] = preload_javascript
-      @files["chance-mhtml.txt"] = "MHTML HERE"
+      @files["chance-mhtml.txt"] = mhtml
     end
     
     # Looks up a slice that has been found by parsing the CSS. This is used by

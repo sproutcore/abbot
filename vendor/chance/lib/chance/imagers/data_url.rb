@@ -36,7 +36,12 @@ module Chance
         base64Image = Base64.encode64(slice[:image].to_blob(:fast_rgba)).gsub("\n", "")
         output += base64Image
 
-        output += '");\n'
+        output += '");'
+        output += "\n"
+
+        # FOR IE < 8:
+        output += '*background: url("mhtml:chance-mhtml.txt!' + slice[:css_name] + '");'
+        output += "\n"
 
         output
       }
@@ -54,7 +59,7 @@ module Chance
         output += '");'
 
         output += "\n-webkit-background-size: " + slice[:target_width].to_s + "px "
-        output += slice[:target_height].to_s + "px;"
+        output += slice[:target_height].to_s + "px;\n"
 
         output
       }
@@ -67,6 +72,26 @@ module Chance
       output += "CHANCE_SLICES = CHANCE_SLICES.concat(["
       output += slices.map {|name, slice| "'" + slice[:css_name] + "'" }.join(",\n")
       output += "]);"
+    end
+
+    def mhtml(slices)
+      output = "Content-Type: multipart/related; boundary=\"--CHANCE--BOUNDARY--\"\n"
+      output += "\n"
+
+      slices.each {|name, slice|
+        output += "--CHANCE--BOUNDARY--\n"
+        output += "Content-Location:" + slice[:css_name] + "\n"
+        output += "Content-Transfer-Encoding: base64\n\n"
+
+        base64Image = Base64.encode64(slice[:image].to_blob(:fast_rgba)).gsub("\n", "")
+        output += base64Image
+
+        output += "\n\n"
+
+        output
+      }
+
+      output
     end
   end
 
