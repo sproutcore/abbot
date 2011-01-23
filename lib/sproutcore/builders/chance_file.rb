@@ -33,6 +33,18 @@ module SC
     # The default will rewrite calls to static_url().
     def rewrite_inline_code(code)
       # look for sc_require, require or sc_resource.  wrap in comment
+      code.gsub!(/mhtml\:chance-mhtml\.txt/) {|mhtml|
+        static_entry = entry.manifest.find_entry("__sc_chance_mhtml.txt")
+
+        if !static_entry
+          url = ''
+        else
+          url = static_entry.cacheable_url
+        end
+
+        url
+      }
+
       code.gsub!(/((sc_require|require|sc_resource)\(\s*['"].*["']\s*\)\s*\;)/, '/* \1 */')
       replace_static_url(code)
       code
