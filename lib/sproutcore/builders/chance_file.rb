@@ -7,7 +7,9 @@ module SC
   class Builder::ChanceFile < Builder::Base
 
     def build(dst_path)
-      entries = entry.ordered_entries || entry.source_entries
+      entries = entry[:chance_entries] || [entry[:chance_entry]]
+      entries.each {|entry| entry.build! }
+
       chance_file = entry[:chance_file]
 
       src = entries.map {|entry|

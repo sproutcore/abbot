@@ -427,9 +427,8 @@ namespace :manifest do
           # referencing the chance entry as a source
           manifest.add_composite resource_name + "-2x.css",
             :build_task      => 'build:chance_file',
-            :source_entries  => [entry],
+            :chance_entry    => entry,
             :hide_entries    => false,
-            :ordered_entries => [entry],
             :entry_type      => :css,
             :combined        => true,
             :chance_file     => "chance-2x.css"
@@ -441,18 +440,16 @@ namespace :manifest do
       unless config[:no_chance]
         manifest.add_composite "__sc_chance.js",
           :build_task       => 'build:chance_file',
-          :source_entries   => chance_entries,
+          :chance_entries   => chance_entries,
           :hide_entries     => false,
-          :ordered_entries  => chance_entries,
           :entry_type       => :javascript,
           :resource         => "javascript",
           :chance_file      => "chance.js"
 
         manifest.add_composite "__sc_chance_mhtml.txt",
           :build_task       => 'build:chance_file',
-          :source_entries   => chance_entries,
+          :chance_entries   => chance_entries,
           :hide_entries     => false,
-          :ordered_entries  => chance_entries,
           :entry_type       => :mhtml,
           :chance_file      => "chance-mhtml.txt"
       end
