@@ -281,8 +281,12 @@ module SC
           target.required_targets(opts)
         end
 
-        dependencies.each do |dependency|
-          ret << dependency[:target_name]
+        dependencies.flatten.compact.each do |dependency|
+          if dependency[:target_type] != :module
+            SC.Logger.warn("Module #{self[:target_name]} is requiring non-module #{dependency[:target_name]}")
+          else
+            ret << dependency[:target_name]
+          end
         end
       end
 
@@ -298,7 +302,11 @@ module SC
         end
 
         dependencies.flatten.compact.each do |dependency|
-          ret << dependency.target_name
+          if dependency[:target_type] != :module
+            SC.Logger.warn("Module #{self[:target_name]} is requiring non-module #{dependency[:target_name]}")
+          else
+            ret << dependency[:target_name]
+          end
         end
       end
 
@@ -311,8 +319,12 @@ module SC
           target.required_targets(opts)
         end
 
-        dependencies.each do |dependency|
-          ret << dependency[:target_name]
+        dependencies.flatten.compact.each do |dependency|
+          if dependency[:target_type] != :module
+            SC.Logger.warn("Module #{self[:target_name]} is requiring non-module #{dependency[:target_name]}")
+          else
+            ret << dependency[:target_name]
+          end
         end
       end
 
