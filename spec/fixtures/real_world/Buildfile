@@ -18,3 +18,5 @@ config :photos, :inline_modules => ['photos/preferences'],
                 :deferred_modules => ['photos/email']
 
 config :mobile_photos, :required => 'sproutcore/mobile'
+
+config :account, :prefetched_modules => ['account/preferences'],
