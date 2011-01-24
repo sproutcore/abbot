@@ -61,7 +61,7 @@ module SC
           :styles      => module_info[:css_urls].map{ |url| "'#{url}'" },
           :script      => script_url,
           :string      => string_url,
-          :prefetched  => t[:prefetched]
+          :prefetched  => t[:prefetched_module]
         })
       end
       writelines dst_path, [output]
