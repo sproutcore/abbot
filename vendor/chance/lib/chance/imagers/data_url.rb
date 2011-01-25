@@ -75,21 +75,21 @@ module Chance
     end
 
     def mhtml(slices)
-      output = "Content-Type: multipart/related; boundary=\"--CHANCE--BOUNDARY--\"\n"
-      output += "\n"
+      output = "Content-Type: multipart/related; boundary=\"CHANCE__BOUNDARY__\"\r\n"
 
       slices.each {|name, slice|
-        output += "--CHANCE--BOUNDARY--\n"
-        output += "Content-Location:" + slice[:css_name] + "\n"
-        output += "Content-Transfer-Encoding: base64\n\n"
+        output += "\n--CHANCE__BOUNDARY__\r\n"
+        output += "Content-Location:" + slice[:css_name] + "\r\n"
+        output += "Content-Transfer-Encoding:base64\r\n\r\n"
 
         base64Image = Base64.encode64(slice[:image].to_blob(:fast_rgba)).gsub("\n", "")
         output += base64Image
-
-        output += "\n\n"
+        output += "\r\n"
 
         output
       }
+
+       output += "--CHANCE__BOUNDARY__--"
 
       output
     end
