@@ -14,7 +14,7 @@ config :contacts, :deferred_modules => ['contacts/preferences']
 config :mail, :deferred_modules => ['mail/preferences']
 config 'mail/preferences', :required => 'mail/printing'
 
-config :photos, :inline_modules => ['photos/preferences'],
+config :photos, :inlined_modules => ['photos/preferences'],
                 :deferred_modules => ['photos/email']
 
 config :mobile_photos, :required => 'sproutcore/mobile'

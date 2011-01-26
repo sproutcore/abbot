@@ -1,13 +1,11 @@
+config :req_target_2, :required => [:req_target_1]
+#
 # needed for HTML test...
-config :html_test, 
-  :required => [:req_target_2],
+config :html_test,
+  :required => ['/req_target_2'],
   :layout   => 'lib/layout_template.rhtml',
   :debug_required => [:debug],
   :test_required  => [:qunit]
-
-config :req_target_2,
-  :required => [:req_target_1],
-  :deferred_modules => [:dynamic_req_target_1]
 
 config :test_test,
   :test_layout   => 'lib/test_layout.rhtml',
@@ -15,6 +13,10 @@ config :test_test,
   :test_required  => [:qunit],
   :theme => nil
 
+config '/module_test/deferred_module',
+  :required => [:required_target, '/module_test/dynamic_req_target_1']
+
 config :module_test,
-  :required => [:req_target_1],
-  :deferred_modules => [:req_target_2]
+  :deferred_modules => [:deferred_module],
+  :prefetched_modules => [:required_target],
+  :inlined_modules => [:inlined_module]
