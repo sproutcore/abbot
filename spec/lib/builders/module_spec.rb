@@ -45,15 +45,17 @@ describe 'SC::Builder::ModuleInfo' do
       req = @target.required_targets
 
       req.size.should == 1
-      req.first.target_name.should == :'/req_target_1'
+      req.first.target_name.should == :'/module_test/inlined_module'
     end
 
     it "should require one deferred module" do
       req = @target.modules
 
-      req.size.should == 2
-      req.first.target_name.should == :'/req_target_2'
-      req[1].target_name.should == :'/req_target_1'
+      req.size.should == 4
+      req.first.target_name.should == :'/module_test/deferred_module'
+      req[1].target_name.should == :'/module_test/required_target'
+      req[2].target_name.should == :'/module_test/inlined_module'
+      req[3].target_name.should == :'/module_test/dynamic_req_target_1'
     end
   end
 
@@ -123,7 +125,8 @@ describe 'SC::Builder::ModuleInfo' do
     end
 
     it "should require its own dynamic framework" do
-      (req = @target.modules).size.should == 1
+      (req = @target.modules).size.should == 0
+      (req = @target.required_targets).size.should == 1
     end
   end
 
