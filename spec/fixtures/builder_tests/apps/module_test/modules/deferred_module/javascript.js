@@ -1,0 +1,1 @@
+// This is a pathological case.  What if the developer adds a file named javascript.js to their source.  Everything should still work.
