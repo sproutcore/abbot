@@ -1,135 +1,83 @@
 require "buildtasks/manifest/spec_helper"
 
-describe "manifest:prepare_build_tasks:module_info" do
+# Creates combined entries for javascript & css
+describe "Target#modules" do
 
   include SC::SpecHelpers
   include SC::ManifestSpecHelpers
 
   before do
-    std_before :builder_tests, :module_test
-
-    # most of these tests assume load_debug is turned off like it would be
-    # in production mode
-    @target.config.load_debug = false
-    @target.config.theme = nil
-    @target.config.timestamp_urls = false
-
-    # run std rules to run manifest.  Then verify preconditions to make sure
-    # no other changes to the build system effect the ability of these tests
-    # to run properly.
-    @manifest.build!
+    std_before
   end
 
-  it "should create a module_info.js for a deferred_modules target" do
-    # run_task
-    # entries = @manifest.entries.select { |e| e.entry_type == :javascript }
-    # entries.each do |entry|
-    #   %w(filename url build_path).each do |key|
-    #     entry[key].should =~ /source\//
-    #   end
-    # end
+  def run_task
+    # capture any log warnings...
+    @msg = capture('stderr') {
+      @manifest.prepare!
+      super('manifest:prepare_build_tasks:combine')
+    }
   end
 
-  describe "app target" do
+  describe "when a subset of modules are specified "  do
 
     before do
-      std_before :builder_tests, :module_test
-
-      # most of these tests assume load_debug is turned off like it would be
-      # in production mode
-      @target.config.load_debug = false
-      @target.config.theme = nil
-      @target.config.use_packed = false
-      @target.config.timestamp_urls = false
-
-      @target.modules.length.should be > 0
-
-      # make sure all targets have the same settings...
-      @target.expand_required_targets.each do |t|
-        t.config.timestamp_urls = false
-      end
-
-      # make sure all targets have the same settings...
-      @target.modules.each do |t|
-        t.config.timestamp_urls = false
-      end
-
-      # run std rules to run manifest.  Then verify preconditions to make sure
-      # no other changes to the build system effect the ability of these tests
-      # to run properly.
-      @manifest.build!
+      run_task
     end
 
-    def run_task
-      @manifest.prepare!
-      super('manifest:prepare_build_tasks:javascript')
+    it "does not require any modules in its requried_targets" do
+      target = target_for('contacts')
+      requirements = target.required_targets
+
+      modules = requirements.select{ |target| target[:target_type] == :module }
+
+      modules.should be_empty
     end
 
-    it "should run manifest:prepare_build_tasks:setup as prereq" do
-      should_run('manifest:prepare_build_tasks:setup') { run_task }
+    it "contains only the specified modules" do
+      target = target_for('contacts')
+      modules = target.modules
+
+      preferences_module = target_for('contacts/preferences')
+      printing_module = target_for('contacts/printing')
+
+      modules.should include(preferences_module)
+      modules.should_not include(printing_module)
     end
   end
 
-  describe "static framework target" do
-
+  describe "when a deferred modules requires another module "  do
     before do
-      std_before :builder_tests, :req_target_1
-
-      # most of these tests assume load_debug is turned off like it would be
-      # in production mode
-      @target.config.load_debug = false
-      @target.config.theme = nil
-      @target.config.timestamp_urls = false
-
-      # run std rules to run manifest.  Then verify preconditions to make sure
-      # no other changes to the build system effect the ability of these tests
-      # to run properly.
-      @manifest.build!
+      run_task
     end
 
-    def run_task
-      @manifest.prepare!
-      super('manifest:prepare_build_tasks:javascript')
-    end
+    it "the deferred module should list the required module in its requirements" do
+      target = target_for('mail')
+      target_requirements = target.required_targets
 
-    it "should run manifest:prepare_build_tasks:setup as prereq" do
-      should_run('manifest:prepare_build_tasks:setup') { run_task }
-    end
+      preferences_module = target.target_for('mail/preferences')
+      printing_module = target.target_for('mail/printing')
 
-    it "should not require a dynamic framework" do
-      (req = @target.modules).size.should == 0
+      preferences_requirements = preferences_module.required_targets
+
+      target_requirements.should_not include(preferences_module)
+      preferences_requirements.should include(printing_module)
     end
   end
 
-  describe "dynamic framework target" do
-
+  describe "when an inline_module is defined"  do
     before do
-      std_before :builder_tests, :req_target_2
-
-      # most of these tests assume load_debug is turned off like it would be
-      # in production mode
-      @target.config.load_debug = false
-      @target.config.theme = nil
-      @target.config.timestamp_urls = false
-
-      # run std rules to run manifest.  Then verify preconditions to make sure
-      # no other changes to the build system effect the ability of these tests
-      # to run properly.
-      @manifest.build!
+      run_task
     end
 
-    def run_task
-      @manifest.prepare!
-      super('manifest:prepare_build_tasks:javascript')
-    end
+    it "it should be included in the requirements" do
+      target = target_for('photos')
+      target_requirements = target.required_targets
 
-    it "should run manifest:prepare_build_tasks:setup as prereq" do
-      should_run('manifest:prepare_build_tasks:setup') { run_task }
-    end
+      preferences_module = target.target_for('photos/preferences')
+      email_module = target.target_for('photos/email')
 
-    it "should require its own dynamic framework" do
-      (req = @target.modules).size.should == 1
+      target_requirements.should include(preferences_module)
+      target_requirements.should_not include(email_module)
     end
   end
-
 end
