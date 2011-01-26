@@ -160,7 +160,7 @@ module SC
       return ret unless ret.nil?
 
       # else compute return value, respecting options
-      ret = [config[:required], config[:inline_modules]]
+      ret = [config[:required], config[:inlined_modules]]
       if opts[:debug] && config[:debug_required]
         ret << config[:debug_required]
       end
@@ -238,7 +238,7 @@ module SC
     end
 
     # Returns all of the modules under this target.  This
-    # will use the deferred_modules, prefetched_modules, and inline_modules config
+    # will use the deferred_modules, prefetched_modules, and inlined_modules config
     # options from the Buildfile.
     #
     #
@@ -264,28 +264,24 @@ module SC
       # or inline modules from the Buildfile
       prefetched_modules = config[:prefetched_modules]
       deferred_modules = config[:deferred_modules]
-      inline_modules = config[:inline_modules]
+      inlined_modules = config[:inlined_modules]
 
       # else compute return value, respecting options
-      ret = [deferred_modules, prefetched_modules, inline_modules]
+      ret = [deferred_modules, prefetched_modules, inlined_modules]
       return [] if ret.compact.empty?
 
       if prefetched_modules
         # Go through each module and mark it as prefetched.
         # This way, we can later distinguish between deferred and prefetched
         # modules when generating the module_info.js file.
-        dependencies = prefetched_modules.map do |m|
+        prefetched_modules.each do |m|
           target = target_for(m)
           target[:prefetched_module] = true
 
-          target.required_targets(opts)
-        end
-
-        dependencies.flatten.compact.each do |dependency|
-          if dependency[:target_type] != :module
-            SC.Logger.warn("Module #{self[:target_name]} is requiring non-module #{dependency[:target_name]}")
-          else
-            ret << dependency[:target_name]
+          target.required_targets(opts).flatten.compact.each do |dependency|
+            if dependency[:target_type] == :module
+              ret << dependency[:target_name]
+            end
           end
         end
       end
@@ -294,36 +290,28 @@ module SC
         # Go through each module and mark it as deferred.
         # This way, we can later distinguish between deferred and prefetched
         # modules and non-deferred modules
-        dependencies = deferred_modules.map do |m|
+        deferred_modules.each do |m|
           target = target_for(m)
           target[:deferred_module] = true
 
-          target.required_targets(opts)
-        end
-
-        dependencies.flatten.compact.each do |dependency|
-          if dependency[:target_type] != :module
-            SC.Logger.warn("Module #{self[:target_name]} is requiring non-module #{dependency[:target_name]}")
-          else
-            ret << dependency[:target_name]
+          target.required_targets(opts).flatten.compact.each do |dependency|
+            if dependency[:target_type] == :module
+              ret << dependency[:target_name]
+            end
           end
         end
       end
 
       if inlined_modules
         # Go through each module and mark it as inline.
-        dependencies = inline_modules.map do |m|
+        inlined_modules.each do |m|
           target = target_for(m)
-          target[:inline_module] = true
+          target[:inlined_module] = true
 
-          target.required_targets(opts)
-        end
-
-        dependencies.flatten.compact.each do |dependency|
-          if dependency[:target_type] != :module
-            SC.Logger.warn("Module #{self[:target_name]} is requiring non-module #{dependency[:target_name]}")
-          else
-            ret << dependency[:target_name]
+          target.required_targets(opts).flatten.compact.each do |dependency|
+            if dependency[:target_type] == :module
+              ret << dependency[:target_name]
+            end
           end
         end
       end
