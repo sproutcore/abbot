@@ -5,6 +5,15 @@ function keys(o) {
   return keys;
 }
 
+var version;
+for (var i=0, len=data.length; i < len; i++) {
+  var item = data[i];
+  if (item.alias === 'SC') {
+    version = item.version;
+    break;
+  }
+}
+
 !}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -14,7 +23,7 @@ function keys(o) {
 		<meta http-equiv="content-type" content="text/html; charset={+IO.encoding+}" />
 		<meta name="generator" content="JsDoc Toolkit" />
 		{! Link.base = ""; /* all generated links will be relative to this */ !}
-		<title>JsDoc Reference</title>
+		<title>SproutCore Reference Index - v{+version+}</title>
 
 		<style type="text/css">
 			{+include("static/default.css")+}
@@ -23,9 +32,14 @@ function keys(o) {
 
 	<body class="sc-doc">
 
-		<h1>SproutCore Reference Index</h1>
-		
-		<p id="warning">WARNING: This is draft reference documentation generated automatically from the <a href="http://github.com/sproutit/sproutcore">SproutCore source</a>.  It has not been fully vetted for accuracy or completeness.  Expect to find bugs here and there.  If you want to help make the docs better, please grab the source and make the docs better!</p>
+		<h1>SproutCore Reference Index - v{+version+}</h1>
+	
+		<p id="warning">
+      WARNING: This is draft reference documentation generated automatically from the
+      <a href="http://github.com/sproutcore/sproutcore{+ version.match(/^1\.4/) ? '/tree/1-4-stable/' : '' +}">SproutCore source</a>.
+      It has not been fully vetted for accuracy or completeness.  Expect to find bugs here and there.
+      If you want to help make the docs better, please grab the source and make the docs better!
+    </p>
 				
 		<div id="index">
 
