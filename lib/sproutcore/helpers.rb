@@ -7,5 +7,5 @@ require "sproutcore/helpers/packed_optimizer"
 require "sproutcore/helpers/static_helper"
 require "sproutcore/helpers/tag_helper"
 require "sproutcore/helpers/text_helper"
-
+require "sproutcore/helpers/minifier"
 

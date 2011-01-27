@@ -8,7 +8,6 @@
 require "sproutcore/tools/manifest"
 require 'pathname'
 
-$to_minify = []
 $to_html5_manifest = []
 $to_html5_manifest_networks = []
 
@@ -73,12 +72,18 @@ module SC
         if entries.size > 0
           info "Building entries for #{manifest.target.target_name}:#{manifest.language}..."
 
+          minifier = SC::Helpers::Minifier.new
+
           target_build_root = Pathname.new(manifest.target.project.project_root)
           entries.each do |entry|
             dst = Pathname.new(entry.build_path).relative_path_from(target_build_root)
             info "  #{entry.filename} -> #{dst}"
             entry.build!
+
+            minifier << entry[:build_path]
           end
+
+          minifier.minify_queue! unless SC.env[:no_minify]
         end
       end
 
@@ -87,42 +92,7 @@ module SC
           SC::Helpers::HTML5Manifest.new.build(entry)
         end
       end
-      $to_minify.uniq!
-      if $to_minify.length > 0 and !SC.env[:dont_minify]
-        yui_root = File.expand_path("../../../../vendor/sproutcore", __FILE__)
-        jar_path = File.join(yui_root, 'SCCompiler.jar')
-        if SC.env[:yui_minification]
-          filecompress = "java -Xmx256m -jar \"" + jar_path + "\" -yuionly \"" + $to_minify * "\" \"" + "\" 2>&1"
-        else
-          filecompress = "java -Xmx256m -jar \"" + jar_path + "\" \"" + $to_minify * "\" \"" + "\" 2>&1"
-        end
-        SC.logger.info  'Minifying...'
-        SC.logger.info  filecompress
-        
-        output = `#{filecompress}`      # It'd be nice to just read STDERR, but
-                                        # I can't find a reasonable, commonly-
-                                        # installed, works-on-all-OSes solution.
-        SC.logger.info output
-        if $?.exitstatus != 0
-          SC.logger.fatal(output)
-          SC.logger.fatal("!!!!Minifying failed, please check that your js code is valid")
-          SC.logger.fatal("!!!!Failed compiling ... "+ $to_minify.join(','))
-          exit(1)
-        end
-        paths = $to_minify.join(',')
-        paths = paths.gsub("javascript-packed.js","javascript.js")
-        paths = paths.gsub("stylesheet-packed.css","stylesheet.css")
-        puts "Removing unnecessary files..."
-        paths_array = paths.split(",")
-        paths_array.each do |entry|
-          if not entry.include? "index.html"
-            if File.exist? (entry)
-              puts "Deleting "+entry
-              File.delete(entry)
-            end
-          end
-        end
-      end
+
       t2 = Time.now
       seconds = t2-t1
       minutes = seconds/60

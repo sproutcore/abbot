@@ -117,7 +117,7 @@ module SC
         $to_html5_manifest_networks = CONFIG[:html5_manifest_networks]
         @content_for_html5_manifest = true
       end
-      $to_minify << dst_path
+
       writelines dst_path, [self.render]
       
     end
