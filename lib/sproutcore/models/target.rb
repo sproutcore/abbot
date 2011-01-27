@@ -271,49 +271,15 @@ module SC
       return [] if ret.compact.empty?
 
       if prefetched_modules
-        # Go through each module and mark it as prefetched.
-        # This way, we can later distinguish between deferred and prefetched
-        # modules when generating the module_info.js file.
-        prefetched_modules.each do |m|
-          target = target_for(m)
-          target[:prefetched_module] = true
-
-          target.required_targets(opts).flatten.compact.each do |dependency|
-            if dependency[:target_type] == :module
-              ret << dependency[:target_name]
-            end
-          end
-        end
+        ret << find_dependencies_for_modules(prefetched_modules, opts, :prefetched_module)
       end
 
       if deferred_modules
-        # Go through each module and mark it as deferred.
-        # This way, we can later distinguish between deferred and prefetched
-        # modules and non-deferred modules
-        deferred_modules.each do |m|
-          target = target_for(m)
-          target[:deferred_module] = true
-
-          target.required_targets(opts).flatten.compact.each do |dependency|
-            if dependency[:target_type] == :module
-              ret << dependency[:target_name]
-            end
-          end
-        end
+        ret << find_dependencies_for_modules(deferred_modules, opts, :deferred_module)
       end
 
       if inlined_modules
-        # Go through each module and mark it as inline.
-        inlined_modules.each do |m|
-          target = target_for(m)
-          target[:inlined_module] = true
-
-          target.required_targets(opts).flatten.compact.each do |dependency|
-            if dependency[:target_type] == :module
-              ret << dependency[:target_name]
-            end
-          end
-        end
+        ret << find_dependencies_for_modules(inlined_modules, opts, :inlined_module)
       end
 
       if opts[:debug] && config[:debug_required]
@@ -332,6 +298,31 @@ module SC
       ret = ret.compact.uniq
 
       @modules[key] = ret
+      return ret
+    end
+
+    # For each module in the modules array, set the 'type' property to true,
+    # and return an array of their dependencies, one level deep.
+    def find_dependencies_for_modules(modules, opts, type)
+      ret = []
+
+      modules.each do |m|
+        target = target_for(m)
+
+        if target == nil
+          SC.logger.warn "Could not find target #{m} that is required by #{self[:target_name]}"
+          return
+        end
+
+        target[type] = true
+
+        target.required_targets(opts).flatten.compact.each do |dependency|
+          if dependency[:target_type] == :module
+            ret << dependency[:target_name]
+          end
+        end
+      end
+
       return ret
     end
 
