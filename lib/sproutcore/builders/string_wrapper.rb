@@ -15,27 +15,23 @@ module SC
   class Builder::StringWrapper < Builder::Base
 
     def build(dst_path)
-      entries = entry[:source_entries]
+      src_path = entry.source_entry[:build_path]
+      return if not File.exist? src_path
 
-      entries.each do |entry|
-        src_path = entry.stage![:staging_path]
-        return if not File.exist? src_path
+      # Normalize the target name by removing any initial forward slash
+      target = entry.target
+      target_name = target[:target_name].to_s.sub(/^\//,'')
 
-        # Normalize the target name by removing any initial forward slash
-        target = entry.target
-        target_name = target[:target_name].to_s.sub(/^\//,'')
+      # Set the source property of the module's SC.MODULE_INFO hash to the
+      # JSON-escaped contents of the file.
+      output = "SC.MODULE_INFO['#{target_name}'].source = "
 
-        # Set the source property of the module's SC.MODULE_INFO hash to the
-        # JSON-escaped contents of the file.
-        output = "SC.MODULE_INFO['#{target_name}'].source = "
+      content = readlines(src_path)
+      output += content.join.to_json
 
-        content = readlines(src_path)
-        output += content.join.to_json
+      output += ";"
 
-        output += ";"
-
-        writeline dst_path, output
-      end
+      writeline dst_path, output
     end
 
   end

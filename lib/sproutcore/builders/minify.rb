@@ -54,24 +54,13 @@ module SC
 
     # Minify some javascript by invoking the YUI compressor.
     def build_javascript(dst_path)
-      a = Regexp.new('^'+MANIFEST.build_root)
-      if dst_path =~ a
-        # $to_minify << dst_path
-        FileUtils.mkdir_p(File.dirname(dst_path))
-        FileUtils.copy(entry.source_path, dst_path)
-      else
-        FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
-        filecompress = "java -Xmx128m -jar \"" + SC.yui_jar + "\" --js \"" + entry.source_path + "\" --js_output_file \"" + dst_path + "\" 2>&1"
-        SC.logger.info  'Compiling with YUI:  '+ filecompress + "..."
+      FileUtils.copy(entry.source_path, dst_path) if entry.source_path != dst_path
 
-        output = `#{filecompress}`      # It'd be nice to just read STDERR, but
-                                      # I can't find a reasonable, commonly-
-                                      # installed, works-on-all-OSes solution.
-        if $?.exitstatus != 0
-          _report_error(output, entry.filename, entry.source_path)
-          SC.logger.fatal("!!!!YUI compiler failed, please check that your js code is valid")
-          SC.logger.fatal("!!!!Failed compiling ... "+ dst_path)
-        end
+      # Minify module JavaScript immediately so it can be string-wrapped
+      if entry.target[:target_type] == :module
+        SC::Helpers::Minifier.minify! dst_path
+      else
+        SC::Helpers::Minifier << dst_path
       end
     end
 
