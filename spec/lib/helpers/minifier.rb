@@ -13,11 +13,11 @@ describe SC::Helpers::Minifier do
   it "saves items to be minified" do
     SC::Helpers::Minifier << "/test/path"
     SC::Helpers::Minifier << "/second/path"
-    
+
     SC::Helpers::Minifier.queue.should include("/test/path")
     SC::Helpers::Minifier.queue.should include("/second/path")
   end
-  
+
   it "minifies a file when given a path" do
     source_path = File.join(@target.source_root, 'core.js')
 
