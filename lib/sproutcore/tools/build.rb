@@ -72,18 +72,14 @@ module SC
         if entries.size > 0
           info "Building entries for #{manifest.target.target_name}:#{manifest.language}..."
 
-          minifier = SC::Helpers::Minifier.new
-
           target_build_root = Pathname.new(manifest.target.project.project_root)
           entries.each do |entry|
             dst = Pathname.new(entry.build_path).relative_path_from(target_build_root)
             info "  #{entry.filename} -> #{dst}"
             entry.build!
-
-            minifier << entry[:build_path]
           end
 
-          minifier.minify_queue! unless SC.env[:no_minify]
+          SC::Helpers::Minifier.minify_queue! unless SC.env[:no_minify]
         end
       end
 

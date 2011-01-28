@@ -5,16 +5,14 @@ module SC::Helpers
   # at once (which improves performance significantly.)
 
   class Minifier
-    def initialize
-      @queue = []
+    @@queue = []
+
+    def self.<<(item)
+      @@queue << item
     end
 
-    def <<(item)
-      @queue << item
-    end
-
-    def queue
-      @queue
+    def self.queue
+      @@queue
     end
     
     # Minifies a path or an array of paths
@@ -49,9 +47,9 @@ module SC::Helpers
     end
 
     # Minimizes the files in the queue, then empties the queue
-    def minify_queue!
-      SC::Helpers::Minifier.minify! @queue
-      @queue = []
+    def self.minify_queue!
+      SC::Helpers::Minifier.minify! @@queue
+      @@queue = []
     end
 
   end

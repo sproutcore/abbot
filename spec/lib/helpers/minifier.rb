@@ -11,11 +11,11 @@ describe SC::Helpers::Minifier do
   end
 
   it "saves items to be minified" do
-    subject << "/test/path"
-    subject << "/second/path"
+    SC::Helpers::Minifier << "/test/path"
+    SC::Helpers::Minifier << "/second/path"
     
-    subject.queue.should include("/test/path")
-    subject.queue.should include("/second/path")
+    SC::Helpers::Minifier.queue.should include("/test/path")
+    SC::Helpers::Minifier.queue.should include("/second/path")
   end
   
   it "minifies a file when given a path" do
