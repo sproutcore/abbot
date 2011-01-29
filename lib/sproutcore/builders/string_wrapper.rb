@@ -16,6 +16,8 @@ module SC
 
     def build(dst_path)
       src_path = entry.source_entry[:build_path]
+      entry.source_entry.build!
+
       return if not File.exist? src_path
 
       # Normalize the target name by removing any initial forward slash
