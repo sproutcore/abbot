@@ -24,34 +24,18 @@ module SC
       #
       def stylesheets_for_client(target_name = nil, opts = nil)
 
+        urls = stylesheet_urls_for_client(target_name, opts)
+        
         # normalize params
         if target_name.kind_of?(Hash) && opts.nil?
           opts = target_name
           target_name = nil
         end
         opts = {} if opts.nil?
-
+        
         # process options
         include_method = opts[:include_method] ||= :link
-        t = target_name ? target.target_for(target_name) : target
-
-        # collect urls from entries
-        urls = []
-        combine_stylesheets = t.config[:combine_stylesheets]
-        combined_entries(t, opts, 'stylesheet.css', 'stylesheet-packed.css') do |cur_target, cur_entry|
-
-          # include either the entry URL or URL of ordered entries
-          # depending on setup
-          if combine_stylesheets
-            urls << cur_entry.cacheable_url
-          else
-            urls += cur_entry[:ordered_entries].map { |e| e.cacheable_url }
-          end
-
-          # add any stylesheet libs from the target
-          urls += (cur_target.config[:stylesheet_libs] || [])
-        end
-
+        
         # Convert to HTML and return
         urls = urls.map do |url|
           if include_method == :import
@@ -68,6 +52,42 @@ module SC
           urls.join("\n")
         end
       end
+      
+      # This method will return the urls of all the stylesheets
+      # required by the named bundle.
+      def stylesheet_urls_for_client(target_name = nil, opts = nil)
+        
+        # normalize params
+        if target_name.kind_of?(Hash) && opts.nil?
+          opts = target_name
+          target_name = nil
+        end
+        opts = {} if opts.nil?
+        
+        # process options
+        include_method = opts[:include_method] ||= :link
+        t = target_name ? target.target_for(target_name) : target
+        
+        # collect urls from entries
+        urls = []
+        combine_stylesheets = t.config[:combine_stylesheets]
+        combined_entries(t, opts, 'stylesheet.css', 'stylesheet-packed.css') do |cur_target, cur_entry|
+
+          # include either the entry URL or URL of ordered entries
+          # depending on setup
+          if combine_stylesheets
+            urls << cur_entry.cacheable_url
+          else
+            urls += cur_entry[:ordered_entries].map { |e| e.cacheable_url }
+          end
+          
+          # add any stylesheet libs from the target
+          urls += (cur_target.config[:stylesheet_libs] || [])
+        end
+        
+        urls
+        
+      end
 
       # This method will return the HTML to link to all the javascripts
       # required by the client.  If you pass no options, the current client
@@ -78,6 +98,26 @@ module SC
       #
       def javascripts_for_client(target_name = nil, opts = {})
 
+        urls = javascript_urls_for_client(target_name, opts)
+
+        # Convert to HTML and return
+        urls = urls.map do |url|
+          %(  <script type="text/javascript" src="#{url}"></script>)
+        end
+        
+         # Add preferred language definition, before other scripts...
+        urls.insert(0, %(<script type="text/javascript">String.preferredLanguage = "#{language}";</script>))
+        
+        urls.join("\n")
+      end
+      
+      # This method will return an array of all the javascripts
+      # required by the client.
+      #
+      # client_name = the name of the client to render or nil to use the
+      # current :language => the language to render. defaults to @language.
+      #
+      def javascript_urls_for_client(target_name = nil, opts = {})
         # normalize params
         if target_name.kind_of?(Hash) && opts.nil?
           opts = target_name
@@ -104,16 +144,9 @@ module SC
           # add any stylesheet libs from the target
           urls += (cur_target.config[:javascript_libs] || [])
         end
-
-        # Convert to HTML and return
-        urls = urls.map do |url|
-          %(  <script type="text/javascript" src="#{url}"></script>)
-        end
-
-         # Add preferred language definition, before other scripts...
-        urls.insert(0, %(<script type="text/javascript">String.preferredLanguage = "#{language}";</script>))
-          
-        urls.join("\n")
+        
+        urls
+        
       end
 
       # Detects and includes any bootstrap code
