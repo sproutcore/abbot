@@ -37,7 +37,6 @@ module SC
     class_option "logfile",      :type => :string
     class_option "build",        :type => :string
     class_option "build-targets",:type => :string
-    class_option "no-chance",    :type => :boolean
     class_option "yui-minification",     :type => :boolean
     class_option "dont-minify",     :type => :boolean
     class_option "verbose",      :type => :boolean, :aliases => "-v"
@@ -122,12 +121,6 @@ module SC
           SC.env[:build_targets] = options[:'build-targets'].split(',')
         else
           SC.env[:build_targets] = ''
-        end
-
-        if options[:'no-chance']
-          SC.env[:no_chance] = true
-        else
-          SC.env[:no_chance] = false
         end
       end
       

@@ -402,14 +402,14 @@ namespace :manifest do
       # build combined CSS entry
       css_entries.each do |resource_name, entries|
         # Send image files to the build task if Chance is being used
-        entries.concat global_chance_entries unless config[:no_chance]
+        entries.concat global_chance_entries
 
         # Add a composite entry for the combined CSS.
         # Note that we manually hid the CSS entries above, but, if Chance
         # is enabled, we need to keep the images visible so they are still
         # copied into the final product.
         entry = manifest.add_composite resource_name.ext('css'),
-          :build_task      => config[:no_chance] ? 'build:combine' : 'build:chance',
+          :build_task      => 'build:chance',
           :source_entries  => entries,
           :hide_entries    => false, # We hid entries manually above
           :ordered_entries => SC::Helpers::EntrySorter.sort(entries),
@@ -419,34 +419,31 @@ namespace :manifest do
         chance_entries << entry
 
         # ADD A 2X version
-        unless config[:no_chance]
-          # Rather than run Chance an extra time for 2x, we create a composite entry
-          # referencing the chance entry as a source
-          manifest.add_entry resource_name + "-2x.css",
-            :build_task      => 'build:chance_file',
-            :chance_entry    => entry,
-            :entry_type      => :css,
-            :combined        => true,
-            :chance_file     => "chance-2x.css"
 
-        end
+        # Rather than run Chance an extra time for 2x, we create a composite entry
+        # referencing the chance entry as a source
+        manifest.add_entry resource_name + "-2x.css",
+          :build_task      => 'build:chance_file',
+          :chance_entry    => entry,
+          :entry_type      => :css,
+          :combined        => true,
+          :chance_file     => "chance-2x.css"
 
       end
 
-      unless config[:no_chance]
-        manifest.add_entry "__sc_chance.js",
-          :build_task       => 'build:chance_file',
-          :chance_entries   => chance_entries,
-          :entry_type       => :javascript,
-          :resource         => "javascript",
-          :chance_file      => "chance.js"
+      manifest.add_entry "__sc_chance.js",
+        :build_task       => 'build:chance_file',
+        :chance_entries   => chance_entries,
+        :entry_type       => :javascript,
+        :resource         => "javascript",
+        :chance_file      => "chance.js"
 
-        manifest.add_entry "__sc_chance_mhtml.txt",
-          :build_task       => 'build:chance_file',
-          :chance_entries   => chance_entries,
-          :entry_type       => :mhtml,
-          :chance_file      => "chance-mhtml.txt"
-      end
+      manifest.add_entry "__sc_chance_mhtml.txt",
+        :build_task       => 'build:chance_file',
+        :chance_entries   => chance_entries,
+        :entry_type       => :mhtml,
+        :chance_file      => "chance-mhtml.txt"
+
     end
 
     desc "generates combined entries for javascript"
