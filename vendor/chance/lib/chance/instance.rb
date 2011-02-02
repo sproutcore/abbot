@@ -13,12 +13,6 @@ require 'chance/slicing'
 Compass.discover_extensions!
 Compass.configure_sass_plugin!
 
-# Hackish workaround for Ruby 1.8
-class Hash
-  unless method_defined?(:key)
-    alias_method :key, :index
-  end
-end
 
 module Chance
 
@@ -201,7 +195,7 @@ module Chance
         # its method of determing the current file name is a marker in the
         # file. We may want to consider changing this to a parser option
         # now that we don't need this feature so much, but this works for now.
-        content = "@_chance_file " + @files.key(file[:path]) + ";\n"
+        content = "@_chance_file " + @files.invert[file[:path]] + ";\n"
         content += "$theme: '" + @options[:theme] + "';"
         content += file[:content]
         
