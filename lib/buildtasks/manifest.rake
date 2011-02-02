@@ -422,12 +422,12 @@ namespace :manifest do
 
         # Rather than run Chance an extra time for 2x, we create a composite entry
         # referencing the chance entry as a source
-        manifest.add_entry resource_name + "-2x.css",
+        manifest.add_entry resource_name + "@2x.css",
           :build_task      => 'build:chance_file',
           :chance_entry    => entry,
           :entry_type      => :css,
           :combined        => true,
-          :chance_file     => "chance-2x.css"
+          :chance_file     => "chance@2x.css"
 
       end
 
@@ -535,7 +535,7 @@ namespace :manifest do
       target   = env[:target]
       manifest = env[:manifest]
 
-      %w(stylesheet stylesheet-2x).each {|resource|
+      %w(stylesheet stylesheet@2x).each {|resource|
 
         # Handle CSS version.  get all required targets and find their
         # stylesheet.css.  Build packed css from that.

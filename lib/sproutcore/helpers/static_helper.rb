@@ -72,7 +72,7 @@ module SC
 
         # figure out stylesheet name (whether it is x2 or not)
         name = "stylesheet"
-        name += "-2x" if opts[:x2]
+        name += "@2x" if opts[:x2]
 
         # collect urls from entries
         urls = []
@@ -395,7 +395,13 @@ module SC
 
           # get the stylesheet or js entry for it...
           entry = cur_manifest.entry_for packed_entry_name
-          next if entry.nil? || !entry.composite? # no stylesheet or js
+
+          # It used to be like this:
+          # next if entry.nil? || !entry.composite? # no stylesheet or js
+          # But the @2x css file is not composite. There does not seem to be
+          # a reason to check for composite entries, either. So, the composite
+          # check has been removed.
+          next if entry.nil? # no stylesheet or js
 
           yield(t, entry)
         end
@@ -406,7 +412,13 @@ module SC
 
           # get the stylesheet or js entry for it...
           entry = cur_manifest.entry_for entry_name
-          next if entry.nil? || !entry.composite? # no stylesheet or js
+
+          # It used to be like this:
+          # next if entry.nil? || !entry.composite? # no stylesheet or js
+          # But the @2x css file is not composite. There does not seem to be
+          # a reason to check for composite entries, either. So, the composite
+          # check has been removed.
+          next if entry.nil? # no stylesheet or js
 
           yield(t, entry)
         end

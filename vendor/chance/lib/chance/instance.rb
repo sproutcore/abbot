@@ -151,7 +151,7 @@ module Chance
       end
 
       @files["chance.css"] = css_normal
-      @files["chance-2x.css"] = css_2x
+      @files["chance@2x.css"] = css_2x
       @files["chance.js"] = preload_javascript
       @files["chance-mhtml.txt"] = mhtml
     end
