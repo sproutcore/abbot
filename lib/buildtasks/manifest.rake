@@ -422,10 +422,9 @@ namespace :manifest do
         unless config[:no_chance]
           # Rather than run Chance an extra time for 2x, we create a composite entry
           # referencing the chance entry as a source
-          manifest.add_composite resource_name + "-2x.css",
+          manifest.add_entry resource_name + "-2x.css",
             :build_task      => 'build:chance_file',
             :chance_entry    => entry,
-            :hide_entries    => false,
             :entry_type      => :css,
             :combined        => true,
             :chance_file     => "chance-2x.css"
@@ -435,18 +434,16 @@ namespace :manifest do
       end
 
       unless config[:no_chance]
-        manifest.add_composite "__sc_chance.js",
+        manifest.add_entry "__sc_chance.js",
           :build_task       => 'build:chance_file',
           :chance_entries   => chance_entries,
-          :hide_entries     => false,
           :entry_type       => :javascript,
           :resource         => "javascript",
           :chance_file      => "chance.js"
 
-        manifest.add_composite "__sc_chance_mhtml.txt",
+        manifest.add_entry "__sc_chance_mhtml.txt",
           :build_task       => 'build:chance_file',
           :chance_entries   => chance_entries,
-          :hide_entries     => false,
           :entry_type       => :mhtml,
           :chance_file      => "chance-mhtml.txt"
       end
