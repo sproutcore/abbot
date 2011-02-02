@@ -1,7 +1,24 @@
-*Next revision
+*SproutCore 1.5.0.pre.1 (February 1, 2011)*
 
-* One JS , one CSS
-* Faster build times
+* Integrated Chance
+* UTF-8 encoding fixes
+* Improved minification and packing
+* Add HTML5 application cache manifest configuration options and also disable in debug by default
+* Deferred loading
+* Fixes for css media query minifications
+* Added .manifest and .htm into the default acceptable files
+* Add --yui_minification flag to switch between closure compiler and yui compressor for minification
+* Set PreferredLanguage earlier
+* Changes to be able to build multiple languages
+
+
+*SproutCore 1.4.5 (January 25, 2011)*
+
+*Got Specs running again*
+*Updated Copyrights*
+*Added RSpec task back into Rakefile*
+*Fixed issue with :combine_javascripts => false crashing*
+*Corrected references to the old sproutit repo*
 
 
 *SproutCore 1.4.4 (November 12, 2010)*
@@ -33,3 +50,4 @@
 *SproutCore 1.4.1 (September 21, 2010)*
 
 * Fixed string escaping issue in call to YUI Compressor [PDW]
+
