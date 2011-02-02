@@ -1,3 +1,9 @@
+*SproutCore 1.5.0.pre.2 (February 2, 2011)*
+
+* Minor code cleanup
+* Fixed Ruby 1.8 issues
+
+
 *SproutCore 1.5.0.pre.1 (February 1, 2011)*
 
 * Integrated Chance
