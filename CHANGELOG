@@ -1,3 +1,12 @@
+*SproutCore 1.4.5 (January 25, 2011)*
+
+*Got Specs running again*
+*Updated Copyrights*
+*Added RSpec task back into Rakefile*
+*Fixed issue with :combine_javascripts => false crashing*
+*Corrected references to the old sproutit repo*
+
+
 *SproutCore 1.4.4 (November 12, 2010)*
 
 * Support for custom mime-types
