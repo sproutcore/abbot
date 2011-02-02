@@ -195,7 +195,7 @@ module Chance
         # its method of determing the current file name is a marker in the
         # file. We may want to consider changing this to a parser option
         # now that we don't need this feature so much, but this works for now.
-        content = "@_chance_file " + @files.key(file[:path]) + ";\n"
+        content = "@_chance_file " + @files.index(file[:path]) + ";\n"
         content += "$theme: '" + @options[:theme] + "';"
         content += file[:content]
         

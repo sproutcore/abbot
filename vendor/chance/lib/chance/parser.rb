@@ -95,7 +95,7 @@ module Chance
       path = path[2..-1] if path[0,2] == "./"
       path = Pathname.new(path).cleanpath.to_s
 
-      opts = opts.merge ({ :path => path })
+      opts = opts.merge({ :path => path })
       opts = normalize_rectangle(opts)
 
       slice_path = path[0..-File.extname(filename).length-1]
@@ -127,7 +127,7 @@ module Chance
       # (left top width height) and use that instead of showing all six digits.
       slice_path = "%s_%s_%s_%s_%s_%s_%s" % slice_name_params
 
-      if @slices.has_key? (slice_path)
+      if @slices.has_key?(slice_path)
         slice = @slices[slice_path]
         slice[:min_offset_x] = [slice[:min_offset_x], opts[:offset_x]].min
         slice[:min_offset_y] = [slice[:min_offset_y], opts[:offset_y]].min
@@ -142,7 +142,7 @@ module Chance
           css_name = "__s" + @uid.to_s + "_" + @slices.length.to_s
         end
 
-        slice = opts.merge ({ 
+        slice = opts.merge({ 
           :name => slice_path, 
           :path => path,
           :css_name => css_name,
@@ -269,7 +269,7 @@ module Chance
       # This will fail with strings quoted with "'", so I'm
       # just not bothering for now. At some point, I should either make 
       # this function more proper or use some other function...
-      if not cssString[0] == '"'
+      if not cssString[0..0] == '"'
         return cssString
       end
 
@@ -280,7 +280,7 @@ module Chance
       scanner = @scanner
 
       str = scanner.getch
-      str += scanner.scan_until (str == "'" ? UNTIL_SINGLE_QUOTE : UNTIL_DOUBLE_QUOTE)
+      str += scanner.scan_until(str == "'" ? UNTIL_SINGLE_QUOTE : UNTIL_DOUBLE_QUOTE)
 
       return str
     end
