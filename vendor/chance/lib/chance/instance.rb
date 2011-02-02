@@ -15,7 +15,17 @@ Compass.configure_sass_plugin!
 
 
 module Chance
-  
+
+  class FileNotFoundError < StandardError
+    attr_reader :path
+    def initialize(path)
+      @path = path
+    end
+    def message
+      "File not mapped in Chance instance: #{path}"
+    end
+  end
+
   # Chance::Instance represents an instance of the chance processor.
   # In a SproutCore package, an "instance" would likely be a language folder.
   #
@@ -56,7 +66,7 @@ module Chance
       path = path.to_s
       file = Chance.has_file(identifier)
 
-      return file_not_found(identifier) if not file
+      raise FileNotFoundError.new(path) unless file
 
       @files[path] = identifier
     end
@@ -73,9 +83,7 @@ module Chance
     # content will have been read, and if it is an image file, will have been
     # loaded as an actual image.
     def get_file(path)
-      if not @files[path]
-        file_not_found(path)
-      end
+      raise FileNotFoundError.new(path) unless @files[path]
       
       return Chance.get_file(@files[path])
     end
@@ -213,11 +221,5 @@ module Chance
       }.join("\n")
     end
 
-    # a helper so that, when a file is not found, we can show a warning.
-    # Our response to this error could also change in future-- a good
-    # point for separating it out like this.
-    def file_not_found(path)
-      raise "File not mapped in Chance instance: #{path}"
-    end
   end
 end
