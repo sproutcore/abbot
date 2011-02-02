@@ -20,7 +20,7 @@ namespace :build do
     SC::Builder::Stylesheet.build env[:entry], env[:dst_path]
   end
 
-  desc "stub task for images"
+  desc "builds an image file"
   build_task :image do |task, env|
     # by default, just copy images
     require 'fileutils'
