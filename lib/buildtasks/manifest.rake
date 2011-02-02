@@ -373,8 +373,6 @@ namespace :manifest do
       config = CONFIG
       manifest = env[:manifest]
 
-      chance_types = ['.png']
-
       # the image files will be shared between all css_entries-- that is,
       # all instances of Chance created
       global_chance_entries = []
@@ -386,7 +384,7 @@ namespace :manifest do
         # Chance needs to know about image files so it can embed as data URIs in the
         # CSS. For this reason, if Chance is enabled, we need to send entries for image
         # files to the 'build:chance' buildtask.
-        is_chance_file = chance_types.include?(File.extname(entry[:filename]))
+        is_chance_file = File.extname(entry[:filename]) === '.png'
 
         next if entry[:resource].nil? and not is_chance_file
 
