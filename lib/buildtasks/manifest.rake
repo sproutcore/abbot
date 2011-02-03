@@ -297,13 +297,20 @@ namespace :manifest do
 
       # add transform & tag with build directives.
       entries.each do |entry|
+        filename = entry[:filename]
+
+        # We want it to appear as CSS
+        filename.gsub! /\.scss$/, '.css'
+
         entry = manifest.add_transform entry,
-          :filename   => ['source', entry[:filename]].join('/'),
+          :filename   => ['source', filename].join('/'),
           :build_path => File.join(manifest[:build_root], 'source', entry[:filename]),
           :url => [manifest[:url_root], 'source', entry[:filename]].join("/"),
           :build_task => 'build:css',
           :resource   => 'stylesheet',
-          :entry_type => :css
+          :entry_type => :css,
+          :ext => 'css',
+          :from_scss => (entry[:ext] == 'scss')   # for testing
         entry.discover_build_directives!
       end
     end

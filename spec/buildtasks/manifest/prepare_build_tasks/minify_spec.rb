@@ -15,7 +15,7 @@ describe "manifest:prepare_build_tasks:minify" do
   end
 
   it "should run setup, javascript, css, and combine as prereq" do
-    %w(setup javascript css sass scss less combine).each do |task_name|
+    %w(setup javascript css sass less combine).each do |task_name|
       should_run("manifest:prepare_build_tasks:#{task_name}") { run_task }
     end
   end

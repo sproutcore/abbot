@@ -18,8 +18,8 @@ describe "manifest:prepare_build_tasks:combine" do
     }
   end
 
-  it "should run setup, javascript, css, sass, scss & less as prereq" do
-    %w(setup javascript css sass scss less).each do |task_name|
+  it "should run setup, javascript, css, sass, & less as prereq" do
+    %w(setup javascript css sass less).each do |task_name|
       should_run("manifest:prepare_build_tasks:#{task_name}") { run_task }
     end
   end
@@ -60,7 +60,7 @@ describe "manifest:prepare_build_tasks:combine" do
       entry.source_entries.should include(expected)
     end
 
-    it "entries have a build_task = build:chance:css" do
+    it "entries have a build_task = build:chance" do
       entry_for('stylesheet.css').build_task.should == 'build:chance'
       entry_for('bar.css').build_task.should == 'build:chance'
     end

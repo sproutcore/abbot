@@ -41,7 +41,7 @@ describe "manifest:prepare_build_tasks:css" do
     originals.size.should > 0 # precondition
 
     # transformed entries
-    entries = @manifest.entries.select { |e| e.entry_type == :css }
+    entries = @manifest.entries.select { |e| e.entry_type == :css and not e.from_scss }
     entries.size.should == originals.size #precondition
 
     # one transformed entry should exist for each original entry.
