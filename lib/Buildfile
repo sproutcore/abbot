@@ -71,7 +71,7 @@ mode :all do
 
     # name a framework to use as the theme.  will be included in required
     # frameworks automatically if found.
-    :theme  => 'sproutcore/standard_theme',
+    :theme  => 'sproutcore/ace',
 
     # use default bootstrap framework
     :bootstrap_inline => 'sproutcore/bootstrap:javascript',
