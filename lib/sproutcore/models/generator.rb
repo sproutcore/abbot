@@ -51,6 +51,9 @@ module SC
   #  namespace::
   #    The classified version of the target name.  example: "AddressBook"
   #
+  #  css_name::
+  #    The CSS class name version of the target name. example: 'address-book'
+  #
   #  class_name::
   #    The classified version of the filename.  example: "Contact"
   #
@@ -405,15 +408,23 @@ module SC
     #   snake_case("CNN")              #=> "cnn"
     #   snake_case("innerHTML")        #=> "inner_html"
     #   snake_case("Foo_Bar")          #=> "foo_bar"
+    #   snake_case("Foo-Bar")          #=> "foo_bar"
     #
     # === Params
     #
     #  str:: the string to snake case
     #
     def snake_case(str='')
+      str = str.gsub(/-/, '_')
       str = str.gsub(/([^A-Z_])([A-Z][^A-Z]?)/,'\1_\2') # most cases
       str = str.gsub(/([^_])([A-Z][^A-Z])/,'\1_\2') # HeadlineCNNNews
       str.downcase
+    end
+
+    # Converts a string to CSS case. This method will accept CamelCase or snake case
+    # and normalize into a format that can be converted to CSS case.
+    def css_case(str='')
+      snake_case(str).gsub(/_/, '-')
     end
 
     ABBREVIATIONS = %w(html css xml)
@@ -467,6 +478,11 @@ module SC
       # target_name if defined
       if (parts[0] || self.target_name) && self.namespace.nil?
         self.namespace = camel_case(parts[0] || self.target_name)
+      end
+
+      # css_name is first part css cased if defined
+      if (parts[0] || self.target_name) && self.css_name.nil?
+        self.css_name = css_case(parts[0] || self.target_name)
       end
 
       # filename is second part snake_cased, unless already defined
