@@ -1,0 +1,3 @@
+config :<%= target_name %>, :css_theme => 'ace.<%= css_name %>'
+
+
