@@ -15,7 +15,7 @@ module SC
       entries = entry.ordered_entries || entry.source_entries
 
       entries.each do |entry|
-        src_path = entry[:source_path]
+        src_path = entry.stage![:staging_path]
         next unless File.exist?(src_path)
 
         Chance.add_file src_path

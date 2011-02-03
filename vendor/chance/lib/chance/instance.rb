@@ -212,25 +212,31 @@ module Chance
         content = "@_chance_file " + @mapped_files.key(file[:path]) + ";\n"
         content += "$theme: '" + @options[:theme] + "';"
         content += file[:content]
-        
+
         parser = Chance::Parser.new(content, @options)
         parser.parse
         file[:parsed_css] = parser.css
-        
+
         # NO IMPORTERS FOR NOW
         #if Chance::SUPPORTS_IMPORTERS
         #  css = "@import \"" + file [:path] + ".scss\";"
         #else
-          tmp_path = "./tmp/chance/" + file[:path] + ".scss"
+          tmp_path = File.join("./tmp/chance/", file[:path])
+
+          # SCSS requires the file names to end with ".scss", but we may
+          # already be getting files named *.scss. So, only add the extension
+          # if it is not already there.
+          tmp_path += ".scss" unless tmp_path.end_with? ".scss"
+
           FileUtils.mkdir_p(File.dirname(tmp_path))
-          
+
           f = File.new(tmp_path, "w")
           f.write(parser.css)
           f.close
-          
+
           css = "@import \"" + tmp_path + "\";"
         # end
-        
+
         css
       }.join("\n")
     end

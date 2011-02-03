@@ -202,7 +202,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
 
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css javascript module_info sass scss less combine string_wrap minify string_wrap html strings tests packed)
+    task :all => %w(css javascript module_info sass less combine string_wrap minify string_wrap html strings tests packed)
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -292,7 +292,7 @@ namespace :manifest do
 
       # select all original entries with with ext of css
       entries = manifest.entries.select do |e|
-        e.original? && e[:ext] == 'css'
+        e.original? && ['css', 'scss'].include?(e[:ext])
       end
 
       # add transform & tag with build directives.
@@ -369,7 +369,7 @@ namespace :manifest do
     task :module_info => :tests # IMPORTANT! to avoid JS including unit tests.
 
     desc "generates combined entries for CSS"
-    task :chance => %w(setup images javascript module_info css sass scss less) do |task, env|
+    task :chance => %w(setup images javascript module_info css sass less) do |task, env|
       config = CONFIG
       manifest = env[:manifest]
 
@@ -480,7 +480,7 @@ namespace :manifest do
     end
 
     desc "Wraps the javascript.js file into a string if the target is a prefetched module"
-    task :string_wrap => %w(setup css javascript module_info sass scss less combine minify) do |task, env|
+    task :string_wrap => %w(setup css javascript module_info sass less combine minify) do |task, env|
       manifest = env[:manifest]
       target   = env[:target]
 
@@ -566,8 +566,8 @@ namespace :manifest do
 
     task :minify => :packed # IMPORTANT: don't want minified version
 
-    #Create builder tasks for sass, scss (sass v3) and less in a DRY way
-    [:sass, :scss, :less].each do |csscompiler|
+    #Create builder tasks for sass and less in a DRY way
+    [:sass, :less].each do |csscompiler|
       desc sprintf("create a builder task for all %s files to create css files", csscompiler.to_s)
       task csscompiler => :setup do |task, env|
         manifest = env[:manifest]
@@ -687,7 +687,7 @@ namespace :manifest do
     end
 
     desc "creates transform entries for all css and Js entries to minify them if needed"
-    task :minify => %w(setup javascript module_info css combine sass scss less) do |task, env|
+    task :minify => %w(setup javascript module_info css combine sass less) do |task, env|
       manifest = env[:manifest]
       config   = CONFIG
 
