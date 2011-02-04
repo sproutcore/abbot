@@ -33,6 +33,7 @@ describe "manifest:prepare_build_tasks:packed" do
 
     @manifest.entry_for('javascript-packed.js').should_not be_nil
     @manifest.entry_for('stylesheet-packed.css').should_not be_nil
+    @manifest.entry_for('stylesheet@2x-packed.css').should_not be_nil
   end
 
   it "should remove non-packed JS entries from apps" do
@@ -112,10 +113,12 @@ describe "manifest:prepare_build_tasks:packed" do
      before do
        run_task
        @entry = entry_for('stylesheet-packed.css')
+       @entry_2x = entry_for('stylesheet@2x-packed.css')
      end
 
      it "should generate a stylesheet-packed.css entry" do
        @entry.should_not be_nil
+       @entry_2x.should_not be_nil
      end
 
      it "should include stylesheet.css entries from all required targets" do
@@ -123,12 +126,17 @@ describe "manifest:prepare_build_tasks:packed" do
        @entry.source_entries.each do |entry|
          entry.filename.should == 'stylesheet.css'
        end
+
+       @entry_2x.source_entries.size.should > 0
+       @entry_2x.source_entries.each do |entry|
+         entry.filename.should == 'stylesheet@2x.css'
+       end
      end
 
      it "should include ordered_entries ordered by required target order" do
 
        # find targets, sorted by order.  remove any that don't have a
-       # javascript.js entry.
+       # stylesheet.css entry.
        targets = @target.expand_required_targets + [@target]
        variation = @entry.manifest.variation
        targets.reject! do |t|
@@ -138,21 +146,38 @@ describe "manifest:prepare_build_tasks:packed" do
        @entry.ordered_entries.each do |entry|
          entry.target.should == targets.shift
        end
+
+       targets = @target.expand_required_targets + [@target]
+       variation = @entry.manifest.variation
+       targets.reject! do |t|
+         t.manifest_for(variation).build!.entry_for('stylesheet@2x.css').nil?
+       end
+
+       @entry_2x.ordered_entries.each do |entry|
+         entry.target.should == targets.shift
+       end
+
      end
 
      it "should include the actual targets this packed version covers in the targets property (even those w no stylesheet.css)" do
        targets = @target.expand_required_targets + [@target]
        @entry.targets.should == targets
+       @entry_2x.targets.should == targets
      end
 
      it "should NOT include minified source entries" do
        @entry.source_entries.each do |entry|
          entry.should_not be_minified
        end
+
+       @entry_2x.source_entries.each do |entry|
+         entry.should_not be_minified
+       end
      end
 
      it "should be marked as packed" do
        @entry.should be_packed
+       @entry_2x.should be_packed
      end
 
    end
