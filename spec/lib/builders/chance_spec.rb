@@ -50,10 +50,22 @@ describe SC::Builder::Chance do
     SC::Builder::Chance.build(entry, dest)
     result = File.readlines(dest)*""
 
+    # Check that a chance instance is created
+    # since we don't have any sc_require, it should have the same output
+    entry[:chance].files["chance.css"].should == result
+
+    # We also expect the 2x to be the same.
+    entry[:chance].files["chance@2x.css"].should == result
+
+    # Check that all files were generated
+    %w(chance.css chance@2x.css chance.js chance-mhtml.txt).each {|e| 
+      entry[:chance].files.should include(e) 
+    }
+
     # We loop through. If the file name matches the last one, we skip the check; if it does not,
     # we check that it is the next item in file_names
     last = "chance_main.css"
-    result.gsub!(/\/\* line [0-9]+, (.*?)\s*\*\//) {|e|
+    result.gsub(/\/\* line [0-9]+, (.*?)\s*\*\//) {|e|
       next if $1 == last
 
       # Chance appends .scss, so we have to expect that
@@ -63,11 +75,7 @@ describe SC::Builder::Chance do
 
     file_names.length.should == 0
 
-    result
   end
 
-  it "" do
-
-  end
 
 end
