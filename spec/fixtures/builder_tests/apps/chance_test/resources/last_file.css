@@ -1,0 +1,7 @@
+sc_require('demo.css');
+.the-test {
+  wont: pick;
+  up: this;
+  file: without-any-content;
+}
+

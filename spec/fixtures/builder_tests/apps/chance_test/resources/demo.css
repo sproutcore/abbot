@@ -1,0 +1,6 @@
+sc_require('z_first_file.css');
+.the-test {
+  wont: pick;
+  up: this;
+  file: without-any-content;
+}
