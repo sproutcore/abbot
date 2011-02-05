@@ -1,7 +1,7 @@
 # ===========================================================================
 # Project:   Abbot - SproutCore Build Tools
 # Copyright: ©2009 Apple Inc.
-#            portions copyright @2006-2009 Sprout Systems, Inc.
+#            portions copyright @2006-2011 Strobe Inc.
 #            and contributors
 # ===========================================================================
 
@@ -30,7 +30,7 @@ module SC
         when '/sc/targets.json' # returns description of targets
           return [200, {}, get_targets_json]
 
-        when '/sc/greenhouse-config.json' #returns json of all valid design objects
+        when '/sc/greenhouseconf.json' #returns json of all valid design objects
           return [200, {}, get_greenhouse_configs(env)]
         else
           return [404, {}, "not found"]
@@ -63,7 +63,7 @@ module SC
         app_target = @project.target_for(app) 
         ret = []
         if(app_target)
-          path = app_target.source_root + "/design/greenhouse.config"
+          path = app_target.source_root + "/.greenhouseconf"
           json = File.exists?(path) ? JSON.parse(File.read(path)) : {}
           json[:path] = path.gsub(root_dir, "")
           json[:name] = app_target.target_name
@@ -71,7 +71,7 @@ module SC
           ret << json
 
           app_target.expand_required_targets.each do |target|
-            path = target.source_root + "/design/greenhouse.config"
+            path = target.source_root + "/.greenhouseconf"
             json = File.exists?(path) ? JSON.parse(File.read(path)) : {}
             if(path.include?(root_dir))
               json[:path] = path.gsub(root_dir, "")

@@ -80,7 +80,7 @@ sudo gem install sproutcore
 == LICENSE:
 
 Copyright (c) 2009 Apple Inc.  
-Portions copyright (c) 2006-2009 Sprout Systems Inc. and contributors
+Portions copyright (c) 2006-2011 Strobe Inc. and contributors
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -101,4 +101,4 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-SproutCore and the SproutCore logo are trademarks of Sprout Systems Inc.
+SproutCore and the SproutCore logo are trademarks of Strobe Inc.
