@@ -8,6 +8,7 @@ require 'chance/sass_extensions'
 require 'chance/perf'
 require 'chance/slicing'
 
+require 'digest/md5'
 
 
 Compass.discover_extensions!
@@ -229,13 +230,9 @@ module Chance
         #if Chance::SUPPORTS_IMPORTERS
         #  css = "@import \"" + file [:path] + ".scss\";"
         #else
-          tmp_path = File.join("./tmp/chance/", file[:path])
 
-          # SCSS requires the file names to end with ".scss", but we may
-          # already be getting files named *.scss. So, only add the extension
-          # if it is not already there.
-          tmp_path += ".scss" unless tmp_path.end_with? ".scss"
-
+          path_hash = Digest::MD5.hexdigest(file[:path])
+          tmp_path = "./tmp/chance/#{path_hash}.scss"
           FileUtils.mkdir_p(File.dirname(tmp_path))
 
           f = File.new(tmp_path, "w")
