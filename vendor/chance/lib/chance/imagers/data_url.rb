@@ -15,10 +15,17 @@ module Chance
         # so, the path should be the path in the chance instance
         output += "." + slice[:css_name] + " { "
         output += "background: url("
-        output += '"data:image/png;base64,'
-        
-        base64Image = Base64.encode64(slice[:image].to_blob(:fast_rgba))
-        
+
+        # set the mime type from the extension (while taking care of .jpg extensions)
+        mimeType = (slice[:path] =~ /jpg$/) ? "image/jpeg" : "image/" + slice[:path].slice(/(gif|jpeg|png)$/)
+
+        output += '"data:' + mimeType
+        output += ';base64,'
+
+        # only ChunkyPNG images respond to to_blob, other images will be encoded from their contents
+        slice[:image] = slice[:image].to_blob(:fast_rgba) if (slice[:image].respond_to? "to_blob")
+        base64Image = Base64.encode64(slice[:image])
+
         output += base64Image
 
         output += '"'
