@@ -14,29 +14,49 @@ module Chance
         output = ""
 
         slices.each do |name, slice|
+
           file = get_file(slice[:path])
           raise "File does not exist: " + slice[:path] unless file
 
-          if file[:path] =~ /png$/
+          if slice[:path] =~ /png$/
             # we should have already loaded a chunkypng canvas for the png
             canvas = file[:content]
 
             rect = slice_rect(slice, canvas.width, canvas.height)
-
-            # but, if we are slicing...
-            if not rect.nil?
-              canvas = canvas.crop(rect[:left], rect[:top], rect[:width], rect[:height])
-            end
-
-            slice[:image] = canvas
           else
-            # Warn if there are any slice directives on an un-sliceable image
-            if slice[:left] != 0 or slice[:right] != 0 or slice[:top] != 0 or slice[:bottom] != 0
-              SC.logger.warn "Chance only supports slicing of PNG images, the image '#{slice[:filename]}' will be embedded unsliced"
-            end
 
-            slice[:image] = file[:content]
+            # If we're trying to slice a non-PNG, attempt to process the file with RMagick
+            if slice[:left] != 0 or slice[:right] != 0 or slice[:top] != 0 or slice[:bottom] != 0
+              begin
+                require "rmagick"
+
+                # This could belong in get_file as a preprocess for JPEG & GIF, but since it's
+                # only necessary for slicing it is done here so that we can warn appropriately
+                canvas = Magick::Image.from_blob(file[:content])
+                canvas = canvas[0]
+
+                rect = slice_rect(slice, canvas.columns, canvas.rows)
+              rescue Exception
+
+                # Warns only if there are slice directives on an un-sliceable image
+                SC.logger.warn "Chance only supports slicing of PNG images, the image '#{slice[:filename]}' will be embedded unsliced"
+
+                # Use the whole image instead
+                canvas = file[:content]
+              end
+            else
+              # Use the whole image instead
+              canvas = file[:content]
+            end
           end
+
+
+          # but, if we are slicing...
+          if not rect.nil?
+            canvas = canvas.crop(rect[:left], rect[:top], rect[:width], rect[:height])
+          end
+
+          slice[:image] = canvas
         end
       end
 

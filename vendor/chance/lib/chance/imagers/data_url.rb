@@ -22,8 +22,14 @@ module Chance
         output += '"data:' + mimeType
         output += ';base64,'
 
-        # only ChunkyPNG images respond to to_blob, other images will be encoded from their contents
-        slice[:image] = slice[:image].to_blob(:fast_rgba) if (slice[:image].respond_to? "to_blob")
+        # ChunkyPNG & RMagick images respond to to_blob, other images will be encoded from their contents
+        if (slice[:image].respond_to? "to_blob")
+          method = slice[:image].method(:to_blob)
+
+          # ChunkyPNG takes an argument to to_blob
+          slice[:image] = (method.arity == 1) ? slice[:image].to_blob(:fast_rgba) : slice[:image].to_blob
+        end
+
         base64Image = Base64.encode64(slice[:image])
 
         output += base64Image
