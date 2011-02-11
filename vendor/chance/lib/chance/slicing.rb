@@ -17,16 +17,26 @@ module Chance
           file = get_file(slice[:path])
           raise "File does not exist: " + slice[:path] unless file
 
-          # we should have already loaded a chunkypng canvas for the png
-          canvas = file[:content]
-          rect = slice_rect(slice, canvas.width, canvas.height)
+          if file[:path] =~ /png$/
+            # we should have already loaded a chunkypng canvas for the png
+            canvas = file[:content]
 
-          # but, if we are slicing...
-          if not rect.nil?
-            canvas = canvas.crop(rect[:left], rect[:top], rect[:width], rect[:height])
+            rect = slice_rect(slice, canvas.width, canvas.height)
+
+            # but, if we are slicing...
+            if not rect.nil?
+              canvas = canvas.crop(rect[:left], rect[:top], rect[:width], rect[:height])
+            end
+
+            slice[:image] = canvas
+          else
+            # Warn if there are any slice directives on an un-sliceable image
+            if slice[:left] != 0 or slice[:right] != 0 or slice[:top] != 0 or slice[:bottom] != 0
+              SC.logger.warn "Chance only supports slicing of PNG images, the image '#{slice[:filename]}' will be embedded unsliced"
+            end
+
+            slice[:image] = file[:content]
           end
-
-          slice[:image] = canvas
         end
       end
 
