@@ -28,7 +28,7 @@
 #   debugging, and 2) if using Chance in a standalone way and committing
 #   the output to a source control system, the output can change dramatically
 #   between runs, even if the input CSS is unchanged.
-#   
+#
 #   As the most common use of Chance is as part of the SC build tools,
 #   and this debugging support is usually only required to debug Chance
 #   itself, :compress defaults to true
@@ -36,7 +36,7 @@
 # How Slice & Slices work
 # -------------------------------
 # @include slice() and @include slices() are not actually responsible
-# for slicing the image. They do not know the image's with or height.
+# for slicing the image. They do not know the image's width or height.
 #
 # All that they do is determine the slice's configuration, including
 # its file name, the rectangle to slice, etc.
@@ -49,10 +49,10 @@ module Chance
 
   class Parser
     attr_reader :slices, :css
-    
+
     UNTIL_SINGLE_QUOTE = /(?!\\)'/
     UNTIL_DOUBLE_QUOTE = /(?!\\)"/
-    
+
     BEGIN_SCOPE = /\{/
     END_SCOPE = /\}/
     THEME_DIRECTIVE = /@theme\s*/
@@ -69,14 +69,14 @@ module Chance
       @opts.merge!(opts)
       @path = ""
 
-      
+
       @input = string
       @css = ""
 
       @slices = @opts[:slices]  # we update the slices given to us
-      
+
       @theme = @opts[:theme]
-      
+
       @@uid += 1
       @uid = @@uid
 
@@ -102,7 +102,7 @@ module Chance
 
       # we add a bit to the path: the slice info
       rect_params = [:left, :top, :width, :height, :bottom, :right, :offset_x, :offset_y]
-      
+
       # Generate string-compatible params
       slice_name_params = rect_params.map {|param|
         ret = ""
@@ -131,7 +131,7 @@ module Chance
         slice = @slices[slice_path]
         slice[:min_offset_x] = [slice[:min_offset_x], opts[:offset_x]].min
         slice[:min_offset_y] = [slice[:min_offset_y], opts[:offset_y]].min
-        
+
         slice[:max_offset_x] = [slice[:max_offset_x], opts[:offset_x]].max
         slice[:max_offset_y] = [slice[:max_offset_y], opts[:offset_y]].max
       else
@@ -159,29 +159,29 @@ module Chance
 
       return slice
     end
-    
+
     def normalize_rectangle(rect)
       # try to make the rectangle somewhat standard: that is, make it have
       # all units which make sense
-      
+
       # it must have either a left or a right, no matter what
       rect[:left] = 0 if rect[:left].nil? and rect[:right].nil?
-      
+
       # if there is no width, it must have a both left and right
       if rect[:width].nil?
         rect[:left] = 0 if rect[:left].nil?
         rect[:right] = 0 if rect[:right].nil?
       end
-      
+
       # it must have either a top or a bottom, no matter what
       rect[:top] = 0 if rect[:top].nil? and rect[:bottom].nil?
-      
+
       # if there is no height, it must have _both_ top and bottom
       if rect[:height].nil?
         rect[:top] = 0 if rect[:top].nil?
         rect[:bottom] = 0 if rect[:bottom].nil?
       end
-      
+
       return rect
     end
 
@@ -205,7 +205,7 @@ module Chance
     # to mean that this is a recursive call.
     def _parse
       scanner = @scanner
-      
+
       output = []
 
       while not scanner.eos? do
@@ -236,7 +236,7 @@ module Chance
           output << handle_slice_include
           next
         end
-        
+
         if scanner.match?(CHANCE_FILE_DIRECTIVE)
           handle_file_change
           next
@@ -251,7 +251,7 @@ module Chance
         else
           output << res
         end
-        
+
       end
 
       output = output.join
@@ -267,7 +267,7 @@ module Chance
     def parse_string(cssString)
       # I cheat: to parse strings, I use JSON.
       # This will fail with strings quoted with "'", so I'm
-      # just not bothering for now. At some point, I should either make 
+      # just not bothering for now. At some point, I should either make
       # this function more proper or use some other function...
       if not cssString[0..0] == '"'
         return cssString
@@ -288,7 +288,7 @@ module Chance
     def handle_empty
       scanner = @scanner
       output = ""
-      
+
       while true do
         if scanner.match?(/\s+/)
           output += scanner.scan /\s+/
@@ -338,7 +338,7 @@ module Chance
       output = ""
       output += "\n$theme: '" + @theme + "';\n"
       output += _parse
-      
+
       @theme = old_theme
       output += "$theme: '" + @theme + "';\n"
 
@@ -363,7 +363,7 @@ module Chance
     def handle_file_change
       scanner = @scanner
       scanner.scan CHANCE_FILE_DIRECTIVE
-      
+
       path = scanner.scan_until /;/
       path = path[0..-1]
 
@@ -383,7 +383,7 @@ module Chance
       # this holds the value as we are parsing it
       parsing_value = ""
 
-      
+
       # The key MAY be present if we are starting with a $.
       # But remember: it could be $abc: $abc + $def
       key = :NO_KEY
@@ -407,7 +407,7 @@ module Chance
       end
 
       value = nil
-      
+
       # we stop when we either a) reach the end of the arglist, or
       # b) reach the end of the argument. Argument ends at ',', list ends
       # at ')'
@@ -436,7 +436,7 @@ module Chance
       scanner = @scanner
 
       raise SyntaxError, "Expected ( to begin argument list." unless scanner.scan /\(/
-      
+
       idx = 0
       args = {}
       until scanner.match?(/\)/) or scanner.eos? do
@@ -527,7 +527,7 @@ module Chance
       end
 
       layout_properties.each {|prop|
-        unless slice[prop].nil? 
+        unless slice[prop].nil?
           output += prop.to_s + ": " + slice[prop].to_s + "px; \n"
         end
       }
@@ -546,7 +546,7 @@ module Chance
         arguments[key] = Integer(arguments[key]) if not arguments[key].nil?
         arguments[key] = 0 if arguments[key].nil?
       }
-      
+
       values = arguments.values
 
       left = arguments[:left]
@@ -563,11 +563,11 @@ module Chance
       skip_top_left = values.include? 'skip-top-left'
       skip_top = values.include? 'skip-top'
       skip_top_right = values.include? 'skip-top-right'
-      
+
       skip_left = values.include? 'skip-left'
       skip_middle = values.include? 'skip-middle'
       skip_right = values.include? 'skip-right'
-      
+
       skip_bottom_left = values.include? 'skip-bottom-left'
       skip_bottom = values.include? 'skip-bottom'
       skip_bottom_right = values.include? 'skip-bottom-right'
@@ -577,8 +577,8 @@ module Chance
       # we are going to form 9 slices. If any are empty we'll skip them
 
       # top-left
-      top_left_slice = { 
-        :left => 0, 
+      top_left_slice = {
+        :left => 0,
         :top => 0,
         :width => left,
         :height => top,

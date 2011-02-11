@@ -6,11 +6,11 @@ module Chance
 
   # The DataURL Imager creates CSS with data urls for each slice.
   class DataURLImager < Chance::Imager
-    
+
     def css
       output = ""
       slices = @slices
-      
+
       slices.each do |name, slice|
         # so, the path should be the path in the chance instance
         output += "." + slice[:css_name] + " { "
@@ -28,7 +28,7 @@ module Chance
 
       return output
     end
-    
+
   end
 
 end

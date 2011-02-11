@@ -2,7 +2,7 @@ require "chance/perf"
 
 module Chance
   class Instance
-    
+
     # The Slicing module handles taking a collection of slice definitions to
     # produce sliced images. It uses ChunkyPNG to perform the slicing, and
     # stores the sliced image in the slice definition.
@@ -12,7 +12,7 @@ module Chance
       def slice_images
         slices = @slices
         output = ""
-        
+
         slices.each do |name, slice|
           file = get_file(slice[:path])
           raise "File does not exist: " + slice[:path] unless file
@@ -29,7 +29,7 @@ module Chance
           slice[:image] = canvas
         end
       end
-      
+
       # Creates the final slice rectangle from the image width and height
       # returns nil if no rectangle or if the slice is the full image
       def slice_rect(slice, image_width, image_height)
@@ -92,11 +92,11 @@ module Chance
           rect[:top] = 0
           rect[:height] = image_height
         end
-        
+
         if rect[:left] == 0 and rect[:top] == 0 and rect[:width] == image_width and rect[:height] == image_height
           return nil
         end
-        
+
         return rect
       end
     end
