@@ -120,8 +120,6 @@ module SC
             # break certain scenarios where services try to set cross-domain
             # cookies, but those services should not be doing that anyway...
             value.gsub!(/domain=[^\;]+\;? ?/,'') if key.downcase == 'set-cookie'
-            # Location headers should rewrite the hostname if it is included.
-            value.gsub!(/^http:\/\/#{http_host}(:[0-9]+)?\//, "http://#{http_host}/") if key.downcase == 'location'
             # content-length is returning char count not bytesize
             if key.downcase == 'content-length'
               if response.body.respond_to?(:bytesize)
