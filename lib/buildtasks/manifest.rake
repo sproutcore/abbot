@@ -94,6 +94,8 @@ namespace :manifest do
       acceptableFilesForTarget = [".*"]
     end
 
+    number_rejected_entries = 0
+
     Dir.glob("#{source_root}/**/*").each do |path|
       next unless File.file?(path)
       next if target.target_directory?(path)
@@ -112,8 +114,14 @@ namespace :manifest do
         filename = path.sub /^#{Regexp.escape source_root}\//, ''
         filename = filename.split(::File::SEPARATOR).join('/')
         manifest.add_entry filename, :original => true # entry:prepare will fill in the rest
+      else
+        number_rejected_entries += 1
       end
     end
+
+      if number_rejected_entries > 0
+        SC.logger.info "The Whitelist file rejected #{number_rejected_entries} files from #{target[:target_name]}"
+      end
   end
 
   desc "hides structural files that do not belong in build include Buildfiles and debug or fixtures if turned off"
