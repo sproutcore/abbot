@@ -67,10 +67,6 @@ module SC
         http_host, http_port = proxy[:to].split(':')
         http_port = proxy[:secure] ? '443' : '80' if http_port.nil?
 
-        # added 4/23/09 per Charles Jolley, corrects problem
-        # when making requests to virtual hosts
-        headers['Host'] = "#{http_host}:#{http_port}"
-
         if proxy[:url]
           url = url.sub(/^#{Regexp.escape proxy_url}/, proxy[:url])
         end
@@ -85,6 +81,10 @@ module SC
         done = false
         tries = 0
         until done
+          # added 4/23/09 per Charles Jolley, corrects problem
+          # when making requests to virtual hosts
+          headers['Host'] = "#{http_host}:#{http_port}"
+
           http = ::Net::HTTP.new(http_host, http_port)
 
           if proxy[:secure]
