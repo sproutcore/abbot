@@ -139,8 +139,11 @@ module SC
             SC.logger << '~ REDIRECTING: '+response_headers['location']+"\n"
 
             uri = URI.parse(response_headers['location']);
-            http_host = uri.host
-            http_port = uri.port
+            if uri.host != http_host || uri.port != http_port
+              response_body = response.body || ''
+              return [status, ::Rack::Utils::HeaderHash.new(response_headers), [response_body]]
+            end
+
             http_path = uri.path
             http_path += '?'+uri.query if uri.query
 
