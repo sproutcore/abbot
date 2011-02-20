@@ -2,7 +2,7 @@ require "chance/perf"
 
 module Chance
   class Instance
-
+    
     # The Slicing module handles taking a collection of slice definitions to
     # produce sliced images. It uses ChunkyPNG to perform the slicing, and
     # stores the sliced image in the slice definition.
@@ -17,83 +17,90 @@ module Chance
         output = ""
 
         slices.each do |name, slice|
+          # If we modify the canvas, we'll place the modified canvas here.
+          # Otherwise, consumers will use slice[:file] [:canvas] or [:contents]
+          # to get the original data as needed.
+          slice[:canvas] = nil
 
-          path = slice[:path]
-          file = nil
+          # In any case, if there is one, we need to get the original file and canvas;
+          # this process also tells us if the slice is 2x, etc.
+          canvas = canvas_for slice, :x2 => x2
 
-          slice_is_x2 = false
-          f = 1 # scale factor
-
-          # handle @2x
-          if x2
-            begin
-              file = get_file(path[0..-5] + "@2x.png")
-              slice_is_x2 = true
-              f = 2
-            rescue
+          # Check if a canvas is required
+          must_slice = (slice[:left] != 0 or slice[:right] != 0 or slice[:top] != 0 or slice[:bottom] != 0)
+          if must_slice or slice[:x2]
+            if canvas.nil?
+              throw "Chance could not load file '#{slice[:path]}'." +
+                    "If it is not a PNG, RMagick is required to slice or use @2x mode."
             end
 
-            # if we are in 2x mode, but there is no 2x file, we've already
-            # sliced it in the 1x pass. So, do nothing.
-            next if file.nil?
-          else
-            slice_is_2x = false
-            f = 1
-            file = get_file(path)
-          end
+            f = slice[:proportion]
 
-          raise "File does not exist: " + slice[:path] unless file
-
-          # we should have already loaded a chunkypng canvas for the png
-          canvas = file[:content]
-          rect = slice_rect(slice, canvas.width, canvas.height)
-          # we should have already loaded a chunkypng canvas for the png
-          canvas = file[:content]
-          rect = slice_rect(slice, canvas.width / f, canvas.height / f)
-          if slice[:path] =~ /png$/
-            # we should have already loaded a chunkypng canvas for the png
-            canvas = file[:content]
-
-            rect = slice_rect(slice, canvas.width, canvas.height)
-          else
-
-            # If we're trying to slice a non-PNG, attempt to process the file with RMagick
-            if slice[:left] != 0 or slice[:right] != 0 or slice[:top] != 0 or slice[:bottom] != 0
-              begin
-                require "rmagick"
-
-                # This could belong in get_file as a preprocess for JPEG & GIF, but since it's
-                # only necessary for slicing it is done here so that we can warn appropriately
-                canvas = Magick::Image.from_blob(file[:content])
-                canvas = canvas[0]
-
-                rect = slice_rect(slice, canvas.columns, canvas.rows)
-              rescue Exception
-
-                # Warns only if there are slice directives on an un-sliceable image
-                SC.logger.warn "Chance only supports slicing of PNG images, the image '#{slice[:filename]}' will be embedded unsliced"
-
-                # Use the whole image instead
-                canvas = file[:content]
-              end
+            # RMagick or ChunkyPNG? 'columns' is RMagick
+            if canvas.respond_to?('columns')
+              canvas_width = canvas.columns
+              canvas_height = canvas.rows
             else
-              # Use the whole image instead
-              canvas = file[:content]
+              canvas_width = canvas.width
+              canvas_height = canvas.height
             end
+
+            if must_slice
+              rect = nil
+              rect = slice_rect(slice, canvas_width, canvas_height)
+
+              if not rect.nil?
+                slice[:canvas] = canvas.crop(rect[:left] * f, rect[:top] * f, rect[:width] * f, rect[:height] * f)
+                canvas_width = rect[:height] * f
+                canvas_height = rect[:width] * f
+              end
+            end
+
+            slice[:target_width] = canvas_width / f
+            slice[:target_height] = canvas_height / f
           end
 
-
-          # but, if we are slicing...
-          if not rect.nil?
-            canvas = canvas.crop(rect[:left] * f, rect[:top] * f, rect[:width] * f, rect[:height] * f)
-          end
-
-          slice[:target_width] = canvas.width / f
-          slice[:target_height] = canvas.height / f
-
-          slice[:x2] = slice_is_x2
-          slice[:image] = canvas
         end
+      end
+
+      # Returns either a RMagick image or a ChunkyPNG canvas for a slice, as applicable.
+      # If not applicable, the :raw property on the passed slice will be set.
+      #
+      # Opts specify if x2, etc. is allowed.
+      def canvas_for(slice, opts)
+        file = file_for(slice, opts)
+        file[:canvas]
+      end
+
+      # Returns the file to use for the specified slice (might be either the
+      # normal one, or a @2x one)
+      #
+      # The slice's :file property will be set to the Chance file.
+      # If @2x, the :x2 flag on the slice is set to true.
+      # opts specify if x2, etc. is allowed.
+      def file_for(slice, opts)
+        path = slice[:path]
+
+        file = get_file(path)
+        slice[:x2] = false
+        slice[:proportion] = 1
+
+        # Check for x2 version if we are in x2 mode
+        if opts[:x2]
+          begin
+            path_2x = path[0..(-1 - File.extname(path).length)] + "@2x.png"
+
+            file = get_file(path_2x)
+            slice[:x2] = true
+            slice[:proportion] = 2
+          rescue
+          end
+        end
+
+        raise "File does not exist: " + slice[:path] unless file
+
+        slice[:file] = file
+        file
       end
 
       # Creates the final slice rectangle from the image width and height
@@ -158,11 +165,11 @@ module Chance
           rect[:top] = 0
           rect[:height] = image_height
         end
-
+        
         if rect[:left] == 0 and rect[:top] == 0 and rect[:width] == image_width and rect[:height] == image_height
           return nil
         end
-
+        
         return rect
       end
     end

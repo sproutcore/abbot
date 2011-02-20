@@ -5,8 +5,16 @@ module Chance
       @slices = slices
       @instance = instance
     end
-    
+
     def css
+      ""
+    end
+
+    def preload_javascript
+      ""
+    end
+
+    def mhtml(slices)
       ""
     end
   end

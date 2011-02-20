@@ -112,13 +112,29 @@ module Chance
   private
     def _preprocess(file)
       _preprocess_css(file) if file[:path] =~ /css$/
+
       _preprocess_png(file) if file[:path] =~ /png$/
-      
+      _preprocess_img(file) if file[:path] =~ /gif$|jpg$/
+
       file[:preprocessed] = true
     end
 
     def _preprocess_png(file)
-      file[:content] = ChunkyPNG::Canvas.from_blob(file[:content])
+      file[:canvas] = ChunkyPNG::Canvas.from_blob(file[:content])
+    end
+
+    def _preprocess_rmagick_image(file)
+      file[:canvas] = nil
+      begin
+        require "rmagick"
+      rescue Exception
+      end
+
+      begin
+        file[:canvas] = Magick::Image.from_blob(file[:content])[0]
+      rescue Exception => e
+        file[:error] = e
+      end
     end
 
     def _preprocess_css(file)

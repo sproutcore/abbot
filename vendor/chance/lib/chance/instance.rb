@@ -153,7 +153,7 @@ module Chance
 
         # 2x variant
         slice_images(true)
-        css_2x = @imager.postprocess_css_2x css, @slices
+        css_2x = @imager.postprocess_css css, @slices
       ensure
         Chance._current_instance = nil
       end
