@@ -130,10 +130,10 @@ module Chance
           end
 
 
-          slice[:sprite_x] = is_horizontal ? pos : 0
-          slice[:sprite_y] = is_horizontal ? 0 : pos
-          slice[:sprite_width] = slice_width
-          slice[:sprite_height] = slice_height
+          slice[:sprite_slice_x] = is_horizontal ? pos : 0
+          slice[:sprite_slice_y] = is_horizontal ? 0 : pos
+          slice[:sprite_slice_width] = slice_width
+          slice[:sprite_slice_height] = slice_height
 
           pos += slice_length
         end
@@ -143,6 +143,70 @@ module Chance
           puts "WARNING: Used more than 10 extra rows or columns to accomdate repeating slices."
           puts "Wasted up to " + (pos * size-smallest_size).to_s + " pixels"
         end
+
+        sprite[:width] = is_horizontal ? pos : size
+        sprite[:height] = is_horizontal ? size : pos
+
+      end
+
+
+      # Generates the image for the specified sprite, putting it in the sprite's 
+      # :image property.
+      def generate_sprite(sprite)
+        canvas = canvas_for_sprite(sprite)
+        sprite[:canvas] = canvas
+
+        sprite[:slices].each do |slice|
+          x = slice[:sprite_slice_x]
+          y = slice[:sprite_slice_y]
+          width = slice[:sprite_slice_width]
+          height = slice[:sprite_slice_height]
+
+          # If it repeats, it needs to go edge-to-edge in one direction
+          if slice[:repeat] == 'repeat-y'
+            height = sprite[:height]
+          end
+
+          if slice[:repeat] == 'repeat-x'
+            width = sprite[:width]
+          end
+
+          compose_canvas_on_target(canvas, slice[:canvas], x, y, width, height)
+        end
+      end
+
+      def canvas_for_sprite(sprite)
+        # If we require RMagick, we should have already loaded it, so we don't
+        # need to worry over that at the moment.
+        if sprite[:name] =~ /\.(gif|jpg)/
+          return Magick::Image.new (sprite[:width], sprite[:height])
+        else
+          return ChunkyPNG::Image.new(sprite[:width], sprite[:height], ChunkyPNG::Color::TRANSPARENT)
+        end
+      end
+
+      # Writes a slice to the target canvas, repeating it as necessary to fill the width/height.
+      def compose_slice_on_canvas(target, slice, x, y, width, height)
+        source_canvas = slice[:canvas] || slice[:file][:canvas]
+        source_width = slice[:sprite_slice_width]
+        source_height = slice[:sprite_slice_height]
+
+        top = 0
+        left = 0
+
+        # Repeat the pattern to fill the width/height.
+        while top < height do
+          while left < width do
+            if target.respond_to?(:compose)
+              target.compose!(source_canvas, left, top)
+            else
+              target.composite!(source_canvas, left, top)
+            end
+            left += source_width
+          end
+          top += source_height
+        end
+
       end
 
     end
