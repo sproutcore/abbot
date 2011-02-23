@@ -430,11 +430,17 @@ namespace :manifest do
         # Rather than run Chance an extra time for 2x, we create a composite entry
         # referencing the chance entry as a source
         manifest.add_entry resource_name + "@2x.css",
+          :variation       => manifest.variation,
           :build_task      => 'build:chance_file',
           :chance_entry    => entry,
           :entry_type      => :css,
           :combined        => true,
-          :chance_file     => "chance@2x.css"
+          :chance_file     => "chance@2x.css",
+
+          # For cache-busting, we must support timestamped urls, but the entry
+          # will be unable to calculate the timestamp for this on its own. So, we
+          # must supply the calculated timestamp.
+          :timestamp       => entry.timestamp
 
       end
 
@@ -443,13 +449,15 @@ namespace :manifest do
         :chance_entries   => chance_entries,
         :entry_type       => :javascript,
         :resource         => "javascript",
-        :chance_file      => "chance.js"
+        :chance_file      => "chance.js",
+        :timestamp        => chance_entries.map {|e| e.timestamp }.max
 
       manifest.add_entry "__sc_chance_mhtml.txt",
         :build_task       => 'build:chance_file',
         :chance_entries   => chance_entries,
         :entry_type       => :mhtml,
-        :chance_file      => "chance-mhtml.txt"
+        :chance_file      => "chance-mhtml.txt",
+        :timestamp        => chance_entries.map {|e| e.timestamp }.max
 
     end
 
