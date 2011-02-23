@@ -266,10 +266,13 @@ module Chance
 
     def parse_string(cssString)
       # I cheat: to parse strings, I use JSON.
-      # This will fail with strings quoted with "'", so I'm
-      # just not bothering for now. At some point, I should either make
-      # this function more proper or use some other function...
-      if not cssString[0..0] == '"'
+      if cssString[0..0] == "'"
+        # We should still be able to use json to parse single-quoted strings
+        # if we replace the quotes with double-quotes. The methodology should
+        # be identical so long as we replace any unescaped quotes...
+        cssString = '"' + cssString[1..-2].gsub(/(?<!\\)"/, '\\"') + '"'
+
+      elsif not cssString[0..0] == '"'
         return cssString
       end
 
@@ -292,6 +295,10 @@ module Chance
       while true do
         if scanner.match?(/\s+/)
           output += scanner.scan /\s+/
+          next
+        end
+        if scanner.match?(/\/\//)
+          scanner.scan_until /\n/
           next
         end
         if scanner.match?(/\/\*/)
