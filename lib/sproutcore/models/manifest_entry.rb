@@ -145,9 +145,16 @@ module SC
           timestamps2.max
         end
         timestamps.max
-      elsif composite?
 
+      elsif composite?
         self[:source_entries].map { |e| e.timestamp || 0 }.max || Time.now.to_i
+
+      elsif self[:timestamp]
+        # for certain entries, such as the Chance entry, we can't use composite entry
+        # but still need to have a timestamp to prevent caching. To do this, we allow
+        # the entry to specify the timestamp directly; it will calculate it on its own.
+        self[:timestamp]
+
       else
         File.exist?(self[:source_path]) ? File.mtime(self[:source_path]).to_i : 0
       end
