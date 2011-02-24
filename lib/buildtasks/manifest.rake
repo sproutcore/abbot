@@ -440,7 +440,13 @@ namespace :manifest do
           # For cache-busting, we must support timestamped urls, but the entry
           # will be unable to calculate the timestamp for this on its own. So, we
           # must supply the calculated timestamp.
-          :timestamp       => entry.timestamp
+          :timestamp       => entry.timestamp,
+
+          # Also, because this is not a _real_ composite entry, and as such has
+          # no true source entries (because we don't want to stage them as that
+          # adversely impacts performance), we need to give a set of source paths
+          # for the entry to compare mtimes with to know if it needs to update.
+          :source_paths => entries.map {|e| e[:source_path] }
 
       end
 
