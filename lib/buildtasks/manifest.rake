@@ -120,7 +120,7 @@ namespace :manifest do
     end
 
       if number_rejected_entries > 0
-        SC.logger.info "The Whitelist file rejected #{number_rejected_entries} files from #{target[:target_name]}"
+        SC.logger.warn "The Whitelist file rejected #{number_rejected_entries} file(s) from #{target[:target_name]}"
       end
   end
 
@@ -522,7 +522,6 @@ namespace :manifest do
           (javascript_entries[entry[:resource]] ||= []) << entry
         end
       end
-
 
       # build combined JS entry
       javascript_entries.each do |resource_name, entries|
