@@ -406,6 +406,10 @@ namespace :manifest do
 
       chance_entries = []
 
+      # We need a collection of source paths for our mhtml and JS files to
+      # check mtimes against.
+      source_paths = []
+
       # build combined CSS entry
       css_entries.each do |resource_name, entries|
         # Send image files to the build task if Chance is being used
@@ -425,7 +429,13 @@ namespace :manifest do
 
         chance_entries << entry
 
+
         # ADD A 2X version
+        # Because the @2x file is not a _real_ composite entry, and as such has
+        # no true source entries (because we don't want to stage them as that
+        # adversely impacts performance), we need to give a set of source paths
+        # for the entry to compare mtimes with to know if it needs to update.
+        entry_source_paths = entries.map {|e| e[:source_path] }
 
         # Rather than run Chance an extra time for 2x, we create a composite entry
         # referencing the chance entry as a source
@@ -442,12 +452,12 @@ namespace :manifest do
           # must supply the calculated timestamp.
           :timestamp       => entry.timestamp,
 
-          # Also, because this is not a _real_ composite entry, and as such has
-          # no true source entries (because we don't want to stage them as that
-          # adversely impacts performance), we need to give a set of source paths
-          # for the entry to compare mtimes with to know if it needs to update.
-          :source_paths => entries.map {|e| e[:source_path] }
+          :source_paths => entry_source_paths
 
+        # We also have a set of all source paths for the chance task. We need
+        # to keep it up-to-date so that the MHTML and JS tasks can compare mtimes
+        # with the entries.
+        source_paths += entry_source_paths
       end
 
       manifest.add_entry "__sc_chance.js",
@@ -456,14 +466,16 @@ namespace :manifest do
         :entry_type       => :javascript,
         :resource         => "javascript",
         :chance_file      => "chance.js",
-        :timestamp        => chance_entries.map {|e| e.timestamp }.max
+        :timestamp        => chance_entries.map {|e| e.timestamp }.max,
+        :source_paths     => source_paths
 
       manifest.add_entry "__sc_chance_mhtml.txt",
         :build_task       => 'build:chance_file',
         :chance_entries   => chance_entries,
         :entry_type       => :mhtml,
         :chance_file      => "chance-mhtml.txt",
-        :timestamp        => chance_entries.map {|e| e.timestamp }.max
+        :timestamp        => chance_entries.map {|e| e.timestamp }.max,
+        :source_paths     => source_paths
 
     end
 
