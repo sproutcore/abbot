@@ -1,3 +1,4 @@
+require 'base64'
 
 module Chance
   class Instance
@@ -5,7 +6,7 @@ module Chance
     module DataURL
 
       def postprocess_css_dataurl(opts)
-        @css.gsub (/_sc_chance\:\s*["'](.*)["']\s*;/) {|match|
+        css = @css.gsub (/_sc_chance\:\s*["'](.*?)["']\s*;/) {|match|
           slice = @slices[$1]
 
           url = 'data:' + type_for(slice[:path]) + ";base64,"
@@ -29,6 +30,13 @@ module Chance
 
           output
         }
+
+        # We do not modify the offset, so we can just pass the original through.
+        css.gsub!(/-chance-offset:\s*["'](.*?)["']\s*([0-9])*?\s*([0-9])*?;/) {|match|
+          "background-position: #{$2}px #{$3}px;"
+        }
+
+        css
       end
 
       def type_for(path)

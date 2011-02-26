@@ -2,7 +2,6 @@ require 'set'
 require 'compass'
 
 require 'chance/parser'
-require 'chance/sass_extensions'
 
 require 'chance/perf'
 
