@@ -20,6 +20,11 @@ namespace :build do
     SC::Builder::Stylesheet.build env[:entry], env[:dst_path]
   end
 
+  desc "converts a Handlebars file to JavaScript"
+  build_task :handlebars do |task, env|
+    SC::Builder::Handlebars.build env[:entry], env[:dst_path]
+  end
+
   desc "stub task for images"
   build_task :image do |task, env|
 

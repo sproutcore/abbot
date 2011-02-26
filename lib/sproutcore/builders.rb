@@ -11,4 +11,4 @@ require "sproutcore/builders/stylesheet"
 require "sproutcore/builders/test"
 require "sproutcore/builders/test_index"
 require "sproutcore/builders/string_wrapper"
-
+require "sproutcore/builders/handlebars"
