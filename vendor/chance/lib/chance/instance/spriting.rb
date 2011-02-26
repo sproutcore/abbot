@@ -18,7 +18,7 @@ module Chance
       # images in the class's @sprites property and updating the individual slices 
       # with a :sprite property containing the identifier of the sprite, and offset
       # properties for the offsets within the image.
-      def sprite
+      def generate_sprite_definitions
         @sprites = {}
 
         group_slices_into_sprites
@@ -33,7 +33,7 @@ module Chance
       def group_slices_into_sprites
         @slices.each do |key, slice|
           sprite = sprite_for_slice(slice)
-          sprite.slices << slice
+          sprite[:slices] << slice
 
           @sprites[sprite[:name]] = sprite
         end
@@ -44,20 +44,20 @@ module Chance
       def sprite_for_slice(slice)
         sprite_name = sprite_name_for_slice(slice)
 
-        if sprites[sprite_name].nil?
-          sprite = {
+        if @sprites[sprite_name].nil?
+          @sprites[sprite_name] = {
             :name => sprite_name,
             :slices => [],
             :has_generated => false,
 
             # The sprite will use horizontal layout under repeat-y, where images
             # must stretch all the way from the top to the bottom
-            :use_horizontal_layout => slice[:repeat] == "repeat-y" ? false : true
+            :use_horizontal_layout => slice[:repeat] == "repeat-y" ? true : false
 
           }
         end
 
-        return sprites[sprite_name]
+        return @sprites[sprite_name]
       end
 
       # Determines the name of the sprite for the given slice. The sprite
@@ -84,7 +84,7 @@ module Chance
 
         is_horizontal = sprite[:use_horizontal_layout]
 
-        sprite.slices.each do |slice|
+        sprite[:slices].each do |slice|
           # We must find a canvas either on the slice (if it was actually sliced),
           # or on the slice's file. Otherwise, we're in big shit.
           canvas = slice[:canvas] || slice[:file][:canvas]
@@ -149,6 +149,7 @@ module Chance
         end
 
         # TODO: USE A CONSTANT FOR THIS WARNING
+        smallest_size = size if smallest_size == nil
         if size - smallest_size > 10
           puts "WARNING: Used more than 10 extra rows or columns to accomdate repeating slices."
           puts "Wasted up to " + (pos * size-smallest_size).to_s + " pixels"
@@ -181,7 +182,7 @@ module Chance
             width = sprite[:width]
           end
 
-          compose_canvas_on_target(canvas, slice[:canvas], x, y, width, height)
+          compose_slice_on_canvas(canvas, slice, x, y, width, height)
         end
       end
 
@@ -210,15 +211,73 @@ module Chance
         while top < height do
           while left < width do
             if target.respond_to?(:compose)
-              target.compose!(source_canvas, left, top)
+              target.compose(source_canvas, left + x, top + y)
             else
-              target.composite!(source_canvas, left, top)
+              target.composite!(source_canvas, left + x, top + y)
             end
             left += source_width
           end
           top += source_height
         end
 
+      end
+
+      # Postprocesses the CSS, inserting sprites and defining offsets.
+      def postprocess_css_sprited(opts)
+        # The images should already be sliced appropriately, as we are
+        # called by the css method, which calls slice_images.
+
+        # We will need the position of all sprites, so generate the sprite
+        # definitions now:
+        generate_sprite_definitions
+
+        css = @css.gsub(/_sc_chance:\s*["'](.*?)["']\s*;/) {|match|
+          slice = @slices[$1]
+          sprite = sprite_for_slice(slice)
+
+          output = "background-image: chance_file('#{sprite[:name]}');\n"
+
+          if slice[:x2]
+            width = sprite[:width]
+            height = sprite[:height]
+            output += "  -webkit-background-size: #{width}px #{height}px;"
+          end
+
+          output
+        }
+
+        css.gsub!(/-chance-offset:\s*["'](.*?)["']\s*([0-9])*?\s*([0-9])*?;/) {|match|
+          slice = @slices[$1]
+
+          slice_x = $2.to_i - slice[:sprite_slice_x]
+          slice_y = $3.to_i - slice[:sprite_slice_y]
+
+          # If it is 2x, we are scaling the slice down by 2, making all of our
+          # positions need to be 1/2 of what they were.
+          if slice[:x2]
+            slice_x /= 2
+            slice_y /= 2
+          end
+
+          "background-position: #{slice_x}px #{slice_y}px;"
+        }
+
+        css
+
+      end
+
+      def sprite_data(opts)
+        _render
+        slice_images(opts)
+        generate_sprite_definitions
+
+        sprite = @sprites[opts[:name]]
+
+        raise "No sprite named #{opts[:name]}" if sprite.nil?
+
+        generate_sprite(sprite) if not sprite[:has_generated]
+
+        sprite[:canvas].to_blob
       end
 
     end

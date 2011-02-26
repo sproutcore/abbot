@@ -49,7 +49,10 @@ module Chance
       "chance-sprited.css"    => { :method => :css, :sprited => true },
       "chance-sprited@2x.css" => { :method => :css, :sprited => true, :x2 => true },
       "chance.js"             => { :method => :javascript },
-      "chance-mhtml.txt"      => { :method => :mhtml }
+      "chance-mhtml.txt"      => { :method => :mhtml },
+      "no-repeat.png"         => { :method => :sprite_data, :name => "no-repeat.png" },
+      "repeat-x.png"          => { :method => :sprite_data, :name => "repeat-x.png"  },
+      "repeat-y.png"          => { :method => :sprite_data, :name => "repeat-y.png"  }
     }
 
     @@generation = 0

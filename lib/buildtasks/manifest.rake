@@ -266,7 +266,7 @@ namespace :manifest do
       end
     end
     task :javascript => :tests # IMPORTANT! to avoid JS including unit tests.
-    # task :html       => :tests # IMPORTANT! to avoid HTML including tests
+    # task :html       => :tests # IMPORTANT! to avoid HTML including tests 
 
     desc "scans for javascript files, annotates them and prepares combined entries for each output target"
     task :javascript => :setup do |task, env|
@@ -464,22 +464,36 @@ namespace :manifest do
         # for the entry to compare mtimes with to know if it needs to update.
         entry_source_paths = entries.map {|e| e[:source_path] }
 
+        add_chance_file = lambda {|entry_name, chance_file|
+          manifest.add_entry entry_name,
+            :variation       => manifest.variation,
+            :build_task      => 'build:chance_file',
+            :chance_entry    => entry,
+            :entry_type      => :css,
+            :combined        => true,
+            :chance_file     => chance_file,
+
+            # For cache-busting, we must support timestamped urls, but the entry
+            # will be unable to calculate the timestamp for this on its own. So, we
+            # must supply the calculated timestamp.
+            :timestamp       => entry.timestamp,
+
+            :source_paths => entry_source_paths,
+            :resource_name => resource_name
+        }
+
+
         # Rather than run Chance an extra time for 2x, we create a composite entry
         # referencing the chance entry as a source
-        manifest.add_entry resource_name + "@2x.css",
-          :variation       => manifest.variation,
-          :build_task      => 'build:chance_file',
-          :chance_entry    => entry,
-          :entry_type      => :css,
-          :combined        => true,
-          :chance_file     => "chance@2x.css",
+        add_chance_file.call(resource_name + "@2x.css", "chance@2x.css")
+        add_chance_file.call(resource_name + "-sprited.css", "chance-sprited.css")
+        add_chance_file.call(resource_name + "-sprited@2x.css", "chance-sprited@2x.css")
+        add_chance_file.call(resource_name + "-no-repeat.png", "no-repeat.png")
+        add_chance_file.call(resource_name + "-repeat-x.png", "repeat-x.png")
+        add_chance_file.call(resource_name + "-repeat-y.png", "repeat-y.png")
 
-          # For cache-busting, we must support timestamped urls, but the entry
-          # will be unable to calculate the timestamp for this on its own. So, we
-          # must supply the calculated timestamp.
-          :timestamp       => entry.timestamp,
-
-          :source_paths => entry_source_paths
+        # TODO: handle .jpg and .gif sprite possibilities... not sure how to
+        # do this cleanly yet.
 
         # We also have a set of all source paths for the chance task. We need
         # to keep it up-to-date so that the MHTML and JS tasks can compare mtimes
