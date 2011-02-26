@@ -10,7 +10,7 @@ module SC
 
     desc "PROJECT [APP]",
       "Generates a SproutCore project with an initial application"
-    method_options('--dry-run' => false, :force => false)
+    method_options('--dry-run' => false, :force => false, '--template' => false)
     def init(project_name, app_name=nil)
 
       # Generate the project
@@ -26,10 +26,18 @@ module SC
 
       # And get the app generator and run it
       project = SC::Project.load project_root, :parent => SC.builtin_project
-      generator = project.generator_for 'app',
-        :arguments => ['app', app_name],
-        :dry_run   => options['dry-run'],
-        :force     => options[:force]
+
+      if (options[:template])
+        generator = project.generator_for 'html_app',
+          :arguments => ['app', app_name],
+          :dry_run   => options['dry-run'],
+          :force     => options[:force]
+      else
+        generator = project.generator_for 'app',
+          :arguments => ['app', app_name],
+          :dry_run   => options['dry-run'],
+          :force     => options[:force]
+      end
       generator.prepare!.build!
 
       project_gen.log_file(project_gen.source_root / 'INIT')

@@ -1,0 +1,36 @@
+# ==========================================================================
+# Generator: APP
+# Copyright: ©2006-2011 Strobe Inc. and contributors
+#            portions copyright ©2009 Apple Inc.
+# ==========================================================================
+
+namespace :generator do
+  
+  # Require a project then make sure the build root is always the project 
+  # root.
+  task :prepare do
+    GENERATOR.requires! :target_project
+    
+    # if the target name has a slash in it, then we are trying to create a 
+    # nested target.  extract the final part (since this is the target name)
+    # and then set the build root to the parent target.
+    if GENERATOR.target_name && GENERATOR.target_name =~ /\//
+      parent_target_name = GENERATOR.target_name.split('/')
+      GENERATOR.target_name = parent_target_name.pop
+      
+      parent_target_name = parent_target_name * "/"
+      project = GENERATOR.target_project
+      
+      GENERATOR.parent_target_name = parent_target_name
+      GENERATOR.parent_target = project.target_for(parent_target_name)
+      GENERATOR.requires! :parent_target, :parent_target_name
+      
+      GENERATOR.build_root = GENERATOR.parent_target.source_root
+    
+    # otherwise just use project_root
+    else        
+      GENERATOR.build_root = GENERATOR.target_project.project_root
+    end
+  end
+  
+end
