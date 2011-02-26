@@ -10,7 +10,7 @@ module SC
 
       theme_name = entry.target.config[:css_theme]
 
-      chance = Chance::Instance.new({:theme => theme_name })
+      chance = Chance::Instance.new({ :theme => theme_name })
 
       entries = entry.ordered_entries || entry.source_entries
 
@@ -22,14 +22,10 @@ module SC
         chance.map_file(entry.filename, src_path)
       end
 
-      chance.update
+      css = chance.output_for "chance.css"
+      css = rewrite_inline_code(css)
 
-      if chance.files["chance.css"]
-        css = chance.files["chance.css"]
-        css = rewrite_inline_code(css)
-
-        writeline dst_path, css
-      end
+      writeline dst_path, css
 
       entry[:chance] = chance
     end

@@ -10,6 +10,7 @@
 module Chance
 
   class Instance
+
     # The Spriting module handles sorting slices into sprites, laying them
     # out within the sprites, and generating the final sprite images.
     module Spriting
@@ -18,7 +19,12 @@ module Chance
       # with a :sprite property containing the identifier of the sprite, and offset
       # properties for the offsets within the image.
       def sprite
-        
+        @sprites = {}
+
+        group_slices_into_sprites
+        @sprites.each do |key, sprite|
+          layout_slices_in_sprite sprite
+        end
       end
 
       # Determines the appropriate sprite for each slice, creating it if necessary,
@@ -28,6 +34,8 @@ module Chance
         @slices.each do |key, slice|
           sprite = sprite_for_slice(slice)
           sprite.slices << slice
+
+          @sprites[sprite[:name]] = sprite
         end
       end
 
@@ -40,10 +48,12 @@ module Chance
           sprite = {
             :name => sprite_name,
             :slices => [],
+            :has_generated => false,
 
             # The sprite will use horizontal layout under repeat-y, where images
             # must stretch all the way from the top to the bottom
             :use_horizontal_layout => slice[:repeat] == "repeat-y" ? false : true
+
           }
         end
 
@@ -179,7 +189,9 @@ module Chance
         # If we require RMagick, we should have already loaded it, so we don't
         # need to worry over that at the moment.
         if sprite[:name] =~ /\.(gif|jpg)/
-          return Magick::Image.new (sprite[:width], sprite[:height])
+          width = sprite[:width]
+          height = sprite[:height]
+          return Magick::Image.new(width, height)
         else
           return ChunkyPNG::Image.new(sprite[:width], sprite[:height], ChunkyPNG::Color::TRANSPARENT)
         end

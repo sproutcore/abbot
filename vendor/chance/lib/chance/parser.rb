@@ -483,9 +483,10 @@ module Chance
 
       output = ""
       output += "@extend ." + slice[:css_name] + ";\n"
-      output += "background-position: "
-      output += "_slice_offset_x(" + slice[:name].dump + ", " + slice[:offset_x].to_s + ") "
-      output += "_slice_offset_y(" + slice[:name].dump + ", " + slice[:offset_y].to_s + ");"
+
+      # We prefix with -chance; this should let everything be passed through more
+      # or less as-is. Postprocessing will turn it into -background-position.
+      output += "-chance-offset: '#{slice[:name]}' #{slice[:offset_x]} #{slice[:offset_y]};"
       output += "background-repeat: " + slice[:repeat]
       return output
     end

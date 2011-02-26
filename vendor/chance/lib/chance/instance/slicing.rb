@@ -12,7 +12,7 @@ module Chance
       #
       # if x2 is supplied, this will assume it is a second pass to locate any @2x images
       # and use them to replace the originals.
-      def slice_images(x2=false)
+      def slice_images(opts)
         slices = @slices
         output = ""
 
@@ -24,7 +24,7 @@ module Chance
 
           # In any case, if there is one, we need to get the original file and canvas;
           # this process also tells us if the slice is 2x, etc.
-          canvas = canvas_for slice, :x2 => x2
+          canvas = canvas_for slice, opts
 
           # Check if a canvas is required
           must_slice = (slice[:left] != 0 or slice[:right] != 0 or slice[:top] != 0 or slice[:bottom] != 0)
@@ -165,13 +165,14 @@ module Chance
           rect[:top] = 0
           rect[:height] = image_height
         end
-        
+
         if rect[:left] == 0 and rect[:top] == 0 and rect[:width] == image_width and rect[:height] == image_height
           return nil
         end
-        
+
         return rect
       end
+
     end
   end
 end

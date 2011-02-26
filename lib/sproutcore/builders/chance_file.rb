@@ -16,7 +16,7 @@ module SC
         chance = entry[:chance]
 
         src = ""
-        src = chance.files[chance_file] unless chance.nil?
+        src = chance.output_for chance_file unless chance.nil?
         src = "" if src.nil?
 
         src = rewrite_inline_code(src) if chance_file.end_with?("css")

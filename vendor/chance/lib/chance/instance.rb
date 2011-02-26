@@ -2,12 +2,14 @@ require 'set'
 require 'compass'
 
 require 'chance/parser'
-require 'chance/imagers/data_url'
 require 'chance/sass_extensions'
 
 require 'chance/perf'
-require 'chance/slicing'
 
+require 'chance/instance/slicing'
+require 'chance/instance/spriting'
+require 'chance/instance/data_url'
+require 'chance/instance/javascript'
 
 
 Compass.discover_extensions!
@@ -38,10 +40,20 @@ module Chance
   # re-process it) and put the result in its "css" property.
   class Instance
     include Slicing
-    
-    @@generation = 0
+    include Spriting
+    include DataURL
+    include JavaScript
 
-    attr_accessor :files
+    CHANCE_FILES = {
+      "chance.css"            => { :method => :css },
+      "chance@2x.css"         => { :method => :css, :x2 => true },
+      "chance-sprited.css"    => { :method => :css, :sprited => true },
+      "chance-sprited@2x.css" => { :method => :css, :sprited => true, :x2 => true },
+      "chance.js"             => { :method => :javascript },
+      "chance-mhtml.txt"      => { :method => :mhtml }
+    }
+
+    @@generation = 0
 
     def initialize(options = {})
       @options = options
@@ -63,6 +75,14 @@ module Chance
       # The Abbot build tools supply `static_url($url);`, which wraps all of
       # the URLs with `static_url` so they can be replaced.
       @files = {}
+
+      # The @slices hash maps slice names to hashes defining the slices. As the
+      # processing occurs, the slice hashes may contain actual sliced image canvases,
+      # may be 2x or 1x versions, etc.
+      @slices = {}
+
+      # Tracks whether _render has been called.
+      @has_rendered = false
     end
 
     # maps a path relative to the instance to a file identifier
@@ -79,6 +99,9 @@ module Chance
       raise FileNotFoundError.new(path) unless file
 
       @mapped_files[path] = identifier
+
+      # Invalidate our render because things have changed.
+      clean
     end
 
     # unmaps a path from its identifier. In short, removes a file
@@ -86,6 +109,9 @@ module Chance
     def unmap_file(path)
       path = path.to_s
       @mapped_files.delete path
+
+      # Invalidate our render because things have changed.
+      clean
     end
 
     # Using a path relative to this instance, gets an actual Chance file
@@ -94,14 +120,55 @@ module Chance
     # loaded as an actual image.
     def get_file(path)
       raise FileNotFoundError.new(path) unless @mapped_files[path]
-      
+
       return Chance.get_file(@mapped_files[path])
     end
 
-    # Generates the output CSS.
-    # This parses the imput files, prepares the images, and runs the CSS
-    # through SCSS. The resulting CSS is saved in the css attribute.
-    def update
+    def output_for(file)
+      return @files[file] if not @files[file].nil?
+
+      opts = CHANCE_FILES[file]
+      raise "Chance does not generate a file named '#{file}'" if opts.nil?
+
+      send opts[:method], opts
+    end
+
+    # Generates CSS output according to the options provided.
+    #
+    # Possible options:
+    #
+    #   :x2         If true, will generate the @2x version.
+    #   :sprited    If true, will use sprites rather than data uris.
+    #
+    def css(opts)
+      _render
+
+      slice_images(opts)
+
+      _postprocess_css opts
+    end
+
+    # Looks up a slice that has been found by parsing the CSS. This is used by
+    # the Sass extensions that handle writing things like slice offset, etc.
+    def get_slice(name)
+      return @slices[name] 
+    end
+
+    # Cleans the current render, getting rid of all generated output.
+    def clean
+      @has_rendered = false
+      @files = {}
+    end
+
+  private
+
+    # Processes the input CSS, producing CSS ready for post-processing.
+    # This is the first step in the Chance build process, and is usually
+    # called by the output_for() method. It produces a raw, unfinished CSS file.
+    def _render
+      return if @_has_rendered
+
+      @files = {}
       begin
         # SCSS code executing needs to know what the current instance of Chance is,
         # so that lookups for slices, etc. work.
@@ -112,65 +179,63 @@ module Chance
         # SCSS files used by this Chance instance. This also sets up the @slices hash.
         import_css = _preprocess
 
-        # Step 2: Generate CSS and images needed for output. For now, we hard-code
-        # data url imager. Later, we will have a spriting imager.
-        @imager = Chance::DataURLImager.new(@slices, self)
-        
-        # The main CSS file we pass to the Sass Engine will import the CSS the imager
-        # created, and then all of the individual files (using the import CSS generated
+        # STEP 2: Preparing input CSS
+        # The main CSS file we pass to the Sass Engine will have placeholder CSS for the
+        # slices (the details will be postprocessed out).
+        # After that, all of the individual files (using the import CSS generated
         # in Step 1)
-        # 
-
-        # Importer, if we support it; we'll just keep it off for now.
-        # if Chance::SUPPORTS_IMPORTERS
-        #   importer = Importer.new(@imager)
-        #   css = "@import 'chance_images';\n" + import_css
-        #   cache_store = Sass::CacheStores::Filesystem.new("./tmp/.scss-cache")
-        # else
-          importer = nil
-          css = @imager.css + "\n" + import_css
-          preload_javascript = @imager.preload_javascript
-          cache_store = nil
-        # end
+        css = _css_for_slices + "\n" + import_css
 
         # Step 3: Apply Sass Engine
         engine = Sass::Engine.new(css, Compass.sass_engine_options.merge({
           :syntax => :scss,
-          :importer => importer,
           :filename => "chance_main.css",
-          :cache_store => cache_store,
           :cache_location => "./tmp/sass-cache"
         }))
-        
         css = engine.render
 
-        # STEP 4: Slice images and postprocess into CSS
-        slice_images
-
-        # Normal variant (with IE7 compat)
-        css_normal = @imager.postprocess_css css, @slices
-        mhtml = @imager.mhtml(@slices)
-
-        # 2x variant
-        slice_images(true)
-        css_2x = @imager.postprocess_css css, @slices
+        @css = css
+        @has_rendered = true
       ensure
         Chance._current_instance = nil
       end
-
-      @files["chance.css"] = css_normal
-      @files["chance@2x.css"] = css_2x
-      @files["chance.js"] = preload_javascript
-      @files["chance-mhtml.txt"] = mhtml
-    end
-    
-    # Looks up a slice that has been found by parsing the CSS. This is used by
-    # the Sass extensions that handle writing things like slice offset, etc.
-    def get_slice(name)
-      return @slices[name] 
     end
 
-  private
+    # Creates CSS for the slices to be provided to SCSS.
+    # This CSS is incomplete; it will need postprocessing. This CSS
+    # is generated with the set of slice definitions in @slices; the actual
+    # slicing operation has not yet taken place. The postprocessing portion
+    # receives sliced versions.
+    def _css_for_slices
+      output = ""
+      slices = @slices
+
+      slices.each do |name, slice|
+        # so, the path should be the path in the chance instance
+        output += "." + slice[:css_name] + " { "
+        output += "_sc_chance: \"#{name}\";"
+        output += "} \n"
+      end
+
+      return output
+
+    end
+
+    # Postprocesses the CSS using either the spriting postprocessor or the
+    # data url postprocessor, as specified by opts.
+    #
+    # Opts:
+    #
+    # :x2 => whether to generate @2x version.
+    # :sprited => whether to use spriting instead of data uris.
+    def _postprocess_css(opts)
+      if opts[:sprited]
+        postprocess_css_sprited(opts)
+      else
+        postprocess_css_dataurl(opts)
+      end
+    end
+
 
     # 
     # COMBINING CSS
@@ -202,10 +267,12 @@ module Chance
 
     # Determines the order of the files, parses them using the Chance parser,
     # and returns a file with an SCSS @import directive for each file.
+    #
+    # It also creates and fills in the @slices hash.
     def _preprocess
       @slices = {}
       @options[:slices] = @slices
-      
+
       @@generation = @@generation + 1
       files = @mapped_files.values
       @file_list = []
@@ -225,25 +292,20 @@ module Chance
         parser.parse
         file[:parsed_css] = parser.css
 
-        # NO IMPORTERS FOR NOW
-        #if Chance::SUPPORTS_IMPORTERS
-        #  css = "@import \"" + file [:path] + ".scss\";"
-        #else
-          tmp_path = File.join("./tmp/chance/", file[:path])
+        tmp_path = File.join("./tmp/chance/", file[:path])
 
-          # SCSS requires the file names to end with ".scss", but we may
-          # already be getting files named *.scss. So, only add the extension
-          # if it is not already there.
-          tmp_path += ".scss" unless tmp_path.end_with? ".scss"
+        # SCSS requires the file names to end with ".scss", but we may
+        # already be getting files named *.scss. So, only add the extension
+        # if it is not already there.
+        tmp_path += ".scss" unless tmp_path.end_with? ".scss"
 
-          FileUtils.mkdir_p(File.dirname(tmp_path))
+        FileUtils.mkdir_p(File.dirname(tmp_path))
 
-          f = File.new(tmp_path, "w")
-          f.write(parser.css)
-          f.close
+        f = File.new(tmp_path, "w")
+        f.write(parser.css)
+        f.close
 
-          css = "@import \"" + tmp_path + "\";"
-        # end
+        css = "@import \"" + tmp_path + "\";"
 
         css
       }.join("\n")
