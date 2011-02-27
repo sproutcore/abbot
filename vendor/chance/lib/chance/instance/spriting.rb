@@ -79,7 +79,7 @@ module Chance
         # Usually, this is computed as a simple max of itself and the width of any
         # given slice. However, when repeating, the least common multiple is used,
         # and the smallest item is stored as well.
-        size = 0
+        size = 1
         smallest_size = nil
 
         is_horizontal = sprite[:use_horizontal_layout]
@@ -187,14 +187,15 @@ module Chance
       end
 
       def canvas_for_sprite(sprite)
+        width = sprite[:width]
+        height = sprite[:height]
+
         # If we require RMagick, we should have already loaded it, so we don't
         # need to worry over that at the moment.
         if sprite[:name] =~ /\.(gif|jpg)/
-          width = sprite[:width]
-          height = sprite[:height]
           return Magick::Image.new(width, height)
         else
-          return ChunkyPNG::Image.new(sprite[:width], sprite[:height], ChunkyPNG::Color::TRANSPARENT)
+          return ChunkyPNG::Image.new(width, height, ChunkyPNG::Color::TRANSPARENT)
         end
       end
 
