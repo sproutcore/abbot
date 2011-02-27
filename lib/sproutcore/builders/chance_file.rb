@@ -33,7 +33,7 @@ module SC
     # The default will rewrite calls to static_url().
     def rewrite_inline_code(code)
       # look for sc_require, require or sc_resource.  wrap in comment
-      code.gsub!(/mhtml\:chance-mhtml\.txt/) {|mhtml|
+      code.gsub!(/url\s*\(\s*["']mhtml\:chance-mhtml\.txt!(.+?)["']\s*\)/) {|mhtml|
         static_entry = entry.manifest.find_entry("__sc_chance_mhtml.txt")
 
         if !static_entry
@@ -42,7 +42,13 @@ module SC
           url = static_entry.cacheable_url
         end
 
-        url
+        "expression('url(\"mhtml:' + document.location.protocol + '//' + document.location.host + '" + url + "!" + $1 + "' + '\")')"
+      }
+
+      # chance_files refer, usually, to sprites.
+      code.gsub!(/chance_file\(["'](.*?)['"]\)/) {|match|
+        path = entry[:resource_name] + "-" + $1
+        "static_url('#{path}')"
       }
 
       code.gsub!(/((sc_require|require|sc_resource)\(\s*['"].*["']\s*\)\s*\;)/, '/* \1 */')
@@ -51,6 +57,7 @@ module SC
     end
 
     def static_url(url=''); "url('#{url}')" ; end
+
 
   end
 
