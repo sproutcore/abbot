@@ -452,7 +452,8 @@ namespace :manifest do
           :hide_entries    => false, # We hid entries manually above
           :ordered_entries => SC::Helpers::EntrySorter.sort(entries),
           :entry_type      => :css,
-          :combined        => true
+          :combined        => true,
+          :resource_name   => resource_name
 
         chance_entries << entry
 
