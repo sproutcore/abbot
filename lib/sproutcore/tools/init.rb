@@ -14,10 +14,18 @@ module SC
     def init(project_name, app_name=nil)
 
       # Generate the project
-      project_gen = SC.builtin_project.generator_for 'project',
-        :arguments => ['project', project_name],
-        :dry_run   => options['dry-run'],
-        :force     => options[:force]
+      if (options[:template])
+        project_gen = SC.builtin_project.generator_for 'html_project',
+          :arguments => ['project', project_name],
+          :dry_run   => options['dry-run'],
+          :force     => options[:force]
+      else
+        project_gen = SC.builtin_project.generator_for 'project',
+          :arguments => ['project', project_name],
+          :dry_run   => options['dry-run'],
+          :force     => options[:force]
+      end
+
       project_gen.prepare!.build!
 
       # Next, get the project root & app name
