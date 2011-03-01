@@ -28,6 +28,11 @@ namespace :build do
     FileUtils.cp_r(env[:src_path], env[:dst_path])
   end
 
+  desc "converts a Handlebars file to JavaScript"
+  build_task :handlebars do |task, env|
+    SC::Builder::Handlebars.build env[:entry], env[:dst_path]
+  end
+
   desc "builds a single sass file"
   build_task :sass do |task, env|
     SC::Builder::Sass.build env[:entry], env[:dst_path]

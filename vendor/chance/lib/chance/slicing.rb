@@ -2,7 +2,7 @@ require "chance/perf"
 
 module Chance
   class Instance
-    
+
     # The Slicing module handles taking a collection of slice definitions to
     # produce sliced images. It uses ChunkyPNG to perform the slicing, and
     # stores the sliced image in the slice definition.
@@ -15,8 +15,9 @@ module Chance
       def slice_images(x2=false)
         slices = @slices
         output = ""
-        
+
         slices.each do |name, slice|
+
           path = slice[:path]
           file = nil
 
@@ -45,7 +46,42 @@ module Chance
 
           # we should have already loaded a chunkypng canvas for the png
           canvas = file[:content]
+          rect = slice_rect(slice, canvas.width, canvas.height)
+          # we should have already loaded a chunkypng canvas for the png
+          canvas = file[:content]
           rect = slice_rect(slice, canvas.width / f, canvas.height / f)
+          if slice[:path] =~ /png$/
+            # we should have already loaded a chunkypng canvas for the png
+            canvas = file[:content]
+
+            rect = slice_rect(slice, canvas.width, canvas.height)
+          else
+
+            # If we're trying to slice a non-PNG, attempt to process the file with RMagick
+            if slice[:left] != 0 or slice[:right] != 0 or slice[:top] != 0 or slice[:bottom] != 0
+              begin
+                require "rmagick"
+
+                # This could belong in get_file as a preprocess for JPEG & GIF, but since it's
+                # only necessary for slicing it is done here so that we can warn appropriately
+                canvas = Magick::Image.from_blob(file[:content])
+                canvas = canvas[0]
+
+                rect = slice_rect(slice, canvas.columns, canvas.rows)
+              rescue Exception
+
+                # Warns only if there are slice directives on an un-sliceable image
+                SC.logger.warn "Chance only supports slicing of PNG images, the image '#{slice[:filename]}' will be embedded unsliced"
+
+                # Use the whole image instead
+                canvas = file[:content]
+              end
+            else
+              # Use the whole image instead
+              canvas = file[:content]
+            end
+          end
+
 
           # but, if we are slicing...
           if not rect.nil?
@@ -59,7 +95,7 @@ module Chance
           slice[:image] = canvas
         end
       end
-      
+
       # Creates the final slice rectangle from the image width and height
       # returns nil if no rectangle or if the slice is the full image
       def slice_rect(slice, image_width, image_height)
@@ -122,11 +158,11 @@ module Chance
           rect[:top] = 0
           rect[:height] = image_height
         end
-        
+
         if rect[:left] == 0 and rect[:top] == 0 and rect[:width] == image_width and rect[:height] == image_height
           return nil
         end
-        
+
         return rect
       end
     end
