@@ -306,11 +306,11 @@ module SC
       # theme framework, if set.
       def theme_name(opts ={})
         ret = opts[:default] || 'sc-theme'
-        if target.config[:css_theme]
-          ret = target.config[:css_theme]
+        if target.config[:theme_name]
+          ret = target.config[:theme_name]
         elsif target.config[:theme]
           if theme_target = target.target_for(target.config[:theme])
-            ret = theme_target.config[:css_theme] || ret
+            ret = theme_target.config[:theme_name] || ret
           end
         end
         return ret
