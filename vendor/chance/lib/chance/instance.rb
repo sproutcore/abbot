@@ -52,7 +52,10 @@ module Chance
       "chance-mhtml.txt"      => { :method => :mhtml },
       "no-repeat.png"         => { :method => :sprite_data, :name => "no-repeat.png" },
       "repeat-x.png"          => { :method => :sprite_data, :name => "repeat-x.png"  },
-      "repeat-y.png"          => { :method => :sprite_data, :name => "repeat-y.png"  }
+      "repeat-y.png"          => { :method => :sprite_data, :name => "repeat-y.png"  },
+      "no-repeat@2x.png"         => { :method => :sprite_data, :name => "no-repeat@2x.png", :x2 => true },
+      "repeat-x@2x.png"          => { :method => :sprite_data, :name => "repeat-x@2x.png", :x2 => true  },
+      "repeat-y@2x.png"          => { :method => :sprite_data, :name => "repeat-y@2x.png", :x2 => true  }
     }
 
     @@generation = 0

@@ -18,10 +18,10 @@ module Chance
       # images in the class's @sprites property and updating the individual slices 
       # with a :sprite property containing the identifier of the sprite, and offset
       # properties for the offsets within the image.
-      def generate_sprite_definitions
+      def generate_sprite_definitions(opts)
         @sprites = {}
 
-        group_slices_into_sprites
+        group_slices_into_sprites(opts)
         @sprites.each do |key, sprite|
           layout_slices_in_sprite sprite
         end
@@ -30,9 +30,9 @@ module Chance
       # Determines the appropriate sprite for each slice, creating it if necessary,
       # and puts the slice into that sprite. The appropriate sprite may differ based
       # on the slice's repeat settings, for instance.
-      def group_slices_into_sprites
+      def group_slices_into_sprites(opts)
         @slices.each do |key, slice|
-          sprite = sprite_for_slice(slice)
+          sprite = sprite_for_slice(slice, opts)
           sprite[:slices] << slice
 
           @sprites[sprite[:name]] = sprite
@@ -41,8 +41,8 @@ module Chance
 
       # Returns the sprite to use for the given slice, creating the sprite if needed.
       # The sprite could differ based on repeat settings or file type, for instance.
-      def sprite_for_slice(slice)
-        sprite_name = sprite_name_for_slice(slice)
+      def sprite_for_slice(slice, opts)
+        sprite_name = sprite_name_for_slice(slice, opts)
 
         if @sprites[sprite_name].nil?
           @sprites[sprite_name] = {
@@ -62,8 +62,8 @@ module Chance
 
       # Determines the name of the sprite for the given slice. The sprite
       # by this name may not exist yet.
-      def sprite_name_for_slice(slice)
-        return slice[:repeat] + File.extname(slice[:path])
+      def sprite_name_for_slice(slice, opts)
+        return slice[:repeat] + (opts[:x2] ? "@2x" : "") + File.extname(slice[:path])
       end
 
       # Performs the layout operation, laying either up-to-down, or "
@@ -230,17 +230,17 @@ module Chance
 
         # We will need the position of all sprites, so generate the sprite
         # definitions now:
-        generate_sprite_definitions
+        generate_sprite_definitions(opts)
 
         css = @css.gsub(/_sc_chance:\s*["'](.*?)["']\s*;/) {|match|
           slice = @slices[$1]
-          sprite = sprite_for_slice(slice)
+          sprite = sprite_for_slice(slice, opts)
 
           output = "background-image: chance_file('#{sprite[:name]}');\n"
 
           if slice[:x2]
-            width = sprite[:width]
-            height = sprite[:height]
+            width = sprite[:width] / slice[:proportion]
+            height = sprite[:height] / slice[:proportion]
             output += "  -webkit-background-size: #{width}px #{height}px;"
           end
 
@@ -256,8 +256,8 @@ module Chance
           # If it is 2x, we are scaling the slice down by 2, making all of our
           # positions need to be 1/2 of what they were.
           if slice[:x2]
-            slice_x /= 2
-            slice_y /= 2
+            slice_x /= slice[:proportion]
+            slice_y /= slice[:proportion]
           end
 
           "background-position: #{slice_x}px #{slice_y}px;"
@@ -270,7 +270,7 @@ module Chance
       def sprite_data(opts)
         _render
         slice_images(opts)
-        generate_sprite_definitions
+        generate_sprite_definitions(opts)
 
         sprite = @sprites[opts[:name]]
 

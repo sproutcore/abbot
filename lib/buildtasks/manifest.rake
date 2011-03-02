@@ -504,7 +504,9 @@ namespace :manifest do
         add_chance_file.call(resource_name + "-no-repeat.png", "no-repeat.png")
         add_chance_file.call(resource_name + "-repeat-x.png", "repeat-x.png")
         add_chance_file.call(resource_name + "-repeat-y.png", "repeat-y.png")
-
+        add_chance_file.call(resource_name + "-no-repeat@2x.png", "no-repeat@2x.png")
+        add_chance_file.call(resource_name + "-repeat-x@2x.png", "repeat-x@2x.png")
+        add_chance_file.call(resource_name + "-repeat-y@2x.png", "repeat-y@2x.png")
         # TODO: handle .jpg and .gif sprite possibilities... not sure how to
         # do this cleanly yet.
 

@@ -47,7 +47,10 @@ module Chance
 
             if must_slice
               rect = nil
-              rect = slice_rect(slice, canvas_width, canvas_height)
+
+              # The math that uses canvas_width and canvas_height needs to return numbers that,
+              # when multiplied by f, are valid. So, divide by f first.
+              rect = slice_rect(slice, canvas_width / f, canvas_height / f)
 
               if not rect.nil?
                 slice[:canvas] = canvas.crop(rect[:left] * f, rect[:top] * f, rect[:width] * f, rect[:height] * f)
