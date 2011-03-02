@@ -42,7 +42,8 @@ describe SC::Builder::Chance do
     filename = "stylesheet.css"
     entry = @manifest.add_composite filename,
       :source_entries  => entries,
-      :ordered_entries => entries
+      :ordered_entries => entries,
+      :chance_file => "chance.css"
 
     dest = entry.build_path
 
@@ -52,14 +53,14 @@ describe SC::Builder::Chance do
 
     # Check that a chance instance is created
     # since we don't have any sc_require, it should have the same output
-    entry[:chance].files["chance.css"].should == result
+    entry[:chance].output_for("chance.css").should == result
 
     # We also expect the 2x to be the same.
-    entry[:chance].files["chance@2x.css"].should == result
+    entry[:chance].output_for("chance@2x.css").should == result
 
     # Check that all files were generated
-    %w(chance.css chance@2x.css chance.js chance-mhtml.txt).each {|e| 
-      entry[:chance].files.should include(e) 
+    %w(chance.css chance@2x.css chance-sprited.css chance-sprited@2x.css chance.js chance-mhtml.txt).each {|e| 
+      entry[:chance].output_for(e).should_not be_nil
     }
 
     # We loop through. If the file name matches the last one, we skip the check; if it does not,

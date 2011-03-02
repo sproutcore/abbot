@@ -53,9 +53,12 @@ module Chance
       "no-repeat.png"         => { :method => :sprite_data, :name => "no-repeat.png" },
       "repeat-x.png"          => { :method => :sprite_data, :name => "repeat-x.png"  },
       "repeat-y.png"          => { :method => :sprite_data, :name => "repeat-y.png"  },
-      "no-repeat@2x.png"         => { :method => :sprite_data, :name => "no-repeat@2x.png", :x2 => true },
-      "repeat-x@2x.png"          => { :method => :sprite_data, :name => "repeat-x@2x.png", :x2 => true  },
-      "repeat-y@2x.png"          => { :method => :sprite_data, :name => "repeat-y@2x.png", :x2 => true  }
+      "no-repeat@2x.png"      => { :method => :sprite_data, :name => "no-repeat@2x.png", :x2 => true },
+      "repeat-x@2x.png"       => { :method => :sprite_data, :name => "repeat-x@2x.png", :x2 => true  },
+      "repeat-y@2x.png"       => { :method => :sprite_data, :name => "repeat-y@2x.png", :x2 => true  },
+
+      # For Testing Purposes...
+      "chance-test.css"       => { :method => :chance_test }
     }
 
     @@generation = 0
@@ -72,13 +75,8 @@ module Chance
       # their identifiers in Chance itself.
       @mapped_files = { }
 
-      # The @files set is the set of output files. The user of Chance should
-      # make each of these files available. Also, the files must be able to
-      # reference each other. You can supply a wrapper (in the :url_wrapper
-      # option).
-      #
-      # The Abbot build tools supply `static_url($url);`, which wraps all of
-      # the URLs with `static_url` so they can be replaced.
+      # The @files set is a set cached generated output files, used by the output_for
+      # method.
       @files = {}
 
       # The @slices hash maps slice names to hashes defining the slices. As the
@@ -166,6 +164,11 @@ module Chance
     end
 
   private
+
+    # Generates output for tests.
+    def chance_test(opts)
+       ".hello { background: static_url('test.png'); }"
+    end
 
     # Processes the input CSS, producing CSS ready for post-processing.
     # This is the first step in the Chance build process, and is usually

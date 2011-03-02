@@ -13,11 +13,11 @@ describe SC::Builder::Chance do
     std_after
   end
 
-  it "should extract files from Chance instance sc_require statements" do
+
+  it "should extract files from Chance instance" do
 
     # We create our own Chance instance and add custom files in this test.
     instance = Chance::Instance.new()
-    instance.files["test-file.css"] = ".hello { background: static_url('test.png'); }"
 
     # First, our fake Chance entry. We are going to set it up to copy "core.js"
     # to "core_copied.js" so we know it ran.
@@ -32,12 +32,12 @@ describe SC::Builder::Chance do
     File.exist?(chance_entry[:staging_path]).should be_false
     File.exist?(chance_entry[:build_path]).should be_false
 
-    # We will hand the entries over in the WRONG order, because Chance parses
-    # the sc_require to determine the correct order. ordered entries should be ignored
     filename = "stylesheet@test.css"
     entry = @manifest.add_entry filename,
       :chance_entry => chance_entry,
-      :chance_file => "test-file.css"
+
+      # Chance has a test file made just for testing purposes
+      :chance_file => "chance-test.css"
 
     dest = entry.build_path
 
