@@ -407,6 +407,8 @@ namespace :manifest do
       config = CONFIG
       manifest = env[:manifest]
 
+      sprited = CONFIG[:use_sprites]
+
       # the image files will be shared between all css_entries-- that is,
       # all instances of Chance created
       global_chance_entries = []
@@ -453,7 +455,15 @@ namespace :manifest do
           :ordered_entries => SC::Helpers::EntrySorter.sort(entries),
           :entry_type      => :css,
           :combined        => true,
-          :resource_name   => resource_name
+          :resource_name   => resource_name,
+
+          # NOTE: For now, while sprited will always be available at -sprited, we'll
+          # produce _only_ the sprited version when the build is run with the :use_sprites
+          # buildfile option.
+          #
+          # This is a bit of a hack that we should (after testing) eventually just choose 
+          # the best way automatically rather than making it Yet Another Option.
+          :chance_file     => sprited ? "chance-sprited.css" : "chance.css"
 
         chance_entries << entry
 
@@ -484,9 +494,11 @@ namespace :manifest do
         }
 
 
-        # Rather than run Chance an extra time for 2x, we create a composite entry
+        # Rather than run Chance an extra time for 2x, etc. we create a composite entry
         # referencing the chance entry as a source
-        add_chance_file.call(resource_name + "@2x.css", "chance@2x.css")
+        chance_2x_file = "chance" + (sprited ? "-sprited" : "") + "@2x.css"
+
+        add_chance_file.call(resource_name + "@2x.css", chance_2x_file)
         add_chance_file.call(resource_name + "-sprited.css", "chance-sprited.css")
         add_chance_file.call(resource_name + "-sprited@2x.css", "chance-sprited@2x.css")
         add_chance_file.call(resource_name + "-no-repeat.png", "no-repeat.png")
@@ -609,7 +621,7 @@ namespace :manifest do
       target   = env[:target]
       manifest = env[:manifest]
 
-      %w(stylesheet stylesheet@2x).each {|resource|
+      %w(stylesheet stylesheet@2x stylesheet-sprited stylesheet-sprited@2x).each {|resource|
 
         # Handle CSS version.  get all required targets and find their
         # stylesheet.css.  Build packed css from that.

@@ -24,7 +24,7 @@ module SC
         chance.map_file(entry.filename, src_path)
       end
 
-      css = chance.output_for "chance.css"
+      css = chance.output_for entry[:chance_file]
       css = rewrite_inline_code(css)
 
       writeline dst_path, css
