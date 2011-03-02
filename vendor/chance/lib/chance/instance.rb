@@ -281,12 +281,14 @@ module Chance
 
       files.each {|f| _include_file(f) }
 
+      relative_paths = @mapped_files.invert
+
       @file_list.map {|file|
         # The parser accepts single files that contain many files. As such,
         # its method of determing the current file name is a marker in the
         # file. We may want to consider changing this to a parser option
         # now that we don't need this feature so much, but this works for now.
-        content = "@_chance_file " + @mapped_files.key(file[:path]) + ";\n"
+        content = "@_chance_file " + relative_paths[file[:path]] + ";\n"
         content += "$theme: '" + @options[:theme] + "';"
         content += file[:content]
 
