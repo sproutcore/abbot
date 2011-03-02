@@ -270,7 +270,7 @@ module Chance
         # We should still be able to use json to parse single-quoted strings
         # if we replace the quotes with double-quotes. The methodology should
         # be identical so long as we replace any unescaped quotes...
-        cssString = '"' + cssString[1..-2].gsub(/(?<!\\)"/, '\\"') + '"'
+        cssString = '"' + cssString[1..-2].gsub(/^"|([^\\]")/, '\1\\"') + '"'
 
       elsif not cssString[0..0] == '"'
         return cssString
