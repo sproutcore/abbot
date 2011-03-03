@@ -44,6 +44,15 @@ module Chance
       def sprite_for_slice(slice, opts)
         sprite_name = sprite_name_for_slice(slice, opts)
 
+        get_sprite_named(sprite_name, opts.merge({
+          :horizontal_layout => slice[:repeat] == "repeat-y" ? true : false
+        }))
+
+        return @sprites[sprite_name]
+      end
+
+      # Creates a sprite definition with a given name and set of options
+      def get_sprite_named(sprite_name, opts)
         if @sprites[sprite_name].nil?
           @sprites[sprite_name] = {
             :name => sprite_name,
@@ -52,12 +61,10 @@ module Chance
 
             # The sprite will use horizontal layout under repeat-y, where images
             # must stretch all the way from the top to the bottom
-            :use_horizontal_layout => slice[:repeat] == "repeat-y" ? true : false
+            :use_horizontal_layout => opts[:horizontal_layout]
 
           }
         end
-
-        return @sprites[sprite_name]
       end
 
       # Determines the name of the sprite for the given slice. The sprite
@@ -274,7 +281,13 @@ module Chance
 
         sprite = @sprites[opts[:name]]
 
-        raise "No sprite named #{opts[:name]}" if sprite.nil?
+        # When the sprite is nil, it simply means there weren't any images,
+        # so this sprite is not needed. But build systems may still
+        # expect this file to exist. We'll just make it empty.
+        if sprite.nil?
+          return ""
+        end
+
 
         generate_sprite(sprite) if not sprite[:has_generated]
 
