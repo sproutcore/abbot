@@ -6,7 +6,7 @@ module Chance
     module DataURL
 
       def postprocess_css_dataurl(opts)
-        css = @css.gsub (/_sc_chance\:\s*["'](.*?)["']\s*;/) {|match|
+        css = @css.gsub(/_sc_chance\:\s*["'](.*?)["']\s*;/) {|match|
           slice = @slices[$1]
 
           url = 'data:' + type_for(slice[:path]) + ";base64,"
