@@ -72,6 +72,7 @@ module SC
           static_entry = entry.manifest.find_entry($2)
 
           if !static_entry
+            SC.logger.warn "#{$2} was not found. Line: #{rsrc}"
             url = ''
           elsif $1 == 'sc_target'
             url = static_entry[:friendly_url] || static_entry.cacheable_url
