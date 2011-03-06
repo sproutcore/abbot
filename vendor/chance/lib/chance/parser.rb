@@ -735,7 +735,7 @@ module Chance
 
       # LEFT
       if should_include_slice?(top_left_slice) and not skip_top_left
-        output += ".top-left {\n"
+        output += "& > .top-left {\n"
         output += generate_slice_include(top_left_slice) + ";"
 
         output += "\nposition: absolute;\n"
@@ -745,7 +745,7 @@ module Chance
       end
 
       if should_include_slice?(left_slice) and not skip_left
-        output += ".left {\n"
+        output += "& > .left {\n"
         output += generate_slice_include(left_slice) + ";"
 
         output += "\nposition: absolute;\n"
@@ -755,7 +755,7 @@ module Chance
       end
 
       if should_include_slice?(bottom_left_slice) and not skip_bottom_left
-        output += ".bottom-left {\n"
+        output += "& > .bottom-left {\n"
         output += generate_slice_include(bottom_left_slice) + ";"
 
         output += "\nposition: absolute;\n"
@@ -766,7 +766,7 @@ module Chance
 
       # MIDDLE
       if should_include_slice?(top_slice) and not skip_top
-        output += ".top {\n"
+        output += "& > .top {\n"
         output += generate_slice_include(top_slice) + ";"
 
         output += "\nposition: absolute;\n"
@@ -776,7 +776,7 @@ module Chance
       end
 
       if should_include_slice?(middle_slice) and not skip_middle
-        output += ".middle {\n"
+        output += "& > .middle {\n"
         output += generate_slice_include(middle_slice) + ";"
 
         output += "\nposition: absolute;\n"
@@ -787,7 +787,7 @@ module Chance
       end
 
       if should_include_slice?(bottom_slice) and not skip_bottom
-        output += ".bottom {\n"
+        output += "& > .bottom {\n"
         output += generate_slice_include(bottom_slice) + ";"
 
         output += "\nposition: absolute;\n"
@@ -799,7 +799,7 @@ module Chance
 
       # RIGHT
       if should_include_slice?(top_right_slice) and not skip_top_right
-        output += ".top-right {\n"
+        output += "& > .top-right {\n"
         output += generate_slice_include(top_right_slice) + ";"
 
         output += "\nposition: absolute;\n"
@@ -809,7 +809,7 @@ module Chance
       end
 
       if should_include_slice?(right_slice) and not skip_right
-        output += ".right {\n"
+        output += "& > .right {\n"
         output += generate_slice_include(right_slice) + ";"
 
         output += "\nposition: absolute;\n"
@@ -819,7 +819,7 @@ module Chance
       end
 
       if should_include_slice?(bottom_right_slice) and not skip_bottom_right
-        output += ".bottom-right {\n"
+        output += "& > .bottom-right {\n"
         output += generate_slice_include(bottom_right_slice) + ";"
 
         output += "\nposition: absolute;\n"
