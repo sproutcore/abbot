@@ -486,7 +486,7 @@ module Chance
 
       # We prefix with -chance; this should let everything be passed through more
       # or less as-is. Postprocessing will turn it into -background-position.
-      output += "-chance-offset: '#{slice[:name]}' #{slice[:offset_x]} #{slice[:offset_y]};"
+      output += "-chance-offset: \"#{slice[:name]}\" #{slice[:offset_x]} #{slice[:offset_y]};"
       output += "background-repeat: " + slice[:repeat]
       return output
     end
