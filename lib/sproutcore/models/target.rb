@@ -153,7 +153,13 @@ module SC
         opts[k] ? k : nil
       end
       key << :design if opts_design
+
+      # make sure we update for changes in theme and required (commonly changed):
+      key << config[:theme].to_s if config[:theme] and opts[:theme]
+      key << config[:required].to_s if config[:required]
+
       key = key.compact.join('.')
+
 
       # Return cache value if found
       ret = (@required_targets ||= {})[key]

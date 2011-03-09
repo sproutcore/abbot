@@ -590,10 +590,13 @@ namespace :manifest do
       # don't add packed entries for apps.
       target   = env[:target]
       manifest = env[:manifest]
+      
+      # we will want to include the theme if the target is an app
+      is_app = target[:target_type] == :app
 
         # Handle JavaScript version.  get all required targets and find their
         # javascript.js.  Build packed js from that.
-        targets = target.expand_required_targets + [target]
+        targets = target.expand_required_targets({ :theme => is_app }) + [target]
         entries = targets.map do |target|
           m = target.manifest_for(manifest.variation).build!
 
@@ -622,12 +625,15 @@ namespace :manifest do
     task :packed => %w(setup combine) do |task, env|
       target   = env[:target]
       manifest = env[:manifest]
-
+      
+      # we will want to include the theme if the target is an app
+      is_app = target[:target_type] == :app
+      
       %w(stylesheet stylesheet@2x stylesheet-sprited stylesheet-sprited@2x).each {|resource|
 
         # Handle CSS version.  get all required targets and find their
         # stylesheet.css.  Build packed css from that.
-        targets = target.expand_required_targets + [target]
+        targets = target.expand_required_targets({ :theme => is_app }) + [target]
         entries = targets.map do |target|
           m = target.manifest_for(manifest.variation).build!
 
