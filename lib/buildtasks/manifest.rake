@@ -75,6 +75,7 @@ namespace :manifest do
         '.rhtml',
         '.png',
         '.jpg',
+        '.jpeg',
         '.gif'
       ]
 
@@ -320,9 +321,9 @@ namespace :manifest do
       manifest = env[:manifest]
       config = env[:target].config
 
-      # select all original entries with with ext of png
+      # select all original entries with with ext of png, jpg, jpeg or gif
       entries = manifest.entries.select do |e|
-        e.original? && e[:ext] == 'png'
+        e.original? && ['png', 'jpg', 'jpeg', 'gif'].include?(e[:ext])
       end
 
       # add transform & tag with build directives.
@@ -410,7 +411,7 @@ namespace :manifest do
         # Chance needs to know about image files so it can embed as data URIs in the
         # CSS. For this reason, if Chance is enabled, we need to send entries for image
         # files to the 'build:chance' buildtask.
-        is_chance_file = File.extname(entry[:filename]) === '.png'
+        is_chance_file = ['.png', '.jpg', '.jpeg', '.gif'].include?(File.extname(entry[:filename]))
 
         next if entry[:resource].nil? and not is_chance_file
 

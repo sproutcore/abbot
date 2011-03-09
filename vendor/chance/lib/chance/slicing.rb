@@ -44,17 +44,11 @@ module Chance
 
           raise "File does not exist: " + slice[:path] unless file
 
-          # we should have already loaded a chunkypng canvas for the png
-          canvas = file[:content]
-          rect = slice_rect(slice, canvas.width, canvas.height)
-          # we should have already loaded a chunkypng canvas for the png
-          canvas = file[:content]
-          rect = slice_rect(slice, canvas.width / f, canvas.height / f)
           if slice[:path] =~ /png$/
             # we should have already loaded a chunkypng canvas for the png
             canvas = file[:content]
 
-            rect = slice_rect(slice, canvas.width, canvas.height)
+            rect = slice_rect(slice, canvas.width / f, canvas.height / f)
           else
 
             # If we're trying to slice a non-PNG, attempt to process the file with RMagick
@@ -71,7 +65,7 @@ module Chance
               rescue Exception
 
                 # Warns only if there are slice directives on an un-sliceable image
-                SC.logger.warn "Chance only supports slicing of PNG images, the image '#{slice[:filename]}' will be embedded unsliced"
+                SC.logger.warn "Chance only supports slicing of PNG images without RMagick, the image '#{slice[:filename]}' will be embedded unsliced"
 
                 # Use the whole image instead
                 canvas = file[:content]
@@ -88,8 +82,10 @@ module Chance
             canvas = canvas.crop(rect[:left] * f, rect[:top] * f, rect[:width] * f, rect[:height] * f)
           end
 
-          slice[:target_width] = canvas.width / f
-          slice[:target_height] = canvas.height / f
+          if slice[:path] =~ /png$/
+            slice[:target_width] = canvas.width / f
+            slice[:target_height] = canvas.height / f
+          end
 
           slice[:x2] = slice_is_x2
           slice[:image] = canvas

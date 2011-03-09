@@ -27,20 +27,43 @@ module Chance
 
     end
 
+    def base64_image_for(slice)
+
+      # ChunkyPNG & RMagick images respond to to_blob, other images will be encoded from their contents
+      if (slice[:image].respond_to? "to_blob")
+        method = slice[:image].method(:to_blob)
+
+        # ChunkyPNG takes an argument to to_blob
+        slice[:image] = (method.arity == 1) ? slice[:image].to_blob(:fast_rgba) : slice[:image].to_blob
+      end
+
+      Base64.encode64(slice[:image]).gsub("\n", "")
+    end
+
+    def data_uri_for(slice)
+      output = 'background: url('
+
+      # set the mime type from the extension (while taking care of .jpg extensions)
+      mimeType = (slice[:path] =~ /jpg$/) ? "image/jpeg" : "image/" + slice[:path].slice(/(gif|jpeg|png)$/)
+
+      output += '"data:' + mimeType
+      output += ';base64,'
+
+      base64Image = base64_image_for(slice)
+
+      output += base64Image
+
+      output += '");'
+    end
+
     def postprocess_css(src, slices)
       src.gsub (/_sc_chance\:\s*["'](.*)["']\s*;/) {|match|
         slice = slices[$1]
 
-        output = 'background: url("data:image/png;base64,'
-
-        base64Image = Base64.encode64(slice[:image].to_blob(:fast_rgba)).gsub("\n", "")
-        output += base64Image
-
-        output += '");'
-        output += "\n"
+        output = data_uri_for(slice)
 
         # FOR IE < 8:
-        output += '*background: url("mhtml:chance-mhtml.txt!' + slice[:css_name] + '");'
+        output += '\n*background: url("mhtml:chance-mhtml.txt!' + slice[:css_name] + '");'
         output += "\n"
 
         output
@@ -51,12 +74,7 @@ module Chance
       src.gsub (/_sc_chance\:\s*["'](.*)["']\s*;/) {|match|
         slice = slices[$1]
 
-        output = 'background: url("data:image/png;base64,'
-
-        base64Image = Base64.encode64(slice[:image].to_blob(:fast_rgba)).gsub("\n", "")
-        output += base64Image
-
-        output += '");'
+        output = data_uri_for(slice)
 
         output += "\n-webkit-background-size: " + slice[:target_width].to_s + "px "
         output += slice[:target_height].to_s + "px;\n"
@@ -82,7 +100,8 @@ module Chance
         output += "Content-Location:" + slice[:css_name] + "\r\n"
         output += "Content-Transfer-Encoding:base64\r\n\r\n"
 
-        base64Image = Base64.encode64(slice[:image].to_blob(:fast_rgba)).gsub("\n", "")
+        base64Image = base64_image_for(slice)
+
         output += base64Image
         output += "\r\n"
 
