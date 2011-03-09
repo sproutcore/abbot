@@ -254,7 +254,7 @@ module Chance
           output
         }
 
-        css.gsub!(/-chance-offset:\s*["'](.*?)["']\s*([0-9])*?\s*([0-9])*?;/) {|match|
+        css.gsub!(/-chance-offset: "(.*?)" (-?[0-9]+) (-?[0-9]+);/) {|match|
           slice = @slices[$1]
 
           slice_x = $2.to_i - slice[:sprite_slice_x]

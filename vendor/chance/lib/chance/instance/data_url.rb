@@ -32,7 +32,7 @@ module Chance
         }
 
         # We do not modify the offset, so we can just pass the original through.
-        css.gsub!(/-chance-offset:\s*["'](.*?)["']\s*([0-9])*?\s*([0-9])*?;/) {|match|
+        css.gsub!(/-chance-offset: "(.*?)" (-?[0-9]+) (-?[0-9]+);/) {|match|
           "background-position: #{$2}px #{$3}px;"
         }
 
