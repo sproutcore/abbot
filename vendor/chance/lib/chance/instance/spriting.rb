@@ -45,7 +45,8 @@ module Chance
         sprite_name = sprite_name_for_slice(slice, opts)
 
         get_sprite_named(sprite_name, opts.merge({
-          :horizontal_layout => slice[:repeat] == "repeat-y" ? true : false
+          :horizontal_layout => slice[:repeat] == "repeat-y" ? true : false,
+          :external => slice[:repeat] == "repeat-both"
         }))
 
         return @sprites[sprite_name]
@@ -61,7 +62,8 @@ module Chance
 
             # The sprite will use horizontal layout under repeat-y, where images
             # must stretch all the way from the top to the bottom
-            :use_horizontal_layout => opts[:horizontal_layout]
+            :use_horizontal_layout => opts[:horizontal_layout],
+            :external => opts[:external]
 
           }
         end
@@ -70,6 +72,10 @@ module Chance
       # Determines the name of the sprite for the given slice. The sprite
       # by this name may not exist yet.
       def sprite_name_for_slice(slice, opts)
+        if slice[:repeat] == "repeat-both"
+          return slice[:path]
+        end
+        
         return slice[:repeat] + (opts[:x2] ? "@2x" : "") + File.extname(slice[:path])
       end
 
@@ -243,7 +249,15 @@ module Chance
           slice = @slices[$1]
           sprite = sprite_for_slice(slice, opts)
 
-          output = "background-image: chance_file('#{sprite[:name]}');\n"
+          if sprite[:external]
+            # "External" means that Chance does not create the file, and we mean to
+            # instruct the caller of Chance to use the original file directly.
+            #
+            # For instance, SC will replace our external_file with static_url or a variant thereof.
+            output = "background-image: external_file('#{sprite[:name]}')\n"
+          else
+            output = "background-image: chance_file('#{sprite[:name]}');\n"
+          end
 
           if slice[:x2]
             width = sprite[:width] / slice[:proportion]

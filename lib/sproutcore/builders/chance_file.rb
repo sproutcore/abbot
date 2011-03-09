@@ -51,6 +51,10 @@ module SC
         "static_url('#{path}')"
       }
 
+      code.gsub!(/external_file\(["'](.*?)['"]\)/) {|match|
+        "static_url('#{$1}')"
+      }
+
       code.gsub!(/((sc_require|require|sc_resource)\(\s*['"].*["']\s*\)\s*\;)/, '/* \1 */')
       replace_static_url(code)
       code
