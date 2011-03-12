@@ -9,10 +9,18 @@ module SC
   class Builder::Chance < Builder::ChanceFile
 
     def build(dst_path)
+      # Force it to always stage. This will prevent it from calculating
+      # twice if both build and stage are called, as build will just call
+      # stage and copy the output.
+      if dst_path != entry[:staging_path]
+        entry.stage!
+        writeline dst_path, File.read(entry[:staging_path])
+        return
+      end
 
       theme_name = entry.target.config[:css_theme]
 
-      chance = Chance::Instance.new({ :theme => theme_name })
+      chance = Chance::Instance.new({ :theme => theme_name, :minify => entry[:minify] })
 
       entries = entry.ordered_entries || entry.source_entries
 

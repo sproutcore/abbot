@@ -245,7 +245,7 @@ module Chance
         # definitions now:
         generate_sprite_definitions(opts)
 
-        css = @css.gsub(/_sc_chance:\s*["'](.*?)["']\s*;/) {|match|
+        css = @css.gsub(/_sc_chance:\s*["'](.*?)["']/) {|match|
           slice = @slices[$1]
           sprite = sprite_for_slice(slice, opts)
 
@@ -256,19 +256,19 @@ module Chance
             # For instance, SC will replace our external_file with static_url or a variant thereof.
             output = "background-image: external_file('#{sprite[:name]}')\n"
           else
-            output = "background-image: chance_file('#{sprite[:name]}');\n"
+            output = "background-image: chance_file('#{sprite[:name]}')\n"
           end
 
           if slice[:x2]
             width = sprite[:width] / slice[:proportion]
             height = sprite[:height] / slice[:proportion]
-            output += "  -webkit-background-size: #{width}px #{height}px;"
+            output += ";  -webkit-background-size: #{width}px #{height}px"
           end
 
           output
         }
 
-        css.gsub!(/-chance-offset: "(.*?)" (-?[0-9]+) (-?[0-9]+);/) {|match|
+        css.gsub!(/-chance-offset:\s?"(.*?)" (-?[0-9]+) (-?[0-9]+)/) {|match|
           slice = @slices[$1]
 
           slice_x = $2.to_i - slice[:sprite_slice_x]
@@ -281,7 +281,7 @@ module Chance
             slice_y /= slice[:proportion]
           end
 
-          "background-position: #{slice_x}px #{slice_y}px;"
+          "background-position: #{slice_x}px #{slice_y}px"
         }
 
         css

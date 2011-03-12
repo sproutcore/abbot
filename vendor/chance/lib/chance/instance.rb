@@ -198,7 +198,8 @@ module Chance
         engine = Sass::Engine.new(css, Compass.sass_engine_options.merge({
           :syntax => :scss,
           :filename => "chance_main.css",
-          :cache_location => "./tmp/sass-cache"
+          :cache_location => "./tmp/sass-cache",
+          :style => @options[:minify] ? :compressed : :expanded
         }))
         css = engine.render
 

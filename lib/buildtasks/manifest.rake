@@ -408,6 +408,7 @@ namespace :manifest do
       manifest = env[:manifest]
 
       sprited = CONFIG[:use_sprites]
+      minify = CONFIG[:minify_css]
 
       # the image files will be shared between all css_entries-- that is,
       # all instances of Chance created
@@ -463,7 +464,10 @@ namespace :manifest do
           #
           # This is a bit of a hack that we should (after testing) eventually just choose 
           # the best way automatically rather than making it Yet Another Option.
-          :chance_file     => sprited ? "chance-sprited.css" : "chance.css"
+          :chance_file     => sprited ? "chance-sprited.css" : "chance.css",
+
+          # Chance does minification on its own
+          :minify => minify
 
         chance_entries << entry
 
@@ -490,7 +494,10 @@ namespace :manifest do
             :timestamp       => entry.timestamp,
 
             :source_paths => entry_source_paths,
-            :resource_name => resource_name
+            :resource_name => resource_name,
+
+            # Chance does minification on its own
+            :minify => minify
         }
 
 
@@ -794,13 +801,17 @@ namespace :manifest do
       manifest.entries.dup.each do |entry|
         case entry[:entry_type]
         when :css
-          if minify_css
-            manifest.add_transform entry,
-              :build_task => 'build:minify:css',
-              :entry_type => :css,
-              :minified   => true,
-              :packed     => entry.packed? # carry forward
-          end
+          # NOTE: CSS MINIFICATION USING YUI MINIFIER IS CURRENTLY NOT WORKING.
+          # But, since Chance is minifying it, we can disable this code path
+          # for the moment. We'll need to add it back and fix YUI if we end up
+          # supporting disabling Chance.
+          # if minify_css
+          #   manifest.add_transform entry,
+          #     :build_task => 'build:minify:css',
+          #     :entry_type => :css,
+          #     :minified   => true,
+          #     :packed     => entry.packed? # carry forward
+          # end
 
         when :javascript
           if minify_javascript
