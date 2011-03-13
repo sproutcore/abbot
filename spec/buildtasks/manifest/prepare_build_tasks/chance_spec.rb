@@ -54,7 +54,6 @@ describe "manifest:prepare_build_tasks:chance" do
 
       x2_entry = entry_for(name + "@2x.css")
       x2_entry[:chance_file].should == "chance@2x.css"
-      x2_entry[:chance_entry].should == entry_for(name + ".css")
     end
     originals.size.should == 0
   end
@@ -70,7 +69,7 @@ describe "manifest:prepare_build_tasks:chance" do
     stylesheet = entry_for('stylesheet.css')
   end
 
-  it "provides all chance entries to the mhtml and js entries" do
+  it "provides all chance instances to the mhtml and js entries" do
     run_task
 
     js_entry = entry_for('__sc_chance.js')
@@ -91,9 +90,9 @@ describe "manifest:prepare_build_tasks:chance" do
     end
 
     resources.each do |name, entries|
-      chance_entry = entry_for(name + ".css")
-      js_entry.chance_entries.should include(chance_entry)
-      mhtml_entry.chance_entries.should include(chance_entry)
+      chance_instance = entry_for(name + ".css")[:chance_instance]
+      js_entry.chance_instances.should include(chance_instance)
+      mhtml_entry.chance_instances.should include(chance_instance)
     end
 
   end

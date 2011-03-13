@@ -60,9 +60,9 @@ describe "manifest:prepare_build_tasks:combine" do
       entry.source_entries.should include(expected)
     end
 
-    it "entries have a build_task = build:chance" do
-      entry_for('stylesheet.css').build_task.should == 'build:chance'
-      entry_for('bar.css').build_task.should == 'build:chance'
+    it "entries have a build_task = build:chance_file" do
+      entry_for('stylesheet.css').build_task.should == 'build:chance_file'
+      entry_for('bar.css').build_task.should == 'build:chance_file'
     end
 
     it "hides source entries" do
