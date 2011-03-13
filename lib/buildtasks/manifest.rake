@@ -483,6 +483,9 @@ namespace :manifest do
             :entry_type      => :css,
             :combined        => true,
 
+            :source_entries  => entries,
+            :ordered_entries => SC::Helpers::EntrySorter.sort(entries),
+
             :chance_file     => chance_file,
             :chance_instance => chance,
 
