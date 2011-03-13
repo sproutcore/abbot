@@ -261,7 +261,7 @@ module SC
         # If include required was specified, merge in all required bundles as
         # well. Note that we do this whether --build-targets is specified or not.
         if options[:'include-required']
-          tar = []
+          tar = targets.clone
           targets.each do |target|
             required = target.expand_required_targets :theme => true,
              :debug => target.config.load_debug,
