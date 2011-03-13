@@ -335,20 +335,6 @@ module SC
 
         requires_project! # get project
         targets = find_targets(*targets) # get targets
-
-        # make sure to include targets required by the targets
-        targets = targets.map {|target|
-          # The targets are likely apps. Therefore, if they mention themes,
-          # those themes should be included.
-          #
-          # PERFORMANCE HACK: But, tell those targets they don't minify...
-          required = target.expand_required_targets({:theme=>true})
-          required.each {|target| target.config[:minify_javascript] = false }
-          [target] + required
-        }
-
-        targets = targets.flatten.uniq
-
         languages = find_languages(*targets) # get languages
 
         # log output
