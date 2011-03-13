@@ -242,24 +242,11 @@ module SC
           end
         end
 
-        
-        # If include required was specified, merge in all required bundles as
-        # well.
-        if options[:'include-required']
-          targets.each do |target|
-            targets += target.expand_required_targets :theme => true,
-             :debug => target.config.load_debug,
-             :tests => target.config.load_tests
-          end
-
-          targets = targets.flatten.uniq.compact
-        end
-        
         appnames = SC.env[:build_targets]
-        tar = []
-        
+
         # if it has the appname argument only build the target with the appname        
         if appnames.size > 0 
+          tar = []
           targets.each do |target|
             appnames.each do |appname|
               if target.target_name.to_s.eql? '/'+appname
@@ -267,13 +254,32 @@ module SC
               end
             end
           end
-        else
-          tar = targets
-        end
-        
 
-        
-        return tar
+          targets = tar
+        end
+
+        # If include required was specified, merge in all required bundles as
+        # well. Note that we do this whether --build-targets is specified or not.
+        if options[:'include-required']
+          tar = []
+          targets.each do |target|
+            required = target.expand_required_targets :theme => true,
+             :debug => target.config.load_debug,
+             :tests => target.config.load_tests
+
+            required.each {|t| 
+              t.config[:minify_javascript] = false if not targets.include? t
+            }
+
+            tar += required
+          end
+
+          targets = tar.flatten.uniq.compact
+        end
+
+
+        targets
+
       end
 
       # Wraps around find_targets but raises an exception if no target is
