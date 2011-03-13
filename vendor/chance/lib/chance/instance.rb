@@ -50,12 +50,6 @@ module Chance
       "chance-sprited@2x.css" => { :method => :css, :sprited => true, :x2 => true },
       "chance.js"             => { :method => :javascript },
       "chance-mhtml.txt"      => { :method => :mhtml },
-      "no-repeat.png"         => { :method => :sprite_data, :name => "no-repeat.png" },
-      "repeat-x.png"          => { :method => :sprite_data, :name => "repeat-x.png"  },
-      "repeat-y.png"          => { :method => :sprite_data, :name => "repeat-y.png"  },
-      "no-repeat@2x.png"      => { :method => :sprite_data, :name => "no-repeat@2x.png", :x2 => true },
-      "repeat-x@2x.png"       => { :method => :sprite_data, :name => "repeat-x@2x.png", :x2 => true  },
-      "repeat-y@2x.png"       => { :method => :sprite_data, :name => "repeat-y@2x.png", :x2 => true  },
 
       # For Testing Purposes...
       "chance-test.css"       => { :method => :chance_test }
@@ -131,9 +125,15 @@ module Chance
       return @files[file] if not @files[file].nil?
 
       opts = CHANCE_FILES[file]
-      raise "Chance does not generate a file named '#{file}'" if opts.nil?
-
-      send opts[:method], opts
+      if opts
+        send opts[:method], opts
+      elsif sprite_names.include? file
+        # small hack: we are going to determine whether it is x2 by whether it has
+        # @2x in the name.
+        return sprite_data({:name => file, :x2 => file.include?("@2x") })
+      else
+        raise "Chance does not generate a file named '#{file}'" if opts.nil?
+      end
     end
 
     # Generates CSS output according to the options provided.

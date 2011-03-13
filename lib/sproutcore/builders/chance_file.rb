@@ -7,13 +7,11 @@ module SC
   class Builder::ChanceFile < Builder::Base
 
     def build(dst_path)
-      entries = entry[:chance_entries] || [entry[:chance_entry]]
-      entries.each {|entry| entry.build! }
+      instances = entry[:chance_instances] || [entry[:chance_instance]]
 
       chance_file = entry[:chance_file]
 
-      src = entries.map {|entry|
-        chance = entry[:chance]
+      src = instances.map {|chance|
 
         src = ""
         src = chance.output_for chance_file unless chance.nil?

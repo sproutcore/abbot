@@ -434,7 +434,8 @@ namespace :manifest do
 
       end
 
-      chance_entries = []
+      chance_instances = []
+      timestamps = []
 
       # We need a collection of source paths for our mhtml and JS files to
       # check mtimes against.
@@ -445,31 +446,27 @@ namespace :manifest do
         # Send image files to the build task if Chance is being used
         entries.concat global_chance_entries
 
-        # Add a composite entry for the combined CSS.
-        # Note that we manually hid the CSS entries above, but, if Chance
-        # is enabled, we need to keep the images visible so they are still
-        # copied into the final product.
-        entry = manifest.add_composite resource_name.ext('css'),
-          :build_task      => 'build:chance',
-          :source_entries  => entries,
-          :hide_entries    => false, # We hid entries manually above
-          :ordered_entries => SC::Helpers::EntrySorter.sort(entries),
-          :entry_type      => :css,
-          :combined        => true,
-          :resource_name   => resource_name,
+        # We create the Chance Instance now, even though we don't run the whole thing.
+        # This could incur a performance penalty to build manifests, but it is the only 
+        # way to know what sprties, etc. need to be put into the manifest.
+        #
+        # Still, Chance has to get created sometime.
+        chance = Chance::Instance.new({ :theme => CONFIG[:css_theme], :minify => CONFIG[:minify_css] })
 
-          # NOTE: For now, while sprited will always be available at -sprited, we'll
-          # produce _only_ the sprited version when the build is run with the :use_sprites
-          # buildfile option.
-          #
-          # This is a bit of a hack that we should (after testing) eventually just choose 
-          # the best way automatically rather than making it Yet Another Option.
-          :chance_file     => sprited ? "chance-sprited.css" : "chance.css",
+        timestamp = 0
+        entries.each do |entry|
+          timestamp = [entry.timestamp, timestamp].max
 
-          # Chance does minification on its own
-          :minify => minify
+          # unfortunately, we have to stage the source entries NOW.
+          src_path = entry.stage![:staging_path]
+          next unless File.exist?(src_path)
 
-        chance_entries << entry
+          Chance.add_file src_path
+          chance.map_file(entry.filename, src_path)
+        end
+
+        timestamps << timestamp
+        chance_instances << chance
 
 
         # ADD A 2X version
@@ -483,15 +480,16 @@ namespace :manifest do
           manifest.add_entry entry_name,
             :variation       => manifest.variation,
             :build_task      => 'build:chance_file',
-            :chance_entry    => entry,
             :entry_type      => :css,
             :combined        => true,
+
             :chance_file     => chance_file,
+            :chance_instance => chance,
 
             # For cache-busting, we must support timestamped urls, but the entry
             # will be unable to calculate the timestamp for this on its own. So, we
             # must supply the calculated timestamp.
-            :timestamp       => entry.timestamp,
+            :timestamp       => timestamp,
 
             :source_paths => entry_source_paths,
             :resource_name => resource_name,
@@ -501,21 +499,21 @@ namespace :manifest do
         }
 
 
-        # Rather than run Chance an extra time for 2x, etc. we create a composite entry
-        # referencing the chance entry as a source
+        chance_file = "chance" + (sprited ? "-sprited" : "") + ".css"
         chance_2x_file = "chance" + (sprited ? "-sprited" : "") + "@2x.css"
 
+        add_chance_file.call(resource_name + ".css", chance_file)
         add_chance_file.call(resource_name + "@2x.css", chance_2x_file)
         add_chance_file.call(resource_name + "-sprited.css", "chance-sprited.css")
         add_chance_file.call(resource_name + "-sprited@2x.css", "chance-sprited@2x.css")
-        add_chance_file.call(resource_name + "-no-repeat.png", "no-repeat.png")
-        add_chance_file.call(resource_name + "-repeat-x.png", "repeat-x.png")
-        add_chance_file.call(resource_name + "-repeat-y.png", "repeat-y.png")
-        add_chance_file.call(resource_name + "-no-repeat@2x.png", "no-repeat@2x.png")
-        add_chance_file.call(resource_name + "-repeat-x@2x.png", "repeat-x@2x.png")
-        add_chance_file.call(resource_name + "-repeat-y@2x.png", "repeat-y@2x.png")
-        # TODO: handle .jpg and .gif sprite possibilities... not sure how to
-        # do this cleanly yet.
+
+        chance.sprite_names.each {|name|
+          add_chance_file.call(resource_name + "-" + name, name);
+        }
+
+        chance.sprite_names({:x2 => true}).each {|name|
+          add_chance_file.call(resource_name + "-" + name, name);
+        }
 
         # We also have a set of all source paths for the chance task. We need
         # to keep it up-to-date so that the MHTML and JS tasks can compare mtimes
@@ -525,19 +523,19 @@ namespace :manifest do
 
       manifest.add_entry "__sc_chance.js",
         :build_task       => 'build:chance_file',
-        :chance_entries   => chance_entries,
+        :chance_instances   => chance_instances,
         :entry_type       => :javascript,
         :resource         => "javascript",
         :chance_file      => "chance.js",
-        :timestamp        => chance_entries.map {|e| e.timestamp }.max,
+        :timestamp        => timestamps.max,
         :source_paths     => source_paths
 
       manifest.add_entry "__sc_chance_mhtml.txt",
         :build_task       => 'build:chance_file',
-        :chance_entries   => chance_entries,
+        :chance_instances   => chance_instances,
         :entry_type       => :mhtml,
         :chance_file      => "chance-mhtml.txt",
-        :timestamp        => chance_entries.map {|e| e.timestamp }.max,
+        :timestamp        => timestamps.max,
         :source_paths     => source_paths
 
     end

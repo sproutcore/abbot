@@ -45,8 +45,7 @@ module Chance
         sprite_name = sprite_name_for_slice(slice, opts)
 
         get_sprite_named(sprite_name, opts.merge({
-          :horizontal_layout => slice[:repeat] == "repeat-y" ? true : false,
-          :external => slice[:repeat] == "repeat-both"
+          :horizontal_layout => slice[:repeat] == "repeat-y" ? true : false
         }))
 
         return @sprites[sprite_name]
@@ -62,8 +61,7 @@ module Chance
 
             # The sprite will use horizontal layout under repeat-y, where images
             # must stretch all the way from the top to the bottom
-            :use_horizontal_layout => opts[:horizontal_layout],
-            :external => opts[:external]
+            :use_horizontal_layout => opts[:horizontal_layout]
 
           }
         end
@@ -73,9 +71,9 @@ module Chance
       # by this name may not exist yet.
       def sprite_name_for_slice(slice, opts)
         if slice[:repeat] == "repeat-both"
-          return slice[:path]
+          return slice[:path] + (opts[:x2] ? "@2x" : "")
         end
-        
+
         return slice[:repeat] + (opts[:x2] ? "@2x" : "") + File.extname(slice[:path])
       end
 
@@ -306,6 +304,14 @@ module Chance
         generate_sprite(sprite) if not sprite[:has_generated]
 
         sprite[:canvas].to_blob
+      end
+
+      def sprite_names(opts={})
+        _render
+        slice_images(opts)
+        generate_sprite_definitions(opts)
+
+        @sprites.keys
       end
 
     end
