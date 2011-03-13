@@ -1,6 +1,5 @@
 require "sproutcore/builders/base"
 require "sproutcore/builders/module"
-require "sproutcore/builders/chance"
 require "sproutcore/builders/chance_file"
 require "sproutcore/builders/combine"
 require "sproutcore/builders/html"
