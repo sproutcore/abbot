@@ -154,7 +154,7 @@ module Chance
     # Looks up a slice that has been found by parsing the CSS. This is used by
     # the Sass extensions that handle writing things like slice offset, etc.
     def get_slice(name)
-      return @slices[name] 
+      return @slices[name]
     end
 
     # Cleans the current render, getting rid of all generated output.
@@ -174,7 +174,7 @@ module Chance
     # This is the first step in the Chance build process, and is usually
     # called by the output_for() method. It produces a raw, unfinished CSS file.
     def _render
-      return if @_has_rendered
+      return if @has_rendered
 
       @files = {}
       begin
