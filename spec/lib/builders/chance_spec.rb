@@ -47,6 +47,10 @@ describe SC::Builder::Chance do
 
     dest = entry.build_path
 
+    # We are not doing staging, but Chance only wants to build to the staging
+    # directory (and after that, just copy)
+    entry[:staging_path] = entry.build_path
+
     # Build using the entry we created
     SC::Builder::Chance.build(entry, dest)
     result = File.readlines(dest)*""
