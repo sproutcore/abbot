@@ -124,13 +124,15 @@ module Chance
     def output_for(file)
       return @files[file] if not @files[file].nil?
 
+      # small hack: we are going to determine whether it is x2 by whether it has
+      # @2x in the name.
+      x2 = file.include? "@2x"
+
       opts = CHANCE_FILES[file]
       if opts
         send opts[:method], opts
-      elsif sprite_names.include? file
-        # small hack: we are going to determine whether it is x2 by whether it has
-        # @2x in the name.
-        return sprite_data({:name => file, :x2 => file.include?("@2x") })
+      elsif sprite_names({ :x2 => x2 }).include? file
+        return sprite_data({:name => file, :x2 => x2 })
       else
         raise "Chance does not generate a file named '#{file}'" if opts.nil?
       end
