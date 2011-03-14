@@ -4,66 +4,40 @@ require "pathname"
 require "rubygems"
 require "thor"
 
-require "fssm"
 require 'chance'
-
+require "tester/test_runner"
 
 
 class ChanceRunner < Thor
   #tasks
   namespace :chance
 
-  desc "watch [folder]", "Watches the folder for changes."
+  desc "test [test_name]", "Runs all tests, or a specific test."
   method_option :verbose, :type => :boolean, :default => false
 
-  def watch(folder)
+  def test(test_name=nil)
     Chance::CONFIG[:verbose] = options["verbose"]
 
-    folder = Pathname.new(folder).expand_path
-    chance = Chance::Instance.new
+    runner = Chance::TestRunner.new("tests")
+    if test_name.nil?
+      runner.all_tests.each {|test|
+        ret = test.run
+        pass = ret == 0 ? "PASS" : "FAIL"
 
-    Dir.glob(File.expand_path(File.join(folder, "**/*"))) do |f|
-      if not File.directory?(f)
-        Chance.add_file f
-
-        chance.map_file(Pathname.new(f).relative_path_from(folder), f)
-        chance.update
-        puts chance.css
-
-      end
+        puts "#{pass}: #{ret} test#{ret > 1 ? "s" : ""} in #{test.name}"
+      }
+    else
+      ret = runner.test_for(test_name).run
+      pass = ret ? "PASS" : "FAIL"
+      puts pass
     end
+  end
 
-    FSSM.monitor(folder, "**/*") do
-      update {|base, relative|
-        path = File.join(base, relative)
-
-        Chance.update_file path
-
-        chance.update
-        puts chance.css
-      }
-
-      delete {|base, relative|
-        path = File.join(base, relative)
-
-        chance.unmap_file Pathname.new(path).relative_path_from(folder)
-        Chance.remove_file path
-
-        chance.update
-        puts chance.css
-      }
-
-      create {|base, relative|
-        path = File.join(base, relative)
-
-        Chance.add_file path
-        chance.map_file Pathname.new(path).relative_path_from(folder), path
-
-        chance.update
-        puts chance.css
-
-      }
-    end
+  desc "approve [test]", "Copies a test's actual output to its expected output folder.'"
+  def approve(test_name)
+    Chance::CONFIG[:verbose] = options["verbose"]
+    runner = Chance::TestRunner.new("tests")
+    runner.test_for(test_name).approve
   end
 
 end

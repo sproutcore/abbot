@@ -78,8 +78,9 @@ module Chance
       puts "Removed " + path if Chance::CONFIG[:verbose]
     end
     
+    # Removes all files from Chance; used to reset environment for testing.
     def remove_all_files
-      #@files = {}
+      @files = {}
     end
     
     def has_file(path)

@@ -1,0 +1,4 @@
+.my-class {
+  background: red;
+  @include slice("my-slice.png");
+}

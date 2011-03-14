@@ -1,0 +1,5 @@
+.my-class {
+  background: red;
+  @extend .__s2_0;
+-chance-offset: "my-slice_0_0___0_0" 0 0;background-repeat: no-repeat;
+}
