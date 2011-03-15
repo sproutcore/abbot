@@ -381,8 +381,12 @@ namespace :manifest do
 
       unless targets.size == 0
 
+        source_paths = []
+
         targets.each do |target|
-          target.manifest_for(manifest.variation).build!
+          m = target.manifest_for(manifest.variation)
+          m.build!
+          source_paths += m.entry_for("javascript.js")[:source_paths]
         end
 
         manifest.add_entry 'module_info.js',
@@ -396,7 +400,8 @@ namespace :manifest do
           :variation      => manifest.variation,
           :debug          => debug,
           :test           => test,
-          :theme          => true
+          :theme          => true,
+          :source_paths   => source_paths
       end
     end
 
