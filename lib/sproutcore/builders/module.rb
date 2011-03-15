@@ -30,6 +30,7 @@ module SC
           SC.MODULE_INFO[target_name] = {
             dependencies:[<%= @dependencies.join(',') %>],
             styles:[<%= @styles.join(',') %>],
+            styles2x: [<%= @styles2x.join(',') %>],
             scriptURL:'<%= @script %>',
             stringURL:'<%= @string %>'<% if @prefetched %>,
             isPrefetched: YES
@@ -59,6 +60,7 @@ module SC
           :target_name => t[:target_name].to_s.sub(/^\//,''),
           :dependencies    => module_info[:requires].map{ |t| "'#{t[:target_name].to_s.sub(/^\//,'')}'" },
           :styles      => module_info[:css_urls].map{ |url| "'#{url}'" },
+          :styles2x    => module_info[:css_2x_urls].map {|url| "'#{url}'"},
           :script      => script_url,
           :string      => string_url,
           :prefetched  => t[:prefetched_module]

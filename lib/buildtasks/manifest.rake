@@ -516,8 +516,14 @@ namespace :manifest do
             :source_paths => entry_source_paths,
             :resource_name => resource_name,
 
+            # So that modules, etc. can figure out what resource it belongs to
+            :resource => resource_name,
+
             # Chance does minification on its own
-            :minify => minify
+            :minify => minify,
+
+            # So that it can easily be recognized as an @2x entry.
+            :x2 => entry_name.include?("@2x")
         }
 
 

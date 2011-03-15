@@ -613,19 +613,31 @@ module SC
         end
 
         css_urls = []
+        css_2x_urls = []
+
+        # For CSS, we only care about two items: stylesheet and stylesheet@2x.
         css_entries.each do |resource_name, entries|
+          # if it is not stylesheet, we do not care about it.
+          next if not resource_name == "stylesheet"
+
           SC::Helpers::EntrySorter.sort(entries).each do |entry|
+            _css_urls = css_urls
+            _css_urls = css_2x_urls if entry[:x2]
+
             if minify_css && entry[:minified]
-              css_urls << entry.cacheable_url
+              _css_urls << entry.cacheable_url
             elsif pack_css && entry[:packed] && !entry[:minified]
-              css_urls << entry.cacheable_url
+              _css_urls << entry.cacheable_url
             elsif combine_css && entry[:combined] && !entry[:packed] && !entry[:minified]
-              css_urls << entry.cacheable_url
+              _css_urls << entry.cacheable_url
             elsif !entry[:combined] && !entry[:packed] && !entry[:minified]
-              css_urls << entry.cacheable_url
+              _css_urls << entry.cacheable_url
             end
           end
         end
+
+        # If there are no 2x entries, we need to give it the non-2x variety.
+        css_2x_urls = css_urls if css_2x_urls.length == 0
 
         js_urls = []
         javascript_entries.each do |resource_name, entries|
@@ -644,7 +656,12 @@ module SC
           end
         end
 
-        SC::HashStruct.new :requires => requires, :css_urls => css_urls, :js_urls => js_urls
+        SC::HashStruct.new ({
+          :requires => requires,
+          :css_urls => css_urls,
+          :css_2x_urls => css_2x_urls,
+          :js_urls => js_urls
+        })
       end
     end
 
