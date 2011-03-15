@@ -42,7 +42,9 @@ SC.LAZY_INSTANTIATION['#{target_name}'].push(
 "
       end
 
-      lines << rewrite_inline_code(readlines(entry[:source_path]))
+      code = rewrite_inline_code(readlines(entry[:source_path]))
+      code = handle_debug_code(code)
+      lines << code
 
       # Try to load dependencies if we're not combining javascript.
       if entry[:notify_onload]
@@ -66,6 +68,17 @@ SC.LAZY_INSTANTIATION['#{target_name}'].push(
     # be removed.
     def localized_strings?
       @lstrings ||= entry[:localized] && entry[:filename] =~ /strings.js$/
+    end
+
+    # Strips or replaces @if(debug) blocks, depending on build mode.
+    def handle_debug_code(code)
+      code.gsub(/\/\/\s*@if\s*\(\s*debug\s*\)([^\0]*?)\/\/\s*@endif/) {|match|
+        if CONFIG[:load_debug]
+          $1
+        else
+          "\n"
+        end
+      }
     end
 
     # Rewrites inline content for a single line
