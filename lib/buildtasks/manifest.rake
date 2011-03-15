@@ -512,16 +512,19 @@ namespace :manifest do
 
         add_chance_file.call(resource_name + ".css", chance_file)
         add_chance_file.call(resource_name + "@2x.css", chance_2x_file)
-        add_chance_file.call(resource_name + "-sprited.css", "chance-sprited.css")
-        add_chance_file.call(resource_name + "-sprited@2x.css", "chance-sprited@2x.css")
 
-        chance.sprite_names.each {|name|
-          add_chance_file.call(resource_name + "-" + name, name);
-        }
+        if sprited
+          add_chance_file.call(resource_name + "-sprited.css", "chance-sprited.css")
+          add_chance_file.call(resource_name + "-sprited@2x.css", "chance-sprited@2x.css")
 
-        chance.sprite_names({:x2 => true}).each {|name|
-          add_chance_file.call(resource_name + "-" + name, name);
-        }
+          chance.sprite_names.each {|name|
+            add_chance_file.call(resource_name + "-" + name, name);
+          }
+
+          chance.sprite_names({:x2 => true}).each {|name|
+            add_chance_file.call(resource_name + "-" + name, name);
+          }
+        end
 
         # We also have a set of all source paths for the chance task. We need
         # to keep it up-to-date so that the MHTML and JS tasks can compare mtimes
