@@ -310,6 +310,10 @@ module SC
     # For each module in the modules array, set the 'type' property to true,
     # and return an array of their dependencies, one level deep.
     def find_dependencies_for_modules(modules, opts, type)
+      # To match other SC things like :required, allow it to be a single item
+      # as well as an array.
+      modules = [modules].flatten.compact
+
       ret = []
 
       modules.each do |m|
@@ -573,7 +577,10 @@ module SC
           opts[:test] = false
         end
 
-        requires = required_targets(opts) # only go one-level deep!
+        # only go one-level deep, and drop all non-module targets
+        requires = required_targets(opts).select {|target|
+          target[:target_type] == :module
+        }
 
         # Targets that aren't pre-loaded can't be packed together. That leaves
         # loading css and js individually and/or loading the combined or
