@@ -58,6 +58,9 @@ module Chance
     end
 
     def mhtml(opts)
+      # If there are no slices, ensure that we return an empty file.
+      return "" if @slices.length == 0
+
       output = "Content-Type: multipart/related; boundary=\"CHANCE__\"\r\n"
 
       @slices.each {|name, slice|

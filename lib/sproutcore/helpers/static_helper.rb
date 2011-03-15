@@ -70,14 +70,30 @@ module SC
         include_method = opts[:include_method] ||= :link
         t = target_name ? target.target_for(target_name) : target
 
-        # figure out stylesheet name (whether it is x2 or not)
-        name = "stylesheet"
-        name += "@2x" if opts[:x2]
-
         # collect urls from entries
         urls = []
         combine_stylesheets = t.config[:combine_stylesheets]
-        combined_entries(t, opts, name + '.css', name + '-packed.css') do |cur_target, cur_entry|
+
+        combined_entries(t, opts, 'stylesheet.css', 'stylesheet-packed.css') do |cur_target, cur_entry|
+
+          # We have to figure out if we should use the 2x version.
+          # For this, we have to figure out the original name again...
+          if opts[:x2]
+            name = cur_entry.extensionless_filename
+
+            if name == "stylesheet"
+              name = "stylesheet@2x.css"
+            elsif name == "stylesheet-packed"
+              name = "stylesheet@2x-packed.css"
+            else
+              raise "Unexpected entry name when collecting CSS: " + name
+            end
+
+            v = opts[:language] ? { :language => opts[:language] } : manifest.variation
+            x2_entry = t.manifest_for(v).entry_for name
+
+            cur_entry = x2_entry if x2_entry
+          end
 
           # include either the entry URL or URL of ordered entries
           # depending on setup

@@ -437,7 +437,7 @@ namespace :manifest do
         # Chance needs to know about image files so it can embed as data URIs in the
         # CSS. For this reason, if Chance is enabled, we need to send entries for image
         # files to the 'build:chance' buildtask.
-        is_chance_file = File.extname(entry[:filename]) === '.png'
+        is_chance_file = %w(.png .gif .jpg).include?(File.extname(entry[:filename]))
 
         next if entry[:resource].nil? and not is_chance_file
 
@@ -470,6 +470,7 @@ namespace :manifest do
         chance = Chance::Instance.new({ :theme => CONFIG[:css_theme], :minify => CONFIG[:minify_css] })
 
         timestamp = 0
+        has_2x_entries = false
         entries.each do |entry|
           timestamp = [entry.timestamp, timestamp].max
 
@@ -479,6 +480,8 @@ namespace :manifest do
 
           Chance.add_file src_path
           chance.map_file(entry.filename, src_path)
+
+          has_2x_entries = true if src_path.include?("@2x")
         end
 
         timestamps << timestamp
@@ -519,15 +522,18 @@ namespace :manifest do
 
 
         chance_file = "chance" + (sprited ? "-sprited" : "") + ".css"
-        chance_2x_file = "chance" + (sprited ? "-sprited" : "") + "@2x.css"
 
         add_chance_file.call(resource_name + ".css", chance_file)
-        add_chance_file.call(resource_name + "@2x.css", chance_2x_file)
+
+        # We only want to add the 2x version if there is a need for it.
+        # NOTE: the HTML builder will need to pick the normal version if it
+        # cannot find the @2x version.
+        if has_2x_entries
+          chance_2x_file = "chance" + (sprited ? "-sprited" : "") + "@2x.css"
+          add_chance_file.call(resource_name + "@2x.css", chance_2x_file)
+        end
 
         if sprited
-          add_chance_file.call(resource_name + "-sprited.css", "chance-sprited.css")
-          add_chance_file.call(resource_name + "-sprited@2x.css", "chance-sprited@2x.css")
-
           chance.sprite_names.each {|name|
             add_chance_file.call(resource_name + "-" + name, name);
           }
@@ -656,7 +662,7 @@ namespace :manifest do
       # we will want to include the theme if the target is an app
       is_app = target[:target_type] == :app
       
-      %w(stylesheet stylesheet@2x stylesheet-sprited stylesheet-sprited@2x).each {|resource|
+      %w(stylesheet stylesheet@2x).each {|resource|
 
         # Handle CSS version.  get all required targets and find their
         # stylesheet.css.  Build packed css from that.
@@ -671,6 +677,8 @@ namespace :manifest do
         end
 
         entries.compact!
+
+        next if entries.length == 0
         manifest.add_composite resource + '-packed.css',
           :build_task        => 'build:combine',
           :source_entries    => entries,

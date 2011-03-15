@@ -22,7 +22,10 @@ module SC
         src
       }.join("\n")
 
-      writeline dst_path, src
+      # Don't write empty files...
+      if src.strip.length > 0
+        writeline dst_path, src
+      end
     end
 
     # Rewrites any inline content such as static urls.  Subclasseses can
