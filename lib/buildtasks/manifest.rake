@@ -386,7 +386,18 @@ namespace :manifest do
         targets.each do |target|
           m = target.manifest_for(manifest.variation)
           m.build!
-          source_paths += m.entry_for("javascript.js")[:source_paths]
+
+          m.entries.each do |entry|
+            # The entry may have been built directly; we need to make sure it was
+            # staged because we check staging_path
+            entry.stage!
+            case entry[:entry_type]
+            when :css
+              source_paths << entry[:staging_path]
+            when :javascript
+              source_paths << entry[:staging_path]
+            end
+          end
         end
 
         manifest.add_entry 'module_info.js',
