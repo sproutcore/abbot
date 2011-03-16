@@ -451,6 +451,7 @@ namespace :manifest do
       end
 
       chance_instances = []
+      all_chance_entries = []
       timestamps = []
 
       # We need a collection of source paths for our mhtml and JS files to
@@ -553,6 +554,7 @@ namespace :manifest do
         # to keep it up-to-date so that the MHTML and JS tasks can compare mtimes
         # with the entries.
         source_paths += entry_source_paths
+        all_chance_entries += entries
       end
 
       if chance_instances.length > 0
@@ -563,7 +565,8 @@ namespace :manifest do
           :resource         => "javascript",
           :chance_file      => "chance.js",
           :timestamp        => timestamps.max,
-          :source_paths     => source_paths
+          :source_paths     => source_paths,
+          :source_entries   => all_chance_entries
 
         manifest.add_entry "__sc_chance_mhtml.txt",
           :build_task       => 'build:chance_file',
@@ -571,7 +574,8 @@ namespace :manifest do
           :entry_type       => :mhtml,
           :chance_file      => "chance-mhtml.txt",
           :timestamp        => timestamps.max,
-          :source_paths     => source_paths
+          :source_paths     => source_paths,
+          :source_entries   => all_chance_entries
       end
 
     end

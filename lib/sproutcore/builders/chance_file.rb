@@ -8,6 +8,10 @@ module SC
 
     def build(dst_path)
       instances = entry[:chance_instances] || [entry[:chance_instance]]
+      
+      # Ensure all entries are staged. If -c was used, they may have been
+      # gotten rid of.
+      entry[:source_entries].each {|e| e.stage! }
 
       chance_file = entry[:chance_file]
 
