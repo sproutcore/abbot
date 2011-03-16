@@ -79,7 +79,6 @@ module SC
             entry.build!
           end
 
-          SC::Helpers::Minifier.minify_queue! unless SC.env[:no_minify]
         end
       end
 
@@ -88,6 +87,8 @@ module SC
           SC::Helpers::HTML5Manifest.new.build(entry)
         end
       end
+
+      SC::Helpers::Minifier.wait
 
       t2 = Time.now
       seconds = t2-t1

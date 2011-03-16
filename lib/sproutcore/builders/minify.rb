@@ -57,10 +57,12 @@ module SC
       entry.source_entry.build!
       # Minify module JavaScript immediately so it can be string-wrapped
       if entry.target[:target_type] == :module
-        SC::Helpers::Minifier.minify! dst_path
+        SC::Helpers::Minifier.minify dst_path
       else
         SC::Helpers::Minifier << dst_path
       end
+
+      puts "---------------------------------DONE WITH MINIFICATION"
     end
 
     def build_inline_javascript(dst_path)

@@ -1,56 +1,104 @@
 module SC::Helpers
 
   # Helper to minify JavaScript files. You can either call the class method
-  # minify!, or add paths using <<, then call minify_queue! to minify all files
-  # at once (which improves performance significantly.)
-
+  # minify, or use << to add to the queue. If you add to the queue, you have
+  # no knowledge of when the minification will finish.
   class Minifier
-    @@queue = []
-
-    def self.<<(item)
-      @@queue << item
+    # CLASS HELPERS
+    def self.<<(path)
+      SC::Helpers::Minifier.instance << path
     end
 
-    def self.queue
-      @@queue
+    def self.minify(path)
+      SC::Helpers::Minifier.instance.minify path
     end
 
-    # Minifies a path or an array of paths
-    def self.minify!(paths)
-        yui_root = File.expand_path("../../../../vendor/sproutcore", __FILE__)
-        jar_path = File.join(yui_root, 'SCCompiler.jar')
+    def self.wait
+      SC::Helpers::Minifier.instance.wait
+    end
 
-        # Convert to string if an array
-        if paths.respond_to? :join
-          paths = paths * "\" \""
+    # Returns the instance (Minifier is a singleton)
+    @@instance = nil
+    def self.instance
+      @@instance = SC::Helpers::Minifier.new if @@instance.nil?
+
+      @@instance
+    end
+
+
+    # MINIFICATION MANAGER
+    def initialize
+      @queue = []
+      @working_minifiers = []
+      @max_minifiers = 4
+    end
+
+    def wait
+      @working_minifiers.each {|m| m.join }
+    end
+
+
+    def <<(item)
+      @queue << item
+
+      _process_queue
+    end
+
+    # If the queue is not empty, and there are any available workers,
+    # spawn min(queue.length, max_minifiers) minifiers. They'll handle
+    # the queue on their own.
+    def _process_queue
+      [@queue.length, @max_minifiers - @working_minifiers.length].min.times {
+        _spawn_minifier
+      }
+    end
+
+    def _spawn_minifier
+      puts "Spawning a new thread!\n"
+      thread = Thread.new {
+        @working_minifiers << Thread.current
+
+        puts "Launched helper thread.\n"
+        while @queue.length > 0
+          minify(@queue.shift)
         end
 
-        if SC.env[:yui_minification]
-          command = "java -Xmx256m -jar \"" + jar_path + "\" -yuionly \"" + paths + "\" 2>&1"
-        else
-          command = "java -Xmx256m -jar \"" + jar_path + "\" \"" + paths + "\" 2>&1"
-        end
-
-        SC.logger.info  'Minifying...'
-        SC.logger.info  command
-
-        output = `#{command}`     # It'd be nice to just read STDERR, but
-                                  # I can't find a reasonable, commonly-
-                                  # installed, works-on-all-OSes solution.
-        SC.logger.info output
-        if $?.exitstatus != 0
-          SC.logger.fatal(output)
-          SC.logger.fatal("!!!! Minifying failed, please check that your js code is valid")
-          SC.logger.fatal("!!!! Failed compiling ... " + paths)
-          exit(1)
-        end
+        @working_minifiers.delete Thread.current
+      }
     end
 
-    # Minimizes the files in the queue, then empties the queue
-    def self.minify_queue!
-      SC::Helpers::Minifier.minify! @@queue
-      @@queue = []
+    def minify(path)
+      yui_root = File.expand_path("../../../../vendor/sproutcore", __FILE__)
+      jar_path = File.join(yui_root, "SCCompiler.jar")
+
+      if SC.env[:yui_minification]
+        command = "java -Xmx256m -jar \"" + jar_path + "\" -yuionly \"" + path + "\" 2>&1"
+      else
+        command = "java -Xmx256m -jar \"" + jar_path + "\" \"" + path + "\" 2>&1"
+      end
+
+      output = `#{command}`
+
+      SC.logger.info output
+      if $?.exitstatus != 0
+        SC.logger.fatal(output)
+        SC.logger.fatal("!!!! Minifying failed. Please check that your JS code is valid.")
+        SC.logger.fatal("!!!! Failed compiling #{path}")
+
+        exit(1)
+      end
     end
+
+    def _received_from_minifier(minifier, received_what)
+      if received_what.strip != "SUCCESS"
+        SC.Logger.error "Error minifying file: #{received_what}"
+        exit
+      end
+
+      @working_minifiers.delete minifier
+      @ready_minifiers << minifier
+    end
+
 
   end
 end
