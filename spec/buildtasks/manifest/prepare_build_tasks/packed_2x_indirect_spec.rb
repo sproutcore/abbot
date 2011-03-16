@@ -7,16 +7,12 @@ describe "manifest:prepare_build_tasks:packed" do
   include SC::ManifestSpecHelpers
 
   before do
+    # We are testing :no_2x, but it requires SC, which _has_ @2x. So, we'll get @2x
+    # indirectly.
     std_before(:real_world, :no_2x)
   end
 
   def run_task
-    # By default, no_2x will require sproutcore, which in the fixtures, has 2x.
-    # So, we'll end up with a 2x file even though we shouldn't have one.
-    # In chance_2x_indirect, we'll test :no_2x, but drop this part
-    @target.config[:required] = []
-
-
     # capture any log warnings...
     @msg = capture('stderr') {
       @manifest.prepare!
@@ -39,9 +35,7 @@ describe "manifest:prepare_build_tasks:packed" do
 
     @manifest.entry_for('javascript-packed.js').should_not be_nil
     @manifest.entry_for('stylesheet-packed.css').should_not be_nil
-
-    # In this version, there should _not_ be an @2x entry.
-    @manifest.entry_for('stylesheet@2x-packed.css').should be_nil
+    @manifest.entry_for('stylesheet@2x-packed.css').should_not be_nil
   end
 
   it "should remove non-packed JS entries from apps" do
@@ -126,16 +120,18 @@ describe "manifest:prepare_build_tasks:packed" do
 
      it "should generate a stylesheet-packed.css entry" do
        @entry.should_not be_nil
-
-       # should be _no_ @2x entry for this version (see packed_2x_spec)
-       # because the @2x version is only included as-needed.
-       @entry_2x.should be_nil
+       @entry_2x.should_not be_nil
      end
 
      it "should include stylesheet.css entries from all required targets" do
        @entry.source_entries.size.should > 0
        @entry.source_entries.each do |entry|
          entry.filename.should == 'stylesheet.css'
+       end
+
+       @entry_2x.source_entries.size.should > 0
+       @entry_2x.source_entries.each do |entry|
+         entry.filename.should == 'stylesheet@2x.css'
        end
      end
 
@@ -153,23 +149,41 @@ describe "manifest:prepare_build_tasks:packed" do
          entry.target.should == targets.shift
        end
 
+       targets = @target.expand_required_targets + [@target]
+       variation = @entry.manifest.variation
+       targets.reject! do |t|
+         t.manifest_for(variation).build!.entry_for('stylesheet@2x.css').nil?
+       end
+
+       @entry_2x.ordered_entries.each do |entry|
+         entry.target.should == targets.shift
+       end
+
      end
 
      it "should include the actual targets this packed version covers in the targets property (even those w no stylesheet.css)" do
        targets = @target.expand_required_targets + [@target]
        @entry.targets.should == targets
+       @entry_2x.targets.should == targets
      end
 
      it "should NOT include minified source entries" do
        @entry.source_entries.each do |entry|
          entry.should_not be_minified
        end
+
+       @entry_2x.source_entries.each do |entry|
+         entry.should_not be_minified
+       end
      end
 
      it "should be marked as packed" do
        @entry.should be_packed
+       @entry_2x.should be_packed
      end
 
    end
 
 end
+
+
