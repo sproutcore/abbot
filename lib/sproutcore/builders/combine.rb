@@ -20,7 +20,7 @@ module SC
   class Builder::Combine < Builder::Base
 
     def build(dst_path)
-      lines = []
+      lines = ""
       entries = entry[:ordered_entries] || entry[:source_entries]
 
       target_name = entry.target[:target_name].to_s.sub(/^\//,'')
@@ -42,9 +42,7 @@ SC.LAZY_INSTANTIATION['#{target_name}'].push(
         src_path = entry.stage![:staging_path]
         next unless File.exist?(src_path)
 
-        lines << "/* >>>>>>>>>> BEGIN #{entry[:filename]} */\n"
-        lines += readlines(src_path)
-        lines << "\n"
+        lines << "/* >>>>>>>>>> BEGIN #{entry[:filename]} */\n" + File.read(src_path) + "\n"
       end
 
       if entry[:top_level_lazy_instantiation] && entry[:combined]
