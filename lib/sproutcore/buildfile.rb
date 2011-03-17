@@ -91,7 +91,6 @@ module SC
     # Default buildfile names.  Override with SC.env.buildfile_names
     BUILDFILE_NAMES = %w(Buildfile sc-config sc-config.rb)
 
-    include Cloneable
     include TaskManager
 
     # The location of the buildfile represented by this object.
@@ -255,7 +254,7 @@ module SC
     end
 
     # Application options from the command line
-    attr_reader :options
+    attr_accessor :options
 
     ################################################
     # CONFIG METHODS
@@ -287,7 +286,7 @@ module SC
     # The hash of configs as loaded from the files.  The configs are stored
     # by mode and then by config name.  To get a merged config, use
     # config_for().
-    attr_reader :configs
+    attr_accessor :configs
 
     # The hash of proxy commands
 
@@ -370,6 +369,9 @@ module SC
     def project_type; @project_type || :default; end
     attr_writer :project_type
 
+    attr_writer :is_project
+    protected :is_project=
+
     # Returns YES if this buildfile appears to represent a project.  If you
     # use the project() helper method, it will set this
     def project?; @is_project || false; end
@@ -380,7 +382,7 @@ module SC
     #
 
     # The hash of all proxies paths and their options
-    attr_reader :proxies
+    attr_accessor :proxies
 
     # Adds a proxy to the list of proxy paths.  These are used only in server
     # mode to proxy certain URLs.  If you call this method with the same
@@ -417,18 +419,17 @@ module SC
       ret = super
 
       # Make sure the tasks themselves are cloned
-      tasks = ret.instance_variable_get('@tasks')
-      tasks.each do | key, task |
-        tasks[key] = task.dup(ret)
+      ret_tasks = ret.instance_variable_set("@tasks", {})
+      @tasks.each do | key, task |
+        ret_tasks[key] = task.dup(ret)
       end
 
       # Deep clone the config and proxy hashes as well...
-      %w(@configs @proxies @options).each do |ivar|
-        cloned_ivar = instance_variable_get(ivar).deep_clone
-        ret.instance_variable_set(ivar, cloned_ivar)
-      end
+      ret.configs = Marshal.load(Marshal.dump(configs))
+      ret.proxies = Marshal.load(Marshal.dump(proxies))
+      ret.options = Marshal.load(Marshal.dump(options))
 
-      ret.instance_variable_set('@is_project', false) # transient - do not dup
+      ret.is_project = false if ret.project?
 
       return ret
     end
