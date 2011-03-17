@@ -52,12 +52,12 @@ describe "manifest:prepare_build_tasks:packed" do
     end
   end
 
-  it "should add packed entries for frameworks" do
+  it "should not add packed entries for frameworks" do
     # verify default target is a framework - precondition
     @target.target_type.should == :framework #precondition
     run_task
 
-    @manifest.entry_for('javascript-packed.js').should_not be_nil
+    @manifest.entry_for('javascript-packed.js').should be_nil
   end
 
   #######################################
@@ -66,6 +66,11 @@ describe "manifest:prepare_build_tasks:packed" do
   describe "javascript-packed.js" do
 
     before do
+      @target = @project.target_for(:contacts)
+      @target.target_type.should == :app # precondition
+
+      @manifest = @target.manifest_for(:language => :en)
+
       run_task
       @entry = entry_for('javascript-packed.js')
     end
@@ -85,7 +90,7 @@ describe "manifest:prepare_build_tasks:packed" do
 
       # find targets, sorted by order.  remove any that don't have a
       # javascript.js entry.
-      targets = @target.expand_required_targets + [@target]
+      targets = @target.expand_required_targets(:theme => true) + [@target]
       variation = @entry.manifest.variation
       targets.reject! do |t|
         t.manifest_for(variation).build!.entry_for('javascript.js').nil?
@@ -97,7 +102,7 @@ describe "manifest:prepare_build_tasks:packed" do
     end
 
     it "should include the actual targets this packed version covers in the targets property (even those w no javascript.js)" do
-      targets = @target.expand_required_targets + [@target]
+      targets = @target.expand_required_targets(:theme => true) + [@target]
       @entry.targets.should == targets
     end
 
@@ -119,7 +124,14 @@ describe "manifest:prepare_build_tasks:packed" do
    describe "stylesheet-packed.css" do
 
      before do
+      @target = @project.target_for(:contacts)
+      @target.target_type.should == :app # precondition
+
+      @manifest = @target.manifest_for(:language => :en)
+
+
        run_task
+
        @entry = entry_for('stylesheet-packed.css')
        @entry_2x = entry_for('stylesheet@2x-packed.css')
      end
@@ -143,7 +155,7 @@ describe "manifest:prepare_build_tasks:packed" do
 
        # find targets, sorted by order.  remove any that don't have a
        # stylesheet.css entry.
-       targets = @target.expand_required_targets + [@target]
+       targets = @target.expand_required_targets(:theme => true) + [@target]
        variation = @entry.manifest.variation
        targets.reject! do |t|
          t.manifest_for(variation).build!.entry_for('stylesheet.css').nil?
@@ -156,7 +168,7 @@ describe "manifest:prepare_build_tasks:packed" do
      end
 
      it "should include the actual targets this packed version covers in the targets property (even those w no stylesheet.css)" do
-       targets = @target.expand_required_targets + [@target]
+       targets = @target.expand_required_targets(:theme => true) + [@target]
        @entry.targets.should == targets
      end
 
