@@ -555,22 +555,24 @@ namespace :manifest do
         source_paths += entry_source_paths
       end
 
-      manifest.add_entry "__sc_chance.js",
-        :build_task       => 'build:chance_file',
-        :chance_instances   => chance_instances,
-        :entry_type       => :javascript,
-        :resource         => "javascript",
-        :chance_file      => "chance.js",
-        :timestamp        => timestamps.max,
-        :source_paths     => source_paths
+      if chance_instances.length > 0
+        manifest.add_entry "__sc_chance.js",
+          :build_task       => 'build:chance_file',
+          :chance_instances   => chance_instances,
+          :entry_type       => :javascript,
+          :resource         => "javascript",
+          :chance_file      => "chance.js",
+          :timestamp        => timestamps.max,
+          :source_paths     => source_paths
 
-      manifest.add_entry "__sc_chance_mhtml.txt",
-        :build_task       => 'build:chance_file',
-        :chance_instances   => chance_instances,
-        :entry_type       => :mhtml,
-        :chance_file      => "chance-mhtml.txt",
-        :timestamp        => timestamps.max,
-        :source_paths     => source_paths
+        manifest.add_entry "__sc_chance_mhtml.txt",
+          :build_task       => 'build:chance_file',
+          :chance_instances   => chance_instances,
+          :entry_type       => :mhtml,
+          :chance_file      => "chance-mhtml.txt",
+          :timestamp        => timestamps.max,
+          :source_paths     => source_paths
+      end
 
     end
 
