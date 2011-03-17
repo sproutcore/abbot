@@ -55,10 +55,11 @@ module SC
     # Minify some javascript by invoking the YUI compressor.
     def build_javascript(dst_path)
       entry.source_entry.build!
+      
       # Minify module JavaScript immediately so it can be string-wrapped
       if entry.target[:target_type] == :module
         SC::Helpers::Minifier.minify dst_path
-      else
+      elsif entry.target[:target_type] == :app
         SC::Helpers::Minifier << dst_path
       end
     end

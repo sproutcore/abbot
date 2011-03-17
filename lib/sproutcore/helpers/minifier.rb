@@ -58,21 +58,28 @@ module SC::Helpers
         @working_minifiers << Thread.current
 
         while @queue.length > 0
-          minify(@queue.shift)
+          queue = @queue.clone
+          @queue.clear
+          minify(queue)
         end
 
         @working_minifiers.delete Thread.current
       }
     end
 
-    def minify(path)
+    def minify(paths)
+      # Convert to string if an array
+      if paths.respond_to? :join
+        paths = paths * "\" \""
+      end
+
       yui_root = File.expand_path("../../../../vendor/sproutcore", __FILE__)
       jar_path = File.join(yui_root, "SCCompiler.jar")
 
       if SC.env[:yui_minification]
-        command = "java -Xmx256m -jar \"" + jar_path + "\" -yuionly \"" + path + "\" 2>&1"
+        command = "java -Xmx256m -jar \"" + jar_path + "\" -yuionly \"" + paths + "\" 2>&1"
       else
-        command = "java -Xmx256m -jar \"" + jar_path + "\" \"" + path + "\" 2>&1"
+        command = "java -Xmx256m -jar \"" + jar_path + "\" \"" + paths + "\" 2>&1"
       end
 
       output = `#{command}`
@@ -81,7 +88,7 @@ module SC::Helpers
       if $?.exitstatus != 0
         SC.logger.fatal(output)
         SC.logger.fatal("!!!! Minifying failed. Please check that your JS code is valid.")
-        SC.logger.fatal("!!!! Failed compiling #{path}")
+        SC.logger.fatal("!!!! Failed compiling #{paths}")
 
         exit(1)
       end
