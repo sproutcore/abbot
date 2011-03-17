@@ -61,8 +61,6 @@ module SC
       else
         SC::Helpers::Minifier << dst_path
       end
-
-      puts "---------------------------------DONE WITH MINIFICATION"
     end
 
     def build_inline_javascript(dst_path)

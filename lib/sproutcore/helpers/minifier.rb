@@ -54,11 +54,9 @@ module SC::Helpers
     end
 
     def _spawn_minifier
-      puts "Spawning a new thread!\n"
       thread = Thread.new {
         @working_minifiers << Thread.current
 
-        puts "Launched helper thread.\n"
         while @queue.length > 0
           minify(@queue.shift)
         end
@@ -88,17 +86,6 @@ module SC::Helpers
         exit(1)
       end
     end
-
-    def _received_from_minifier(minifier, received_what)
-      if received_what.strip != "SUCCESS"
-        SC.Logger.error "Error minifying file: #{received_what}"
-        exit
-      end
-
-      @working_minifiers.delete minifier
-      @ready_minifiers << minifier
-    end
-
 
   end
 end
