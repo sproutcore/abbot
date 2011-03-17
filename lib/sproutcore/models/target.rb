@@ -199,7 +199,7 @@ module SC
           reqs = project.targets.values.select { |target| target[:target_type] == :module }
 
           reqs = reqs.select do |target|
-            target[:target_name].match(/^\/?#{self[:target_name]}/)
+            target[:target_name].to_s.match(/^\/?#{self[:target_name]}/)
           end
 
           ret = ret.concat(reqs)
