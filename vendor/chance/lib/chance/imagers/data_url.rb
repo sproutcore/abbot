@@ -57,7 +57,7 @@ module Chance
     end
 
     def postprocess_css(src, slices)
-      src.gsub (/_sc_chance\:\s*["'](.*)["']\s*;/) {|match|
+      src.gsub(/_sc_chance\:\s*["'](.*)["']\s*;/) do |match|
         slice = slices[$1]
 
         output = data_uri_for(slice)
@@ -67,11 +67,11 @@ module Chance
         output += "\n"
 
         output
-      }
+      end
     end
 
     def postprocess_css_2x(src, slices)
-      src.gsub (/_sc_chance\:\s*["'](.*)["']\s*;/) {|match|
+      src.gsub(/_sc_chance\:\s*["'](.*)["']\s*;/) do |match|
         slice = slices[$1]
 
         output = data_uri_for(slice)
@@ -80,7 +80,7 @@ module Chance
         output += slice[:target_height].to_s + "px;\n"
 
         output
-      }
+      end
     end
 
     def preload_javascript
