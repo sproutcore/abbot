@@ -212,10 +212,10 @@ module SC
     #  task_name:: the full name of the task, including namespaces
     #  consts:: Optional hash of constant values to set on the env
     def invoke(task_name, consts = {})
-      original, SproutCore::RakeConstants.constants = SproutCore::RakeConstants.constants, consts
+      original, SproutCore::RakeConstants.constant_list = SproutCore::RakeConstants.constant_list, consts
       self[task_name].invoke(consts)
     ensure
-      SproutCore::RakeConstants.constants = original
+      SproutCore::RakeConstants.constant_list = original
     end
 
     # Returns true if the buildfile has the named task defined
@@ -450,11 +450,11 @@ end
 module SproutCore
  module RakeConstants
    class << self
-     attr_accessor :constants
+     attr_accessor :constant_list
    end
 
    def const_missing(name)
-     ret = (RakeConstants.constants && RakeConstants.constants[name.to_s.downcase.to_sym]) || super
+     ret = (RakeConstants.constant_list && RakeConstants.constant_list[name.to_s.downcase.to_sym]) || super
    end
  end
 end
