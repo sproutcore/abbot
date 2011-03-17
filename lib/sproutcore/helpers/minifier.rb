@@ -31,6 +31,8 @@ module SC::Helpers
       @queue = []
       @working_minifiers = []
       @max_minifiers = 4
+
+      @safety = Mutex.new
     end
 
     def wait
@@ -58,9 +60,19 @@ module SC::Helpers
         @working_minifiers << Thread.current
 
         while @queue.length > 0
-          queue = @queue.clone
-          @queue.clear
+          queue = @safety.synchronize {
+            queue = @queue.clone
+            @queue.clear
+
+            queue
+          }
+
+          next if queue.length == 0
+
           minify(queue)
+
+          # NOTE: MORE ITEMS COULD BE ADDED TO QUEUE BY NOW,
+          # SO WE LOOP.
         end
 
         @working_minifiers.delete Thread.current
