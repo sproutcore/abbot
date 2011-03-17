@@ -12,8 +12,6 @@ module SC
   # Rake 0.8.3
   #
   class Buildfile::Task
-    include Cloneable
-
     # List of prerequisites for a task.
     attr_reader :prerequisites
 
@@ -64,16 +62,10 @@ module SC
       @sources.first if defined?(@sources)
     end
 
-    IGNORE = %w(@application)
-    def dup(app=nil)
-      app = application if app.nil?
-      sibling = self.class.new(name, app)
-      self.instance_variables.each do |key|
-        next if IGNORE.include?(key.to_s) # instance_variables is an array of symbols in Ruby 1.9
-        sibling.instance_variable_set(key, self.instance_variable_get(key))
-      end
-      sibling.taint if tainted?
-      sibling
+    def dup(app=application)
+      ret = super()
+      ret.application = app
+      return ret
     end
 
     # Create a task named +task_name+ with no actions or prerequisites. Use

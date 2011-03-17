@@ -13,3 +13,4 @@ Gemfile.lock
 devbin
 .bundle
 *.swp
+.rbc

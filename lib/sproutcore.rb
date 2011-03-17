@@ -161,6 +161,8 @@ end  # module SC
 
 SC = SproutCore # alias
 
+Encoding.default_external = "UTF-8" if defined?(Encoding)
+
 require "sproutcore/buildfile"
 require "sproutcore/tools"
 require "sproutcore/rack"

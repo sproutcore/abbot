@@ -15,13 +15,21 @@ module SC
 
     attr_accessor :last_task_options
 
+    attr_accessor :tasks
+    protected :tasks, :tasks=
+
     def initialize
       super
-      @task_cache = Hash.new {|h,k| h[k] = {} }
-      @tasks = Hash.new
-      @rules = Array.new
-      @scope = Array.new
+      @task_cache = {}
+      @tasks = {}
+      @rules = []
+      @scope = []
       @last_description = nil
+    end
+
+    def initialize_copy(*)
+      @task_cache = {}
+      super
     end
 
     def create_rule(*args, &block)
@@ -135,6 +143,7 @@ module SC
     # are recognized.  If no scope argument is supplied, use the
     # current scope.  Return nil if the task cannot be found.
     def lookup(task_name, initial_scope=nil)
+      @task_cache[initial_scope] ||= {}
       @task_cache[initial_scope][task_name] ||= begin
         initial_scope ||= @scope
         task_name = task_name.to_s

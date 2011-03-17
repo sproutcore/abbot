@@ -310,7 +310,7 @@ module SC
       entry_extname = entry_rootname = ret = target_name = nil
 
       # optionally you can specify an explicit target name
-      split_index = fragment.index(':') # find first index
+      split_index = fragment.to_s.index(':') # find first index
       unless split_index.nil?
         target_name = '/' + fragment[0..(split_index-1)] if split_index>0
         fragment    = fragment[(split_index+1)..-1] # remove colon
@@ -324,11 +324,11 @@ module SC
         cur_manifest = self
       end
 
-      extname = File.extname(fragment)
+      extname = File.extname(fragment.to_s)
       extname = nil if extname.empty?
 
       # Add leading slash and remove extension
-      rootname = fragment.sub(/\/?/, '/').sub(/#{extname}$/, '')
+      rootname = fragment.to_s.sub(/\/?/, '/').sub(/#{extname}$/, '')
 
       # look on our own target only if target is named
       ret = cur_manifest.entries(opts).find do |entry|
