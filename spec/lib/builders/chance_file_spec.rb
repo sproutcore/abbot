@@ -24,7 +24,10 @@ describe SC::Builder::ChanceFile do
       :chance_instance => instance,
 
       # Chance has a test file made just for testing purposes
-      :chance_file => "chance-test.css"
+      :chance_file => "chance-test.css",
+
+      # Need this
+      :source_entries => []
 
     dest = entry.build_path
 
