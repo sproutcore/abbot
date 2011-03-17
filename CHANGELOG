@@ -1,3 +1,10 @@
+*SproutCore 1.5.0.pre.5 (March 16, 2011)*
+
+* Fixes Ruby 1.8 support
+* Fixes UTF-8 encoding issues
+* Improves speed of unit tests
+* Slice JPEGs and GIFs with Chance
+
 *SproutCore 1.5.0.pre.4.1 (March 1, 2011)*
 
 * Fix bug in SC.TemplateCollectionView that was causing Todos demo not to work
