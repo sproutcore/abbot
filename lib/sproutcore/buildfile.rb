@@ -6,7 +6,6 @@
 # ===========================================================================
 
 require "sproutcore/models/hash_struct"
-require "sproutcore/buildfile/cloneable"
 require "sproutcore/buildfile/task_manager"
 
 module SC
