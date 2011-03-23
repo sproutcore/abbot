@@ -21,13 +21,16 @@ module SC
         src = chance.output_for chance_file unless chance.nil?
         src = "" if src.nil?
 
-        src = rewrite_inline_code(src) if chance_file.end_with?("css")
+        if (chance_file.end_with?("css") or chance_file.end_with?("js")) and src.length > 0
+          src = rewrite_inline_code(src) if chance_file.end_with?("css")
+          src += "\n"
+        end
 
         src
-      }.join("\n")
+      }.join("")
 
-      # Don't write empty files...
-      if src.strip.length > 0
+      # Don't write empty files... but keep in mind that hte 
+      if src.length > 0
         writeline dst_path, src
       end
     end

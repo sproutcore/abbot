@@ -223,7 +223,7 @@ module Chance
         while top < height do
           while left < width do
             if target.respond_to?(:compose)
-              target.compose(source_canvas, left + x, top + y)
+              target.compose!(source_canvas, left + x, top + y)
             else
               target.composite!(source_canvas, left + x, top + y)
             end
@@ -247,15 +247,7 @@ module Chance
           slice = @slices[$1]
           sprite = sprite_for_slice(slice, opts)
 
-          if sprite[:external]
-            # "External" means that Chance does not create the file, and we mean to
-            # instruct the caller of Chance to use the original file directly.
-            #
-            # For instance, SC will replace our external_file with static_url or a variant thereof.
-            output = "background-image: external_file('#{sprite[:name]}')\n"
-          else
-            output = "background-image: chance_file('#{sprite[:name]}')\n"
-          end
+          output = "background-image: chance_file('#{sprite[:name]}')\n"
 
           if slice[:x2]
             width = sprite[:width] / slice[:proportion]
