@@ -1,3 +1,21 @@
+*Upcoming
+
+* sc-build speed improvements
+* Added support for @debug statements which allow you to mark blocks of code only for debugging purposes.
+* Introduce some new safe-guards for the parallelization of minification
+* Refactored how Chance is invoked by the buildtools
+* Made Chance minify the CSS
+* Added verbose logging about the whitelisting feature
+* Fixed bugs with the modular loading feature of sproutcore that caused the modules not to refresh during development
+* Refactored the spriting support of Chance
+* Added a first-draft of a Chance unit test runner, similar to the existing rake test runner, but based on file output not method output
+* Added support for rmagick, allowing us to preprocess jpegs and gifs in addition to pngs
+* Fixed the -r --include-required build flags when used in conjunction with the --build-targets flag in the buildtools which caused missing building and minifying of targets
+* Prevented the buildtools from generating CSS files unnecessarily
+* Updated unit tests
+* Bug fixes throughout
+
+
 *SproutCore 1.5.0.pre.5 (March 16, 2011)*
 
 * Fixes Ruby 1.8 support
