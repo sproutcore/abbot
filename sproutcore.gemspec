@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'haml', '~> 3.0.24'
   
   s.add_dependency 'compass', '~> 0.10.5'
-  s.add_dependency 'chunky_png', '~> 1.0.1'
+  s.add_dependency 'chunky_png', '~> 1.1.0'
 
   if is_jruby
     s.add_dependency 'mongrel', '~> 1.1.5'
