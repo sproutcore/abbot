@@ -126,10 +126,7 @@ module SC
         urls = urls.map do |url|
           %(  <script type="text/javascript" src="#{url}"></script>)
         end
-        
-         # Add preferred language definition, before other scripts...
-        urls.insert(0, %(<script type="text/javascript">String.preferredLanguage = "#{language}";</script>))
-        
+                
         urls.join("\n")
       end
       
@@ -184,6 +181,9 @@ module SC
           end
         end
 
+        # Add preferred language definition, before other scripts...
+        ret <<  %(<script type="text/javascript">String.preferredLanguage = "#{language}";</script>)
+
         # Reference any inlined bootstrap scripts
         if (resources_names = target.config[:bootstrap_inline])
           Array(resources_names).each do |resource_name|
@@ -192,7 +192,7 @@ module SC
         end
 
         ret << %(<script type="text/javascript">SC.buildMode = "#{SC.build_mode}";</script>)
-
+        
         return ret * "\n"
       end
 
