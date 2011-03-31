@@ -1,5 +1,7 @@
 *Upcoming
 
+* Made it possible to share index.html across multiple languages vs. duplicating it for each.
+* Fixed spriting support related regressions
 * sc-build speed improvements
 * Added support for @debug statements which allow you to mark blocks of code only for debugging purposes.
 * Introduce some new safe-guards for the parallelization of minification
