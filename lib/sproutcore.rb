@@ -78,7 +78,7 @@ module SproutCore
 
       # if we are logging to the screen, no reason to use a std loggin fmt
       @logger.formatter = lambda do |severity, time, progname, msg|
-        [severity, '~', msg.to_s, "\n"].join(' ')
+        [severity, time.strftime("%H:%M:%S.") + "%.3d" % (time.usec / 100000), '~', msg.to_s, "\n"].join(' ')
       end
     end
 
