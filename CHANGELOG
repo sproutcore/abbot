@@ -1,4 +1,4 @@
-*Upcoming
+*SproutCore 1.5.0.rc.1 (April 1, 2011)*
 
 * Made it possible to share index.html across multiple languages vs. duplicating it for each.
 * Fixed spriting support related regressions
