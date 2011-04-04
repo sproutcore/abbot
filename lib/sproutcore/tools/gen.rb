@@ -47,7 +47,7 @@ module SC
       end
     end
 
-    desc "sc-gen generator Namespace[.ClassName] [--target=TARGET_NAME] [--filename=FILE_NAME]",
+    desc "gen generator Namespace[.ClassName] [--target=TARGET_NAME] [--filename=FILE_NAME]",
       "Generates SproutCore components"
 
     method_options(
