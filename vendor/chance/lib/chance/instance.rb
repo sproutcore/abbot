@@ -10,6 +10,8 @@ require 'chance/instance/spriting'
 require 'chance/instance/data_url'
 require 'chance/instance/javascript'
 
+require 'digest/md5'
+
 
 Compass.discover_extensions!
 Compass.configure_sass_plugin!
@@ -305,12 +307,12 @@ module Chance
         parser.parse
         file[:parsed_css] = parser.css
 
-        tmp_path = File.join("./tmp/chance/", file[:path])
-
-        # SCSS requires the file names to end with ".scss", but we may
-        # already be getting files named *.scss. So, only add the extension
-        # if it is not already there.
-        tmp_path += ".scss" unless tmp_path.end_with? ".scss"
+        # We use an md5 hash here because on Windows, the full path includes the
+        # drive name. Since a colon is not valid in a file name, we need to remove
+        # it. Since this is very temporary anyway, using an md5 hash isn't a
+        # problem. This has been confirmed with Alex. -- Peter W.
+        path_hash = Digest::MD5.hexdigest(file[:path])
+        tmp_path = "./tmp/chance/#{path_hash}.scss"
 
         FileUtils.mkdir_p(File.dirname(tmp_path))
 
