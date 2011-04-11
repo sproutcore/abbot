@@ -27,7 +27,7 @@ module SC
           if (SC.MODULE_INFO[target_name]) return ; <%# not an error... %>
 
           <%# first time, so add a Hash with this target's module_info %>
-          SC.MODULE_INFO[target_name] = {
+          SC.MODULE_INFO[target_name] = SC.Object.create({
             dependencies:[<%= @dependencies.join(',') %>],
             styles:[<%= @styles.join(',') %>],
             styles2x: [<%= @styles2x.join(',') %>],
@@ -35,7 +35,7 @@ module SC
             stringURL:'<%= @string %>'<% if @prefetched %>,
             isPrefetched: YES
             <% end %>
-          }
+          })
         })();
       EOT
 
