@@ -1,3 +1,7 @@
+*SproutCore 1.5.0.rc.2 (April 11, 2011)*
+
+* Fixed a compatibility issue with Windows environments
+
 *SproutCore 1.5.0.rc.1 (April 1, 2011)*
 
 * Made it possible to share index.html across multiple languages vs. duplicating it for each.
