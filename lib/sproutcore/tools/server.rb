@@ -40,7 +40,15 @@ module SC
         IRB.start
       else
         SC.logger << "SproutCore v#{SC::VERSION} Development Server\n"
-        SC::Rack::Service.start(options.merge(:project => project))
+        begin
+          SC::Rack::Service.start(options.merge(:project => project))
+        rescue => e
+          if e.message =~ /no acceptor/
+            raise "No acceptor. Most likely the port is already in use. Try using --port to specify a different port."
+          else
+            raise e
+          end
+        end
       end
     end
 
