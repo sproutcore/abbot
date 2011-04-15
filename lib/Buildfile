@@ -102,7 +102,11 @@ mode :all do
     # Whether to generate an app.manifest file for HTML5 application caching
     :html5_manifest => false,
     # Which networks/URLs to allow if HTML5 application caching is turned on
-    :html5_manifest_networks => []
+    :html5_manifest_networks => [],
+    
+    # whether to include touch icons in the index.html and other touch related
+    # properties
+    :touch_enabled => true
     
 end
 
