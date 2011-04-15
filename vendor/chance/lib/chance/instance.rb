@@ -271,9 +271,11 @@ module Chance
       return if file[:included] === @@generation
 
       requires = file[:requires]
+      file[:included] = @@generation
+
       requires.each {|r| _include_file(@mapped_files[r]) } unless requires.nil?
 
-      file[:included] = @@generation
+
 
       @file_list.push(file)
     end
