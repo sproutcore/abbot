@@ -78,7 +78,7 @@ module SC
         http_path = http_path.join('?')
 
         response = nil
-        no_body_method = %w(delete get copy head move options trace)
+        no_body_method = %w(get copy head move options trace)
 
         done = false
         tries = 0
