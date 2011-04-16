@@ -29,9 +29,7 @@ module Chance
       end
       
       if @files[path]
-        mtime = File.mtime(path).to_f
-        update_file(path, content) if mtime > @files[path][:mtime]
-        return
+        return update_file_if_needed(path, content)
       end
       
       file = {
@@ -65,6 +63,21 @@ module Chance
 
       @files[path] = file
       puts "Updated " + path if Chance::CONFIG[:verbose]
+    end
+
+    # if the path is a valid filesystem path and the mtime has changed, this invalidates
+    # the file. Returns true if the file was updated.
+    def update_file_if_needed(path, content=nil)
+      # internally, this is exactly what add_file does, so we'll just call that.
+      if @files[path]
+        mtime = File.mtime(path).to_f
+        if mtime > @files[path][:mtime]
+          update_file(path, content)
+          return true
+        end
+      end
+
+      return false
     end
 
     def remove_file(path)

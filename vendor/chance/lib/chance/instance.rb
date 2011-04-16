@@ -113,6 +113,15 @@ module Chance
       clean
     end
 
+    # checks all files to see if they have changed
+    def check_all_files
+      needs_clean = false
+      @mapped_files.values.each {|f|
+        needs_clean = true if Chance.update_file_if_needed f
+      }
+      clean if needs_clean
+    end
+
     # Using a path relative to this instance, gets an actual Chance file
     # hash, with any necessary preprocessing already performed. For instance,
     # content will have been read, and if it is an image file, will have been
