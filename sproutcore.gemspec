@@ -49,7 +49,7 @@ Gem::Specification.new do |s|
   s.files        = `git ls-files`.split("\n")
   s.files       += Dir[".htaccess", "lib/frameworks/sproutcore/**/*"]
   s.files       -= Dir[".gitignore", ".gitmodules", ".DS_Store", ".hashinfo", ".svn", ".git"]
-  s.files.reject!  { |file| file =~ %r{^(coverage|tmp)/} }
+  s.files.reject!  { |file| file =~ %r{^(coverage|tmp)/} || file =~ /\.(psd|drawit|graffle)/ }
 
   s.executables  = `git ls-files`.split("\n").map { |f| f[%r{^bin/(.*)}, 1] }.compact
   s.description  = "SproutCore is a platform for building native look-and-feel applications on " \
