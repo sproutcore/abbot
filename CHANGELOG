@@ -1,6 +1,15 @@
+*SproutCore 1.5.0 (April 19, 2011)*
+
+* Fixed description for init, docs and gen tasks
+* Fix for proxy: DELETE method requests can contain body
+* Fixes to CSS @import/sc_require
+* Better 'port in use' error message for sc-server
+
+
 *SproutCore 1.5.0.rc.2 (April 11, 2011)*
 
 * Fixed a compatibility issue with Windows environments
+
 
 *SproutCore 1.5.0.rc.1 (April 1, 2011)*
 
@@ -29,11 +38,13 @@
 * Improves speed of unit tests
 * Slice JPEGs and GIFs with Chance
 
+
 *SproutCore 1.5.0.pre.4.1 (March 1, 2011)*
 
 * Fix bug in SC.TemplateCollectionView that was causing Todos demo not to work
 in Firefox.
 * Added default CSS for HTML-based projects.
+
 
 *SproutCore 1.5.0.pre.4 (February 28, 2011)*
 
@@ -76,6 +87,7 @@ and above.
 * Experimental support for gyroscope information, if provided by the browser.
 * Unit tests for runtime, desktop, foundation, core_foundation, and datastore
 are all passing.
+
 
 *SproutCore 1.5.0.pre.3 (February 3, 2011)*
 

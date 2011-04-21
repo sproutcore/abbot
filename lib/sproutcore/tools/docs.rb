@@ -11,7 +11,7 @@ require "sproutcore/tools/manifest"
 module SC
   class Tools
 
-    desc "sc-docs [TARGET..]", "Generates JSDoc's for specified targets."
+    desc "docs [TARGET..]", "Generates JSDoc's for specified targets."
     method_options(:entries  => :string,
                    :clean    => true,
                    :language => :string,

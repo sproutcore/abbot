@@ -481,10 +481,8 @@ namespace :manifest do
           next unless File.exist?(src_path)
 
           Chance.add_file src_path
-
-          # NOTE: we prepend all of the files with "source/"; but Chance needs the originals
-          # for things like sc_require.
-          chance.map_file(entry.filename.sub(/^source\//, ""), src_path)
+          # Also remove source/ from the filename for sc_require and @import
+          chance.map_file(entry.filename.sub(/^source\//, ''), src_path)
 
           has_2x_entries = true if src_path.include?("@2x")
         end
