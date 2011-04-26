@@ -2,7 +2,6 @@ $:.push File.expand_path("../lib", __FILE__)
 require "sproutcore/version"
 
 is_jruby = Gem::Platform.local.os == "java"
-is_windows = Gem::Platform.local.os == "mingw32"
 
 Gem::Specification.new do |s|
   s.name = 'sproutcore'
@@ -27,11 +26,7 @@ Gem::Specification.new do |s|
   if is_jruby
     s.add_dependency 'mongrel', '~> 1.1.5'
   else
-    if is_windows
-      s.add_dependency 'thin', '>= 1.2.11'
-    else
-      s.add_dependency 'thin', '>= 1.2.8'
-    end
+    s.add_dependency 'thin', '>= 1.2.11'
     s.add_dependency 'eventmachine', '>= 0.12.10' # Thin requires wrong version
   end
 
