@@ -80,20 +80,16 @@ module SC::Helpers
     end
 
     def minify(paths)
-      # Convert to string if an array
-      if paths.respond_to? :join
-        paths = paths * "\" \""
-      end
+      paths = paths.first if paths.is_a?(Array) && paths.length == 1
 
-      yui_root = File.expand_path("../../../../vendor/sproutcore", __FILE__)
-      jar_path = File.join(yui_root, "SCCompiler.jar")
-
-      if SC.env[:yui_minification]
-        command = "java -Xmx256m -jar \"" + jar_path + "\" -yuionly \"" + paths + "\" 2>&1"
+      if paths.is_a?(Array)
+        paths = paths.map{|p| '"'+p+'"'}.join(' ')
+        outfile = '".js$:.js"'
       else
-        command = "java -Xmx256m -jar \"" + jar_path + "\" \"" + paths + "\" 2>&1"
+        paths = outfile = '"'+paths+'"'
       end
 
+      command = %{java -Xmx256m -jar "#{SC.yui_jar}" -o #{outfile} #{paths} 2>&1}
       output = `#{command}`
 
       SC.logger.info output
