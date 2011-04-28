@@ -656,7 +656,7 @@ module SC
           end
         end
 
-        SC::HashStruct.new ({
+        SC::HashStruct.new({
           :requires => requires,
           :css_urls => css_urls,
           :css_2x_urls => css_2x_urls,
