@@ -41,6 +41,12 @@ module SC
 
     # Parent project this project shoud inherit build rules and targets from
     attr_reader :parent_project
+    
+    # Proc that will be called when changes are detected to a monitored project
+    attr_accessor :monitor_proc
+    
+    # regex so that certain files don't trigger monitor update
+    attr_accessor :nomonitor_pattern
 
     def inspect
       "SC::Project(#{File.basename(project_root || '')})"
