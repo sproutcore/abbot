@@ -186,6 +186,11 @@ describe SC::Builder::Html do
     # such as static_url, sc_resource, etc.
     describe "StaticHelper" do
 
+      it "adds preferredLanguage definition" do
+        result = @builder.bootstrap
+        result.should =~ /String.preferredLanguage = "en"/
+      end
+
       it "exposes static_url() & sc_static() alias" do
         @builder.static_url('icons/image').should =~ /icons\/image.png/
         @builder.static_url('image.jpg').should =~ /image.jpg/
@@ -415,11 +420,6 @@ describe SC::Builder::Html do
           @target.config.combine_javascript = false
           result = @builder.javascripts_for_client
           expect_scripts(result, urls)
-        end
-
-        it "adds preferredLanguage definition" do
-          result = @builder.javascripts_for_client
-          result.should =~ /String.preferredLanguage = "en"/
         end
 
         it "adds javascript_libs to end of scripts" do
