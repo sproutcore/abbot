@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   if is_jruby
     s.add_dependency 'mongrel', '~> 1.1.5'
   else
-    s.add_dependency 'thin', '= 1.2.8'
+    s.add_dependency 'thin', '~> 1.2.11'
     s.add_dependency 'eventmachine', '>= 0.12.10' # Thin requires wrong version
   end
 
