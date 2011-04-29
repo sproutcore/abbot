@@ -60,7 +60,9 @@ module SC
 
         # Rack documentation says CONTENT_TYPE and CONTENT_LENGTH aren't prefixed by HTTP_
         headers['Content-Type'] = env['CONTENT_TYPE'] if env['CONTENT_TYPE']
-        headers['Content-Length'] = env['CONTENT_LENGTH'] if env['CONTENT_LENGTH']
+
+        length = env['CONTENT_LENGTH']
+        headers['Content-Length'] = length if length
 
         http_host, http_port = proxy[:to].split(':')
         http_port = proxy[:secure] ? '443' : '80' if http_port.nil?
@@ -95,13 +97,12 @@ module SC
               response = web.send(http_method, http_path, headers)
             else
               http_body = env['rack.input']
-              http_body.rewind
+              http_body.rewind # May not be necessary but can't hurt
 
-              some_request = Net::HTTPGenericRequest.new http_method.upcase,
-                              true, true, http_path, headers
-
-              some_request.body_stream = http_body
-              response = web.request(some_request)
+              req = Net::HTTPGenericRequest.new(http_method.upcase,
+                                                  true, true, http_path, headers)
+              req.body_stream = http_body if length.to_i > 0
+              response = web.request(req)
             end
           end
 
