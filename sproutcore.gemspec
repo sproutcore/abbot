@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   if is_jruby
     s.add_dependency 'mongrel', '~> 1.1.5'
   else
-    s.add_dependency 'thin', '= 1.2.8'
+    s.add_dependency 'thin', '~> 1.2.11'
     s.add_dependency 'eventmachine', '>= 0.12.10' # Thin requires wrong version
   end
 
@@ -49,7 +49,7 @@ Gem::Specification.new do |s|
   s.files        = `git ls-files`.split("\n")
   s.files       += Dir[".htaccess", "lib/frameworks/sproutcore/**/*"]
   s.files       -= Dir[".gitignore", ".gitmodules", ".DS_Store", ".hashinfo", ".svn", ".git"]
-  s.files.reject!  { |file| file =~ %r{^(coverage|tmp)/} }
+  s.files.reject!  { |file| file =~ %r{^(coverage|tmp)/} || file =~ /\.(psd|drawit|graffle)/ }
 
   s.executables  = `git ls-files`.split("\n").map { |f| f[%r{^bin/(.*)}, 1] }.compact
   s.description  = "SproutCore is a platform for building native look-and-feel applications on " \

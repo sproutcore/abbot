@@ -51,7 +51,6 @@ module SC
       super
       prepare_logger!
       prepare_mode!
-      yui_minification!
       dont_minify!
       prepare_app!
       prepare_build_numbers!
@@ -122,10 +121,6 @@ module SC
         else
           SC.env[:build_targets] = ''
         end
-      end
-      
-      def yui_minification!
-        SC.env[:yui_minification] = options[:'yui-minification']
       end
       
       def dont_minify!

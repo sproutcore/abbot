@@ -128,7 +128,7 @@ module Chance
       _preprocess_css(file) if file[:path] =~ /css$/
 
       _preprocess_png(file) if file[:path] =~ /png$/
-      _preprocess_img(file) if file[:path] =~ /gif$|jpg$/
+      _preprocess_rmagick_image(file) if file[:path] =~ /gif$|jpg$/
 
       file[:preprocessed] = true
     end
@@ -141,7 +141,9 @@ module Chance
       file[:canvas] = nil
       begin
         require "rmagick"
-      rescue Exception
+      rescue LoadError
+        file[:error] = "RMagick is require to process gifs and jpgs. (gem install rmagick)"
+        return
       end
 
       begin

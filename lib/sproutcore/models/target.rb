@@ -656,7 +656,7 @@ module SC
           end
         end
 
-        SC::HashStruct.new ({
+        SC::HashStruct.new({
           :requires => requires,
           :css_urls => css_urls,
           :css_2x_urls => css_2x_urls,
@@ -820,7 +820,7 @@ module SC
       FileUtils.mkdir_p(build_root)
 
       # Prepare jsdoc opts
-      jsdoc_root    = SC::LIBPATH / 'vendor' / 'jsdoc'
+      jsdoc_root    = File.expand_path('../../../../', __FILE__) / 'vendor' / 'jsdoc'
       jar_path      = jsdoc_root / 'jsrun.jar'
       runjs_path    = jsdoc_root / 'app' / 'run.js'
 
