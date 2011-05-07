@@ -129,16 +129,17 @@ module SproutCore
     end
   end
 
-  # Additional targets to be included in the project.
-  def self.include_target_paths
-    @include_target_paths ||= []
+  # Additional targets to be included in the project. Each item is a hash
+  # with :path and :name attributes
+  def self.include_targets
+    @include_targets ||= []
   end
 
   # Adds a target to be included in the project SproutCore builds.
   #
   # This is useful to make additional frameworks available to SproutCore apps.
-  def self.include_target_at_path(path)
-    include_target_paths << path
+  def self.include_target(target_name, target_path)
+    include_targets << { :name => target_name, :path => target_path }
   end
 
   def self.yui_jar

@@ -185,8 +185,16 @@ module SC
 
         # This is the root project, so we must also load the "include targets" used to
         # make additional frameworks available to SC apps.
-        SC.include_target_paths.each {|path|
-          ret.add_target_at_path path
+        SC.include_targets.each {|target|
+          target_path = File.expand_path target[:path]
+          target_name = File.join "/", target[:name]
+
+          # Note: target names must begin with / to be valid.
+          t = ret.add_target target_name, :framework, { :source_root => target_path }
+
+          if t.config[:allow_nested_targets]
+            ret.find_targets_for(target_path, target_name, t.config)
+          end
         }
 
         info "Loaded project at: #{ret.project_root}" unless ret.nil?
