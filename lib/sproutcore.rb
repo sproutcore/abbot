@@ -129,6 +129,18 @@ module SproutCore
     end
   end
 
+  # Additional targets to be included in the project.
+  def self.include_target_paths
+    @include_target_paths ||= []
+  end
+
+  # Adds a target to be included in the project SproutCore builds.
+  #
+  # This is useful to make additional frameworks available to SproutCore apps.
+  def self.include_target_at_path(path)
+    include_target_paths << path
+  end
+
   def self.yui_jar
     @yui_jar ||= begin
       yui_root = File.expand_path("../../vendor/sproutcore/lib", __FILE__)

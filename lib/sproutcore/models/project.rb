@@ -240,6 +240,23 @@ module SC
       return self
     end
 
+    # Adds the target at the given path to this project, recursively if necessary.
+    #
+    # If no target name is provided, one will be determined based on the path.
+    #
+    def add_target_at_path(path, target_name=nil, config={})
+      path = File.expand_path path
+      target_name = "/" + File.basename(path) if target_name.nil?
+
+      target = add_target(target_name, :framework, config.merge({ :source_root => path }))
+
+      if target.config[:allow_nested_targets]
+        find_targets_for(path, target_name, target.config)
+      end
+
+      target
+    end
+
     ################################################
     ## GENERATOR SUPPORT
     ##

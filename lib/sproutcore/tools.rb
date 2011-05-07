@@ -183,6 +183,12 @@ module SC
           end
         end
 
+        # This is the root project, so we must also load the "include targets" used to
+        # make additional frameworks available to SC apps.
+        SC.include_target_paths.each {|path|
+          ret.add_target_at_path path
+        }
+
         info "Loaded project at: #{ret.project_root}" unless ret.nil?
         @project = ret
       end
@@ -373,6 +379,11 @@ module SC
 
       # Fix start so that it treats command-name like command_name
       def self.start(args = ARGV)
+        # Require all the gems the gemfile specifies, so that any SC frameworks
+        # included in the project's gemfile get loaded.
+        require "bundler"
+        Bundler.require
+
         # manually check for verbose in case we don't get far enough in
         # regular processing to actually set the verbose mode.
         is_verbose = %w(-v -V --verbose --very-verbose).any? { |x| args.include?(x) }
