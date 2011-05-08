@@ -44,6 +44,22 @@ module SC
     class_option "library",      :type => :string #deprecated
     class_option "environment",  :type => :string #deprecated
 
+    default_task :banner
+
+    desc "help", "How to use the sproutcore command"
+    def banner
+      str = "SproutCore #{SC::VERSION} Usage"
+      puts "#{str}\n"+('='*str.length)+"\n\n"
+
+      help
+    end
+
+    map "--version" => :version
+    desc "version", "Show the SproutCore version number"
+    def version
+      puts "SproutCore #{SC::VERSION}"
+    end
+
     # This is the core entry method used to run every tool.  Extend this
     # method with any standard preprocessing you want all tools to do before
     # they do their specific thing.
