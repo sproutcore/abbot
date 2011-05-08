@@ -233,7 +233,13 @@ module Chance
       slices = @slices
 
       slices.each do |name, slice|
-        # so, the path should be the path in the chance instance
+        # Write out comments specifying all the files the slice is used from
+        output += "/* Slice #{name}, used in: \n"
+        slice[:used_by].each {|used_by|
+          output += "\t#{used_by[:path]}\n"
+        }
+        output += "*/"
+
         output += "." + slice[:css_name] + " { "
         output += "_sc_chance: \"#{name}\";"
         output += "} \n"

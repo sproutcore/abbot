@@ -151,11 +151,15 @@ module Chance
           :max_offset_x => opts[:offset_x],
           :max_offset_y => opts[:offset_y],
           :imaged_offset_x => 0, # the imaging process will re-define these.
-          :imaged_offset_y => 0
+          :imaged_offset_y => 0,
+
+          :used_by => []
         })
 
         @slices[slice_path] = slice
       end
+
+      slice[:used_by] << { :path => @path }
 
       return slice
     end
