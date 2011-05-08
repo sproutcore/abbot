@@ -1,3 +1,5 @@
+require File.expand_path("../lib/sproutcore/version", __FILE__)
+
 desc "Information for setup"
 task :default do
 
@@ -41,4 +43,18 @@ begin
   RSpec::Core::RakeTask.new
 rescue LoadError
   puts "RSpec is not installed. Please install if you want to run tests."
+end
+
+begin
+  require 'packager/rake_task'
+
+  Packager::RakeTask.new(:pkg) do |t|
+    t.version = SproutCore::VERSION
+    t.domain = "sproutcore.com"
+    t.package_name = "SproutCore"
+    t.bin_files = Dir['bin/*'].map{|p| File.basename(p) }
+    t.resource_files = ["vendor", "VERSION.yml"]
+  end
+rescue LoadError
+  puts "`gem install packager` for packaging tasks"
 end
