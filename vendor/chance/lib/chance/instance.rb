@@ -305,6 +305,8 @@ module Chance
 
       relative_paths = @mapped_files.invert
 
+      unique_number = 0
+
       @file_list.map {|file|
         # The parser accepts single files that contain many files. As such,
         # its method of determing the current file name is a marker in the
@@ -318,12 +320,15 @@ module Chance
         parser.parse
         file[:parsed_css] = parser.css
 
-        # We use an md5 hash here because on Windows, the full path includes the
-        # drive name. Since a colon is not valid in a file name, we need to remove
-        # it. Since this is very temporary anyway, using an md5 hash isn't a
-        # problem. This has been confirmed with Alex. -- Peter W.
-        path_hash = Digest::MD5.hexdigest(file[:path])
-        tmp_path = "./tmp/chance/#{path_hash}.scss"
+        # We used to use an md5 hash here, but this hides the original file name
+        # from SCSS, which makes the file name + line number comments useless.
+        #
+        # Instead, we sanitize the path and put a unique number as a prefix.
+        path_safe = file[:path].gsub(/[^a-zA-Z0-9\-_\\\/]/, '-')
+        path_safe = File.join("#{unique_number}", "#{path_safe}")
+        unique_number += 1
+
+        tmp_path = "./tmp/chance/#{path_safe}.scss"
 
         FileUtils.mkdir_p(File.dirname(tmp_path))
 
