@@ -56,7 +56,7 @@ module Chance
     BEGIN_SCOPE = /\{/
     END_SCOPE = /\}/
     THEME_DIRECTIVE = /@theme\s*/
-    SELECTOR_THEME_VARIABLE = /\$theme\./
+    SELECTOR_THEME_VARIABLE = /\$theme(?=[^\w:-])/
     INCLUDE_SLICES_DIRECTIVE = /@include\s+slices\s*/
     INCLUDE_SLICE_DIRECTIVE = /@include\s+slice\s*/
     CHANCE_FILE_DIRECTIVE = /@_chance_file /
@@ -362,7 +362,7 @@ module Chance
       scanner = @scanner
       scanner.scan SELECTOR_THEME_VARIABLE
 
-      output = "\#{$theme}."
+      output = "\#{$theme}"
 
       return output
     end
