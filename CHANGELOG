@@ -1,3 +1,9 @@
+*SproutCore 1.6.0.beta.2 (May 10, 2011)*
+
+* Framework updates
+* Less noisy packager task
+
+
 *SproutCore 1.6.0.beta.1 (May 8, 2011)*
 
 * Better dependencies for Windows
@@ -5,6 +11,7 @@
 * Fixed processing of GIFs and JPEGs
 * Uses newer version of Thin
 * Uses newer version of YUI Compressor
+
 
 *SproutCore 1.5.0 (April 19, 2011)*
 
@@ -17,6 +24,7 @@
 *SproutCore 1.5.0.rc.2 (April 11, 2011)*
 
 * Fixed a compatibility issue with Windows environments
+
 
 *SproutCore 1.5.0.rc.1 (April 1, 2011)*
 
