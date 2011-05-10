@@ -34,6 +34,13 @@ module SC
             scriptURL:'<%= @script %>',
             stringURL:'<%= @string %>'<% if @prefetched %>,
             isPrefetched: YES
+            <% end %><% if @inlined %>,
+            isLoaded: YES,
+            source: <%= @source %>
+            <% end %><% if @css_source %>,
+            cssSource: <%= @css_source %>
+            <% end %><% if @css_2x_source %>,
+            css2xSource: <%= @css_2x_source %>
             <% end %>
           })
         })();
@@ -56,6 +63,26 @@ module SC
 
         module_info = t.module_info({ :variation => entry[:variation] })
 
+        # Handle inlined modules. Inlined modules get included as strings
+        # in the module info.
+        source = nil, css_source = nil, css_2x_source = nil
+
+        # if (and only if) the module is inlined, we must include the source
+        # for the JS AND CSS inline as well (as strings)
+        if t[:inlined_module]
+          source = File.read(script_entry.stage![:staging_path]).to_json
+
+          css_entry = manifest.find_entry('stylesheet.css')
+          if css_entry
+            css_source = File.read(css_entry.stage![:staging_path]).to_json
+          end
+
+          css_2x_entry = manifest.find_entry('stylesheet@2x.css')
+          if css_2x_entry
+            css_2x_source = File.read(css_2x_entry.stage![:staging_path]).to_json
+          end
+        end
+
         output << eruby.evaluate({
           :target_name => t[:target_name].to_s.sub(/^\//,''),
           :dependencies    => module_info[:requires].map{ |t| "'#{t[:target_name].to_s.sub(/^\//,'')}'" },
@@ -63,7 +90,11 @@ module SC
           :styles2x    => module_info[:css_2x_urls].map {|url| "'#{url}'"},
           :script      => script_url,
           :string      => string_url,
-          :prefetched  => t[:prefetched_module]
+          :source      => source,
+          :inlined     => t[:inlined_module],
+          :prefetched  => t[:prefetched_module],
+          :css_source  => css_source,
+          :css_2x_source => css_2x_source
         })
       end
       writelines dst_path, [output]
