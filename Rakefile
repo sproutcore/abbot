@@ -56,5 +56,7 @@ begin
     t.resource_files = ["vendor", "VERSION.yml"]
   end
 rescue LoadError
-  puts "`gem install packager` for packaging tasks"
+  if Rake.application.options.show_tasks
+    puts "`gem install packager` for packaging tasks"
+  end
 end
