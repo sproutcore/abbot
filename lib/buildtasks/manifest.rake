@@ -145,6 +145,9 @@ namespace :manifest do
         end
       end
 
+      # allow if it is a handlebars template
+      next if entry[:ext] == "handlebars"
+
       # otherwise, allow if inside lproj
       next if entry.localized? || entry[:filename] =~ /^.+\.lproj\/.+$/
 
