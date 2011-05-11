@@ -19,4 +19,5 @@ config '/module_test/deferred_module',
 config :module_test,
   :deferred_modules => [:deferred_module],
   :prefetched_modules => [:required_target],
-  :inlined_modules => [:inlined_module]
+  :inlined_modules => [:inlined_module],
+  :required => [:required_module]
