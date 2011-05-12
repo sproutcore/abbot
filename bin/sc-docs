@@ -7,11 +7,6 @@
 #            and contributors
 # ===========================================================================
 
-if caller.empty?
-  puts "FATAL: You need to invoke sc-docs from an installed gem or through bundler. For more information, please view the README 'Using Abbot From Source'."
-  exit
-end
-
 require "sproutcore"
 
 SC::Tools.invoke :docs

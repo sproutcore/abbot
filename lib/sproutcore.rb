@@ -131,17 +131,10 @@ module SproutCore
 
   def self.yui_jar
     @yui_jar ||= begin
-      yui_root = File.expand_path("../sproutcore/vendor/sproutcore/lib", __FILE__)
-      File.join(yui_root, 'yuicompressor-2.4.4.jar')
+      yui_root = File.expand_path("../../vendor/sproutcore/lib", __FILE__)
+      File.join(yui_root, 'yuicompressor-2.4.6.jar')
     end
   end
-
-  # def self.closure_jar
-  #     @closure_jar ||= begin
-  #       closure_root = File.expand_path("../sproutcore/vendor/sproutcore/lib", __FILE__)
-  #       File.join(closure_root, 'compiler.jar')
-  #     end
-  #   end
 
   def self.profile(env)
     if ENV[env]

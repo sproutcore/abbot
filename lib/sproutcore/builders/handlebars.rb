@@ -22,7 +22,7 @@ module SC
 
     def build(dst_path)
       template_name = entry.rootname[/^.*\/([^\/]*)$/, 1]
-      writelines dst_path, "SC.TEMPLATES[#{template_name.inspect}] = SC.Handlebars.compile(#{readlines(entry[:source_path]).to_json})"
+      writelines dst_path, "SC.TEMPLATES[#{template_name.inspect}] = SC.Handlebars.compile(#{readlines(entry[:source_path]).to_json});"
     end
   end
 

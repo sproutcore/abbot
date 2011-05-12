@@ -1,3 +1,23 @@
+*SproutCore 1.6.0.beta.3 (May 10, 2011)*
+
+* Fixed framework issues that cause sc-build to fail
+
+
+*SproutCore 1.6.0.beta.2 (May 10, 2011)*
+
+* Framework updates
+* Less noisy packager task
+
+
+*SproutCore 1.6.0.beta.1 (May 8, 2011)*
+
+* Better dependencies for Windows
+* Proxy improvements when sending DELETE requests
+* Fixed processing of GIFs and JPEGs
+* Uses newer version of Thin
+* Uses newer version of YUI Compressor
+
+
 *SproutCore 1.5.0 (April 19, 2011)*
 
 * Fixed description for init, docs and gen tasks

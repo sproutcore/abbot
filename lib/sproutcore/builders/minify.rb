@@ -35,12 +35,12 @@ module SC
     def build_css(dst_path)
       a = Regexp.new('^'+MANIFEST.build_root)
       if dst_path =~ a
-		# $to_minify << dst_path
+        # $to_minify << dst_path
         FileUtils.mkdir_p(File.dirname(dst_path))
         FileUtils.copy(entry.source_path, dst_path)
       else
         FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
-        filecompress = "java -Xmx128m -jar \"" + SC.yui_jar + "\" --charset utf-8 --line-break 0 --nomunge --preserve-semi --disable-optimizations \"" + entry.source_path + "\" -o \"" + dst_path + "\" 2>&1"
+        filecompress = "java -Xmx128m -jar \"" + SC.yui_jar + "\" --type css --charset utf-8 --line-break 0 --nomunge --preserve-semi --disable-optimizations \"" + entry.source_path + "\" -o \"" + dst_path + "\" 2>&1"
         SC.logger.info  'Compressing CSS with YUI .... '+ dst_path
         SC.logger.debug `#{filecompress}`
 
@@ -50,12 +50,12 @@ module SC
           SC.logger.fatal("!!!!Failed compressing CSS... "+ dst_path)
         end
       end
-  	end
+    end
 
     # Minify some javascript by invoking the YUI compressor.
     def build_javascript(dst_path)
       entry.source_entry.build!
-      
+
       # Minify module JavaScript immediately so it can be string-wrapped
       if entry.target[:target_type] == :module
         SC::Helpers::Minifier.minify dst_path
@@ -67,7 +67,7 @@ module SC
     def build_inline_javascript(dst_path)
       SC.logger.info  'Compiling inline Javascript with YUI: ' + dst_path + "..."
       FileUtils.mkdir_p(File.dirname(dst_path)) # make sure loc exists...
-      filecompress = "java -Xmx128m -jar \"" + SC.yui_jar + "\" --js \"" + entry.source_path + "\" --js_output_file \"" + dst_path + "\" 2>&1"
+      filecompress = "java -Xmx128m -jar \"" + SC.yui_jar + "\" --type js \"" + entry.source_path + "\" -o \"" + dst_path + "\" 2>&1"
       SC.logger.info  'Compiling with YUI:  '+ filecompress + "..."
 
       output = `#{filecompress}`      # It'd be nice to just read STDERR, but

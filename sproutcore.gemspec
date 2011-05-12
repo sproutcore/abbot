@@ -1,7 +1,9 @@
 $:.push File.expand_path("../lib", __FILE__)
 require "sproutcore/version"
 
-is_jruby = Gem::Platform.local.os == "java"
+os = Gem::Platform.local.os
+is_jruby = (os == "java")
+is_mingw = (os == "mingw32")
 
 Gem::Specification.new do |s|
   s.name = 'sproutcore'
@@ -11,7 +13,8 @@ Gem::Specification.new do |s|
   s.homepage = 'http://www.sproutcore.com'
   s.summary = "SproutCore is a platform for building native look-and-feel applications on the web"
 
-  s.platform = 'java' if is_jruby
+  s.platform = 'java'        if is_jruby
+  s.platform = 'x86-mingw32' if is_mingw
 
   s.add_dependency 'rack', '~> 1.2.1'
   s.add_dependency 'json_pure', "~> 1.4.6"
@@ -19,15 +22,18 @@ Gem::Specification.new do |s|
   s.add_dependency 'erubis', "~> 2.6.6"
   s.add_dependency 'thor', '~> 0.14.3'
   s.add_dependency 'haml', '~> 3.0.24'
-  
+
   s.add_dependency 'compass', '~> 0.10.5'
   s.add_dependency 'chunky_png', '~> 1.1.0'
 
   if is_jruby
     s.add_dependency 'mongrel', '~> 1.1.5'
   else
-    s.add_dependency 'thin', '= 1.2.8'
-    s.add_dependency 'eventmachine', '>= 0.12.10' # Thin requires wrong version
+    s.add_dependency 'thin', '~> 1.2.11'
+  end
+
+  if is_mingw
+    s.add_dependency 'eventmachine', '~> 1.0.0.beta'
   end
 
   s.add_development_dependency 'gemcutter', "~> 0.6.0"
@@ -49,7 +55,7 @@ Gem::Specification.new do |s|
   s.files        = `git ls-files`.split("\n")
   s.files       += Dir[".htaccess", "lib/frameworks/sproutcore/**/*"]
   s.files       -= Dir[".gitignore", ".gitmodules", ".DS_Store", ".hashinfo", ".svn", ".git"]
-  s.files.reject!  { |file| file =~ %r{^(coverage|tmp)/} }
+  s.files.reject!  { |file| file =~ %r{^(coverage|tmp)/} || file =~ /\.(psd|drawit|graffle)/ }
 
   s.executables  = `git ls-files`.split("\n").map { |f| f[%r{^bin/(.*)}, 1] }.compact
   s.description  = "SproutCore is a platform for building native look-and-feel applications on " \

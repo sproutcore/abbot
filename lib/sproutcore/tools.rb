@@ -44,6 +44,22 @@ module SC
     class_option "library",      :type => :string #deprecated
     class_option "environment",  :type => :string #deprecated
 
+    default_task :banner
+
+    desc "help", "How to use the sproutcore command"
+    def banner
+      str = "SproutCore #{SC::VERSION} Usage"
+      puts "#{str}\n"+('='*str.length)+"\n\n"
+
+      help
+    end
+
+    map "--version" => :version
+    desc "version", "Show the SproutCore version number"
+    def version
+      puts "SproutCore #{SC::VERSION}"
+    end
+
     # This is the core entry method used to run every tool.  Extend this
     # method with any standard preprocessing you want all tools to do before
     # they do their specific thing.
@@ -51,7 +67,6 @@ module SC
       super
       prepare_logger!
       prepare_mode!
-      yui_minification!
       dont_minify!
       prepare_app!
       prepare_build_numbers!
@@ -122,10 +137,6 @@ module SC
         else
           SC.env[:build_targets] = ''
         end
-      end
-      
-      def yui_minification!
-        SC.env[:yui_minification] = options[:'yui-minification']
       end
       
       def dont_minify!
