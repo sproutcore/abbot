@@ -113,6 +113,15 @@ module Chance
       clean
     end
 
+    # checks all files to see if they have changed
+    def check_all_files
+      needs_clean = false
+      @mapped_files.values.each {|f|
+        needs_clean = true if Chance.update_file_if_needed f
+      }
+      clean if needs_clean
+    end
+
     # Using a path relative to this instance, gets an actual Chance file
     # hash, with any necessary preprocessing already performed. For instance,
     # content will have been read, and if it is an image file, will have been
@@ -224,7 +233,13 @@ module Chance
       slices = @slices
 
       slices.each do |name, slice|
-        # so, the path should be the path in the chance instance
+        # Write out comments specifying all the files the slice is used from
+        output += "/* Slice #{name}, used in: \n"
+        slice[:used_by].each {|used_by|
+          output += "\t#{used_by[:path]}\n"
+        }
+        output += "*/"
+
         output += "." + slice[:css_name] + " { "
         output += "_sc_chance: \"#{name}\";"
         output += "} \n"
@@ -296,6 +311,8 @@ module Chance
 
       relative_paths = @mapped_files.invert
 
+      unique_number = 0
+
       @file_list.map {|file|
         # The parser accepts single files that contain many files. As such,
         # its method of determing the current file name is a marker in the
@@ -309,12 +326,15 @@ module Chance
         parser.parse
         file[:parsed_css] = parser.css
 
-        # We use an md5 hash here because on Windows, the full path includes the
-        # drive name. Since a colon is not valid in a file name, we need to remove
-        # it. Since this is very temporary anyway, using an md5 hash isn't a
-        # problem. This has been confirmed with Alex. -- Peter W.
-        path_hash = Digest::MD5.hexdigest(file[:path])
-        tmp_path = "./tmp/chance/#{path_hash}.scss"
+        # We used to use an md5 hash here, but this hides the original file name
+        # from SCSS, which makes the file name + line number comments useless.
+        #
+        # Instead, we sanitize the path and put a unique number as a prefix.
+        path_safe = file[:path].gsub(/[^a-zA-Z0-9\-_\\\/]/, '-')
+        path_safe = File.join("#{unique_number}", "#{path_safe}")
+        unique_number += 1
+
+        tmp_path = "./tmp/chance/#{path_safe}.scss"
 
         FileUtils.mkdir_p(File.dirname(tmp_path))
 

@@ -69,14 +69,14 @@ describe "Target#modules" do
       run_task
     end
 
-    it "it should be included in the requirements" do
+    it "it should not be included in the requirements" do
       target = target_for('photos')
       target_requirements = target.required_targets
 
       preferences_module = target.target_for('photos/preferences')
       email_module = target.target_for('photos/email')
 
-      target_requirements.should include(preferences_module)
+      target_requirements.should_not include(preferences_module)
       target_requirements.should_not include(email_module)
     end
   end

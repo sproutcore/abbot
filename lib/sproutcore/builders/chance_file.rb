@@ -9,13 +9,18 @@ module SC
     def build(dst_path)
       instances = entry[:chance_instances] || [entry[:chance_instance]]
       
-      # Ensure all entries are staged. If -c was used, they may have been
-      # gotten rid of.
+      # Ensure all entries are staged. When Abbot updates, it may skip regenerating
+      # the manifest and just run us, in which case, the previous staged version
+      # will be out-of-date.
       entry[:source_entries].each {|e| e.stage! }
 
       chance_file = entry[:chance_file]
 
       src = instances.map {|chance|
+        # Because files were restaged, they could be out-of-date.
+        # Let's double-check them all.
+        chance.check_all_files
+
 
         src = ""
         src = chance.output_for chance_file unless chance.nil?

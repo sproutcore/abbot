@@ -221,14 +221,18 @@ module Chance
 
         # Repeat the pattern to fill the width/height.
         while top < height do
+          left = 0
+
           while left < width do
-            if target.respond_to?(:compose)
-              target.compose!(source_canvas, left + x, top + y)
+            if target.respond_to?(:replace!)
+              target.replace!(source_canvas, left + x, top + y)
             else
               target.composite!(source_canvas, left + x, top + y)
             end
+
             left += source_width
           end
+
           top += source_height
         end
 

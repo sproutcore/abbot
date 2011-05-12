@@ -45,7 +45,7 @@ describe 'SC::Builder::ModuleInfo' do
       req = @target.required_targets
 
       req.size.should == 1
-      req.first.target_name.should == :'/module_test/inlined_module'
+      req.first.target_name.should == :'/module_test/required_module'
     end
 
     it "should require one deferred module" do
