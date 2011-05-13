@@ -150,6 +150,9 @@ module SproutCore
     end
   end
 
+  def self.attach_prefix(url)
+    $script_name ? "#{$script_name}#{url}" : url
+  end
 end  # module SC
 
 SC = SproutCore # alias

@@ -167,6 +167,7 @@ module SC
     def cacheable_url
       ret = self[:url]
       ret = [ret, self.timestamp].join('?') if target.config[:timestamp_urls]
+      ret = SC.attach_prefix(ret)
       if target.config[:hyper_domaining]
         ret = [self.hyperdomain_prefix(ret), ret].join('')
       end
