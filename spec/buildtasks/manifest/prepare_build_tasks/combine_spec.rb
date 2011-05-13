@@ -147,7 +147,7 @@ describe "manifest:prepare_build_tasks:combine" do
   # javascript.js support
   #
 
-  describe "whem CONFIG.combine_javascript = true" do
+  describe "when CONFIG.combine_javascript = true" do
 
     before do
       @config.combine_javascript = true
