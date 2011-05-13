@@ -642,7 +642,10 @@ module SC
         js_urls = []
         javascript_entries.each do |resource_name, entries|
           resource_name = resource_name.ext('js')
-          pf = (resource_name == 'javascript.js') ? %w(source/lproj/strings.js source/core.js source/utils.js) : []
+          target_name = manifest.target.target_name.to_s.split('/')[-1]
+          pf = (resource_name == 'javascript.js') ?
+                  ['source/lproj/strings.js', 'source/core.js', "source/#{target_name}.js", 'source/utils.js'] :
+                  []
           SC::Helpers::EntrySorter.sort(entries, pf).each do |entry|
             if minify_js && entry[:minified]
               js_urls << entry.cacheable_url

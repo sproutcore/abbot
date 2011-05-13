@@ -208,6 +208,26 @@ describe "manifest:prepare_build_tasks:combine" do
         filenames.should eql(expected)
       end
 
+      it "orders entries with APP_NAME.js before other entries" do
+        @target = @project.target_for :template_style
+        @buildfile = @target.buildfile
+        @config = @target.config
+        @manifest = @target.manifest_for(:language => :en)
+        @target.prepare! # make sure its ready for the manifest...
+
+        run_task
+        entry = @manifest.entry_for('javascript.js')
+
+        # get the expected set of ordered entries...based on contents of
+        # project...
+        expected = %w(source/template_style.js source/a.js)
+
+        entry.ordered_entries.should_not be_nil
+        filenames = entry.ordered_entries.map { |e| e.filename }
+        filenames.should eql(expected)
+
+      end
+
       it "will override default order respecting ENTRY.required" do
 
         @target = @project.target_for :with_requires
