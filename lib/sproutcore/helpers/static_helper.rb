@@ -191,8 +191,10 @@ module SC
           end
         end
 
-        ret << %(<script type="text/javascript">SC.buildMode = "#{SC.build_mode}";</script>)
-        
+        url_prefix = $script_name ? %("#{$script_name}") : "null";
+
+        ret << %(<script type="text/javascript">SC.buildMode = "#{SC.build_mode}"; \n SC.urlPrefix = #{url_prefix}; </script>)
+
         return ret * "\n"
       end
 
