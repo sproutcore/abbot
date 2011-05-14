@@ -1,8 +1,4 @@
-/* ==========================================================================
-*  Project:   <%= namespace %> Theme Styles
-*  Copyright: ©<%= Time.now.year %> My Company, Inc.
-*  ==========================================================================
-*/
+<%= copyright_block("#{namespace} Theme Styles", :css) %>
 
 /* 
   Place any styles you want to define in this file.  You can also break your

@@ -1,7 +1,4 @@
-=============================================================================
-Project:   <%= namespace %>
-Copyright: ©<%= Time.now.year %> My Company, Inc.
-=============================================================================
+<%= copyright_block(namespace, false) %>
 
 TODO: Describe Your Project
 

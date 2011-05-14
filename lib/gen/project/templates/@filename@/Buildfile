@@ -1,7 +1,4 @@
-# ===========================================================================
-# Project:   <%= namespace %>
-# Copyright: ©<%= Time.now.year %> My Company, Inc.
-# ===========================================================================
+<%= copyright_block(namespace, :ruby) %>
 
 # This is your Buildfile, which sets build settings for your project.
 # For example, this tells SproutCore's build tools that your requires

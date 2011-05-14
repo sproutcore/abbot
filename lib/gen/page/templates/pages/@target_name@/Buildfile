@@ -1,7 +1,4 @@
-#  ==========================================================================
-#  Project:   <%= namespace %> Buildfile
-#  Copyright: ©<%= Time.now.year %> My Company, Inc.
-#  ==========================================================================
+<%= copyright_block("#{namespace} Buildfile", :ruby) %>
 
 # You can use to buildfile to add a custom page title, set environment 
 # variables, and require any specific JavaScript or other libraries you want
