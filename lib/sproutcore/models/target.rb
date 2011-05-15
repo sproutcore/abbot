@@ -190,6 +190,12 @@ module SC
         end
       end
 
+      if opts[:modules]
+        ret << config[:inlined_modules]
+        ret << config[:prefetched_modules]
+        ret << config[:deferred_modules]
+      end
+
       ret = ret.flatten.compact.map do |n|
         if (t = target_for(n)).nil?
           SC.logger.warn "Could not find target #{n} that is required by #{self[:target_name]}"

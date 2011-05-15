@@ -290,7 +290,12 @@ module SC
           targets.each do |target|
             required = target.expand_required_targets :theme => true,
              :debug => target.config.load_debug,
-             :tests => target.config.load_tests
+             :tests => target.config.load_tests,
+
+             # Modules are not 'required' technically, as they may be loaded
+             # lazily. However, we want to know all targets that should be built,
+             # so we'll include modules as well.
+             :modules => true
 
             required.each {|t| 
               t.config[:minify_javascript] = false if not targets.include? t
