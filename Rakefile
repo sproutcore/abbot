@@ -103,8 +103,18 @@ namespace :release do
     task :changelog => :chdir do
       last_tag = `git describe --tags`.strip
       puts "Getting Changes since #{last_tag}"
+
       changes = `git log #{last_tag}..HEAD --format='* %s'`
-      puts "#{version}\n#{'-'*version.length}\n#{changes}"
+      output = "#{version}\n#{'-'*version.length}\n#{changes}\n"
+
+      unless pretend?
+        File.open('CHANGELOG.md', 'r') do |file|
+          file.lineno = 4
+          file.puts output
+        end
+      else
+        puts output
+      end
     end
 
     task :update_references => :chdir do
@@ -161,8 +171,18 @@ namespace :release do
     task :changelog => :chdir do
       last_tag = `git describe --tags`.strip
       puts "Getting Changes since #{last_tag}"
+
       changes = `git log #{last_tag}..HEAD --format='* %s'`
-      puts "#{version}\n#{'-'*version.length}\n#{changes}"
+      output = "*SproutCore #{version} (#{Time.now.strftime("%B %d, %Y")})\n\n#{changes}\n"
+
+      unless pretend?
+        File.open('CHANGELOG', 'r') do |file|
+          file.lineno = 4
+          file.puts output
+        end
+      else
+        puts output
+      end
     end
 
     task :commit => :chdir do
