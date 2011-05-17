@@ -157,6 +157,11 @@ module SC
       # make sure we update for changes in theme and required (commonly changed):
       key << config[:theme].to_s if config[:theme] and opts[:theme]
       key << config[:required].to_s if config[:required]
+      if opts[:modules]
+        key << config[:inlined_modules] if config[:inlined_modules]
+        key << config[:prefetched_modules] if config[:prefetched_modules]
+        key << config[:deferred_modules] if config[:deferred_modules]
+      end
 
       key = key.compact.join('.')
 
