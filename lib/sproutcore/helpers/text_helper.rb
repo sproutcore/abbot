@@ -82,13 +82,10 @@ module SC
         # <i>This method is only available if RedCloth[http://whytheluckystiff.net/ruby/redcloth/]
         # is available</i>.
         def textilize(text)
-          if text.blank?
-            ""
-          else
-            textilized = RedCloth.new(text, [ :hard_breaks ])
-            textilized.hard_breaks = true if textilized.respond_to?("hard_breaks=")
-            textilized.to_html
-          end
+          return '' if text.blank?
+          textilized = RedCloth.new(text, [ :hard_breaks ])
+          textilized.hard_breaks = true if textilized.respond_to?("hard_breaks=")
+          textilized.to_html
         end
 
         # Returns the text with all the Textile codes turned into HTML tags,
