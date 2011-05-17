@@ -79,10 +79,6 @@ namespace :release do
     ENV['PRETEND']
   end
 
-  def nopush?
-    ENV['NOPUSH']
-  end
-
   namespace :framework do
 
     task :chdir do
@@ -147,7 +143,7 @@ namespace :release do
 
     task :push => :chdir do
       puts "Pushing Repo"
-      unless pretend? || nopush?
+      unless pretend?
         print "Are you sure you want to push the framework repo to github? (y/N) "
         res = STDIN.gets.chomp
         if res == 'y'
@@ -211,7 +207,7 @@ namespace :release do
 
     task :push => :chdir do
       puts "Pushing Repo"
-      unless pretend? || nopush?
+      unless pretend?
         print "Are you sure you want to push the abbot repo to github? (y/N) "
         res = STDIN.gets.chomp
         if res == 'y'
@@ -243,7 +239,7 @@ namespace :release do
     task :push do
       Dir["sproutcore-#{version}*.gem"].each do |g|
         puts "Pushing #{g}"
-        unless pretend? || nopush?
+        unless pretend?
           print "Are you sure you want to push the gem to RubyGems.org? (y/N) "
           res = STDIN.gets.chomp
           if res == 'y'
