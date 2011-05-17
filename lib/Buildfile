@@ -82,6 +82,11 @@ mode :all do
     # packs all JavaScript and CSS into one file for reduced HTTP requests
     :use_packed => true,
 
+    # generates output using sprites rather than data urls. This is default
+    # for all modes: it is faster to generate and browsers handle sprites better
+    # than data urls.
+    :use_sprites => true,
+
 		# If set to true, the specified framework, if loaded via the SC.loadBundle
 		# API, will be set up to be lazily instantiated when loaded.
 		:lazy_instantiation => false,
