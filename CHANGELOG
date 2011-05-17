@@ -1,3 +1,36 @@
+*SproutCore 1.6.0.rc.1 (May 16, 2011)*
+
+* More Rakefile improvements
+* Real changelog tasks
+* Added get_allowed_keys to DRY up the retrieval of options
+* DRY up the init task
+* Added in sc-build args that were in documentation but not implemented - Fixes #429
+* Merge pull request #47 from drogus/script_name
+* Added copyright_block method to centralize template copyright generation
+* Commited missing fixtures for tests
+* Handle SCRIPT_NAME properly when sproutcore server is mounted
+* Fixed test name typos
+* Try to load APP_NAME.js in addition to core.js - Fixes #413
+* Updated haml and compass dependencies
+* Merge pull request #45 from gmoeck/master
+* Merge remote branch 'public/master'
+* Fixed issue where the javascript building got in a fight with the YUI compressor (I think). See http://i.imgur.com/xbxGO.png.
+* Less noisy RSpec
+* Rakefile release task
+* Add handlebars files to the entries
+* fixed bug in the require of generated models
+* Merged with public/msater
+* Adding touch_enabled flag to avoid having the touch icons included (default is still true)
+* Correct behavior of sc_require in Chance.
+* Made modules SC.Objects instead of just hashes
+* Merge remote-tracking branch 'public/master'
+* Fix to chance to avoid a Windows error
+* Change jQuery.ready() to SC.ready() in HTML template, which allows SC.RootResponder to attach event listeners before the app runs.
+* Merge remote branch 'public/master'
+* Changed the generators so they create more descriptive names. Before, we had lots of files with the same name, which was confusing in editors and in the webkit inspector. This solves that problem.
+* Adding timestamp to sc-build logger, thanks Tony Sung
+
+
 *SproutCore 1.6.0.beta.3 (May 10, 2011)*
 
 * Fixed framework issues that cause sc-build to fail
