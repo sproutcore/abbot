@@ -50,7 +50,7 @@ Gem::Specification.new do |s|
 
 
   s.rubyforge_project = "sproutcore"
-  s.extra_rdoc_files  = %w[History.txt README.txt]
+  s.extra_rdoc_files  = %w[History.rdoc README.rdoc]
 
   s.files        = `git ls-files`.split("\n")
   s.files       += Dir[".htaccess", "lib/frameworks/sproutcore/**/*"]
