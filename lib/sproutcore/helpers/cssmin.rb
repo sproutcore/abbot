@@ -152,47 +152,33 @@ module SC::Helpers
       # shotern several numbers to names
       style.gsub!(/:[\s]*#([fF]00|[fF]{2}0000);/, ':red;')
       style.gsub!(/:[\s]*#([fF]00|[fF]{2}0000)\}/, ':red}')
-
       style
     end
 
     # Do miscellaneous compression methods on the style
     def do_misc(script)
       # Replace 0(pt,px,em,%) with 0 but only when preceded by : or a white-space
-      script = script.gsub(/([\s:]+)(0)(px|em|%|in|cm|mm|pc|pt|ex)/) do |match|
-        match.gsub(/(px|em|%|in|cm|mm|pc|pt|ex)/,'')
-      end
+      script.gsub!(/([\s:]+)(0)(px|em|%|in|cm|mm|pc|pt|ex)/) { |match| match.gsub(/(px|em|%|in|cm|mm|pc|pt|ex)/,'') }
       # Replace 0 0 0 0; with 0.
-      script = script.gsub(':0 0 0 0;', ':0;')
-      script = script.gsub(':0 0 0 0}', ':0}')
-      script = script.gsub(':0 0 0;', ':0;')
-      script = script.gsub(':0 0 0}', ':0}')
-      script = script.gsub(':0 0}', ':0}')
-      script = script.gsub(':0 0;', ':0;')
+      script.gsub!(/:(0\s){0,3}0;/, ':0;')
+      script.gsub!(/:(0\s){0,3}0\}/, ':0}')
       # Replace background-position:0; with background-position:0 0;
-      script = script.gsub('background-position:0;', 'background-position:0 0;');
-      # Replace 0.6 to .6, but only when preceded by : or a white-space
-      script = script.gsub(/[:\s]0+\.(\d+)/) do |match|
-        match.sub('0', '') # only first '0' !!
-      end
+      script.gsub!('background-position:0;', 'background-position:0 0;');
+      # Replace 0.6 to .6, but only the first 0 and only when preceded by : or a white-space
+      script.gsub!(/[:\s]0+\.(\d+)/) { |match| match.sub('0', '') }
       # Replace ;;;; with ;
-      script = script.gsub(/[;]+/, ';')
+      script.gsub!(/[;]+/, ';')
       # Replace ;} with }
-      script = script.gsub(';}', '}')
+      script.gsub!(';}', '}')
       # Replace background-color: with background:
-      script = script.gsub('background-color:', 'background:')
+      script.gsub!('background-color:', 'background:')
       # Replace font-weight:normal; with 400, bold with 700
-      script = script.gsub(/font-weight[\s]*:[\s]*normal[\s]*;/,'font-weight:400;')
-      script = script.gsub(/font-weight[\s]*:[\s]*normal[\s]*\}/,'font-weight:400}')
-      script = script.gsub(/font[\s]*:[\s]*normal[\s;\}]*/) do |match|
-        match.sub('normal', '400')
-      end
-      script = script.gsub(/font-weight[\s]*:[\s]*bold[\s]*;/,'font-weight:700;')
-      script = script.gsub(/font-weight[\s]*:[\s]*bold[\s]*\}/,'font-weight:700}')
-      script = script.gsub(/font[\s]*:[\s]*bold[\s;\}]*/) do |match|
-        match.sub('bold', '700')
-      end
-
+      script.gsub!(/font-weight[\s]*:[\s]*normal[\s]*;/,'font-weight:400;')
+      script.gsub!(/font-weight[\s]*:[\s]*normal[\s]*\}/,'font-weight:400}')
+      script.gsub!(/font[\s]*:[\s]*normal[\s;\}]*/) { |match| match.sub!('normal', '400') }
+      script.gsub!(/font-weight[\s]*:[\s]*bold[\s]*;/,'font-weight:700;')
+      script.gsub!(/font-weight[\s]*:[\s]*bold[\s]*\}/,'font-weight:700}')
+      script.gsub!(/font[\s]*:[\s]*bold[\s;\}]*/) { |match| match.sub!('bold', '700') }
       script
     end
 
