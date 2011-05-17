@@ -229,23 +229,24 @@ module Chance
     # slicing operation has not yet taken place. The postprocessing portion
     # receives sliced versions.
     def _css_for_slices
-      output = ""
+
+      output = []
       slices = @slices
 
       slices.each do |name, slice|
         # Write out comments specifying all the files the slice is used from
-        output += "/* Slice #{name}, used in: \n"
+        output << "/* Slice #{name}, used in: \n"
         slice[:used_by].each {|used_by|
-          output += "\t#{used_by[:path]}\n"
+          output << "\t#{used_by[:path]}\n"
         }
-        output += "*/"
+        output << "*/"
 
-        output += "." + slice[:css_name] + " { "
-        output += "_sc_chance: \"#{name}\";"
-        output += "} \n"
+        output << "." + slice[:css_name] + " { "
+        output << "_sc_chance: \"#{name}\";"
+        output << "} \n"
       end
 
-      return output
+      return output.join ""
 
     end
 
