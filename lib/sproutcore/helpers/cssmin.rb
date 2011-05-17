@@ -115,25 +115,23 @@ module SC::Helpers
       script.gsub!(/\s*,\s*/,',')
       script.gsub!("\t",'');
       script
-  	end
-
-  	# Replace color values with their shorter equivalent
-  	#
-  	# 1. Turn rgb(,,)-colors into #-values
-  	# 2. Shorten #AABBCC down to #ABC
-  	# 3. Replace names with their shorter hex-equivalent
-  	#    * white -> #fff
-   	#    * black -> #000
-  	# 4. Replace #-values with their shorter name
-  	#    * #f00 -> red
-  	def shorten_colors(style)
-  	  # rgb(50,101,152) to #326598
+    end
+    
+    # Replace color values with their shorter equivalent
+    #
+    # 1. Turn rgb(,,)-colors into #-values
+    # 2. Shorten #AABBCC down to #ABC
+    # 3. Replace names with their shorter hex-equivalent
+    #    * white -> #fff
+    #    * black -> #000
+    # 4. Replace #-values with their shorter name
+    #    * #f00 -> red
+    def shorten_colors(style)
+      # rgb(50,101,152) to #326598
       style = style.gsub(/rgb\s*\(\s*([0-9,\s]+)\s*\)/) do |match|
         out = '#'
         $1.split(',').each do |num|
-          if num.to_i < 16
-            out += '0'
-          end
+          out += '0' if num.to_i < 16
           out += num.to_i.to_s(16) # convert to hex
         end
         out
@@ -147,15 +145,15 @@ module SC::Helpers
         out
       end
       # shorten several names to numbers
-      style = style.gsub(/:[\s]*white[\s]*;/, ':#fff;')
-      style = style.gsub(/:[\s]*white[\s]*\}/, ':#fff}')
-      style = style.gsub(/:[\s]*black[\s]*;/, ':#000;')
-      style = style.gsub(/:[\s]*black[\s]*\}/, ':#000}')
+      style.gsub!(/:[\s]*white[\s]*;/, ':#fff;')
+      style.gsub!(/:[\s]*white[\s]*\}/, ':#fff}')
+      style.gsub!(/:[\s]*black[\s]*;/, ':#000;')
+      style.gsub!(/:[\s]*black[\s]*\}/, ':#000}')
       # shotern several numbers to names
-      style = style.gsub(/:[\s]*#([fF]00|[fF]{2}0000);/, ':red;')
-      style = style.gsub(/:[\s]*#([fF]00|[fF]{2}0000)\}/, ':red}')
+      style.gsub!(/:[\s]*#([fF]00|[fF]{2}0000);/, ':red;')
+      style.gsub!(/:[\s]*#([fF]00|[fF]{2}0000)\}/, ':red}')
 
-  	  style
+      style
     end
 
     # Do miscellaneous compression methods on the style
