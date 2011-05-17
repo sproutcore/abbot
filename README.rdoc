@@ -1,7 +1,8 @@
-sproutcore - abbot
+= sproutcore - abbot
+
     by Charles Jolley and contributors
     http://www.sproutcore.com
-    http://github.com/sproutit/sproutcore-abbot
+    http://github.com/sproutcore/sproutcore-abbot
 
 == DESCRIPTION:
 
