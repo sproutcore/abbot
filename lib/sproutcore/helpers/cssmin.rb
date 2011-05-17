@@ -107,13 +107,14 @@ module SC::Helpers
     # 2. Remove spaces around ;:{},
     # 3. Remove tabs
     def remove_spaces(script)
-  	  script = script.gsub(/(\s(\s)+)/, ' ')
-      script = script.gsub(/\s*;\s*/,';')
-      script = script.gsub(/\s*:\s*/,':')
-      script = script.gsub(/\s*\{\s*/,'{')
-      script = script.gsub(/\s*\}\s*/,'}')
-      script = script.gsub(/\s*,\s*/,',')
-      script.gsub("\t",'');
+      script.gsub!(/(\s(\s)+)/, ' ')
+      script.gsub!(/\s*;\s*/,';')
+      script.gsub!(/\s*:\s*/,':')
+      script.gsub!(/\s*\{\s*/,'{')
+      script.gsub!(/\s*\}\s*/,'}')
+      script.gsub!(/\s*,\s*/,',')
+      script.gsub!("\t",'');
+      script
   	end
 
   	# Replace color values with their shorter equivalent
