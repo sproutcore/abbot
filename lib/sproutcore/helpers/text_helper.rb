@@ -97,9 +97,9 @@ module SC
         # is available</i>.
         def textilize_without_paragraph(text)
           textiled = textilize(text)
-          if textiled[0..2] == "<p>" then textiled = textiled[3..-1] end
-          if textiled[-4..-1] == "</p>" then textiled = textiled[0..-5] end
-          return textiled
+          textiled = textiled[3..-1] if textiled[0..2] == '<p>'
+          textiled = textiled[0..-5] if textiled[-4..-1] == '</p>'
+          textiled
         end
       rescue LoadError
         # We can't really help what's not there
