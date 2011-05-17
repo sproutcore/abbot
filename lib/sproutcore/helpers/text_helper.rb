@@ -206,7 +206,8 @@ module SC
         if (cycle.nil? || cycle.values != values)
           cycle = set_cycle(name, Cycle.new(*values))
         end
-        return cycle.to_s
+
+        cycle.to_s
       end
 
       # Resets a cycle so that it starts from the first element the next time
@@ -231,7 +232,7 @@ module SC
         def to_s
           value = @values[@index].to_s
           @index = (@index + 1) % @values.size
-          return value
+          value
         end
       end
 
@@ -241,7 +242,7 @@ module SC
         # uses an instance variable of ActionView::Base.
         def get_cycle(name)
           @_cycles = Hash.new unless defined?(@_cycles)
-          return @_cycles[name]
+          @_cycles[name]
         end
 
         def set_cycle(name, cycle_object)
