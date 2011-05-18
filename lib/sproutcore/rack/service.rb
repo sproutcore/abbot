@@ -127,7 +127,7 @@ module SC
           apps << SC::Rack::Filesystem.new(project)
         end
 
-        #if config.serve_test_runner || config.serve_docs
+        #if config.serve_test_runner
           apps << SC::Rack::Dev.new(project)
         #end
 

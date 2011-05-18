@@ -21,6 +21,6 @@ config :desktop,
 config :mobile,
   :required => %w(costello foundation application data_store)
 
-%w(uploader docs test_runner).each do |target_name|
+%w(uploader test_runner).each do |target_name|
   config target_name, :required => :sproutcore
 end
