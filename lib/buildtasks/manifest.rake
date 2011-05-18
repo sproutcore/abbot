@@ -605,10 +605,17 @@ namespace :manifest do
       # build combined JS entry
       javascript_entries.each do |resource_name, entries|
         resource_name = resource_name.ext('js')
-        target_name = manifest.target.target_name.to_s.split('/')[-1]
-        pf = (resource_name == 'javascript.js') ?
-                ['source/lproj/strings.js', 'source/core.js', "source/#{target_name}.js", 'source/utils.js'] :
-                []
+
+        if resource_name == 'javascript.js'
+          pf = ['source/lproj/strings.js', 'source/core.js', 'source/utils.js']
+          if manifest.target.target_type == :app
+            target_name = manifest.target.target_name.to_s.split('/')[-1]
+            pf.insert(2, "source/#{target_name}.js")
+          end
+        else
+          pf = []
+        end
+
         manifest.add_composite resource_name,
           :build_task      => 'build:combine',
           :source_entries  => entries,
