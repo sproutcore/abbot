@@ -410,12 +410,8 @@ module SC
       def self.start(args = ARGV)
         # Require all the gems the gemfile specifies, so that any SC frameworks
         # included in the project's gemfile get loaded.
-        begin
-          require "bundler"
-          Bundler.require
-        rescue Exception => e
-          # Could not load Gemfile, but that's OK.
-        end
+        require "bundler"
+        Bundler.require
 
         # manually check for verbose in case we don't get far enough in
         # regular processing to actually set the verbose mode.
