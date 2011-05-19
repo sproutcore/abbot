@@ -16,10 +16,10 @@ Gem::Specification.new do |s|
   s.platform = 'java'        if is_jruby
   s.platform = 'x86-mingw32' if is_mingw
 
-  s.add_dependency 'rack', '~> 1.2.1'
+  s.add_dependency 'rack', '~> 1.2'
   s.add_dependency 'json_pure', "~> 1.4.6"
   s.add_dependency 'extlib', "~> 0.9.15"
-  s.add_dependency 'erubis', "~> 2.6.6"
+  s.add_dependency 'erubis', "~> 2.6"
   s.add_dependency 'thor', '~> 0.14.3'
   s.add_dependency 'haml', '~> 3.1.1'
 
