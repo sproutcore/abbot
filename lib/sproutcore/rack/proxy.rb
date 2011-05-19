@@ -103,7 +103,7 @@ module SC
             response_status = http.response_header.status
 
             # TODO: Might be able to provide better error handling here
-            SC.logger << "~ !!ERROR!! PROXY: #{method.upcase} #{response_status} #{path} -> #{uri}\n"
+            SC.logger << "~ !!ERROR!! PROXY: #{method.upcase} #{response_status} #{path} -> #{url}\n"
           }
 
           # Received response
