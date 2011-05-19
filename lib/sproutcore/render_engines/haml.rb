@@ -5,6 +5,8 @@
 #            and contributors
 # ===========================================================================
 
+require 'haml'
+
 module SC
   module RenderEngine
 
@@ -14,11 +16,6 @@ module SC
       end
 
       def compile(input)
-        begin
-          require 'haml'
-        rescue
-          raise "Cannot render HAML file because haml is not installed. Try running 'sudo gem install haml' and try again"
-        end
         ::Haml::Engine.new(input).send(:precompiled_with_ambles, [])
       end
 

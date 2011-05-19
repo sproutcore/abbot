@@ -642,10 +642,17 @@ module SC
         js_urls = []
         javascript_entries.each do |resource_name, entries|
           resource_name = resource_name.ext('js')
-          target_name = manifest.target.target_name.to_s.split('/')[-1]
-          pf = (resource_name == 'javascript.js') ?
-                  ['source/lproj/strings.js', 'source/core.js', "source/#{target_name}.js", 'source/utils.js'] :
-                  []
+
+          if resource_name == 'javascript.js'
+            pf = ['source/lproj/strings.js', 'source/core.js', 'source/utils.js']
+            if manifest.target.target_type == :app
+              target_name = manifest.target.target_name.to_s.split('/')[-1]
+              pf.insert(2, "source/#{target_name}.js")
+            end
+          else
+            pf = []
+          end
+
           SC::Helpers::EntrySorter.sort(entries, pf).each do |entry|
             if minify_js && entry[:minified]
               js_urls << entry.cacheable_url
@@ -760,112 +767,6 @@ module SC
 
       # None found
       return nil
-    end
-
-    ######################################################
-    # BUILD DOCS METHODS
-    #
-
-    # Creates all of the documentation for the target.
-    #
-    # === Options
-    #
-    #  :build_root:: the root path to place built documentation
-    #  :language::   the language to build.  defaults to preferred lang
-    #  :required::   include required targets.  defaults to true
-    def build_docs!(opts ={})
-
-      build_root   = opts[:build_root] || nil
-      language     = opts[:language] || self.config.preferred_language || :en
-      logger       = opts[:logger] || SC.logger
-      template_name = opts[:template] || 'sproutcore'
-      use_required = opts[:required]
-      use_required = true if use_required.nil?
-
-      # collect targets to build
-      doc_targets = [self]
-      doc_targets = (self.expand_required_targets + [self]) if use_required
-
-      # convert targets to manifests so we can get alll files
-      doc_manifests = doc_targets.map do |target|
-        target.manifest_for(:language => language)
-      end
-
-      # Collect all source entries, in the order they should be loaded
-      file_list = []
-      doc_manifests.each do |manifest|
-        entry = manifest.build!.entry_for('javascript.js')
-        next if entry.nil?
-
-        # loop over entries, collecting their source entries until we get
-        # back to the original source files.  Since we expand these entries
-        # in their proper load order this should give us something suitable
-        # to hand to jsdoc.
-        entries = entry.ordered_entries || entry.source_entries
-        while entries && entries.size>0
-          new_entries = []
-          entries.each do |cur_entry|
-            sources = cur_entry.ordered_entries || cur_entry.source_entries
-            if sources
-              new_entries += sources
-            elsif entry.filename =~ /\.js$/
-              file_list << cur_entry.source_path
-            end
-          end
-          entries = new_entries
-        end
-      end
-
-      file_list = file_list.uniq # remove duplicates
-      file_list = file_list.select { |path| File.exist?(path) }
-
-      logger.info "Building #{target_name} docs at #{build_root}"
-      FileUtils.mkdir_p(build_root)
-
-      # Prepare jsdoc opts
-      jsdoc_root    = File.expand_path('../../../../', __FILE__) / 'vendor' / 'jsdoc'
-      jar_path      = jsdoc_root / 'jsrun.jar'
-      runjs_path    = jsdoc_root / 'app' / 'run.js'
-
-      # look for a directory matching the template name
-      cur_project = self.project
-      has_template = false
-      while cur_project
-        template_path = cur_project.project_root / 'doc_templates' / template_name
-        has_template = File.directory?(template_path)
-        cur_project = has_template ? nil : cur_project.parent_project
-      end
-
-      if !has_template
-        cur_project = self.project
-        has_template = false
-        while cur_project
-          template_path = cur_project.project_root / template_name
-          has_template = File.directory?(template_path)
-          cur_project = has_template ? nil : cur_project.parent_project
-        end
-      end
-      throw("could not find template named #{template_name}") if !has_template
-
-      # wrap files in quotes...
-      # Note: using -server gives an approx. 25% speed boost over -client
-      # (the default)
-      js_doc_cmd = %(java -server -Djsdoc.dir="#{jsdoc_root}" -jar "#{jar_path}" "#{runjs_path}" -t="#{template_path}" -d="#{build_root}" "#{ file_list * '" "' }" -v)
-
-      logger.info "File Manifest:\r\n"
-      file_list.each { |file_path| logger.info(file_path) }
-
-      puts "Generating docs for #{self.target_name}\r\nPlease be patient this could take awhile..."
-
-      # use pipe so that we can immediately log output as it happens
-      IO.popen(js_doc_cmd) do |pipe|
-        while line = pipe.gets
-          next if line =~ /WARNING: (<|===|index:)/
-          logger.info line.sub(/\n$/,'')
-        end
-      end
-
-      puts "Finished."
     end
 
   end
