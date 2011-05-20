@@ -18,6 +18,8 @@ module SC
     method_options(MANIFEST_OPTIONS)
     method_option :entries, :type => :string
     method_option :clean,   :type => :boolean, :aliases => "-c"
+    # This is defined in MANIFEST_OPTIONS but I add the aliases here only since we use target elsewhere
+    method_option :buildroot, :type => :string, :aliases => %w(--target -t)
     def build(*targets)
       t1 = Time.now
       SC.logger.info  'Starting build process...'

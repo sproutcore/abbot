@@ -14,8 +14,8 @@ module SC
                          :format            => :string,
                          :output            => :string,
                          :all               => false,
+                         :buildroot         => :string,
                          ['--languages', '-L']              => :string,
-                         ['--buildroot', '--target', '-t']  => :string,
                          ['--build-numbers', '-B']          => :string,
                          ['--include-required', '-r']       => false }
 
