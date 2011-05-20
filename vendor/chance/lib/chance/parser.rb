@@ -568,17 +568,25 @@ module Chance
       fill_width = Integer(fill[0])
       fill_height = Integer(fill[1])
 
-      skip_top_left = values.include? 'skip-top-left'
-      skip_top = values.include? 'skip-top'
-      skip_top_right = values.include? 'skip-top-right'
+      # skip control
+      skip = arguments[:skip]
+      if skip.nil?
+        skip = []
+      else
+        skip = skip.split /\s+/
+      end
 
-      skip_left = values.include? 'skip-left'
-      skip_middle = values.include? 'skip-middle'
-      skip_right = values.include? 'skip-right'
+      skip_top_left = skip.include? 'top-left'
+      skip_top = skip.include? 'top'
+      skip_top_right = skip.include? 'skip-top-right'
 
-      skip_bottom_left = values.include? 'skip-bottom-left'
-      skip_bottom = values.include? 'skip-bottom'
-      skip_bottom_right = values.include? 'skip-bottom-right'
+      skip_left = skip.include? 'left'
+      skip_middle = skip.include? 'middle'
+      skip_right = skip.include? 'right'
+
+      skip_bottom_left = skip.include? 'bottom-left'
+      skip_bottom = skip.include? 'bottom'
+      skip_bottom_right = skip.include? 'bottom-right'
 
       filename = parse_string(arguments[0])
 
