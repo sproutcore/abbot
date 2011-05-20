@@ -53,7 +53,7 @@ describe "manifest:prepare_build_tasks:chance" do
       }
 
       x2_entry = entry_for(name + "@2x.css")
-      x2_entry[:chance_file].should == "chance@2x.css"
+      x2_entry[:chance_file].should == "chance-sprited@2x.css"
     end
     originals.size.should == 0
   end
