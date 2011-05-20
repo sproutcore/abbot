@@ -33,7 +33,13 @@ module SC
       str.scan(/['"](.+)['"]\s*:\s*['"](.+)['"],?\s*$/) do |x,y|
         # x & y are JS strings that must be evaled as such..
         #x = eval(%("#{x}"))
-        y = eval(%[<<__EOF__\n#{y}\n__EOF__]).chop
+        begin
+          y = eval(%[<<__EOF__\n#{y}\n__EOF__]).chop
+        rescue SyntaxError
+          puts "Invalid string in #{source_path}:"
+          puts $&
+          exit
+        end
         ret[x] = y
       end
       return ret
