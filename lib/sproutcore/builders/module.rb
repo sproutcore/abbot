@@ -74,12 +74,18 @@ module SC
 
           css_entry = manifest.find_entry('stylesheet.css')
           if css_entry
-            css_source = File.read(css_entry.stage![:staging_path]).to_json
+            css_path = css_entry.stage![:staging_path]
+
+            # We must check if the file exists because there are cases where we can have
+            # an entry but no file: no file is added if the file is empty, but the file
+            # could be empty if all input files are empty or full of comments.
+            css_source = File.read(css_path).to_json if File.exist? css_path
           end
 
           css_2x_entry = manifest.find_entry('stylesheet@2x.css')
           if css_2x_entry
-            css_2x_source = File.read(css_2x_entry.stage![:staging_path]).to_json
+            css_2x_path = css_2x_entry.stage![:staging_path]
+            css_2x_source = File.read(css_2x_path).to_json if File.exist? css_2x_path
           end
         end
 
