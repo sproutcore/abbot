@@ -15,10 +15,6 @@ if RUBY_VERSION <= '1.8'
   $KCODE = 'u'
   require 'jcode'
   class String ; def valid_encoding? ; true ; end ; end
-else
-  class String
-    alias each each_line unless ''.respond_to?(:each)
-  end
 end
 
 # Makes code more readable
