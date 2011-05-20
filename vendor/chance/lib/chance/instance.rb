@@ -50,8 +50,6 @@ module Chance
       "chance@2x.css"         => { :method => :css, :x2 => true },
       "chance-sprited.css"    => { :method => :css, :sprited => true },
       "chance-sprited@2x.css" => { :method => :css, :sprited => true, :x2 => true },
-      "chance.js"             => { :method => :javascript },
-      "chance-mhtml.txt"      => { :method => :mhtml },
 
       # For Testing Purposes...
       "chance-test.css"       => { :method => :chance_test }

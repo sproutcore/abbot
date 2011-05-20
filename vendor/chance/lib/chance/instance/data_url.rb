@@ -23,11 +23,6 @@ module Chance
             output += "\n-webkit-background-size: #{width}px #{height}px;"
           end
 
-
-          # FOR IE < 8:
-          output += '*background-image: url("mhtml:chance-mhtml.txt!' + slice[:css_name] + '")'
-          output += "\n"
-
           output
         }
 
@@ -56,30 +51,6 @@ module Chance
         Base64.encode64(contents)
       end
     end
-
-    def mhtml(opts)
-      # If there are no slices, ensure that we return an empty file.
-      return "" if @slices.length == 0
-
-      output = "Content-Type: multipart/related; boundary=\"CHANCE__\"\r\n"
-
-      @slices.each {|name, slice|
-        output += "\r\n--CHANCE__\r\n"
-        output += "Content-Location:" + slice[:css_name] + "\r\n"
-        output += "Content-Type:image/png\r\n"
-        output += "Content-Transfer-Encoding:base64\r\n\r\n"
-
-        base64Image = base64_for(slice)
-        output += base64Image.gsub("[^\r]\n", "\r\n")
-
-        output
-      }
-
-       output += "\r\n--CHANCE__--"
-
-      output
-    end
-
 
   end
 end

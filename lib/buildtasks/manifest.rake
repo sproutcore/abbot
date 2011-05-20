@@ -455,10 +455,6 @@ namespace :manifest do
       all_chance_entries = []
       timestamps = []
 
-      # We need a collection of source paths for our mhtml and JS files to
-      # check mtimes against.
-      source_paths = []
-
       # build combined CSS entry
       css_entries.each do |resource_name, entries|
         # Send image files to the build task if Chance is being used
@@ -551,33 +547,6 @@ namespace :manifest do
             add_chance_file.call(resource_name + "-" + name, name);
           }
         end
-
-        # We also have a set of all source paths for the chance task. We need
-        # to keep it up-to-date so that the MHTML and JS tasks can compare mtimes
-        # with the entries.
-        source_paths += entry_source_paths
-        all_chance_entries += entries
-      end
-
-      if chance_instances.length > 0
-        manifest.add_entry "__sc_chance.js",
-          :build_task       => 'build:chance_file',
-          :chance_instances   => chance_instances,
-          :entry_type       => :javascript,
-          :resource         => "javascript",
-          :chance_file      => "chance.js",
-          :timestamp        => timestamps.max,
-          :source_paths     => source_paths,
-          :source_entries   => all_chance_entries
-
-        manifest.add_entry "__sc_chance_mhtml.txt",
-          :build_task       => 'build:chance_file',
-          :chance_instances   => chance_instances,
-          :entry_type       => :mhtml,
-          :chance_file      => "chance-mhtml.txt",
-          :timestamp        => timestamps.max,
-          :source_paths     => source_paths,
-          :source_entries   => all_chance_entries
       end
 
     end
