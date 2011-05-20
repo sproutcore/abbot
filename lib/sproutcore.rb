@@ -17,10 +17,6 @@ if RUBY_VERSION <= '1.8'
   class String ; def valid_encoding? ; true ; end ; end
 end
 
-# Makes code more readable
-YES = true
-NO = false
-
 require "sproutcore/version"
 
 module SproutCore
