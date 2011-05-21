@@ -36,25 +36,24 @@ namespace :target do
     url_prefix = config[:url_prefix]
     url_prefix = url_prefix.gsub(/^[^\/]+:\/\/[^\/]+\//,'') if url_prefix
 
-    # Split all of these paths in case we are on windows...
     target[:build_root] = File.expand_path(config[:build_root] ||
       File.join(project.project_root.to_s,
-        (config[:build_prefix] || '').to_s.split('/'),
-        (url_prefix || '').to_s.split('/'),
-        target[:target_name].to_s.split('/')))
+        (config[:build_prefix] || '').to_s,
+        (url_prefix || '').to_s,
+        target[:target_name].to_s))
 
 
     target[:staging_root] = File.expand_path(config[:staging_root] ||
       File.join(project.project_root.to_s,
-        (config[:staging_prefix] || '').to_s.split('/'),
-        (url_prefix || '').to_s.split('/'),
+        (config[:staging_prefix] || '').to_s,
+        (url_prefix || '').to_s,
         target[:target_name].to_s))
 
     # cache is used to store intermediate files
     target[:cache_root] = File.expand_path(config[:cache_root] ||
       File.join(project.project_root.to_s,
-        (config[:cache_prefix] || '').to_s.split('/'),
-        (url_prefix || '').to_s.split('/'),
+        (config[:cache_prefix] || '').to_s,
+        (url_prefix || '').to_s,
         target[:target_name].to_s))
 
     target[:build_number] = target.compute_build_number
