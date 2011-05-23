@@ -25,14 +25,14 @@ To get the SproutCore framework, run
 To update the gem:
 
   - Update VERSION.yml
-  - Run `rake release:all` on Mac OS X or Linux
+  - Run `rake release:prepare` on Mac OS X or Linux
       This updates the CHANGELOGS for both framework and abbot,
       updates version numbers and tags them. It also builds and
       pushes gems. If you just want to see what it does, pass
       PRETEND=1 to make no actual changes.
       For best results you should have RVM with MRI Ruby and JRuby installed.
-  - Once you have verified your changes, run `rake release:push`.
-  - On Windows, update the repos and run `rake release:gems:all`
+  - Once you have verified your changes, run `rake release:deploy`.
+  - On Windows, update the repos and run `rake release:gems:deploy`
   - To create installer packages, run `rake pkg` on Mac OS X and Windows
 
 END
@@ -155,7 +155,8 @@ namespace :release do
       end
     end
 
-    task :all => [:update, :changelog, :update_references, :commit, :tag]
+    task :prepare => [:update, :changelog, :update_references]
+    task :deploy => [:commit, :tag, :push]
 
   end
 
@@ -184,6 +185,7 @@ namespace :release do
         File.open('CHANGELOG', 'r+') do |file|
           current = file.read
           file.pos = 0;
+          file.puts output
           file.puts current
         end
       else
@@ -219,7 +221,8 @@ namespace :release do
       end
     end
 
-    task :all => [:update, :changelog, :commit, :tag]
+    task :prepare => [:update, :changelog]
+    task :deploy => [:commit, :tag, :push]
 
   end
 
@@ -251,11 +254,12 @@ namespace :release do
       end
     end
 
-    task :all => [:build]
+    task :prepare => []
+    task :deploy => [:build, :push]
 
   end
 
-  task :all => ["framework:all", "abbot:all", "gems:all"]
-  task :push => ["framework:push", "abbot:push", "gems:push"]
+  task :prepare => ["framework:prepare", "abbot:prepare", "gems:prepare"]
+  task :deploy => ["framework:deploy", "abbot:deploy", "gems:deploy"]
 
 end
