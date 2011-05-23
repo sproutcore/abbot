@@ -174,8 +174,6 @@ module SC
 
         ret = []
 
-        ret << %(<script type="text/javascript">window.SC = window.SC || { MODULE_INFO: {}, LAZY_INSTANTIATION: {} }; SC.buildMode = "#{SC.build_mode}";</script>)
-
         # Reference any external bootstrap scripts
         if (resources_names = target.config[:bootstrap])
           Array(resources_names).each do |resource_name|
