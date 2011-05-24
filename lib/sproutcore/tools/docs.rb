@@ -10,15 +10,9 @@ require "sproutcore/tools/manifest"
 
 module SC
   class Tools
-
     desc "docs [TARGET..]", "Generates JSDoc's for specified targets."
     def docs
-      begin
-        require 'sc_docs/cli'
-        ScDocs::CLI.start
-      rescue LoadError
-        puts "sc-docs is no longer bundled with SproutCore. Please install the sc-docs tool instead."
-      end
+      puts "Doc generation is no longer bundled with SproutCore. Please install the sc-docs tool instead."
     end # def docs
   end # class Tools
 end # module SC
