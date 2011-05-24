@@ -45,7 +45,7 @@ namespace :target do
       unless path
         base = prefix || ''
         # Check if it's absolute, if not add project_root
-        unless base[0..0] == '~' || File.absolute_path(base) == base
+        unless base[0..0] == '~' || File.expand_path(base) == base
           base = File.join((project.project_root || '').to_s, base)
         end
         path = File.join(base, url_prefix, (target[:target_name] || '').to_s)
