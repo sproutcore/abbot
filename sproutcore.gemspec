@@ -36,7 +36,7 @@ Gem::Specification.new do |s|
   end
 
   s.add_development_dependency 'gemcutter', "~> 0.6.0"
-  s.add_development_dependency 'rspec', "~> 2.4.0"
+  s.add_development_dependency 'rspec', "~> 2.5.0"
   s.add_development_dependency 'rake'
 
   # Optional features, used in tests
