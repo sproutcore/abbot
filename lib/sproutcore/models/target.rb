@@ -643,15 +643,7 @@ module SC
         javascript_entries.each do |resource_name, entries|
           resource_name = resource_name.ext('js')
 
-          if resource_name == 'javascript.js'
-            pf = ['source/lproj/strings.js', 'source/core.js', 'source/utils.js']
-            if manifest.target.target_type == :app
-              target_name = manifest.target.target_name.to_s.split('/')[-1]
-              pf.insert(2, "source/#{target_name}.js")
-            end
-          else
-            pf = []
-          end
+          pf = (resource_name == 'javascript.js') ? ['source/lproj/strings.js', 'source/core.js', 'source/utils.js'] : []
 
           SC::Helpers::EntrySorter.sort(entries, pf).each do |entry|
             if minify_js && entry[:minified]
