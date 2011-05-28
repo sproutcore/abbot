@@ -746,9 +746,18 @@ module Chance
       output = ""
 
       # LEFT
-      if should_include_slice?(top_left_slice) and not skip_top_left
+      # NOTE: we write it even if we are supposed to skip; we only wrap the slice include portion in 
+      if should_include_slice?(top_left_slice)
         output += "& > .top-left {\n"
-        output += generate_slice_include(top_left_slice) + ";"
+
+        # IF we are skipping the top left slice, we don't want the actual slice include-- but the layout
+        # information we still want. So, only bracket the generate_slice_include.
+        #
+        # Potential issue: slice_layout doesn't handle repeat settings. In theory, this should rarely be
+        # an issue (because you aren't setting a background for the skipped slice.
+        if not skip_top_left
+          output += generate_slice_include(top_left_slice) + ";"
+        end
 
         output += "\nposition: absolute;\n"
         output += slice_layout(top_left_slice)
@@ -756,9 +765,12 @@ module Chance
         output += "}\n"
       end
 
-      if should_include_slice?(left_slice) and not skip_left
+      if should_include_slice?(left_slice)
         output += "& > .left {\n"
-        output += generate_slice_include(left_slice) + ";"
+
+        if not skip_left
+          output += generate_slice_include(left_slice) + ";"
+        end
 
         output += "\nposition: absolute;\n"
         output += slice_layout(left_slice.merge({ :bottom => bottom }))
@@ -766,9 +778,12 @@ module Chance
         output += "}\n"
       end
 
-      if should_include_slice?(bottom_left_slice) and not skip_bottom_left
+      if should_include_slice?(bottom_left_slice)
         output += "& > .bottom-left {\n"
-        output += generate_slice_include(bottom_left_slice) + ";"
+
+        if not skip_bottom_left
+          output += generate_slice_include(bottom_left_slice) + ";"
+        end
 
         output += "\nposition: absolute;\n"
         output += slice_layout(bottom_left_slice)
@@ -777,9 +792,12 @@ module Chance
       end
 
       # MIDDLE
-      if should_include_slice?(top_slice) and not skip_top
+      if should_include_slice?(top_slice)
         output += "& > .top {\n"
-        output += generate_slice_include(top_slice) + ";"
+
+        if not skip_top
+          output += generate_slice_include(top_slice) + ";"
+        end
 
         output += "\nposition: absolute;\n"
         output += slice_layout(top_slice.merge({ :right => right }))
@@ -787,9 +805,12 @@ module Chance
         output += "}\n"
       end
 
-      if should_include_slice?(middle_slice) and not skip_middle
+      if should_include_slice?(middle_slice)
         output += "& > .middle {\n"
-        output += generate_slice_include(middle_slice) + ";"
+
+        if not skip_middle
+          output += generate_slice_include(middle_slice) + ";"
+        end
 
         output += "\nposition: absolute;\n"
         output += slice_layout(middle_slice.merge({ :bottom => bottom, :right => right }))
@@ -798,9 +819,12 @@ module Chance
         output += "}\n"
       end
 
-      if should_include_slice?(bottom_slice) and not skip_bottom
+      if should_include_slice?(bottom_slice)
         output += "& > .bottom {\n"
-        output += generate_slice_include(bottom_slice) + ";"
+
+        if not skip_bottom
+          output += generate_slice_include(bottom_slice) + ";"
+        end
 
         output += "\nposition: absolute;\n"
         output += slice_layout(bottom_slice.merge({ :right => right }))
@@ -810,9 +834,12 @@ module Chance
       end
 
       # RIGHT
-      if should_include_slice?(top_right_slice) and not skip_top_right
+      if should_include_slice?(top_right_slice)
         output += "& > .top-right {\n"
-        output += generate_slice_include(top_right_slice) + ";"
+
+        if not skip_top_right
+          output += generate_slice_include(top_right_slice) + ";"
+        end
 
         output += "\nposition: absolute;\n"
         output += slice_layout(top_right_slice)
@@ -820,9 +847,12 @@ module Chance
         output += "}\n"
       end
 
-      if should_include_slice?(right_slice) and not skip_right
+      if should_include_slice?(right_slice)
         output += "& > .right {\n"
-        output += generate_slice_include(right_slice) + ";"
+
+        if not skip_right
+          output += generate_slice_include(right_slice) + ";"
+        end
 
         output += "\nposition: absolute;\n"
         output += slice_layout(right_slice.merge({ :bottom => bottom }))
@@ -830,9 +860,12 @@ module Chance
         output += "}\n"
       end
 
-      if should_include_slice?(bottom_right_slice) and not skip_bottom_right
+      if should_include_slice?(bottom_right_slice)
         output += "& > .bottom-right {\n"
-        output += generate_slice_include(bottom_right_slice) + ";"
+
+        if not skip_bottom_right
+          output += generate_slice_include(bottom_right_slice) + ";"
+        end
 
         output += "\nposition: absolute;\n"
         output += slice_layout(bottom_right_slice)
