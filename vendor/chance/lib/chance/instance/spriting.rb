@@ -162,7 +162,7 @@ module Chance
         # TODO: USE A CONSTANT FOR THIS WARNING
         smallest_size = size if smallest_size == nil
         if size - smallest_size > 10
-          puts "WARNING: Used more than 10 extra rows or columns to accomdate repeating slices."
+          puts "WARNING: Used more than 10 extra rows or columns to accommodate repeating slices."
           puts "Wasted up to " + (pos * size-smallest_size).to_s + " pixels"
         end
 
