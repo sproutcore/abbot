@@ -23,7 +23,9 @@ module Chance
     attr_reader :path
     def initialize(path)
       @path = path
+      super(message)
     end
+
     def message
       "File not mapped in Chance instance: #{path}"
     end
