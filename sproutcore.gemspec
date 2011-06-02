@@ -24,6 +24,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'haml', '~> 3.1.1'
 
   s.add_dependency 'compass', '~> 0.11.1'
+  
+  s.add_dependency 'em-http-request', '~> 0.3.0'
 
   if is_jruby
     s.add_dependency 'mongrel', '~> 1.1.5'
