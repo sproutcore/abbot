@@ -59,7 +59,7 @@ module SC
         self.filesystem = opts[:Filesystem]
 
         projects = opts.delete(:projects) || [opts.delete(:project)].compact
-        app = self.new(*projects)
+        app = self.new(*projects, opts)
 
         opts[:Host] ||= opts[:host] # allow either case.
         opts[:Port] ||= opts[:port] || '4020'
@@ -93,7 +93,7 @@ module SC
         server.run app, opts
       end
 
-      def initialize(*projects)
+      def initialize(*projects, opts)
         @projects = projects.flatten
 
         # Get apps for each project & cascade if needed
@@ -105,6 +105,12 @@ module SC
         @app = ::Rack::ConditionalGet.new(@app)
         #@app = ::Rack::Deflater.new(@app)
 
+        # preprocess IPs so we can restrict properly
+        ips = opts[:allow_from_ips] || '127.0.0.1'
+        SC.logger << "Allowing access only from IPs: #{ips}. Use --allow-from-ips='*.*.*.*' to allow all\n"
+        ips = ips.split(',')
+
+        @app = SC::Rack::RestrictIP.new(@app, ips)
       end
 
       def call(env); @app.call(env); end

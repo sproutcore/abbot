@@ -15,7 +15,8 @@ module SC
                     :port       => :string,
                     :host       => :string,
                     :irb        => false,
-                    :filesystem => true
+                    :filesystem => true,
+                    :allow_from_ips        => :string
     def server
       prepare_mode!('debug') # set mode again, using debug as default
 
