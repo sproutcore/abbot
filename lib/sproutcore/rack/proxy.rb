@@ -16,9 +16,48 @@ end
 
 require 'eventmachine'
 require 'em-http'
+require 'thin'
+
 
 module SC
+
   module Rack
+
+    class DeferrableBody
+      include EM::Deferrable
+
+      def initialize(options = {})
+        @options = options
+      end
+
+      def call(body)
+        body.each do |chunk|
+          @body_callback.call(prepare_chunk(chunk))
+        end
+      end
+
+      def prepare_chunk(chunk)
+        if chunked?
+          size = chunk.respond_to?(:bytesize) ? chunk.bytesize : chunk.length
+          "#{size.to_s(16)}\r\n#{chunk}\r\n"
+        else
+          # Thin doesn't like null bodies
+          chunk || ''
+        end
+      end
+
+      def each(&blk)
+        @body_callback = blk
+      end
+
+    private
+
+      def chunked?
+        @options[:chunked]
+      end
+    end
+
+
 
     # Rack application proxies requests as needed for the given project.
     class Proxy
@@ -44,6 +83,10 @@ module SC
         return [404, {}, "not found"]
       end
 
+      def chunked?(headers)
+        headers['Transfer-Encoding'] == "chunked"
+      end
+
       def handle_proxy(proxy, proxy_url, env)
 
         if proxy[:secure] && !SC::HTTPS_ENABLED
@@ -52,7 +95,6 @@ module SC
           proxy[:secure] = false
         end
 
-        method = env['REQUEST_METHOD'].to_s.downcase  # ex. get
         headers = request_headers(env, proxy)         # ex. {"Host"=>"localhost:4020", "Connection"=>"...
         path = env['PATH_INFO']                       # ex. /contacts
         params = env['QUERY_STRING']                  # ex. since=yesterday&unread=true
@@ -70,56 +112,125 @@ module SC
         url += path unless path.empty?
         url += '?' + params unless params.empty?
 
-        # Add the body for methods that accept it but only if Content-Length > 0
-        unless %w(get copy head move options trace).include?(method)
-          body = env['rack.input']
-          body.rewind # May not be necessary but can't hurt
+        if env['CONTENT_LENGTH'] || env['HTTP_TRANSFER_ENCODING']
+          req_body = env['rack.input']
+          req_body.rewind # May not be necessary but can't hurt
 
-          http_body = body.read if headers['Content-Length'].to_i > 0 #request_options[:body]
+          req_body = req_body.read
         end
 
         # Options for the request
-        request_options = { :head => headers }
-        request_options[:body] = http_body if http_body
+        request_options = {}
+        request_options[:head] = headers
+        request_options[:body] = req_body if !!req_body
         request_options[:timeout] = proxy[:timeout] if proxy[:timeout]
         request_options[:redirects] = 10 if proxy[:redirect] != false
 
         EventMachine.run {
+          body = nil
+          conn = EM::HttpRequest.new(url)
+          chunked = false
+          headers = {}
+          method = env['REQUEST_METHOD'].upcase
+          status = 0
+
           case method
-            when 'get'
-              http = EventMachine::HttpRequest.new(url).get request_options
-            when 'post'
-              http = EventMachine::HttpRequest.new(url).post request_options
-            when 'put'
-              http = EventMachine::HttpRequest.new(url).put request_options
-            when 'delete'
-              http = EventMachine::HttpRequest.new(url).delete request_options
+            when 'GET'
+              http = conn.get request_options
+            when 'POST'
+              http = conn.post request_options
+            when 'PUT'
+              http = conn.put request_options
+            when 'DELETE'
+              http = conn.delete request_options
             else
-              http = EventMachine::HttpRequest.new(url).head request_options
+              http = conn.head request_options
             end
 
           # Received error
           http.errback {
-            response_status = http.response_header.status
+            status = http.response_header.status
+            path = env['PATH_INFO']
+            url = http.last_effective_url
+            SC.logger << "~ PROXY FAILED:  #{method} #{path} -> #{status} #{url}\n"
 
-            # TODO: Might be able to provide better error handling here
-            SC.logger << "~ !!ERROR!! PROXY: #{method.upcase} #{response_status} #{path} -> #{url}\n"
+            # If a body has been sent use it, otherwise respond with generic message
+            if !body
+              body = "Unable to proxy to #{url}.  Received status: #{status}"
+              size = body.respond_to?(:bytesize) ? body.bytesize : body.length
+              headers = { 'Content-Length' => size.to_s }
+              body = [body]
+            end
+
+            env['async.callback'].call [502, headers, body]
           }
 
           # Received response
           http.callback {
+
+            # Too many redirects
+            if redirect? status
+              body = "Unable to proxy to #{url}.  Too many redirects."
+              size = body.respond_to?(:bytesize) ? body.bytesize : body.length
+              headers = { 'Content-Length' => size.to_s }
+
+              env['async.callback'].call [502, headers, [body]]
+            else
+              # Terminate the deferred body (which may have been chunked)
+              if body
+                body.call ['']
+                body.succeed
+              end
+
+              # Log the initial path and the final url
+              path = env['PATH_INFO']
+              url = http.last_effective_url
+              SC.logger << "~ PROXY: #{method} #{path} -> #{status} #{url}\n"
+           end
+          }
+
+          # Received headers
+          http.headers { |hash|
             status = http.response_header.status
 
-            SC.logger << "~ PROXY: #{method.upcase} #{status} #{path} -> #{http.last_effective_url}\n"
+            headers = response_headers(hash)
 
-            headers = response_headers(proxy, http.response_header)
+            # Don't respond on redirection, but fail out on bad redirects
+            if redirect? status
 
-            # Thin doesn't like null bodies
-            body = http.response || ''
+              if status == 304
+                env["async.callback"].call [status, headers, ['']]
+                SC.logger << "~ PROXY: #{method} #{path} -> #{status} #{url}\n"
+              elsif !headers['Location']
+                body = "Unable to proxy to #{url}. Received redirect with no Location."
+                size = body.respond_to?(:bytesize) ? body.bytesize : body.length
+                headers = { 'Content-Length' => size.to_s }
 
-            env["async.callback"].call [status, headers, [body]]
+                http.close
+              end
+
+            else
+              # Stream the body right across in the format it was sent
+              chunked = chunked?(headers)
+              body = DeferrableBody.new({ :chunked => chunked })
+
+              # Start responding to the client immediately
+              env["async.callback"].call [status, headers, body]
+            end
+          }
+
+          # Received chunk of data
+          http.stream { |chunk|
+            # Ignore body of redirects
+            if !redirect? status
+              body.call [chunk]
+            end
           }
         }
+      end
+
+      def redirect?(status)
+        status >= 300 && status < 400
       end
 
       # collect headers...
@@ -128,8 +239,7 @@ module SC
         env.each do |key, value|
           next unless key =~ /^HTTP_/
 
-          # remove HTTP_, dasherize and titleize
-          key = key.gsub(/^HTTP_/,'').downcase.sub(/^\w/){|l| l.upcase}.gsub(/_(\w)/){|l| "-#{$1.upcase}"}
+          key = headerize(key)
           if !key.eql? "Version"
             result[key] = value
           end
@@ -149,17 +259,11 @@ module SC
       end
 
       # construct and display specific response headers
-      def response_headers(proxy, headers)
+      def response_headers(hash)
         result = {}
-        ignore_headers = ['transfer-encoding', 'keep-alive', 'connection']
-        http_host, http_port = proxy[:to].split(':')
 
-        headers.each do |key, value|
-          key = key.downcase.sub(/^\w/){|l| l.upcase}.gsub(/_(\w)/){|l| "-#{$1.upcase}"} # remove HTTP_, dasherize and titleize
-          next if ignore_headers.include?(key.downcase)
-
-          # Location headers should rewrite the hostname if it is included.
-          value.gsub!(/^http:\/\/#{http_host}(:[0-9]+)?\//, "http://#{http_host}/") if key.downcase == 'location'
+        hash.each do |key, value|
+          key = headerize(key)
 
           # Because Set-Cookie header can appear more the once in the response body,
           # but Rack only accepts a hash of headers, we store it in a line break separated string
@@ -191,6 +295,11 @@ module SC
         ::Rack::Utils::HeaderHash.new(result)
       end
 
+      # remove HTTP_, dasherize and titleize
+      def headerize(str)
+        parts = str.gsub(/^HTTP_/, '').split('_')
+        parts.map! { |p| p.capitalize }.join('-')
+      end
 
       # Strip out the domain of passed in cookie.  This technically may
       # break certain scenarios where services try to set cross-domain
