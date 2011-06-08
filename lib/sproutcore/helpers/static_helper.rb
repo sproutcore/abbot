@@ -90,7 +90,7 @@ module SC
             end
 
             v = opts[:language] ? { :language => opts[:language] } : manifest.variation
-            x2_entry = t.manifest_for(v).entry_for name
+            x2_entry = cur_target.manifest_for(v).entry_for name
 
             cur_entry = x2_entry if x2_entry
           end
