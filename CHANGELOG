@@ -1,3 +1,15 @@
+*SproutCore 1.6.0 (June 09, 2011)*
+
+* Code cleanup +  Stream the headers and body directly across the proxy as they arrive, which will work with streaming APIs like Twitter
+* Merge pull request #53 from publickeating/master
+* Fixed variable typo
+* Rewritten to make the proxy non-blocking.   Probably needs some real-world hardening.
+* Added sc_static support to handlebars and did some test cleanup
+* Should fix broken module building - Fixes #58
+* Fixed sc-docs warning
+* Switch absolute_path to expand_path for Ruby 1.8 compatibility
+* Bumped RSpec Dependency
+
 *SproutCore 1.6.0.rc.2 (May 23, 2011)*
 
 * Allow for absolute build_prefix
