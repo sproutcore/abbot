@@ -465,8 +465,16 @@ namespace :manifest do
         # way to know what sprties, etc. need to be put into the manifest.
         #
         # Still, Chance has to get created sometime.
-        chance = Chance::Instance.new({ :theme => CONFIG[:css_theme], :minify => CONFIG[:minify_css] })
-
+        #
+        # To help, we cache the Chance Instance based on a key we generate. The Chance Factory does
+        # this for us. It will automatically handle when things change, for the most part (though
+        # the builder still has to tell Chance to double-check things, etc.)
+        opts = { :theme => CONFIG[:css_theme], :minify => CONFIG[:minify_css] }
+        chance_key = manifest[:staging_root] + "/" + resource_name
+        
+        chance = Chance::ChanceFactory.instance_for_key(chance_key, opts)
+        chance_files = {}
+        
         timestamp = 0
         has_2x_entries = false
         entries.each do |entry|
@@ -478,10 +486,12 @@ namespace :manifest do
 
           Chance.add_file src_path
           # Also remove source/ from the filename for sc_require and @import
-          chance.map_file(entry.filename.sub(/^source\//, ''), src_path)
+          chance_files[entry.filename.sub(/^source\//, '')] = src_path
 
           has_2x_entries = true if src_path.include?("@2x")
         end
+        
+        Chance::ChanceFactory.update_instance(chance_key, opts, chance_files)
 
         timestamps << timestamp
         chance_instances << chance

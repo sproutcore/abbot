@@ -70,6 +70,10 @@ module Chance
       # The mapped files are a map from file names in the Chance Instance to
       # their identifiers in Chance itself.
       @mapped_files = { }
+      
+      # The file mtimes are a collection of mtimes for all the files we have. Each time we
+      # read a file we record the mtime, and then we compare on check_all_files
+      @file_mtimes = { }
 
       # The @files set is a set cached generated output files, used by the output_for
       # method.
@@ -82,6 +86,10 @@ module Chance
 
       # Tracks whether _render has been called.
       @has_rendered = false
+      
+      # A generation number for the current render. This allows the slicing and spriting
+      # to be invalidated smartly.
+      @render_cycle = 0
     end
 
     # maps a path relative to the instance to a file identifier
@@ -92,6 +100,11 @@ module Chance
     # The identifier would be a name of a file that you added to
     # Chance using add_file.
     def map_file(path, identifier)
+      if @mapped_files[path] == identifier
+        # Don't do anything if there is nothing to do.
+        return
+      end
+      
       path = path.to_s
       file = Chance.has_file(identifier)
 
@@ -106,19 +119,33 @@ module Chance
     # unmaps a path from its identifier. In short, removes a file
     # from this Chance instance. The file will remain in Chance's "virtual filesystem".
     def unmap_file(path)
+      if not @mapped_files.include?(path)
+        # Don't do anything if there is nothing to do
+        return
+      end
+      
       path = path.to_s
       @mapped_files.delete path
 
       # Invalidate our render because things have changed.
       clean
     end
+    
+    # unmaps all files
+    def unmap_all
+      @mapped_files = {}
+    end
 
     # checks all files to see if they have changed
     def check_all_files
       needs_clean = false
-      @mapped_files.values.each {|f|
-        needs_clean = true if Chance.update_file_if_needed f
+      @mapped_files.each {|p, f|
+        mtime = Chance.update_file_if_needed(f)
+        if @file_mtimes[p].nil? or mtime > @file_mtimes[p]
+          needs_clean = true
+        end
       }
+      
       clean if needs_clean
     end
 
@@ -189,6 +216,9 @@ module Chance
     def _render
       return if @has_rendered
 
+      # Update the render cycle to invalidate sprites, slices, etc.
+      @render_cycle = @render_cycle + 1
+      
       @files = {}
       begin
         # SCSS code executing needs to know what the current instance of Chance is,
@@ -308,7 +338,13 @@ module Chance
       files = @mapped_files.values
       @file_list = []
 
-      files.each {|f| _include_file(f) }
+      @mapped_files.each {|p, f|
+        # Save the mtime for caching
+        mtime = Chance.update_file_if_needed(f)
+        @file_mtimes[p] = mtime
+        
+        _include_file(f)
+      }
 
       relative_paths = @mapped_files.invert
 

@@ -13,6 +13,8 @@ module Chance
       # if x2 is supplied, this will assume it is a second pass to locate any @2x images
       # and use them to replace the originals.
       def slice_images(opts)
+        return if @slice_cycle == @render_cycle
+        
         slices = @slices
         output = ""
 
@@ -64,6 +66,8 @@ module Chance
           end
 
         end
+        
+        @slice_cycle = @render_cycle
       end
 
       # Returns either a RMagick image or a ChunkyPNG canvas for a slice, as applicable.

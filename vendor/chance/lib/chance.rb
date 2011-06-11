@@ -1,4 +1,5 @@
 require "chance/instance"
+require "chance/factory"
 
 require 'sass'
 
@@ -66,18 +67,18 @@ module Chance
     end
 
     # if the path is a valid filesystem path and the mtime has changed, this invalidates
-    # the file. Returns true if the file was updated.
+    # the file. Returns the mtime if the file was updated.
     def update_file_if_needed(path, content=nil)
-      # internally, this is exactly what add_file does, so we'll just call that.
       if @files[path]
         mtime = File.mtime(path).to_f
         if mtime > @files[path][:mtime]
           update_file(path, content)
-          return true
         end
+        
+        return mtime
+      else
+        return false
       end
-
-      return false
     end
 
     def remove_file(path)
