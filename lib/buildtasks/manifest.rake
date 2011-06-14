@@ -571,7 +571,7 @@ namespace :manifest do
       # build combined JS entry
       javascript_entries.each do |resource_name, entries|
         resource_name = resource_name.ext('js')
-        pf = (resource_name == 'javascript.js') ? %w(source/lproj/strings.js source/core.js source/utils.js) : []
+        pf = (resource_name == 'javascript.js') ? %w(source/lproj/layout.js source/lproj/strings.js source/core.js source/utils.js) : []
         manifest.add_composite resource_name,
           :build_task      => 'build:combine',
           :source_entries  => entries,

@@ -72,6 +72,8 @@ module SC
             [1, name]
           when /lproj\/strings.js$/
             [-2, name]
+          when /lproj\/layout.js$/
+            [-2, name]
           else
             [-1, name]
           end
