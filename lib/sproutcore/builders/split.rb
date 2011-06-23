@@ -29,26 +29,27 @@ module SC
       
       if files.length > 1
         entry[:split_entries] = []
-      end
-    
-      files.each_index {|index|
-        path = "#{dst_path}.#{index}.css"
         
-        writeline path, files[index]
-        
-        # Is this hacky? Yes. But IE is stupid. So we have to modify the manifest
-        # very late, because we don't know the 
-        resource_name = "#{entry[:filename]}.#{index}.css"
-        split_entry = entry.manifest.add_composite resource_name,
-          :staging_path => path,
-          :build_path => path,
-          :source_entries => [entry],
-          :url => [entry.manifest[:url_root], resource_name].join("/"),
-          :timestamp => entry[:timestamp],
-          :hide_entries => false
+  
+        files.each_index {|index|
+          path = "#{dst_path}.#{index}.css"
+      
+          writeline path, files[index]
+      
+          # Is this hacky? Yes. But IE is stupid. So we have to modify the manifest
+          # very late, because we don't know the 
+          resource_name = "#{entry[:filename]}.#{index}.css"
+          split_entry = entry.manifest.add_composite resource_name,
+            :staging_path => path,
+            :build_path => path,
+            :source_entries => [entry],
+            :url => [entry.manifest[:url_root], resource_name].join("/"),
+            :timestamp => entry[:timestamp],
+            :hide_entries => false
 
-        entry[:split_entries] << split_entry
-      }
+          entry[:split_entries] << split_entry
+        }
+      end
     end
 
   end
