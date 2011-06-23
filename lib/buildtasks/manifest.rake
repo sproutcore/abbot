@@ -700,8 +700,11 @@ namespace :manifest do
         resource = "stylesheet-packed.css"
         entry = manifest.entry_for(resource)
         
-        entry = manifest.add_transform entry,
-          :build_task => 'build:split_css'
+        # There may not be a stylesheet-packed.
+        if not entry.nil?        
+          entry = manifest.add_transform entry,
+            :build_task => 'build:split_css'
+        end
       end
     end
 
