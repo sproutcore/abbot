@@ -61,7 +61,7 @@ namespace :manifest do
     Dir.glob("#{source_root}/**/*").each do |path|
       next unless File.file?(path)
       next if target.target_directory?(path)
-      if acceptable_file_list.include?(path)
+      if acceptable_file_list.acceptable_file?(path)
         filename = path.sub /^#{Regexp.escape source_root}\//, ''
         filename = filename.split(::File::SEPARATOR).join('/')
         manifest.add_entry filename, :original => true # entry:prepare will fill in the rest

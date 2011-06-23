@@ -1,4 +1,4 @@
-class WhilelistRule
+class AcceptableFileRule
   def initialize(file_location, file_specification)
     @file_location, @file_specification = file_location, file_specification
   end

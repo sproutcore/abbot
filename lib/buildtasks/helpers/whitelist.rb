@@ -1,16 +1,23 @@
-require File.dirname(__FILE__) + '/whitelist/whitelist_rules'
+require File.dirname(__FILE__) + '/acceptable_file_list'
 
-class Whitelist
+class Whitelist < AcceptableFileList
+  ALWAYS_ACCEPTED_FILE_TYPES= [
+    '.manifest',
+    '.htm',
+    '.html',
+    '.rhtml',
+    '.png',
+    '.jpg',
+    '.jpeg',
+    '.gif'
+  ]
+
   def initialize(json)
-    @rules = WhitelistRules.new
-
-    json.each do |file_location, file_specifications|
-      file_specifications = [file_specifications] if file_specifications.kind_of?(String)
-      file_specifications.each {|specification| @rules.add_rule(file_location, specification)}
-    end
+    super
+    ALWAYS_ACCEPTED_FILE_TYPES.each { |file_type| @rules.add_rule('.*', file_type)}
   end
 
-  def include?(file_path)
-    @rules.count {|rule| rule.matches?(file_path)} != 0
+  def acceptable_file?(file_path)
+    @rules.matches_file?(file_path)
   end
 end
