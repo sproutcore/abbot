@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/whitelist_rule'
 
-class WhitelistRules
+class AcceptableFileRules
   ALWAYS_ACCEPTED_FILE_TYPES= [
     '.manifest',
     '.htm',
