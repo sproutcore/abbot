@@ -27,7 +27,7 @@ module SC
       src = File.read(entry[:build_path])
       files = SC::Helpers::SplitCSS.split_css src
       
-      if files.length > 1
+      if files.length > 1 and entry.target.config[:split_css_for_ie]
         entry[:split_entries] = []
         
   

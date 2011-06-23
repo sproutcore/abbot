@@ -57,6 +57,9 @@ mode :all do
     # Generate a combined javascript and stylesheet
     :combine_javascript => true,
     :combine_stylesheets => true,
+    
+    # enable the hack that splits CSS into files with only ~4000 selectors for IE
+    :split_css_for_ie => true,
 
     # by default all targets autobuild
     :autobuild => true,
