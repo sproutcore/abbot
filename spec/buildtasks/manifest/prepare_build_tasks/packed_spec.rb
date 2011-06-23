@@ -132,7 +132,12 @@ describe "manifest:prepare_build_tasks:packed" do
 
        run_task
 
-       @entry = entry_for('stylesheet-packed.css')
+       # for 1x (but not 2x) there should be an intermediary entry for a transform
+       # (split_css) that... splits the CSS. See its documentation.
+       #
+       # we are looking for the stylesheet-packed.css that is set on its source entry.
+       @entry = entry_for('stylesheet-packed.css')[:source_entry]
+       
        @entry_2x = entry_for('stylesheet@2x-packed.css')
      end
 
