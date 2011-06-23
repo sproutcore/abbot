@@ -6,6 +6,8 @@
 # Tasks invoked while building Manifest objects.  You can override these
 # tasks in your buildfiles.
 
+require File.dirname(__FILE__) + '/helpers/acceptable_file_list_factory'
+
 namespace :manifest do
 
   desc "Invoked just before a manifest object is built to setup standard properties"
@@ -52,66 +54,14 @@ namespace :manifest do
 
     source_root = target[:source_root]
 
-    whitelist = nil
-
-    # Find and parse the BuildWhitelist json file
-    # Right now, the build whitelist is read for every target, can we optimize this?
-    Dir.glob("#{Dir.pwd}/Whitelist").each do |path|
-      next unless File.file?(path)
-
-      contents = File.read(path)
-      parser = JSON.parser.new(contents)
-      whitelist = parser.parse
-    end
-
-    if whitelist
-      acceptableFilesForTarget = whitelist["#{target[:target_name]}"]
-
-      # Always accept these files
-      defaultAcceptableFiles = [
-        '.manifest',
-        '.htm',
-        '.html',
-        '.rhtml',
-        '.png',
-        '.jpg',
-        '.jpeg',
-        '.gif'
-      ]
-
-      if acceptableFilesForTarget.kind_of?(Array)
-        acceptableFilesForTarget += defaultAcceptableFiles
-
-      # I make an assumption that if the type of acceptableFilesForTarget is String,
-      # then the user wants to match that across any file, so make it an array to accomodate
-      elsif acceptableFilesForTarget.kind_of?(String)
-        acceptableFilesForTarget = [acceptableFilesForTarget] + defaultAcceptableFiles
-
-      else
-        #WhiteList isn't defined, don't include anything
-        acceptableFilesForTarget = defaultAcceptableFiles
-      end
-    else
-      acceptableFilesForTarget = [".*"]
-    end
+    acceptable_file_list = AcceptableFileListFactory.build
 
     number_rejected_entries = 0
 
     Dir.glob("#{source_root}/**/*").each do |path|
       next unless File.file?(path)
       next if target.target_directory?(path)
-
-      valid = false
-
-      acceptableFilesForTarget.each do |acceptableFile|
-        if path =~ Regexp.new(acceptableFile) then
-          valid = true
-          break
-        end
-      end
-
-      if valid
-        # cut source root out to make filename.  make sure path separators are /
+      if acceptable_file_list.include?(path)
         filename = path.sub /^#{Regexp.escape source_root}\//, ''
         filename = filename.split(::File::SEPARATOR).join('/')
         manifest.add_entry filename, :original => true # entry:prepare will fill in the rest
