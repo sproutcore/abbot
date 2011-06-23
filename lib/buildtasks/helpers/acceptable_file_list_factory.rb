@@ -26,7 +26,7 @@ class AcceptableFileListFactory
   def self.blacklist
     return @blacklist if @blacklist
     json = nil
-    Dir.glob("#{Dir.pwd}/Bhitelist").each do |path|
+    Dir.glob("#{Dir.pwd}/Blacklist").each do |path|
       next unless File.file?(path)
 
       contents = File.read(path)
