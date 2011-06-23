@@ -81,13 +81,7 @@ module SC
           if opts[:x2]
             name = cur_entry.extensionless_filename
 
-            if name == "stylesheet"
-              name = "stylesheet@2x.css"
-            elsif name == "stylesheet-packed"
-              name = "stylesheet@2x-packed.css"
-            else
-              raise "Unexpected entry name when collecting CSS: " + name
-            end
+            name.gsub! /stylesheet/, "stylesheet@2x"
 
             v = opts[:language] ? { :language => opts[:language] } : manifest.variation
             x2_entry = cur_target.manifest_for(v).entry_for name
