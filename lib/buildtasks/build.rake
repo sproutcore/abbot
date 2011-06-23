@@ -33,6 +33,11 @@ namespace :build do
     SC::Builder::Handlebars.build env[:entry], env[:dst_path]
   end
 
+  desc "splits CSS files by rule count so IE doesn't crap out"
+  build_task :split_css do |task, env|
+    SC::Builder::SplitCSS.build env[:entry], env[:dst_path]
+  end
+
   desc "builds a single sass file"
   build_task :sass do |task, env|
     SC::Builder::Sass.build env[:entry], env[:dst_path]

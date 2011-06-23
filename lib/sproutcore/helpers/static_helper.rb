@@ -416,8 +416,30 @@ module SC
           # a reason to check for composite entries, either. So, the composite
           # check has been removed.
           next if entry.nil? # no stylesheet or js
-
-          yield(t, entry)
+          
+          # HACK FOR IE. Yes, IE hacks are now in Ruby as well! Isn't that grand!
+          # Basically, IE does not allow more than 4096 selectors. The problem: it has
+          # a max of 4096 selectors per file!!!
+          #
+          # and the problem is, we don't know the number of selectors until AFTER CSS
+          # is built. So, we have to, at the last minute, find these other files.
+          # They are given entries, but these entries are supplied AFTER the manifest
+          # is technically finished. So, it is only now that we can go find them.
+          #
+          # In fact: it may not even be around yet. It won't until this CSS entry is built.
+          # We didn't always have to build the CSS entries before serving HTML but... now we do.
+          # Because IE sucks.
+          entry.build!
+          
+          # The builder adds a :split_entries. :split_entries were added, we need to split
+          # CSS files.
+          if entry[:split_entries]
+            entry[:split_entries].each {|e|
+              yield(t, e)
+            }
+          else
+            yield(t, entry)
+          end
         end
 
         unpacked.each do |t|

@@ -8,4 +8,4 @@ require "sproutcore/helpers/static_helper"
 require "sproutcore/helpers/tag_helper"
 require "sproutcore/helpers/text_helper"
 require "sproutcore/helpers/minifier"
-
+require "sproutcore/helpers/css_split"

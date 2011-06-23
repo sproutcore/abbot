@@ -685,8 +685,27 @@ namespace :manifest do
       end
 
     end
+    
+    desc "splits packed CSS files into chunks based on selector count because internet explorer is shitty"
+    task :split => %w(packed) do |task, env|
+      # The split_css transform, which we add to stylesheet-packed, splits CSS based on number
+      # of selectors (because IE has a maximum of ~4096 per file). It actually ends up adding
+      # more manifest entries, which is UBER HACKY!!! But, what can you do when you don't
+      # know what files you'll have to create until you've already started building?
+      target = env[:target]
+      manifest = env[:manifest]
+      
+      if target[:target_type] == :app
+        # We don't need to do @2x: it is safari only.
+        resource = "stylesheet-packed.css"
+        entry = manifest.entry_for(resource)
+        
+        entry = manifest.add_transform entry,
+          :build_task => 'build:split_css'
+      end
+    end
 
-    task :minify => :packed # IMPORTANT: don't want minified version
+    task :minify => :split # IMPORTANT: don't want minified version
 
     #Create builder tasks for sass and less in a DRY way
     [:sass, :less].each do |csscompiler|
