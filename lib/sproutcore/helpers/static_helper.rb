@@ -403,6 +403,13 @@ module SC
 
           # get the stylesheet or js entry for it...
           entry = cur_manifest.entry_for packed_entry_name
+          
+          if entry.nil?
+            # If it didn't find it, it may have been hidden by the IE hack for splitting CSS.
+            # In this case, we have to find it, but searching for any hidden file won't work
+            # because there could be more than one. So, we search based on 
+            entry = cur_manifest.entry_for packed_entry_name, { :hidden => true, :is_split => true  }
+          end
 
           # It used to be like this:
           # next if entry.nil? || !entry.composite? # no stylesheet or js
