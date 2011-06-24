@@ -87,12 +87,6 @@ module Chance
         # The position is the position in the layout direction. In vertical mode
         # (the usual) it is the Y position.
         pos = 0
-        
-        # The position within a row.
-        inset = 0
-        
-        # The length of the row. Length, when layout out vertically (the usual), is the height
-        row_length = 0
 
         # The size is the current size of the sprite in the non-layout direction;
         # for example, in the usual, vertical mode, the size is the width.
@@ -104,19 +98,17 @@ module Chance
         smallest_size = nil
 
         is_horizontal = sprite[:use_horizontal_layout]
-        
-        # Figure out slice width/heights. We cannot rely on slicing to do this for us
-        # because some images may be being passed through as-is.
-        sprite[:slices].each {|slice|
+
+        sprite[:slices].each do |slice|
           # We must find a canvas either on the slice (if it was actually sliced),
           # or on the slice's file. Otherwise, we're in big shit.
           canvas = slice[:canvas] || slice[:file][:canvas]
-        
+
           # TODO: MAKE A BETTER ERROR.
           unless canvas
-            throw "Could not sprite image " + slice[:path] + "; if it is not a PNG, make sure you have rmagick installed"
+            throw "Could not sprite image " + slice[:path] + "; if it is not a PNG"
           end
-          
+
           # RMagick has a different API than ChunkyPNG; we have to detect
           # which one we are using, and use the correct API accordingly.
           if canvas.respond_to?('columns')
@@ -126,10 +118,10 @@ module Chance
             slice_width = canvas.width
             slice_height = canvas.height
           end
-          
+
           slice_length = is_horizontal ? slice_width : slice_height
           slice_size = is_horizontal ? slice_height : slice_width
-          
+
           # When repeating, we must use the least common multiple so that
           # we can ensure the repeat pattern works even with multiple repeat
           # sizes. However, we should take into account how much extra we are
@@ -142,39 +134,6 @@ module Chance
           else
             size = [size, slice_size].max
           end
-          
-          slice[:slice_width] = slice_width.to_i
-          slice[:slice_height] = slice_height.to_i
-        }
-        
-        # Sort slices from widest/tallest (dependent on is_horizontal) or is_vertical
-        # NOTE: This means we are technically sorting reversed
-        sprite[:slices].sort! {|a, b|
-          # WHY <=> NO WORK?
-          if is_horizontal
-            b[:slice_height] <=> a[:slice_height]
-          else
-            b[:slice_width] <=> a[:slice_width]
-          end
-        }
-
-        sprite[:slices].each do |slice|
-          # We must find a canvas either on the slice (if it was actually sliced),
-          # or on the slice's file. Otherwise, we're in big shit.
-          canvas = slice[:canvas] || slice[:file][:canvas]
-          
-          slice_width = slice[:slice_width]
-          slice_height = slice[:slice_height]
-          
-          slice_length = is_horizontal ? slice_width : slice_height
-          slice_size = is_horizontal ? slice_height : slice_width
-          
-          if slice[:repeat] != "no-repeat" or inset + slice_size > size
-            pos += row_length
-            inset = 0
-            row_length = 0
-          end
-            
 
           # We have extras for manual tweaking of offsetx/y. We have to make sure there
           # is padding for this (on either side)
@@ -196,15 +155,13 @@ module Chance
           end
 
 
-          slice[:sprite_slice_x] = is_horizontal ? pos : inset
-          slice[:sprite_slice_y] = is_horizontal ? inset : pos
+          slice[:sprite_slice_x] = is_horizontal ? pos : 0
+          slice[:sprite_slice_y] = is_horizontal ? 0 : pos
           slice[:sprite_slice_width] = slice_width
           slice[:sprite_slice_height] = slice_height
 
-          inset += slice_size
-          row_length = [slice_length, row_length].max
+          pos += slice_length
         end
-        pos += row_length
 
         # TODO: USE A CONSTANT FOR THIS WARNING
         smallest_size = size if smallest_size == nil
