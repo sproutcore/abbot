@@ -53,6 +53,8 @@ module SC
 
           entry[:split_entries] << split_entry
         }
+      else
+        e.build!
       end
     end
 
