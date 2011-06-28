@@ -20,8 +20,10 @@ module Chance
 
   @files = {}
   
+  @clear_files_immediately = true
+  
   class << self
-    attr_accessor :files, :_current_instance
+    attr_accessor :files, :_current_instance, :clear_files_immediately
 
     def add_file(path, content=nil)
       mtime = 0
@@ -135,6 +137,7 @@ module Chance
     end
 
     def _preprocess_png(file)
+      puts "LOAD FILE #{file[:path]}"
       file[:canvas] = ChunkyPNG::Canvas.from_blob(file[:content])
     end
 

@@ -303,7 +303,12 @@ module Chance
 
         generate_sprite(sprite) if not sprite[:has_generated]
 
-        sprite[:canvas].to_blob
+        ret = sprite[:canvas].to_blob
+        
+        if Chance.clear_files_immediately
+          sprite[:canvas] = nil
+          sprite[:has_generated] = false
+        end
       end
 
       def sprite_names(opts={})
