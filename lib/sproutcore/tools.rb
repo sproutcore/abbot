@@ -382,14 +382,19 @@ module SC
           languages.map { |l| target.manifest_for :language => l }
         end
         manifests.flatten!
+        
+        SC.logger.info "Building #{manifests.length} manifests..."
 
         # Build'em
-        manifests.each do |manifest|
-          SC.logger.info "Building manifest for: #{manifest.target.target_name}:#{manifest.language}"
+        manifests.each_index do |index|
+          manifest = manifests[index]
+          SC.logger.info "Building manifest #{index + 1} of #{manifests.length} for: #{manifest.target.target_name}:#{manifest.language}"
           manifest.build!
+          
+          yield manifest
+          
+          manifests[index] = nil
         end
-
-        return manifests
       end
 
       # Logs the contents of the passed file path to the logger

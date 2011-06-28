@@ -34,13 +34,12 @@ module SC
       end
 
       # Get the manifests to build
-      manifests = build_manifests(*targets)
+      manifests = build_manifests(*targets) do |manifest|
 
-      # First clean all manifests
-      # Do this before building so we don't accidentally erase already build
-      # nested targets.
-      if SC.env.clean
-        manifests.each do |manifest|
+        # First clean all manifests
+        # Do this before building so we don't accidentally erase already build
+        # nested targets.
+        if SC.env.clean
           build_root = manifest.target.build_root
           info "Cleaning #{build_root}"
           FileUtils.rm_r(build_root) if File.directory?(build_root)
@@ -49,10 +48,6 @@ module SC
           info "Cleaning #{staging_root}"
           FileUtils.rm_r(staging_root) if File.directory?(staging_root)
         end
-      end
-
-      # Now build entries for each manifest...
-      manifests.each do |manifest|
 
         # get entries.  If "entries" option was specified, use to filter
         # filename.  Must match end of filename.
@@ -78,6 +73,9 @@ module SC
             info "  #{entry.filename} -> #{dst}"
             entry.build!
           end
+
+          info "Resetting entries to save memory..."
+          manifest.reset_entries!
 
         end
       end
