@@ -62,7 +62,6 @@ module Chance
     CHANCE_FILE_DIRECTIVE = /@_chance_file /
     NORMAL_SCAN_UNTIL = /[^{}@$]+/
 
-    @@uid = 0
 
     def initialize(string, opts = {})
       @opts = { :theme => "", :compress => true }
@@ -76,9 +75,6 @@ module Chance
       @slices = @opts[:slices]  # we update the slices given to us
 
       @theme = @opts[:theme]
-
-      @@uid += 1
-      @uid = @@uid
 
     end
 
@@ -135,12 +131,8 @@ module Chance
         slice[:max_offset_x] = [slice[:max_offset_x], opts[:offset_x]].max
         slice[:max_offset_y] = [slice[:max_offset_y], opts[:offset_y]].max
       else
-        parts = slice_path.split("/")
-        css_name = "__slice_" + parts.join("_")
-
-        if @opts[:compress]
-          css_name = "__s" + @uid.to_s + "_" + @slices.length.to_s
-        end
+        parts = (@opts[:instance_id].to_s + "/" + slice_path).split("/")
+        css_name = "__slice_#{parts.join("_")}"
 
         slice = opts.merge({ 
           :name => slice_path, 

@@ -57,11 +57,18 @@ module Chance
       "chance-test.css"       => { :method => :chance_test }
     }
 
+    @@uid = 0
+    
     @@generation = 0
 
     def initialize(options = {})
       @options = options
       @options[:theme] = "" if @options[:theme].nil?
+      
+      @@uid += 1
+      @uid = @@uid
+      
+      @options[:instance_id] = @uid if @options[:instance_id].nil?
 
       if @options[:theme].length > 0 and @options[:theme][0] != "."
         @options[:theme] = "." + @options[:theme].to_s
@@ -229,13 +236,26 @@ module Chance
         # The output of this process is a "virtual" file that imports all of the 
         # SCSS files used by this Chance instance. This also sets up the @slices hash.
         import_css = _preprocess
+        
+        # LETS HOPE TO GOD NO OTHER CHANCE INSTANCE IS RUNNING
+        # (actually, that should never happen anyway, and we are indeed guarding against it
+        # by using the instane name)
+        image_css_path = File.join('./tmp/chance/image_css', @options[:instance_id].to_s, '_image_css.scss')
+        FileUtils.mkdir_p(File.dirname(image_css_path))
+        
+        file = File.new(image_css_path, "w")
+        file.write(_css_for_slices)
+        file.close
+        
+        image_css_path = File.join('./tmp/chance/image_css', @options[:instance_id].to_s, 'image_css')
+        
 
         # STEP 2: Preparing input CSS
         # The main CSS file we pass to the Sass Engine will have placeholder CSS for the
         # slices (the details will be postprocessed out).
         # After that, all of the individual files (using the import CSS generated
         # in Step 1)
-        css = _css_for_slices + "\n" + import_css
+        css = "@import \"#{image_css_path}\";\n" + import_css
 
         # Step 3: Apply Sass Engine
         engine = Sass::Engine.new(css, Compass.sass_engine_options.merge({
@@ -348,13 +368,10 @@ module Chance
 
       relative_paths = @mapped_files.invert
 
-      unique_number = 0
-
       @file_list.map {|file|
-        # The parser accepts single files that contain many files. As such,
-        # its method of determing the current file name is a marker in the
-        # file. We may want to consider changing this to a parser option
-        # now that we don't need this feature so much, but this works for now.
+        # NOTE: WE MUST CALL CHANCE PARSER NOW, because it generates our slicses.
+        # We can't be picky and just call it if something has changed. Thankfully,
+        # parser is fast. Unlike SCSS.
         content = "@_chance_file " + relative_paths[file[:path]] + ";\n"
         content += "$theme: '" + @options[:theme] + "';"
         content += file[:content]
@@ -362,13 +379,12 @@ module Chance
         parser = Chance::Parser.new(content, @options)
         parser.parse
         file[:parsed_css] = parser.css
-
+        
         # We used to use an md5 hash here, but this hides the original file name
         # from SCSS, which makes the file name + line number comments useless.
         #
         # Instead, we sanitize the path.
         path_safe = file[:path].gsub(/[^a-zA-Z0-9\-_\\\/]/, '-')
-        path_safe = File.join("#{unique_number}", "#{path_safe}")
 
         tmp_path = "./tmp/chance/#{path_safe}.scss"
 

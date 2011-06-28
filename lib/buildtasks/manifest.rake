@@ -423,6 +423,7 @@ namespace :manifest do
     task :chance => %w(setup images javascript module_info css sass less) do |task, env|
       config = CONFIG
       manifest = env[:manifest]
+      target = manifest.target
 
       sprited = CONFIG[:use_sprites]
       minify = CONFIG[:minify_css]
@@ -469,7 +470,18 @@ namespace :manifest do
         # To help, we cache the Chance Instance based on a key we generate. The Chance Factory does
         # this for us. It will automatically handle when things change, for the most part (though
         # the builder still has to tell Chance to double-check things, etc.)
-        opts = { :theme => CONFIG[:css_theme], :minify => CONFIG[:minify_css] }
+        opts = { 
+          # the value of $theme
+          :theme => CONFIG[:css_theme],
+          
+          # whether it should minify
+          :minify => CONFIG[:minify_css],
+          
+          # a unique identifier for the instance. we can share across localizations; this is
+          # merely used to prevent conflicts within the SAME CSS file: Chance makes sure
+          # all rules for generated images include this key. We'll use the target name.
+          :instance_id => target[:target_name]
+        }
         chance_key = manifest[:staging_root] + "/" + resource_name
         
         chance = Chance::ChanceFactory.instance_for_key(chance_key, opts)
