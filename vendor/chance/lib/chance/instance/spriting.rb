@@ -309,6 +309,8 @@ module Chance
           sprite[:canvas] = nil
           sprite[:has_generated] = false
         end
+        
+        ret
       end
 
       def sprite_names(opts={})
