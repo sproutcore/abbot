@@ -20,7 +20,7 @@ module Chance
 
   @files = {}
   
-  @clear_files_immediately = true
+  @clear_files_immediately = false
   
   class << self
     attr_accessor :files, :_current_instance, :clear_files_immediately

@@ -33,6 +33,10 @@ module SC
         entry_filters = options[:entries].split(',')
       end
       
+      # We want Chance to clear files like sprites immediately after they're asked for, 
+      # because we'll only need them once during a build.
+      Chance.clear_files_immediately
+      
       # Get the manifests to build
       manifests = build_manifests(*targets) do |manifest|
         # This is our own logic to prevent processing a manifest twice
