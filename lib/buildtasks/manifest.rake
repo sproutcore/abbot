@@ -480,8 +480,14 @@ namespace :manifest do
         entries.each do |entry|
           timestamp = [entry.timestamp, timestamp].max
 
-          # unfortunately, we have to stage the source entries NOW.
-          src_path = entry.stage![:staging_path]
+          # unfortunately, we have to stage the source entries NOW. But only if they require
+          # building to be sued
+          if entry[:build_required]
+            src_path = entry.stage![:staging_path]
+          else
+            src_path = entry[:source_path]
+          end
+          
           next unless File.exist?(src_path)
 
           Chance.add_file src_path
@@ -725,6 +731,7 @@ namespace :manifest do
             :url => [manifest[:url_root], 'source', entry[:filename]].join("/"),
             :build_task => 'build:'+csscompiler.to_s,
             :entry_type => :css,
+            :build_required => true, # tells the :chance step that it needs to stage it before it can use it
             :ext        => 'css',
             :resource   => 'stylesheet',
             :required   => []
