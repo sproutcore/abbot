@@ -9,6 +9,10 @@ module Chance
     @instances = {}
     @file_hashes = {}
     class << self
+      def clear_instances
+        @file_hashes = {}
+        @instances = {}
+      end
     
       def instance_for_key(key, opts)
         if not @instances.include? key

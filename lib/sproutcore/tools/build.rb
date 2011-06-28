@@ -7,9 +7,64 @@
 
 require "sproutcore/tools/manifest"
 require 'pathname'
-
+include ObjectSpace
 $to_html5_manifest = []
 $to_html5_manifest_networks = []
+
+class MemoryProfiler
+  DEFAULTS = {:delay => 1, :string_debug => false}
+
+  def self.start(opt={})
+    opt = DEFAULTS.dup.merge(opt)
+
+    Thread.new do
+      prev = Hash.new(0)
+      curr = Hash.new(0)
+      delta = Hash.new(0)
+
+      file = File.open('log/memory_profiler.log','w')
+
+      loop do
+        begin
+          GC.start
+          curr.clear
+
+          ObjectSpace.each_object do |o|
+            curr[o.class] += 1 #Marshal.dump(o).size rescue 1
+          end
+
+          delta.clear
+          (curr.keys + prev.keys).uniq.each do |k,v|
+            if k == SproutCore::ManifestEntry and curr[k] < 300
+              ObjectSpace.each_object do |o|
+                if o.class == k
+                  file.puts o[:source_path]
+                  file.puts o.manifest.target[:target_name]
+                  file.puts o.manifest.variation
+                end
+              end
+            end
+            delta[k] = curr[k]-prev[k]
+          end
+
+          file.puts "Top 10000"
+          delta.sort_by { |k,v| -v.abs }[0..9999].sort_by { |k,v| -v}.each do |k,v|
+            file.printf "%+5d: %s (%d)\n", v, k.name, curr[k] unless v == 0
+          end
+          file.flush
+
+          delta.clear
+          prev.clear
+          prev.update curr
+          GC.start
+        rescue Exception => err
+          STDERR.puts "** memory_profiler error: #{err}"
+        end
+        sleep opt[:delay]
+      end
+    end
+  end
+end
 
 module SC
   class Tools
@@ -17,38 +72,28 @@ module SC
     desc "build [TARGET..]", "Builds one or more targets"
     method_options(MANIFEST_OPTIONS)
     method_option :entries, :type => :string
-    method_option :clean,   :type => :boolean, :aliases => "-c"
     def build(*targets)
+      stats = {}
+      
       t1 = Time.now
       SC.logger.info  'Starting build process...'
       # Copy some key props to the env
       SC.env.build_prefix   = options.buildroot if options.buildroot
       SC.env.staging_prefix = options.stageroot if options.stageroot
       SC.env.use_symlink    = options.symlink
-      SC.env.clean          = options.clean
 
       # Get entries option
       entry_filters = nil
       if options[:entries]
         entry_filters = options[:entries].split(',')
       end
+      
+      MemoryProfiler.start
+      GC::Profiler.enable
 
       # Get the manifests to build
       manifests = build_manifests(*targets) do |manifest|
-
-        # First clean all manifests
-        # Do this before building so we don't accidentally erase already build
-        # nested targets.
-        if SC.env.clean
-          build_root = manifest.target.build_root
-          info "Cleaning #{build_root}"
-          FileUtils.rm_r(build_root) if File.directory?(build_root)
-
-          staging_root = manifest.target.staging_root
-          info "Cleaning #{staging_root}"
-          FileUtils.rm_r(staging_root) if File.directory?(staging_root)
-        end
-
+        
         # get entries.  If "entries" option was specified, use to filter
         # filename.  Must match end of filename.
         entries = manifest.entries
@@ -73,11 +118,11 @@ module SC
             info "  #{entry.filename} -> #{dst}"
             entry.build!
           end
-
-          info "Resetting entries to save memory..."
-          manifest.reset_entries!
-
         end
+        
+        # Clean up
+        manifest.reset!
+        Chance::ChanceFactory.clear_instances
       end
 
       if $to_html5_manifest.length > 0

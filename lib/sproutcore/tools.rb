@@ -361,39 +361,46 @@ module SC
           SC.logger.info "Using build numbers: #{numbers.map { |k,v| "#{k}: #{v}" }.join(',')}"
         end
       end
-
-      # Core method to process command line options and then build a manifest.
-      # Shared by sc-manifest, sc-build and sc-docs commands.
-      def build_manifests(*targets)
-
+      
+      def each_manifest_for_targets(*targets)
         # setup build numbers
         find_build_numbers(*targets)
 
         requires_project! # get project
+        
         targets = find_targets(*targets) # get targets
-        languages = find_languages(*targets) # get languages
 
         # log output
         SC.logger.info "Building targets: #{targets.map { |t| t.target_name } * ","}"
-        SC.logger.info "Building languages: #{ languages * "," }"
-
-        # Now fetch the manifests to build.  One per target/language
-        manifests = targets.map do |target|
-          languages.map { |l| target.manifest_for :language => l }
-        end
-        manifests.flatten!
         
-        SC.logger.info "Building #{manifests.length} manifests..."
+        languages = find_languages(*targets) # get languages
+        SC.logger.info "Building languages: #{ languages * "," }"
+        
+        index = 1
+        count = targets.length * languages.length
+        SC.logger.info "Total target/language combinations to build: #{count}"
+        
+        targets.each {|target|
+          languages.each {|l|
+            manifest = target.manifest_for :language => l
+            SC.logger.info "Creating manifest #{index} of #{count} for: #{manifest.target.target_name}:#{manifest.language}"
+            
+            yield manifest
+            
+            index += 1
+          }
+        }
+        
+      end
 
+      # Core method to process command line options and then build a manifest.
+      # Shared by sc-manifest, sc-build and sc-docs commands.
+      def build_manifests(*targets)
         # Build'em
-        manifests.each_index do |index|
-          manifest = manifests[index]
-          SC.logger.info "Building manifest #{index + 1} of #{manifests.length} for: #{manifest.target.target_name}:#{manifest.language}"
+        each_manifest_for_targets(*targets) do |manifest|
           manifest.build!
           
           yield manifest
-          
-          manifests[index] = nil
         end
       end
 

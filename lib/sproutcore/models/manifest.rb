@@ -93,6 +93,26 @@ module SC
     end
 
     def built?; @is_built; end
+    
+    def reset!
+      return if @is_resetting
+      @is_resetting = true
+      
+      targets = target.expand_required_targets({ :theme => true }) + [target]
+      entries = targets.map do |t|
+        t.manifest_for(variation).reset!
+      end
+      
+      targets = target.modules({ :debug => false, :test => false, :theme => true }).each do |t|
+        t.manifest_for(variation).reset!
+      end
+      
+      reset_entries!
+      
+      @is_resetting = false
+      
+      return self
+    end
 
     # Resets the manifest entries.  this is called before a build is
     # performed. This will reset only the entries, none of the other props.
@@ -102,6 +122,7 @@ module SC
     #
     def reset_entries!
       @is_built = false
+      self.delete(:entries)
       @entries = EntryList.new
       return self
     end
