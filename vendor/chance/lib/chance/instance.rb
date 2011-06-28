@@ -366,18 +366,20 @@ module Chance
         # We used to use an md5 hash here, but this hides the original file name
         # from SCSS, which makes the file name + line number comments useless.
         #
-        # Instead, we sanitize the path and put a unique number as a prefix.
+        # Instead, we sanitize the path.
         path_safe = file[:path].gsub(/[^a-zA-Z0-9\-_\\\/]/, '-')
         path_safe = File.join("#{unique_number}", "#{path_safe}")
-        unique_number += 1
 
         tmp_path = "./tmp/chance/#{path_safe}.scss"
 
         FileUtils.mkdir_p(File.dirname(tmp_path))
-
-        f = File.new(tmp_path, "w")
-        f.write(parser.css)
-        f.close
+        
+        if not file[:mtime] or not file[:wtime] or file[:wtime] < file[:mtime]
+          f = File.new(tmp_path, "w")
+          f.write(parser.css)
+          f.close
+          file[:wtime] = Time.now.to_f
+        end
 
         css = "@import \"" + tmp_path + "\";"
 
