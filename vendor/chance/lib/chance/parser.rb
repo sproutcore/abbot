@@ -132,7 +132,7 @@ module Chance
         slice[:max_offset_y] = [slice[:max_offset_y], opts[:offset_y]].max
       else
         parts = (@opts[:instance_id].to_s + "/" + slice_path).split("/")
-        css_name = "__slice_#{parts.join("_")}"
+        css_name = "__chance_slice_#{parts.join("_")}"
 
         slice = opts.merge({ 
           :name => slice_path, 

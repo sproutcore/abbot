@@ -309,10 +309,21 @@ module Chance
     # :sprited => whether to use spriting instead of data uris.
     def _postprocess_css(opts)
       if opts[:sprited]
-        postprocess_css_sprited(opts)
+        ret = postprocess_css_sprited(opts)
       else
-        postprocess_css_dataurl(opts)
+        ret = postprocess_css_dataurl(opts)
       end
+      
+      ret = _strip_slice_class_names(ret)
+    end
+    
+    #
+    # Strips dummy slice class names that were added by Chance so that SCSS could do its magic,
+    # but which are no longer needed.
+    #
+    def _strip_slice_class_names(css)
+      css.gsub! /\.__chance_slice[^{]*?,/, ""
+      css
     end
 
 
