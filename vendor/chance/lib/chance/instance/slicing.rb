@@ -2,11 +2,51 @@ require "chance/perf"
 
 module Chance
   class Instance
-    
     # The Slicing module handles taking a collection of slice definitions to
     # produce sliced images. It uses ChunkyPNG to perform the slicing, and
     # stores the sliced image in the slice definition.
     module Slicing
+      class << self
+        def add_canvas_to_cache(canvas, file, rect)
+          if @canvas_cache.nil?
+            @canvas_cache = {}
+          end
+          
+          left = rect[:left]
+          top = rect[:top]
+          width = rect[:width]
+          height = rect[:height]
+          
+          key = "#{file[:path]}:#{left},#{top},#{width},#{height}"
+          @canvas_cache[key] = {
+            mtime: file[:mtime],
+            canvas: canvas
+          }
+        end
+        
+        def get_canvas_from_cache(file, rect)
+          if @canvas_cache.nil?
+            @canvas_cache = {}
+          end
+          
+          left = rect[:left]
+          top = rect[:top]
+          width = rect[:width]
+          height = rect[:height]
+          
+          key = "#{file[:path]}:#{left},#{top},#{width},#{height}"
+          hash = @canvas_cache[key]
+          
+          # Check to see if it is new enough
+          if not hash.nil? and hash[:mtime] == file[:mtime]
+            return hash[:canvas]
+          end
+          
+          @canvas_cache[key] = nil
+          nil
+        end
+      end
+      
       # performs the slicing indicated by each slice definition, and puts the resulting
       # image in the slice definition's :image property.
       #
@@ -23,7 +63,7 @@ module Chance
           # Otherwise, consumers will use slice[:file] [:canvas] or [:contents]
           # to get the original data as needed.
           slice[:canvas] = nil
-
+          
           # In any case, if there is one, we need to get the original file and canvas;
           # this process also tells us if the slice is 2x, etc.
           canvas = canvas_for slice, opts
@@ -55,7 +95,17 @@ module Chance
               rect = slice_rect(slice, canvas_width / f, canvas_height / f)
 
               if not rect.nil?
-                slice[:canvas] = canvas.crop(rect[:left] * f, rect[:top] * f, rect[:width] * f, rect[:height] * f)
+                
+                ## CHECK CACHE ##
+                file = file_for(slice, opts)
+                cached_canvas = Chance::Instance::Slicing.get_canvas_from_cache(file, rect)
+                if cached_canvas
+                  slice[:canvas] = cached_canvas
+                else
+                  slice[:canvas] = canvas.crop(rect[:left] * f, rect[:top] * f, rect[:width] * f, rect[:height] * f)
+                  Chance::Instance::Slicing.add_canvas_to_cache(slice[:canvas], file, rect)
+                end
+                
                 canvas_width = rect[:height] * f
                 canvas_height = rect[:width] * f
               end
@@ -64,6 +114,8 @@ module Chance
             slice[:target_width] = canvas_width / f
             slice[:target_height] = canvas_height / f
           end
+          
+          
 
         end
         
