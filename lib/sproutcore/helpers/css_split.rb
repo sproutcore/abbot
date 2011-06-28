@@ -102,7 +102,7 @@ module SC::Helpers
             if rule_depth == 0
               # Write the rule to the string, starting from where the last rule
               # ended, going to where this one ends.
-              current_string += css[last_rule_end..idx] + "\n"
+              current_string << css[last_rule_end..idx] + "\n"
           
               # Also keep reset the number of selectors inside the new rule,
               # so we can keep an accurate count for next time.
@@ -174,7 +174,7 @@ module SC::Helpers
       end
     
       # Add any remainder
-      current_string += css[last_rule_end...idx]
+      current_string << css[last_rule_end...idx]
       list << current_string if current_string.length > 0
     
       list
