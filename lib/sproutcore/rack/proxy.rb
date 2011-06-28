@@ -80,7 +80,7 @@ module SC
           end
         end
 
-        return [404, {}, "not found"]
+        return [404, {}, ["not found"]]
       end
 
       def chunked?(headers)

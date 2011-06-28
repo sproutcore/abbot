@@ -65,7 +65,7 @@ module SC
         body = rqust.body.read()
         path = env["PATH_INFO"]
 
-        return [404, {}, "not found"] unless path =~ regex
+        return [404, {}, ["not found"]] unless path =~ regex
 
         path = path.sub regex, '' # remove path prefix
         action = params['action']
@@ -292,7 +292,7 @@ module SC
       end
 
       def success(msg)
-        [ 200, { 'Content-Type' => 'text/html' }, msg ]
+        [ 200, { 'Content-Type' => 'text/html' }, [msg] ]
       end
 
       def with_modifiable_path(path)

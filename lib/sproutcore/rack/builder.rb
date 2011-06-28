@@ -176,7 +176,7 @@ module SC
         return [404, {
           "Content-Type"   => "text/html",
           "Content-Length" => reason.size.to_s
-        }, reason]
+        }, [reason]]
       end
 
       # Reloads the project if reloading is enabled.  At maximum this will

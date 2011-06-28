@@ -28,15 +28,15 @@ module SC
         url = env['PATH_INFO']
         case url
         when '/sc/targets.json' # returns description of targets
-          return [200, {}, get_targets_json]
+          return [200, {}, [get_targets_json]]
 
         when '/sc/greenhouseconf.json' #returns json of all valid design objects
-          return [200, {}, get_greenhouse_configs(env)]
+          return [200, {}, [get_greenhouse_configs(env)]]
         else
-          return [404, {}, "not found"]
+          return [404, {}, ["not found"]]
         end
 
-        return [404, {}, "not found"]
+        return [404, {}, ["not found"]]
       end
 
       def get_targets_json

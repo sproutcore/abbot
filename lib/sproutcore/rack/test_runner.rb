@@ -17,7 +17,7 @@ module SC
       end
 
       def call(env)
-        return [404, {}, "not found"]
+        return [404, {}, ["not found"]]
       end
     end
   end
