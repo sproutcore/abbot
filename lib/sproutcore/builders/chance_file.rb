@@ -12,7 +12,7 @@ module SC
       # Ensure all entries are staged. When Abbot updates, it may skip regenerating
       # the manifest and just run us, in which case, the previous staged version
       # will be out-of-date.
-      entry[:source_entries].each {|e| e.stage! }
+      entry[:source_entries].each {|e| e.stage! if entry[:build_required] }
 
       chance_file = entry[:chance_file]
 
