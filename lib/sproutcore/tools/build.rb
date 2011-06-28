@@ -11,61 +11,6 @@ include ObjectSpace
 $to_html5_manifest = []
 $to_html5_manifest_networks = []
 
-class MemoryProfiler
-  DEFAULTS = {:delay => 1, :string_debug => false}
-
-  def self.start(opt={})
-    opt = DEFAULTS.dup.merge(opt)
-
-    Thread.new do
-      prev = Hash.new(0)
-      curr = Hash.new(0)
-      delta = Hash.new(0)
-
-      file = File.open('log/memory_profiler.log','w')
-
-      loop do
-        begin
-          GC.start
-          curr.clear
-
-          ObjectSpace.each_object do |o|
-            curr[o.class] += 1 #Marshal.dump(o).size rescue 1
-          end
-
-          delta.clear
-          (curr.keys + prev.keys).uniq.each do |k,v|
-            if k == SproutCore::ManifestEntry and curr[k] < 300
-              ObjectSpace.each_object do |o|
-                if o.class == k
-                  file.puts o[:source_path]
-                  file.puts o.manifest.target[:target_name]
-                  file.puts o.manifest.variation
-                end
-              end
-            end
-            delta[k] = curr[k]-prev[k]
-          end
-
-          file.puts "Top 10000"
-          delta.sort_by { |k,v| -v.abs }[0..9999].sort_by { |k,v| -v}.each do |k,v|
-            file.printf "%+5d: %s (%d)\n", v, k.name, curr[k] unless v == 0
-          end
-          file.flush
-
-          delta.clear
-          prev.clear
-          prev.update curr
-          GC.start
-        rescue Exception => err
-          STDERR.puts "** memory_profiler error: #{err}"
-        end
-        sleep opt[:delay]
-      end
-    end
-  end
-end
-
 module SC
   class Tools
 
@@ -88,11 +33,11 @@ module SC
         entry_filters = options[:entries].split(',')
       end
       
-      MemoryProfiler.start
-      GC::Profiler.enable
-
       # Get the manifests to build
       manifests = build_manifests(*targets) do |manifest|
+        # This is our own logic to prevent processing a manifest twice
+        next if manifest[:built_by_builder]
+        manifest[:built_by_builder] = true
         
         # get entries.  If "entries" option was specified, use to filter
         # filename.  Must match end of filename.
@@ -119,6 +64,44 @@ module SC
             entry.build!
           end
         end
+        
+        # Build dependencies
+        target = manifest.target
+        required = target.expand_required_targets :theme => true,
+          :debug => target.config.load_debug,
+          :tests => target.config.load_tests,
+ 
+          # Modules are not 'required' technically, as they may be loaded
+          # lazily. However, we want to know all targets that should be built,
+          # so we'll include modules as well.
+          :modules => true
+
+        
+        required.each {|t| 
+          t.config[:minify_javascript] = false if not targets.include? t
+          m = t.manifest_for (manifest.variation)
+          
+          
+          # And, yes, the same as above. We're just building entries for all required targets.
+          # We're also going to mark them as fully-built so they don't get built again.
+          next if m[:built_by_builder]
+          m[:built_by_builder] = true
+          m.build!
+          
+          if m.entries.size > 0
+            t[:built_by_builder]
+            info "Building entries for #{m.target.target_name}:#{m.language}..."
+
+            target_build_root = Pathname.new(m.target.project.project_root)
+            m.entries.each do |entry|
+              dst = Pathname.new(entry.build_path).relative_path_from(target_build_root)
+              info "  #{entry.filename} -> #{dst}"
+              entry.build!
+            end
+          end
+          
+          
+        }
         
         # Clean up
         manifest.reset!
