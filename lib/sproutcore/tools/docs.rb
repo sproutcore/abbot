@@ -15,13 +15,11 @@ module SC
     method_options(:entries  => :string,
                    :clean    => true,
                    :language => :string,
-                   :template => :string,
-                   ['--include-required', '-r'] => false)
+                   :template => :string)
     def docs(*targets)
 
       SC.env.build_prefix   = options.buildroot if options.buildroot
       SC.env.clean          = options.clean
-      SC.env.build_required = options['include-required']
       SC.env.language       = options.language
       SC.env.template_name  = options.template
 

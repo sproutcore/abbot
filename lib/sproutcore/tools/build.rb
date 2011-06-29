@@ -7,7 +7,7 @@
 
 require "sproutcore/tools/manifest"
 require 'pathname'
-include ObjectSpace
+
 $to_html5_manifest = []
 $to_html5_manifest_networks = []
 
@@ -18,8 +18,7 @@ module SC
     method_options(MANIFEST_OPTIONS)
     method_option :entries, :type => :string
     def build(*targets)
-      stats = {}
-      
+
       t1 = Time.now
       SC.logger.info  'Starting build process...'
       # Copy some key props to the env
@@ -82,7 +81,12 @@ module SC
 
         
         required.each {|t| 
-          t.config[:minify_javascript] = false if not targets.include? t
+          unless t[:target_type] == :app or t[:target_type] == :module
+            # This will make minification not work in the rare case where you build a target
+            # and then build another target which that depends on. Which you'd do... never? I hope.
+            t.config[:minify_javascript] = false
+          end
+          
           m = t.manifest_for (manifest.variation)
           
           

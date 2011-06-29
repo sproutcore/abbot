@@ -237,9 +237,8 @@ module Chance
         # SCSS files used by this Chance instance. This also sets up the @slices hash.
         import_css = _preprocess
         
-        # LETS HOPE TO GOD NO OTHER CHANCE INSTANCE IS RUNNING
-        # (actually, that should never happen anyway, and we are indeed guarding against it
-        # by using the instane name)
+        # Because we encapsulate with instance_id, we should not have collisions even IF another chance
+        # instance were running at the same time (which it couldn't; if it were, there'd be MANY other issues)
         image_css_path = File.join('./tmp/chance/image_css', @options[:instance_id].to_s, '_image_css.scss')
         FileUtils.mkdir_p(File.dirname(image_css_path))
         

@@ -16,8 +16,8 @@ module SC
                          :format        => :string,
                          :output        => :string,
                          :all           => false,
-                         ['--build-numbers', '-B'] => :string,
-                         ['--include-required', '-r'] => false }
+                         ['--build-numbers', '-B'] => :string
+                         }
 
     desc "manifest [TARGET..]", "Generates a manifest for the specified targets"
     method_options(MANIFEST_OPTIONS.merge(

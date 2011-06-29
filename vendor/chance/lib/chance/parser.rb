@@ -23,15 +23,6 @@
 # - :theme: a selector that will make up the initial value of the $theme
 #   variable. For example: :theme => "ace.test-controls"
 #
-# - :compress: if true, the slice names in the CSS will be shortened.
-#   This has two drawbacks: 1) the slice names will not be helpful for
-#   debugging, and 2) if using Chance in a standalone way and committing
-#   the output to a source control system, the output can change dramatically
-#   between runs, even if the input CSS is unchanged.
-#
-#   As the most common use of Chance is as part of the SC build tools,
-#   and this debugging support is usually only required to debug Chance
-#   itself, :compress defaults to true
 #
 # How Slice & Slices work
 # -------------------------------
@@ -64,7 +55,7 @@ module Chance
 
 
     def initialize(string, opts = {})
-      @opts = { :theme => "", :compress => true }
+      @opts = { :theme => "" }
       @opts.merge!(opts)
       @path = ""
 

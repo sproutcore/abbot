@@ -94,6 +94,11 @@ module SC
 
     def built?; @is_built; end
     
+    #
+    # Resets this manifest, and all same-variation manifests the target depends on.
+    # This is useful when building: it clears the entries and frees up memory so
+    # building doesn't take multiple gigabytes.
+    #
     def reset!
       return if @is_resetting
       @is_resetting = true

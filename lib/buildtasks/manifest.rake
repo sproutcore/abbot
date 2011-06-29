@@ -493,7 +493,7 @@ namespace :manifest do
           timestamp = [entry.timestamp, timestamp].max
 
           # unfortunately, we have to stage the source entries NOW. But only if they require
-          # building to be sued
+          # building to be used. This applies primarily to sass and less entries.
           if entry[:build_required]
             src_path = entry.stage![:staging_path]
           else

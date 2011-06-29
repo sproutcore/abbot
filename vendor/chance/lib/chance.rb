@@ -137,7 +137,6 @@ module Chance
     end
 
     def _preprocess_png(file)
-      puts "LOAD FILE #{file[:path]}"
       file[:canvas] = ChunkyPNG::Canvas.from_blob(file[:content])
     end
 
