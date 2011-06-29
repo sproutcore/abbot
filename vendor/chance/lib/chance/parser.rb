@@ -122,8 +122,8 @@ module Chance
         slice[:max_offset_x] = [slice[:max_offset_x], opts[:offset_x]].max
         slice[:max_offset_y] = [slice[:max_offset_y], opts[:offset_y]].max
       else
-        parts = (@opts[:instance_id].to_s + "/" + slice_path).split("/")
-        css_name = "__chance_slice_#{parts.join("_")}"
+        modified_path = @opts[:instance_id].to_s.gsub(/[^a-zA-Z0-9]/, '_') + "_" + slice_path.gsub(/[^a-zA-Z0-9]/, '_')
+        css_name = "__chance_slice_#{modified_path}"
 
         slice = opts.merge({ 
           :name => slice_path, 
