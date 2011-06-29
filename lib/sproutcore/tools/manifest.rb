@@ -16,7 +16,10 @@ module SC
                          :format        => :string,
                          :output        => :string,
                          :all           => false,
-                         ['--build-numbers', '-B'] => :string
+                         ['--build-numbers', '-B'] => :string,
+                   
+                         # DEPRECATED; DOES NOTHING, THERE FOR BACKWARDS-COMPAT
+                         ['--include-required', '-r'] => false
                          }
 
     desc "manifest [TARGET..]", "Generates a manifest for the specified targets"

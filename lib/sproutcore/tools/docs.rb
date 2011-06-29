@@ -15,7 +15,11 @@ module SC
     method_options(:entries  => :string,
                    :clean    => true,
                    :language => :string,
-                   :template => :string)
+                   :template => :string,
+                   
+                   # DEPRECATED; DOES NOTHING, THERE FOR BACKWARDS-COMPAT
+                   ['--include-required', '-r'] => false
+                   )
     def docs(*targets)
 
       SC.env.build_prefix   = options.buildroot if options.buildroot
