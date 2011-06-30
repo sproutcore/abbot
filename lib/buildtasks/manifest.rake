@@ -211,7 +211,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
 
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css handlebars javascript module_info sass less combine string_wrap minify string_wrap html strings tests packed)
+    task :all => %w(css handlebars javascript module_info sass less combine string_wrap minify string_wrap html strings tests packed split)
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -475,7 +475,7 @@ namespace :manifest do
           :theme => CONFIG[:css_theme],
           
           # whether it should minify
-          :minify => CONFIG[:minify_css],
+          :minify => CONFIG[:minify_css].nil? ? CONFIG[:minify] : CONFIG[:minify_css],
           
           # a unique identifier for the instance. we can share across localizations; this is
           # merely used to prevent conflicts within the SAME CSS file: Chance makes sure

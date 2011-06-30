@@ -24,6 +24,8 @@ module SC
       e = entry.source_entry
       e.stage!
       
+      puts "NEED TO SPLIT NOW"
+      
       src = File.read(entry[:staging_path])
       files = SC::Helpers::SplitCSS.split_css src
       

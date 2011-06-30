@@ -1,184 +1,190 @@
-# ===========================================================================
-# Project:   Abbot - SproutCore Build Tools
-# Copyright: ©2011 Apple Inc.
-# ===========================================================================
-
-# The CSS Split module splits mammoth CSS files into smaller chunks
-# by the count of selectors. As soon as a maximum number of selectors
-# are reached, a new string of CSS will be created.
-# 
-# We need this because IE only allows ~4096 selectors per file.
+# THE PARSER
 #
-# @author Alex Iskander
+# The parser will not bother splitting into tokens. We are _a_
+# step up from Regular Expressions, not a thousand steps.
+#
+# In short, we keep track of two things: { } and strings.
+#
+# Other than that, we look for @theme, slices(), and slice(),
+# in their various forms.
+#
+# Our method is to scan until we hit a delimiter followed by any
+# of the following:
+#
+# - @theme
+# - @include slices(
+# - slices(
+# - slice(
+#
+# Options
+# --------------------------------
+# You may pass a few configuration options to a Chance instance:
+#
+# - :theme: a selector that will make up the initial value of the $theme
+#   variable. For example: :theme => "ace.test-controls"
+#
+#
+# How Slice & Slices work
+# -------------------------------
+# @include slice() and @include slices() are not actually responsible
+# for slicing the image. They do not know the image's width or height.
+#
+# All that they do is determine the slice's configuration, including
+# its file name, the rectangle to slice, etc.
+require "stringio"
+
+
 module SC::Helpers
   
   module SplitCSS
-    # IE allows up to 4094 or so. To be safe, we'll stick with 4080.
-    RULE_LIMIT = 4000
-  
-    # Works like a normal string split method, except that it splits by
-    # number of rules: each time the RULE_LIMIT is reached, a new string
-    # will be started
-    def self.split_css(css) 
-      idx = 0
-      len = css.length
+    UNTIL_SINGLE_QUOTE = /(?!\\)'/
+    UNTIL_DOUBLE_QUOTE = /(?!\\)"/
+
+    BEGIN_SCOPE = /\{/
+    END_SCOPE = /\}/
+    NORMAL_SCAN_UNTIL = /[^{},]+/
     
-      in_string = false
-      string_start_character = "" # The quote character that began the string
+    MAX_SELECTOR_COUNT = 4000
     
-      in_comment = false
+    def self.split_css(input)
+      scanner = StringScanner.new(input)
+      
+      current = ""
+      ret = [current]
+      
+      selectors = ""
       in_selector = false
-
-      # We have to do multiple depth so that we handle things like webkit animations
-      # properly. Otherwise we'll get into a bad state
-      rule_depth = 0
-    
-      last_rule_end = 0
-    
-      current_string = ""
-      list = []
-    
-      current_selector_count = 0
-      selectors_in_rule = 0
-      total_selector_count = 0
-    
-      # Loop through the characters
-      while idx < len
-        c = css[idx]
+      selector_count = 0
       
-        # also, get the next character so we can check if we're beginning or ending
-        # a comment.
-        n = css[idx + 1]
-      
-        # If we are in a string, check to see if we are at the end yet.
-        if in_string
-          if c == "\\"
-            # skip not just this character (done below) but the next one too.
-            idx += 1
-          elsif c == string_start_character
-            in_string = false
-          end
+      while not scanner.eos?
+        # Handle any strings, etc. This also handles whitespace, strings, blah.
+        # Basically, unless we see a scope, we know we are in a selector.
+        selectors << handle_skip(scanner)
         
-          idx +=1
-          next
-        end
-      
-        # If we are in a comment, check to see if we are at the end yet
-        if in_comment
-          if c == '*' and n == '/'
-            in_comment = false
-          
-            # In this case, we want to skip both this one and the next one (below)
-            idx += 1
-          end
-        
-          idx += 1
-          next
-        end
-      
-        # Check to see if we are beginning a comment
-        if c == "/" and n == "*"
-          idx += 2
-          in_comment = true
-          next
-        end
-      
-        # check to see if we are beginning a string
-        if c == '"' or c == "'"
-          # NOTE: strings can, in some cases, be inside of selectors.
-          in_string = true
-          string_start_character = c
-        
-          idx += 1
-          next
-        end
-      
-        # If we are in a rule, check to see if we are ending that rule.
-        if rule_depth > 0
-          if c == '}'
-            rule_depth -= 1
-          
-        
-            if rule_depth == 0
-              # Write the rule to the string, starting from where the last rule
-              # ended, going to where this one ends.
-              current_string << css[last_rule_end..idx] + "\n"
-          
-              # Also keep reset the number of selectors inside the new rule,
-              # so we can keep an accurate count for next time.
-              selectors_in_rule = 0
-          
-              last_rule_end = idx + 1
-            end
-          
-            idx += 1
-            next
-          end
-        end
-      
-        # Check to see if we are beginning a rule
-        if c == "{"
-          # Beginning a rule ends the current selector
+        # Handle scope
+        if scanner.match?(BEGIN_SCOPE)
+          # Push the current selectors
+          current << selectors
+          selectors = ""
           in_selector = false
+          
+          current << handle_scope(scanner)
+          
+          # For readability and reliability in certain browsers, add a newline at the end
+          # of each rule.
+          current << "\n"
+          next
+        end
         
-          rule_depth += 1
-          idx += 1
-          next
-        end
-      
-        if rule_depth > 0
-          idx += 1
-          next
-        end
-      
-        # ignore all whitespace
-        if c =~ /\s/
-          idx += 1
-          next
-        end
-      
-        if c == '@'
-          current_selector_count -= 1
-          total_selector_count -= 1
-          selectors_in_rule -= 1
-          idx += 1
-          next
-        end
-      
-        # We're here, so we have a non-whitespace character
-        # If it is a comma, we are no longer in a selector.
-        if c == ','
+        # Handle , -- which would mean we are finishing a selector
+        if scanner.match? /,/
+          selectors << scanner.scan(/,/)
           in_selector = false
-          idx += 1
+          
           next
         end
-      
-        # And otherwise, we are now in a selector so need to increment the selector count...
+        
         if not in_selector
+          # At this point we MUST be in a selector.
           in_selector = true
-        
-          current_selector_count += 1
-          selectors_in_rule += 1
-          total_selector_count += 1
-      
-          # If there are too many selectors, begin a new string
-          if current_selector_count > SplitCSS::RULE_LIMIT
-            list << current_string
+          selector_count += 1
           
-            current_string = ""
-            current_selector_count = selectors_in_rule
+          if selector_count > MAX_SELECTOR_COUNT
+            current = ""
+            ret << current
+            
+            selector_count = 0
           end
         end
-      
-        idx += 1
+        
+        # skip over anything that our tokens do not start with. We implement this differently
+        # since these are ONLY selectors, and therefore we must add them to selector instead of output.
+        res = scanner.scan(NORMAL_SCAN_UNTIL)
+        break if scanner.eos?
+        
+        if res.nil?
+          selectors << scanner.getch
+        else
+          selectors << res
+        end
       end
-    
-      # Add any remainder
-      current_string << css[last_rule_end...idx]
-      list << current_string if current_string.length > 0
-    
-      list
+      
+      ret
     end
-  end
+    
+    def self.handle_scope(scanner)
+      str = ""
+      
+      # Consume the begin scope we matched
+      str << scanner.scan(BEGIN_SCOPE)
+      
+      while not scanner.eos?
+        str << handle_skip(scanner)
+        
+        if scanner.match? BEGIN_SCOPE
+          str << self.handle_scope(scanner)
+        end
+        
+        if scanner.match? END_SCOPE
+          str << scanner.scan(END_SCOPE)
+          return str
+        end
+        
+        str << handle_content(scanner)
+      end
+      
+      str
+    end
+    
+    def self.handle_content(scanner)
+      str = ""
+      
+      res = scanner.scan(NORMAL_SCAN_UNTIL)
+      if res.nil?
+        str << scanner.getch
+      else
+        str << res
+      end
+      
+      str
+    end
+    
+    def self.handle_skip(scanner)
+      str = ""
 
+      while true do
+        if scanner.match?(/\s+/)
+          str << scanner.scan(/\s+/)
+          next
+        end
+        if scanner.match?(/\/\*/)
+          str << handle_comment(scanner)
+          next
+        end
+        if scanner.match?(/["']/)
+          str << handle_string(scanner)
+          next
+        end
+        break
+      end
+      
+      str
+    end
+    
+    def self.handle_comment(scanner)
+      str = '/*'
+      
+      scanner.pos += 2
+      str << scanner.scan_until(/\*\//)
+    end
+    
+    def self.handle_string(scanner)
+      str = scanner.getch
+      str += scanner.scan_until(str == "'" ? UNTIL_SINGLE_QUOTE : UNTIL_DOUBLE_QUOTE)
+      
+      str
+    end
+    
+  end
 end
+
