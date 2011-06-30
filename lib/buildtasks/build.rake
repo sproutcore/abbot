@@ -100,6 +100,11 @@ namespace :build do
       SC::Builder::Minify.build env[:entry], env[:dst_path], :javascript
     end
     
+    desc "minifies a HTML file by invoking the HTML compressor"
+    build_task :html do |task, env|
+      SC::Builder::Minify.build env[:entry], env[:dst_path], :html
+    end
+    
     desc "minifies a Javascript file immediately by invoking the YUI compressor"
     build_task :inline_javascript do |task, env|
       SC::Builder::Minify.build env[:entry], env[:dst_path], :inline_javascript

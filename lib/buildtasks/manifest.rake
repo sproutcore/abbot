@@ -850,7 +850,7 @@ namespace :manifest do
     end
 
     desc "creates transform entries for all css and Js entries to minify them if needed"
-    task :minify => %w(setup javascript module_info css combine sass less) do |task, env|
+    task :minify => %w(setup javascript module_info css combine sass less html) do |task, env|
       manifest = env[:manifest]
       config   = CONFIG
 
@@ -859,22 +859,21 @@ namespace :manifest do
 
       minify_javascript = config[:minify_javascript]
       minify_javascript = config[:minify] if minify_javascript.nil?
+      
+      minify_html = config[:minify_html]
+      minify_html = config[:minify] if minify_html.nil?
 
       manifest.entries.dup.each do |entry|
         case entry[:entry_type]
-        when :css
-          # NOTE: CSS MINIFICATION USING YUI MINIFIER IS CURRENTLY NOT WORKING.
-          # But, since Chance is minifying it, we can disable this code path
-          # for the moment. We'll need to add it back and fix YUI if we end up
-          # supporting disabling Chance.
-          # if minify_css
-          #   manifest.add_transform entry,
-          #     :build_task => 'build:minify:css',
-          #     :entry_type => :css,
-          #     :minified   => true,
-          #     :packed     => entry.packed? # carry forward
-          # end
-
+          # NOTE: CSS IS MINIFIED BY CHANCE. So we ignore it here.
+          
+        when :html
+          if minify_html
+            manifest.add_transform entry,
+                :build_task => 'build:minify:html',
+                :entry_type => :html,
+                :minified => true
+          end
         when :javascript
           if minify_javascript
             manifest.add_transform entry,

@@ -89,7 +89,8 @@ module SC::Helpers
         paths = outfile = '"'+paths+'"'
       end
 
-      command = %{java -Xmx256m -jar "#{SC.yui_jar}" -o #{outfile} #{paths} 2>&1}
+      # SCyui doesn't need a -o. It writes to the original path.
+      command = %{java -Xmx256m -jar "#{SC.yui_jar}" #{paths} 2>&1}
       output = `#{command}`
 
       SC.logger.info output
