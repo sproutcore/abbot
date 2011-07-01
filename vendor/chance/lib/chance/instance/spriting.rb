@@ -18,17 +18,13 @@ module Chance
       # images in the class's @sprites property and updating the individual slices 
       # with a :sprite property containing the identifier of the sprite, and offset
       # properties for the offsets within the image.
-      def generate_sprite_definitions(opts)
-        return if @sprite_definition_cycle == @render_cycle
-        
+      def generate_sprite_definitions(opts)        
         @sprites = {}
 
         group_slices_into_sprites(opts)
         @sprites.each do |key, sprite|
           layout_slices_in_sprite sprite
         end
-        
-        @sprite_definition_cycle = @render_cycle
       end
 
       # Determines the appropriate sprite for each slice, creating it if necessary,
