@@ -52,15 +52,19 @@ namespace :manifest do
 
     source_root = target[:source_root]
 
+    whitelist_filename = SC.env.whitelist || "Whitelist"
+    whitelist_filename = "#{Dir.pwd}/#{whitelist_filename}"
+    
     whitelist = nil
 
     # Find and parse the BuildWhitelist json file
     # Right now, the build whitelist is read for every target, can we optimize this?
-    Dir.glob("#{Dir.pwd}/Whitelist").each do |path|
+    Dir.glob(whitelist_filename).each do |path|
       next unless File.file?(path)
 
       contents = File.read(path)
       parser = JSON.parser.new(contents)
+      
       whitelist = parser.parse
     end
 

@@ -16,12 +16,14 @@ module SC
                     :host       => :string,
                     :irb        => false,
                     :filesystem => true,
-                    :allow_from_ips        => :string
+                    :allow_from_ips        => :string,
+                    :whitelist  => :string
     def server
       prepare_mode!('debug') # set mode again, using debug as default
 
       SC.env[:build_prefix]   = options[:buildroot] if options[:buildroot]
       SC.env[:staging_prefix] = options[:stageroot] if options[:stageroot]
+      SC.env[:whitelist]      = options[:whitelist]
 
       # get project and start service.
       project = requires_project!

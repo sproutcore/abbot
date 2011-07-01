@@ -17,11 +17,13 @@ module SC
     desc "build [TARGET..]", "Builds one or more targets"
     method_options(MANIFEST_OPTIONS)
     method_option :entries, :type => :string
+    method_option :whitelist, :type => :string
     def build(*targets)
 
       t1 = Time.now
       SC.logger.info  'Starting build process...'
       # Copy some key props to the env
+      SC.env.whitelist      = options.whitelist
       SC.env.build_prefix   = options.buildroot if options.buildroot
       SC.env.staging_prefix = options.stageroot if options.stageroot
       SC.env.use_symlink    = options.symlink
