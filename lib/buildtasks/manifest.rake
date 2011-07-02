@@ -276,6 +276,7 @@ namespace :manifest do
     desc "scans for javascript files, annotates them and prepares combined entries for each output target"
     task :javascript => :setup do |task, env|
       manifest = env[:manifest]
+      target = env[:target]
       config   = CONFIG
 
       # select all original entries with with ext of css
@@ -294,6 +295,7 @@ namespace :manifest do
           :build_task => 'build:javascript',
           :resource   => 'javascript',
           :entry_type => :javascript
+        
         entry.discover_build_directives!
       end
     end
@@ -630,6 +632,10 @@ namespace :manifest do
         :entry_type     => :javascript,
         :hide_entries   => false,
         :source_entries => [entry],
+        
+        # carry forward minification so we can do a last-minute security check
+        # and not reject this file.
+        :minified       => entry.minified?,
         :packed         => entry.packed? # carry forward
     end
 
@@ -884,6 +890,7 @@ namespace :manifest do
               :build_task => 'build:minify:javascript',
               :entry_type => :javascript,
               :minified   => true,
+              :combined   => entry.combined?,  # carry forward
               :packed     => entry.packed? # carry forward
           end
         end

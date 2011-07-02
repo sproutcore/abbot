@@ -18,6 +18,7 @@ module SC
     method_options(MANIFEST_OPTIONS)
     method_option :entries, :type => :string
     method_option :whitelist, :type => :string
+    method_option :allow_insecure_js, :type => :boolean
     def build(*targets)
 
       t1 = Time.now
@@ -59,16 +60,7 @@ module SC
         end
 
         # if there are entries to build, log and build
-        if entries.size > 0
-          info "Building entries for #{manifest.target.target_name}:#{manifest.language}..."
-
-          target_build_root = Pathname.new(manifest.target.project.project_root)
-          entries.each do |entry|
-            dst = Pathname.new(entry.build_path).relative_path_from(target_build_root)
-            info "  #{entry.filename} -> #{dst}"
-            entry.build!
-          end
-        end
+        build_entries_for_manifest manifest, options.allow_insecure_js
         
         # Build dependencies
         target = manifest.target
@@ -83,12 +75,6 @@ module SC
 
         
         required.each {|t| 
-          unless t[:target_type] == :app or t[:target_type] == :module
-            # This will make minification not work in the rare case where you build a target
-            # and then build another target which that depends on. Which you'd do... never? I hope.
-            t.config[:minify_javascript] = false
-          end
-          
           m = t.manifest_for (manifest.variation)
           
           
@@ -98,17 +84,7 @@ module SC
           m[:built_by_builder] = true
           m.build!
           
-          if m.entries.size > 0
-            t[:built_by_builder]
-            info "Building entries for #{m.target.target_name}:#{m.language}..."
-
-            target_build_root = Pathname.new(m.target.project.project_root)
-            m.entries.each do |entry|
-              dst = Pathname.new(entry.build_path).relative_path_from(target_build_root)
-              info "  #{entry.filename} -> #{dst}"
-              entry.build!
-            end
-          end
+          build_entries_for_manifest m, options.allow_insecure_js
           
           
         }
@@ -132,5 +108,7 @@ module SC
       seconds = seconds%60
       puts 'Build time '+minutes.floor.to_s+ ' minutes '+seconds.floor.to_s+' secs'
     end
+    
   end
+
 end

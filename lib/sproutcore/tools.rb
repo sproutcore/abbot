@@ -378,6 +378,46 @@ module SC
           yield manifest
         end
       end
+      
+      # Loops over all of the manifest's entries and builds all essential entries.
+      # Entries such as javascript.js are considered non-essential because they will
+      # not actually be used in a fully built app (except for modules).
+      #
+      # It also does a check to ensure that all JS being written is minified.
+      def build_entries_for_manifest(manifest, allow_insecure)
+        if manifest.entries.size > 0
+          target = manifest.target
+          info "Building entries for #{target.target_name}:#{manifest.language}..."
+
+          # we ONLY generate non-packed javascript.js files for modules, which may need
+          # to lazily load them. Otherwise: NOPE!
+          generate_javascript = false
+          if target[:target_type] === :module
+            generate_javascript = true
+          end
+
+          target_build_root = Pathname.new(manifest.target.project.project_root)
+          manifest.entries.each do |entry|
+            # Skip combined JS when it is a target that doesn't need it.
+            # We can't just skip all non-packed JS, because you can use sc_resource to split
+            # the JS out, and that won't work properly. :combine, likewise, is used for sc_resource.
+            # So, we skip the entry IF it is javascript.js--because that is how the pack task itself
+            # knows the difference.
+            next if not generate_javascript and entry[:filename] == 'javascript.js'
+
+            # For security, skip AND WARN about files which are not minified
+            if not allow_insecure and entry[:entry_type] == :javascript and not entry[:minified]
+              SC.logger.fatal "SECURITY: Entry not minified: #{entry[:filename]}; target: #{target[:target_name]}"
+              SC.logger.fatal "All entries must be minified in a final build UNLESS --allow-insecure-js argument is supplied."
+              exit(1)
+            end
+
+            dst = Pathname.new(entry.build_path).relative_path_from(target_build_root)
+            info "  #{entry.filename} -> #{dst}"
+            entry.build!
+          end
+        end
+      end
 
       # Logs the contents of the passed file path to the logger
       def log_file(path)
