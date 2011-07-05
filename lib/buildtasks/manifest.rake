@@ -483,6 +483,13 @@ namespace :manifest do
           # whether it should minify
           :minify => CONFIG[:minify_css].nil? ? CONFIG[:minify] : CONFIG[:minify_css],
           
+          # whether it should optimize sprites. This is opt-in, and comes from the buildfile.
+          :optimize_sprites => CONFIG[:optimize_sprites],
+          
+          # Whether it should pad slices for debugging when writing them to the sprite. This is opt-out
+          # in development, but is off during production.
+          :pad_sprites_for_debugging => CONFIG[:pad_sprites_for_debugging],
+          
           # a unique identifier for the instance. we can share across localizations; this is
           # merely used to prevent conflicts within the SAME CSS file: Chance makes sure
           # all rules for generated images include this key. We'll use the target name.

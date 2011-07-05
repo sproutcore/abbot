@@ -58,6 +58,17 @@ mode :all do
     :combine_javascript => true,
     :combine_stylesheets => true,
     
+    # We do NOT want to pad sprites for debugging in production. This both increases filesize
+    # and makes the background of the sprite an embarrassing pink.
+    :pad_sprites_for_debugging => false,
+    
+    # Optimizing sprites is good, but some apps that (appeared) to work before may break with
+    # this turned on. :pad_sprites_for_debugging makes the errors very visible, and that IS
+    # turned on in dev by default, so hopefully we should be able to make this default eventually.
+    #
+    # For reference, optimized sprites lay out sprites horizontally in addition to vertically.
+    :optimize_sprites => false,
+    
     # enable the hack that splits CSS into files with only ~4000 selectors for IE
     :split_css_for_ie => true,
 
@@ -134,6 +145,10 @@ mode :debug do
     :minify_javascript => false,
 		:minify_css => false,
 		:minify_html => false,
+		
+		# In debug mode, we want to pad sprites for debugging so it is clear
+		# when the developer messes up their CSS.
+		:pad_sprites_for_debugging => true,
 
     :build_prefix => 'tmp/debug/build',
     :staging_prefix => 'tmp/debug/staging',

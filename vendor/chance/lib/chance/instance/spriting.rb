@@ -83,6 +83,17 @@ module Chance
         # The position is the position in the layout direction. In vertical mode
         # (the usual) it is the Y position.
         pos = 0
+        
+        # Adds some padding that will be painted with a pattern so that it is apparent that
+        # CSS is wrong.
+        padding = @options[:pad_sprites_for_debugging] ? 2 : 0
+        
+        # The position within a row. It starts at 0 even if we have padding,
+        # because we always just add padding when we set the individual x/y pos.
+        inset = 0
+        
+        # The length of the row. Length, when layout out vertically (the usual), is the height
+        row_length = 0
 
         # The size is the current size of the sprite in the non-layout direction;
         # for example, in the usual, vertical mode, the size is the width.
@@ -94,17 +105,19 @@ module Chance
         smallest_size = nil
 
         is_horizontal = sprite[:use_horizontal_layout]
-
-        sprite[:slices].each do |slice|
+        
+        # Figure out slice width/heights. We cannot rely on slicing to do this for us
+        # because some images may be being passed through as-is.
+        sprite[:slices].each {|slice|
           # We must find a canvas either on the slice (if it was actually sliced),
           # or on the slice's file. Otherwise, we're in big shit.
           canvas = slice[:canvas] || slice[:file][:canvas]
-
+        
           # TODO: MAKE A BETTER ERROR.
           unless canvas
-            throw "Could not sprite image " + slice[:path] + "; if it is not a PNG"
+            throw "Could not sprite image " + slice[:path] + "; if it is not a PNG, make sure you have rmagick installed"
           end
-
+          
           # RMagick has a different API than ChunkyPNG; we have to detect
           # which one we are using, and use the correct API accordingly.
           if canvas.respond_to?('columns')
@@ -114,10 +127,10 @@ module Chance
             slice_width = canvas.width
             slice_height = canvas.height
           end
-
+          
           slice_length = is_horizontal ? slice_width : slice_height
           slice_size = is_horizontal ? slice_height : slice_width
-
+          
           # When repeating, we must use the least common multiple so that
           # we can ensure the repeat pattern works even with multiple repeat
           # sizes. However, we should take into account how much extra we are
@@ -128,8 +141,41 @@ module Chance
 
             size = size.lcm slice_size
           else
-            size = [size, slice_size].max
+            size = [size, slice_size + padding * 2].max
           end
+          
+          slice[:slice_width] = slice_width.to_i
+          slice[:slice_height] = slice_height.to_i
+        }
+        
+        # Sort slices from widest/tallest (dependent on is_horizontal) or is_vertical
+        # NOTE: This means we are technically sorting reversed
+        sprite[:slices].sort! {|a, b|
+          # WHY <=> NO WORK?
+          if is_horizontal
+            b[:slice_height] <=> a[:slice_height]
+          else
+            b[:slice_width] <=> a[:slice_width]
+          end
+        }
+
+        sprite[:slices].each do |slice|
+          # We must find a canvas either on the slice (if it was actually sliced),
+          # or on the slice's file. Otherwise, we're in big shit.
+          canvas = slice[:canvas] || slice[:file][:canvas]
+          
+          slice_width = slice[:slice_width]
+          slice_height = slice[:slice_height]
+          
+          slice_length = is_horizontal ? slice_width : slice_height
+          slice_size = is_horizontal ? slice_height : slice_width
+          
+          if slice[:repeat] != "no-repeat" or inset + slice_size + padding * 2 > size or not @options[:optimize_sprites]
+            pos += row_length
+            inset = 0
+            row_length = 0
+          end
+            
 
           # We have extras for manual tweaking of offsetx/y. We have to make sure there
           # is padding for this (on either side)
@@ -151,13 +197,25 @@ module Chance
           end
 
 
-          slice[:sprite_slice_x] = is_horizontal ? pos : 0
-          slice[:sprite_slice_y] = is_horizontal ? 0 : pos
+          slice[:sprite_slice_x] = (is_horizontal ? pos : inset)
+          slice[:sprite_slice_y] = (is_horizontal ? inset : pos)
+          
+          # add padding for x, only if it a) doesn't repeat or b) repeats vertically because it has horizontal layout
+          if slice[:repeat] == "no-repeat" or is_horizontal
+            slice[:sprite_slice_x] += padding
+          end
+          
+          if slice[:repeat] == "no-repeat" or not is_horizontal
+            slice[:sprite_slice_y] += padding
+          end
+          
           slice[:sprite_slice_width] = slice_width
           slice[:sprite_slice_height] = slice_height
 
-          pos += slice_length
+          inset += slice_size + padding * 2
+          row_length = [slice_length + padding * 2, row_length].max
         end
+        pos += row_length
 
         # TODO: USE A CONSTANT FOR THIS WARNING
         smallest_size = size if smallest_size == nil
@@ -177,6 +235,14 @@ module Chance
       def generate_sprite(sprite)
         canvas = canvas_for_sprite(sprite)
         sprite[:canvas] = canvas
+        
+        # If we are padding sprites, we should paint the background something really
+        # obvious & obnoxious. Say, magenta. That's obnoxious. A nice light purple wouldn't
+        # be bad, but magenta... that will stick out like a sore thumb (I hope)
+        if @options[:pad_sprites_for_debugging]
+          magenta = ChunkyPNG::Color.rgb(255, 0, 255)
+          canvas.rect(0, 0, sprite[:width], sprite[:height], magenta, magenta)
+        end
 
         sprite[:slices].each do |slice|
           x = slice[:sprite_slice_x]

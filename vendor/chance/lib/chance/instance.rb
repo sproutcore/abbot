@@ -64,6 +64,8 @@ module Chance
     def initialize(options = {})
       @options = options
       @options[:theme] = "" if @options[:theme].nil?
+      @options[:pad_sprites_for_debugging] = true if @options[:pad_sprites_for_debugging].nil?
+      @options[:optimize_sprites] = true if @options[:optimize_sprites].nil?
       
       @@uid += 1
       @uid = @@uid
