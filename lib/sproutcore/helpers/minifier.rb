@@ -80,27 +80,46 @@ module SC::Helpers
     end
 
     def minify(paths)
-      paths = paths.first if paths.is_a?(Array) && paths.length == 1
+      # Split paths into HTML and JS
+      html_paths = paths.select {|p| p =~ /\.html$/}
+      js_paths = paths.select {|p| p =~ /\.js$/}
+      
+      if html_paths.length > 0
+        command = %{java -jar "#{SC.html_jar}" "#{html_paths.join '" "'}" 2>&1}
+        puts "Executing #{command}"
+        output = `#{command}`
+        
+        SC.logger.info output
+        if $?.exitstatus != 0
+          SC.logger.fatal(output)
+          SC.logger.fatal("!!!! Minifying failed. Please check that your JS code is valid.")
+          SC.logger.fatal("!!!! Failed compiling #{paths}")
 
-      if paths.is_a?(Array)
-        paths = paths.map{|p| '"'+p+'"'}.join(' ')
-        outfile = '".js$:.js"'
-      else
-        paths = outfile = '"'+paths+'"'
+          exit(1)
+        end
+      end
+      
+      if js_paths.length > 0
+        js_paths.each {|p|
+          command = %{java -jar "#{SC.js_jar}" -o "#{p}" "#{p}" 2>&1}
+          puts "Executing #{command}"
+          output = `#{command}`
+
+          SC.logger.info output
+          if $?.exitstatus != 0
+            SC.logger.fatal(output)
+            SC.logger.fatal("!!!! Minifying failed. Please check that your JS code is valid.")
+            SC.logger.fatal("!!!! Failed compiling #{paths}")
+
+            exit(1)
+          end
+        }
       end
 
       # SCyui doesn't need a -o. It writes to the original path.
-      command = %{java -Xmx256m -jar "#{SC.yui_jar}" #{paths} 2>&1}
-      output = `#{command}`
 
-      SC.logger.info output
-      if $?.exitstatus != 0
-        SC.logger.fatal(output)
-        SC.logger.fatal("!!!! Minifying failed. Please check that your JS code is valid.")
-        SC.logger.fatal("!!!! Failed compiling #{paths}")
 
-        exit(1)
-      end
+
     end
 
   end

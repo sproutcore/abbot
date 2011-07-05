@@ -142,10 +142,17 @@ module SproutCore
     include_targets << { :name => target_name, :path => target_path }
   end
 
-  def self.yui_jar
-    @yui_jar ||= begin
+  def self.html_jar
+    @html_jar ||= begin
       yui_root = File.expand_path("../../vendor/sproutcore", __FILE__)
       File.join(yui_root, 'SCCompiler.jar')
+    end
+  end
+  
+  def self.js_jar
+    @js_jar ||= begin
+      yui_root = File.expand_path("../../vendor/sproutcore", __FILE__)
+      File.join(yui_root, 'lib/yuicompressor-2.4.6.jar')
     end
   end
 
