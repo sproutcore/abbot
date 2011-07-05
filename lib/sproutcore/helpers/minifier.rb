@@ -80,6 +80,10 @@ module SC::Helpers
     end
 
     def minify(paths)
+      if not paths.kind_of?(Array)
+        paths = [paths]
+      end
+      
       # Split paths into HTML and JS
       html_paths = paths.select {|p| p =~ /\.html$/}
       js_paths = paths.select {|p| p =~ /\.js$/}
