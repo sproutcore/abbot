@@ -70,7 +70,7 @@ module Chance
       # Determines the name of the sprite for the given slice. The sprite
       # by this name may not exist yet.
       def sprite_name_for_slice(slice, opts)
-        if slice[:repeat] == "repeat-both"
+        if slice[:repeat] == "repeat"
           return slice[:path] + (opts[:x2] ? "@2x" : "")
         end
 
@@ -201,11 +201,11 @@ module Chance
           slice[:sprite_slice_y] = (is_horizontal ? inset : pos)
           
           # add padding for x, only if it a) doesn't repeat or b) repeats vertically because it has horizontal layout
-          if slice[:repeat] == "no-repeat" or is_horizontal
+          if slice[:repeat] == "no-repeat" or slice[:repeat] == "repeat-y"
             slice[:sprite_slice_x] += padding
           end
           
-          if slice[:repeat] == "no-repeat" or not is_horizontal
+          if slice[:repeat] == "no-repeat" or slice[:repeat] == "repeat-x"
             slice[:sprite_slice_y] += padding
           end
           
@@ -213,7 +213,10 @@ module Chance
           slice[:sprite_slice_height] = slice_height
 
           inset += slice_size + padding * 2
-          row_length = [slice_length + padding * 2, row_length].max
+          
+          # We pad the row length ONLY if it is a repeat-x, repeat-y, or no-repeat image.
+          # If it is 'repeat', we do not pad it, because it should be processed raw.
+          row_length = [slice_length + (slice[:repeat] != "repeat" ? padding * 2 : 0), row_length].max
         end
         pos += row_length
 

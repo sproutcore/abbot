@@ -640,7 +640,7 @@ module Chance
         :sprite_padding => arguments[:"middle-padding"],
         :offset => arguments[:"middle-offset"],
         :filename => filename,
-        :repeat => fill_height != 0 ? (fill_width != 0 ? "repeat-both" : "repeat-y") : (fill_width != 0 ? "repeat-x" : nil)
+        :repeat => fill_height != 0 ? (fill_width != 0 ? "repeat" : "repeat-y") : (fill_width != 0 ? "repeat-x" : nil)
 
 
         # fill in width, height or right, bottom depending on fill settings
