@@ -112,7 +112,8 @@ module SC
     end
 
     def build(dst_path)
-      if CONFIG[:html5_manifest]
+      # WE ARE DISABLING HTML5 MANIFEST FOR NOW. Because it doesn't work.
+      if false and CONFIG[:html5_manifest]
         $to_html5_manifest << dst_path
         $to_html5_manifest_networks = CONFIG[:html5_manifest_networks]
         @content_for_html5_manifest = true
