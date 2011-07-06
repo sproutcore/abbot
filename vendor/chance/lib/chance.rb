@@ -160,10 +160,13 @@ module Chance
       content = file[:content]
 
       requires = []
-      content = content.gsub(/sc_require\(['"]?(.*?)['"]?\);?/) {|match|
-        requires.push $1
+      content = content.gsub(/(sc_)?require\(['"]?(.*?)['"]?\);?/) {|match|
+        requires.push $2
         ""
       }
+      
+      # sc_resource will already be handled by the build tool. We just need to ignore it.
+      content.gsub!(/sc_resource\(['"]?(.*?)['"]?\);?/, '')
 
       file[:requires] = requires
       file[:content] = content
