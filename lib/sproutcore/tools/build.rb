@@ -18,7 +18,7 @@ module SC
     method_options(MANIFEST_OPTIONS)
     method_option :entries, :type => :string
     method_option :whitelist, :type => :string
-    method_option :allow_insecure_js, :type => :boolean
+    method_option :allow_commented_js, :type => :boolean
     def build(*targets)
 
       t1 = Time.now
@@ -60,7 +60,7 @@ module SC
         end
 
         # if there are entries to build, log and build
-        build_entries_for_manifest manifest, options.allow_insecure_js
+        build_entries_for_manifest manifest, options.allow_commented_js
         
         # Build dependencies
         target = manifest.target
@@ -84,7 +84,7 @@ module SC
           m[:built_by_builder] = true
           m.build!
           
-          build_entries_for_manifest m, options.allow_insecure_js
+          build_entries_for_manifest m, options.allow_commented_js
           
           
         }

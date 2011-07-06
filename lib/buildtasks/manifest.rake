@@ -432,7 +432,7 @@ namespace :manifest do
       target = manifest.target
 
       sprited = CONFIG[:use_sprites]
-      minify = CONFIG[:minify_css]
+      minify = !SC.env[:dont_minify] && (CONFIG[:minify_css].nil? ? CONFIG[:minify] : CONFIG[:minify_css])
 
       # the image files will be shared between all css_entries-- that is,
       # all instances of Chance created
@@ -481,7 +481,7 @@ namespace :manifest do
           :theme => CONFIG[:css_theme],
           
           # whether it should minify
-          :minify => CONFIG[:minify_css].nil? ? CONFIG[:minify] : CONFIG[:minify_css],
+          :minify => minify,
           
           # whether it should optimize sprites. This is opt-in, and comes from the buildfile.
           :optimize_sprites => CONFIG[:optimize_sprites],
@@ -558,9 +558,7 @@ namespace :manifest do
 
             # So that modules, etc. can figure out what resource it belongs to
             :resource => resource_name,
-
-            # Chance does minification on its own
-            :minify => minify,
+            :minified => minify,
 
             # So that it can easily be recognized as an @2x entry.
             :x2 => entry_name.include?("@2x")
@@ -871,14 +869,16 @@ namespace :manifest do
       manifest = env[:manifest]
       config   = CONFIG
 
-      minify_css = config[:minify_css]
-      minify_css = config[:minify] if minify_css.nil?
-
       minify_javascript = config[:minify_javascript]
       minify_javascript = config[:minify] if minify_javascript.nil?
       
       minify_html = config[:minify_html]
       minify_html = config[:minify] if minify_html.nil?
+      
+      if SC.env[:dont_minify]
+        minify_javascript = false
+        minify_html = false;
+      end
 
       manifest.entries.dup.each do |entry|
         case entry[:entry_type]

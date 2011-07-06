@@ -384,7 +384,7 @@ module SC
       # not actually be used in a fully built app (except for modules).
       #
       # It also does a check to ensure that all JS being written is minified.
-      def build_entries_for_manifest(manifest, allow_insecure)
+      def build_entries_for_manifest(manifest, allow_comments)
         if manifest.entries.size > 0
           target = manifest.target
           info "Building entries for #{target.target_name}:#{manifest.language}..."
@@ -406,9 +406,9 @@ module SC
             next if not generate_javascript and entry[:filename] == 'javascript.js'
 
             # For security, skip AND WARN about files which are not minified
-            if not allow_insecure and entry[:entry_type] == :javascript and not entry[:minified]
+            if not allow_comments and entry[:entry_type] == :javascript and not entry[:minified]
               SC.logger.fatal "SECURITY: Entry not minified: #{entry[:filename]}; target: #{target[:target_name]}"
-              SC.logger.fatal "All entries must be minified in a final build UNLESS --allow-insecure-js argument is supplied."
+              SC.logger.fatal "All entries must be minified in a final build UNLESS --allow-commented-js argument is supplied."
               exit(1)
             end
 
