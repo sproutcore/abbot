@@ -406,7 +406,7 @@ module SC
             next if not generate_javascript and entry[:filename] == 'javascript.js'
 
             # For security, skip AND WARN about files which are not minified
-            if not allow_comments and entry[:entry_type] == :javascript and not entry[:minified]
+            if not SC.env[:dont_minify] and not allow_comments and entry[:entry_type] == :javascript and not entry[:minified]
               SC.logger.fatal "SECURITY: Entry not minified: #{entry[:filename]}; target: #{target[:target_name]}"
               SC.logger.fatal "All entries must be minified in a final build UNLESS --allow-commented-js argument is supplied."
               exit(1)
