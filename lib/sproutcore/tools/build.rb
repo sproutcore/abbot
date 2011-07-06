@@ -94,11 +94,15 @@ module SC
         Chance::ChanceFactory.clear_instances
       end
 
-      if $to_html5_manifest.length > 0
-        $to_html5_manifest.each do |entry|
-          SC::Helpers::HTML5Manifest.new.build(entry)
-        end
-      end
+      # The HTML5 manifest generator does not work properly; it is unstable (can cause crashes)
+      # and won't pick up modules. We need an alternative implemenation, preferably one that uses
+      # Abbot's own manifests to figure out what files are required. This is non-trivial, however.
+      #
+      # if $to_html5_manifest.length > 0
+      #   $to_html5_manifest.each do |entry|
+      #     SC::Helpers::HTML5Manifest.new.build(entry)
+      #   end
+      # end
 
       SC::Helpers::Minifier.wait
 
