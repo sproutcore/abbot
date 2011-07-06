@@ -694,10 +694,7 @@ namespace :manifest do
           targets = target.expand_required_targets({ :theme => true }) + [target]
           entries = targets.map do |target|
             m = target.manifest_for(manifest.variation).build!
-
-            # need to find the version that is not minified
             entry = m.entry_for(resource + ".css")
-            entry = entry.source_entry while entry && entry.minified?
             entry
           end
 
@@ -877,7 +874,7 @@ namespace :manifest do
       
       if SC.env[:dont_minify]
         minify_javascript = false
-        minify_html = false;
+        minify_html = false
       end
 
       manifest.entries.dup.each do |entry|
