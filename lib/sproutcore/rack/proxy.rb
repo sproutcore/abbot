@@ -125,6 +125,7 @@ module SC
         request_options[:body] = req_body if !!req_body
         request_options[:timeout] = proxy[:timeout] if proxy[:timeout]
         request_options[:redirects] = 10 if proxy[:redirect] != false
+        request_options[:decoding] = false  # don't decode gzipped content
 
         EventMachine.run {
           body = nil
@@ -226,6 +227,14 @@ module SC
               body.call [chunk]
             end
           }
+
+          # If the client disconnects early, make sure we close our other connection too
+          # TODO: this is waiting for changes not yet available in em-http
+          # Test with: curl http://0.0.0.0:4020/stream.twitter.com/1/statuses/sample.json -uTWITTER_USERNAME:TWITTER_PASSWORD
+          # env["async.close"].callback {
+          #   conn.close
+          # }
+
         }
       end
 
