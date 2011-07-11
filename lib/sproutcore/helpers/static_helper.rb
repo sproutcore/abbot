@@ -118,7 +118,7 @@ module SC
 
         # Convert to HTML and return
         urls = urls.map do |url|
-          %(  <script type="text/javascript" src="#{url}"></script>)
+          %(  <script type="text/javascript" src="#{url}" defer="defer"></script>)
         end
                 
         urls.join("\n")
