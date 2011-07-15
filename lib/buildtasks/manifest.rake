@@ -535,11 +535,11 @@ namespace :manifest do
         # for the entry to compare mtimes with to know if it needs to update.
         entry_source_paths = entries.map {|e| e[:source_path] }
 
-        add_chance_file = lambda {|entry_name, chance_file|
+        add_chance_file = lambda {|entry_name, chance_file, entry_type|
           manifest.add_entry entry_name,
             :variation       => manifest.variation,
             :build_task      => 'build:chance_file',
-            :entry_type      => :css,
+            :entry_type      => entry_type,
             :combined        => true,
 
             :source_entries  => entries,
@@ -567,23 +567,23 @@ namespace :manifest do
 
         chance_file = "chance" + (sprited ? "-sprited" : "") + ".css"
 
-        add_chance_file.call(resource_name + ".css", chance_file)
+        add_chance_file.call(resource_name + ".css", chance_file, :css)
 
         # We only want to add the 2x version if there is a need for it.
         # NOTE: the HTML builder will need to pick the normal version if it
         # cannot find the @2x version.
         if has_2x_entries
           chance_2x_file = "chance" + (sprited ? "-sprited" : "") + "@2x.css"
-          add_chance_file.call(resource_name + "@2x.css", chance_2x_file)
+          add_chance_file.call(resource_name + "@2x.css", chance_2x_file, :css)
         end
 
         if sprited
           chance.sprite_names.each {|name|
-            add_chance_file.call(resource_name + "-" + name, name);
+            add_chance_file.call(resource_name + "-" + name, name, :image);
           }
 
           chance.sprite_names({:x2 => true}).each {|name|
-            add_chance_file.call(resource_name + "-" + name, name);
+            add_chance_file.call(resource_name + "-" + name, name, :image);
           }
         end
       end
