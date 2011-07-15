@@ -75,13 +75,12 @@ module SC
         combine_stylesheets = t.config[:combine_stylesheets]
 
         combined_entries(t, opts, 'stylesheet.css', 'stylesheet-packed.css') do |cur_target, cur_entry|
-
           # We have to figure out if we should use the 2x version.
           # For this, we have to figure out the original name again...
           if opts[:x2]
-            name = cur_entry.extensionless_filename
+            name = cur_entry.filename
 
-            name.gsub! /stylesheet/, "stylesheet@2x"
+            name = name.gsub /stylesheet/, "stylesheet@2x"
 
             v = opts[:language] ? { :language => opts[:language] } : manifest.variation
             x2_entry = cur_target.manifest_for(v).entry_for name
