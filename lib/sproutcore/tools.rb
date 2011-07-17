@@ -414,6 +414,7 @@ require "sproutcore/tools/build_number"
 require "sproutcore/tools/docs"
 require "sproutcore/tools/gen"
 require "sproutcore/tools/init"
+require "sproutcore/tools/jstd"
 require "sproutcore/tools/manifest"
 require "sproutcore/tools/server"
 

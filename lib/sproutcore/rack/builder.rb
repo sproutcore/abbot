@@ -217,6 +217,9 @@ module SC
           @project_mtime = files.map { |x| File.mtime(x).to_i }.max
 
           Thread.new do
+            # TODO instead of polling every second, should investigate using a FS event
+            # monitor like fssm (https://github.com/ttilley/fssm). Would be both quicker 
+            # and less resource intensive than polling
             while @should_monitor
 
               # only need to start scanning again 2 seconds after the last
@@ -227,8 +230,7 @@ module SC
                 # follow 1-level of symlinks
                 files += Dir.glob(@project_root / '**' / '*' / '**' / '*')
                 tmp_path = /^#{Regexp.escape(@project_root / 'tmp')}/
-                files.reject! { |f| f =~ tmp_path }
-                files.reject! { |f| File.directory?(f) }
+                files.reject! { |f| (f =~ tmp_path || File.directory?(f) || f =~ @project.nomonitor_pattern) }
 
                 cur_file_count = files.size
                 cur_mtime = files.map { |x| File.mtime(x).to_i }.max
@@ -238,6 +240,9 @@ module SC
                   @project_did_change = true
                   @project_file_count = cur_file_count
                   @project_mtime = cur_mtime
+                  # place for some extra project maintainen
+                  extra_action = @project.monitor_proc
+                  extra_action.call if (extra_action && extra_action.respond_to?(:call))
                 end
               end
 

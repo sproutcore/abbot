@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+# ===========================================================================
+# Project:   Abbot - SproutCore Build Tools
+# Copyright: ©2010 Apple Inc.
+#            portions copyright @2006-2011 Strobe Inc.
+#            and contributors
+# ===========================================================================
+
+if caller.empty?
+  puts "FATAL: You need to invoke sc-jstd from an installed gem or through bundler. For more information, please visit http://github.com/sproutcore/abbot/wiki/Using-Abbot-1.4-From-Source"
+  exit
+end
+
+require "sproutcore"
+
+SC::Tools.invoke 'jstd'
+
+# EOF
