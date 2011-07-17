@@ -13,6 +13,13 @@ end
 
 require "sproutcore"
 
+begin
+  gem 'nokogiri'
+rescue LoadError
+  puts "FATAL: Missing nokogiri. Please install nokogiri (~1.5.0) to use sc-jstd."
+  exit
+end
+
 SC::Tools.invoke 'jstd'
 
 # EOF

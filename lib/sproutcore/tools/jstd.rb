@@ -3,7 +3,6 @@
 #            For Abbot, and licensed under same terms as Sproutcore itself
 # ===========================================================================
 
-require 'nokogiri'
 require 'open-uri'
 require 'thread'
 require 'yaml'
@@ -25,6 +24,8 @@ module SC
                     :filesystem => true
 
     def jstd(*targets)
+      require 'nokogiri'
+      
       # set defaults
       port = options[:port] = options[:port] || "4225"
       jstdport = options[:jstdport] || "4224"
