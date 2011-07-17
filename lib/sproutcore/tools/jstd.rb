@@ -31,6 +31,7 @@ module SC
       jstdhost = options[:jstdhost] || "http://localhost"
       jstdconfpath = options[:jstdconfpath] || "jsTestDriver.conf"
       host = options[:host] || "http://localhost"
+      SC.module_url_prefix = "#{host}:#{port}"
       
       # find app target
       target = requires_target!(*targets)

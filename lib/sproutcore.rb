@@ -98,6 +98,12 @@ module SproutCore
     @builtin_project ||= SC::Project.new(PATH)
   end
 
+  # This is used by sc-jstd. When using sc-jstd you will have two servers running, sc-server and 
+  # the jstd server. Because the browser will be connecting to the jstd server directly these
+  # url paths need to be absolute. Not the most ideal approach, but this avoids alot of refactoring.
+  def self.module_url_prefix; return @module_url_prefix if @module_url_prefix; return "" end
+  def self.module_url_prefix=(module_url_prefix); @module_url_prefix = module_url_prefix; end
+  
   # Returns the current project, if defined.  This is normally only set
   # when you start sc-server in interactive mode.
   def self.project; @project; end

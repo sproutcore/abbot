@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'thor', '~> 0.14.3'
   s.add_dependency 'haml', '~> 3.1.1'
   s.add_dependency 'compass', '~> 0.11.1'
-  s.add_dependency 'nokogiri', '~> 1.4.4'
+  s.add_dependency 'nokogiri', '~> 1.5.0'
   
   s.add_dependency 'em-http-request', '~> 1.0.0.beta'
 

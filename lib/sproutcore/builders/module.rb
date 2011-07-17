@@ -40,6 +40,7 @@ module SC
       EOT
 
       output = ""
+      module_url_prefix = SC.module_url_prefix
 
       entry.targets.each do |t|
         next unless t[:target_type] == :module
@@ -48,19 +49,19 @@ module SC
 
         script_entry = manifest.find_entry('javascript.js')
         next if not script_entry
-        script_url = script_entry.cacheable_url
+        script_url = module_url_prefix + script_entry.cacheable_url
 
         string_entry = manifest.find_entry('javascript-strings.js')
         next if not string_entry
-        string_url = string_entry.cacheable_url
+        string_url = module_url_prefix + string_entry.cacheable_url
 
         module_info = t.module_info({ :variation => entry[:variation] })
 
         output << eruby.evaluate({
           :target_name => t[:target_name].to_s.sub(/^\//,''),
           :dependencies    => module_info[:requires].map{ |t| "'#{t[:target_name].to_s.sub(/^\//,'')}'" },
-          :styles      => module_info[:css_urls].map{ |url| "'#{url}'" },
-          :styles2x    => module_info[:css_2x_urls].map {|url| "'#{url}'"},
+          :styles      => module_info[:css_urls].map{ |url| "'#{module_url_prefix}#{url}'" },
+          :styles2x    => module_info[:css_2x_urls].map {|url| "'#{module_url_prefix}#{url}'"},
           :script      => script_url,
           :string      => string_url,
           :prefetched  => t[:prefetched_module]
