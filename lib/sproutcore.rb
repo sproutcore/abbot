@@ -11,24 +11,11 @@ require 'yaml'
 
 $:.delete_if {|f| f =~ /json_pure-/ } if $:.any? {|f| f =~ /json-/ }
 
-# Ruby 1.8 Compatibility
-if (RUBY_VERSION.match(/1\.8/))
+if RUBY_VERSION <= '1.8'
   $KCODE = 'u'
   require 'jcode'
   class String ; def valid_encoding? ; true ; end ; end
 end
-
-# Ruby 1.9 Compatibility
-if (RUBY_VERSION.match(/1\.9/))
-  # Fix for Rack Ruby 1.9 incompatibility. This makes 404s render again.
-  class String
-    alias each each_line unless ''.respond_to?(:each)
-  end
-end
-
-# Makes code more readable
-YES = true
-NO = false
 
 require "sproutcore/version"
 
@@ -170,6 +157,9 @@ module SproutCore
     end
   end
 
+  def self.attach_prefix(url)
+    $script_name ? "#{$script_name}#{url}" : url
+  end
 end  # module SC
 
 SC = SproutCore # alias

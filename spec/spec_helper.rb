@@ -2,6 +2,7 @@ require 'fileutils'
 require 'tempfile'
 
 require "sproutcore"
+Dir["#{File.dirname(__FILE__)}/../lib/buildtasks/helpers/*.rb"].each {|f| require f}
 
 module SC
 

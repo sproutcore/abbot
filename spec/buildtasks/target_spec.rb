@@ -180,6 +180,15 @@ describe "namespace :target" do
       @target.build_root.should eql(expected)
     end
 
+    it "should allow absolute build_prefix" do
+      @target.config.url_prefix = 'static'
+      @target.config.build_prefix = '/tmp/sc-app'
+
+      run_task
+
+      @target.build_root.should == "/tmp/sc-app/static/sproutcore"
+    end
+
     it "should collapse an empty url_prefix" do
       @target.config.url_prefix = ''
       @target.config.build_prefix = 'tmp/build'

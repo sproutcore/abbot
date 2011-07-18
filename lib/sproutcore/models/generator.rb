@@ -293,6 +293,28 @@ module SC
       [self.namespace, self.instance_name].compact.join '.'
     end
 
+    def copyright_block(desc, commented=:javascript)
+      company = ENV['COMPANY'] || "My Company, Inc."
+
+      str = ["==========================================================================",
+             "Project:   #{desc}",
+             "Copyright: @#{Time.now.year} #{company}",
+             "=========================================================================="]
+
+      case commented
+      when true, :javascript, :js
+        str.map!{|s| "// #{s}" }
+      when :css
+        str[0] = "/* #{str[0]}"
+        str[1..-1].each{|s| s.replace "*  #{s}" }
+        str << "*/"
+      when :ruby
+        str.map!{|s| "# #{s}" }
+      end
+
+      str.join("\n")
+    end
+
     # Verifies that the passed array of keys are defined on the object.  If
     # you pass an optional block, the block will be invoked for each key so
     # you can validate the value as well.  Otherwise, this will raise an error

@@ -33,29 +33,26 @@ namespace :target do
       target[:index_root] = url
     end
 
-    url_prefix = config[:url_prefix]
-    url_prefix = url_prefix.gsub(/^[^\/]+:\/\/[^\/]+\//,'') if url_prefix
+    url_prefix = (config[:url_prefix] || '').gsub(/^[^\/]+:\/\/[^\/]+\//,'')
 
-    # Split all of these paths in case we are on windows...
-    target[:build_root] = File.expand_path(config[:build_root] ||
-      File.join(project.project_root.to_s,
-        (config[:build_prefix] || '').to_s.split('/'),
-        (url_prefix || '').to_s.split('/'),
-        target[:target_name].to_s.split('/')))
+    # Set up root paths
+    %w(build staging cache).each do |type|
+      root_key = "#{type}_root".to_sym
+      root = config[root_key]
+      prefix = config["#{type}_prefix".to_sym]
 
+      path = root
+      unless path
+        base = prefix || ''
+        # Check if it's absolute, if not add project_root
+        unless base[0..0] == '~' || File.expand_path(base) == base
+          base = File.join((project.project_root || '').to_s, base)
+        end
+        path = File.join(base, url_prefix, (target[:target_name] || '').to_s)
+      end
 
-    target[:staging_root] = File.expand_path(config[:staging_root] ||
-      File.join(project.project_root.to_s,
-        (config[:staging_prefix] || '').to_s.split('/'),
-        (url_prefix || '').to_s.split('/'),
-        target[:target_name].to_s))
-
-    # cache is used to store intermediate files
-    target[:cache_root] = File.expand_path(config[:cache_root] ||
-      File.join(project.project_root.to_s,
-        (config[:cache_prefix] || '').to_s.split('/'),
-        (url_prefix || '').to_s.split('/'),
-        target[:target_name].to_s))
+      target[root_key] = File.expand_path(path)
+    end
 
     target[:build_number] = target.compute_build_number
 

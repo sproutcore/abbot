@@ -89,6 +89,9 @@ module SC
         project_mutex.synchronize do
           did_reload = reload_project! # if needed
 
+          # set SCRIPT_NAME to correctly set namespaces
+          $script_name = env["SCRIPT_NAME"]
+
           # collect some standard info
           url = env['PATH_INFO']
           url = '/sproutcore/welcome' if url == '/'

@@ -5,16 +5,59 @@
 #            and contributors
 # ===========================================================================
 
+# We only require net/https to ensure that HTTPS is supported for
+# proxy[:secure] requests
 begin
   require 'net/https'
   SC::HTTPS_ENABLED = true
 rescue LoadError => e
-  require 'net/http'
   SC::HTTPS_ENABLED = false
 end
 
+require 'eventmachine'
+require 'em-http'
+require 'thin'
+
+
 module SC
+
   module Rack
+
+    class DeferrableBody
+      include EM::Deferrable
+
+      def initialize(options = {})
+        @options = options
+      end
+
+      def call(body)
+        body.each do |chunk|
+          @body_callback.call(prepare_chunk(chunk))
+        end
+      end
+
+      def prepare_chunk(chunk)
+        if chunked?
+          size = chunk.respond_to?(:bytesize) ? chunk.bytesize : chunk.length
+          "#{size.to_s(16)}\r\n#{chunk}\r\n"
+        else
+          # Thin doesn't like null bodies
+          chunk || ''
+        end
+      end
+
+      def each(&blk)
+        @body_callback = blk
+      end
+
+    private
+
+      def chunked?
+        @options[:chunked]
+      end
+    end
+
+
 
     # Rack application proxies requests as needed for the given project.
     class Proxy
@@ -25,140 +68,253 @@ module SC
       end
 
       def call(env)
-        url = env['PATH_INFO']
+        path = env['PATH_INFO']
 
         @proxies.each do |proxy, value|
-          if url.match(/^#{Regexp.escape(proxy.to_s)}/)
-            return handle_proxy(value, proxy.to_s, env)
+          # If the url matches a proxied url, handle it
+          if path.match(/^#{Regexp.escape(proxy.to_s)}/)
+            handle_proxy(value, proxy.to_s, env)
+
+            # Don't block waiting for a response
+            throw :async
           end
         end
 
         return [404, {}, "not found"]
       end
 
+      def chunked?(headers)
+        headers['Transfer-Encoding'] == "chunked"
+      end
+
       def handle_proxy(proxy, proxy_url, env)
+
         if proxy[:secure] && !SC::HTTPS_ENABLED
           SC.logger << "~ WARNING: HTTPS is not supported on your system, using HTTP instead.\n"
           SC.logger << "    If you are using Ubuntu, you can run `apt-get install libopenssl-ruby`\n"
           proxy[:secure] = false
         end
 
-        origin_host = env['SERVER_NAME'] # capture the origin host for cookies
-        http_method = env['REQUEST_METHOD'].to_s.downcase
-        url = env['PATH_INFO']
-        params = env['QUERY_STRING']
+        headers = request_headers(env, proxy)         # ex. {"Host"=>"localhost:4020", "Connection"=>"...
+        path = env['PATH_INFO']                       # ex. /contacts
+        params = env['QUERY_STRING']                  # ex. since=yesterday&unread=true
 
-        # collect headers...
-        headers = {}
+        # Switch to https if proxy[:secure] configured
+        protocol = proxy[:secure] ? 'https' : 'http'
+
+        # Adjust the path if proxy[:url] configured
+        if proxy[:url]
+          path = path.sub(/^#{Regexp.escape proxy_url}/, proxy[:url])
+        end
+
+        # The endpoint URL
+        url = protocol + '://' + proxy[:to]
+        url += path unless path.empty?
+        url += '?' + params unless params.empty?
+
+        if env['CONTENT_LENGTH'] || env['HTTP_TRANSFER_ENCODING']
+          req_body = env['rack.input']
+          req_body.rewind # May not be necessary but can't hurt
+
+          req_body = req_body.read
+        end
+
+        # Options for the request
+        request_options = {}
+        request_options[:head] = headers
+        request_options[:body] = req_body if !!req_body
+        request_options[:timeout] = proxy[:timeout] if proxy[:timeout]
+        request_options[:redirects] = 10 if proxy[:redirect] != false
+        request_options[:decoding] = false  # don't decode gzipped content
+
+        EventMachine.run {
+          body = nil
+          conn = EM::HttpRequest.new(url)
+          chunked = false
+          headers = {}
+          method = env['REQUEST_METHOD'].upcase
+          status = 0
+
+          case method
+            when 'GET'
+              http = conn.get request_options
+            when 'POST'
+              http = conn.post request_options
+            when 'PUT'
+              http = conn.put request_options
+            when 'DELETE'
+              http = conn.delete request_options
+            else
+              http = conn.head request_options
+            end
+
+          # Received error
+          http.errback {
+            status = http.response_header.status
+            path = env['PATH_INFO']
+            url = http.last_effective_url
+            SC.logger << "~ PROXY FAILED:  #{method} #{path} -> #{status} #{url}\n"
+
+            # If a body has been sent use it, otherwise respond with generic message
+            if !body
+              body = "Unable to proxy to #{url}.  Received status: #{status}"
+              size = body.respond_to?(:bytesize) ? body.bytesize : body.length
+              headers = { 'Content-Length' => size.to_s }
+              body = [body]
+            end
+
+            env['async.callback'].call [502, headers, body]
+          }
+
+          # Received response
+          http.callback {
+
+            # Too many redirects
+            if redirect? status
+              body = "Unable to proxy to #{url}.  Too many redirects."
+              size = body.respond_to?(:bytesize) ? body.bytesize : body.length
+              headers = { 'Content-Length' => size.to_s }
+
+              env['async.callback'].call [502, headers, [body]]
+            else
+              # Terminate the deferred body (which may have been chunked)
+              if body
+                body.call ['']
+                body.succeed
+              end
+
+              # Log the initial path and the final url
+              path = env['PATH_INFO']
+              url = http.last_effective_url
+              SC.logger << "~ PROXY: #{method} #{path} -> #{status} #{url}\n"
+           end
+          }
+
+          # Received headers
+          http.headers { |hash|
+            status = http.response_header.status
+
+            headers = response_headers(hash)
+
+            # Don't respond on redirection, but fail out on bad redirects
+            if redirect? status
+
+              if status == 304
+                env["async.callback"].call [status, headers, ['']]
+                SC.logger << "~ PROXY: #{method} #{path} -> #{status} #{url}\n"
+              elsif !headers['Location']
+                body = "Unable to proxy to #{url}. Received redirect with no Location."
+                size = body.respond_to?(:bytesize) ? body.bytesize : body.length
+                headers = { 'Content-Length' => size.to_s }
+
+                http.close
+              end
+
+            else
+              # Stream the body right across in the format it was sent
+              chunked = chunked?(headers)
+              body = DeferrableBody.new({ :chunked => chunked })
+
+              # Start responding to the client immediately
+              env["async.callback"].call [status, headers, body]
+            end
+          }
+
+          # Received chunk of data
+          http.stream { |chunk|
+            # Ignore body of redirects
+            if !redirect? status
+              body.call [chunk]
+            end
+          }
+
+          # If the client disconnects early, make sure we close our other connection too
+          # TODO: this is waiting for changes not yet available in em-http
+          # Test with: curl http://0.0.0.0:4020/stream.twitter.com/1/statuses/sample.json -uTWITTER_USERNAME:TWITTER_PASSWORD
+          # env["async.close"].callback {
+          #   conn.close
+          # }
+
+        }
+      end
+
+      def redirect?(status)
+        status >= 300 && status < 400
+      end
+
+      # collect headers...
+      def request_headers(env, proxy)
+        result = {}
         env.each do |key, value|
           next unless key =~ /^HTTP_/
-          key = key.gsub(/^HTTP_/,'').downcase.sub(/^\w/){|l| l.upcase}.gsub(/_(\w)/){|l| "-#{$1.upcase}"} # remove HTTP_, dasherize and titleize
+
+          key = headerize(key)
           if !key.eql? "Version"
-            headers[key] = value
+            result[key] = value
           end
         end
 
         # Rack documentation says CONTENT_TYPE and CONTENT_LENGTH aren't prefixed by HTTP_
-        headers['Content-Type'] = env['CONTENT_TYPE'] if env['CONTENT_TYPE']
+        result['Content-Type'] = env['CONTENT_TYPE'] if env['CONTENT_TYPE']
 
         length = env['CONTENT_LENGTH']
-        headers['Content-Length'] = length if length
-
-        http_host, http_port = proxy[:to].split(':')
-        http_port = proxy[:secure] ? '443' : '80' if http_port.nil?
+        result['Content-Length'] = length if length
 
         # added 4/23/09 per Charles Jolley, corrects problem
         # when making requests to virtual hosts
-        headers['Host'] = "#{http_host}:#{http_port}"
+        result['Host'] = proxy[:to]
 
-        if proxy[:url]
-          url = url.sub(/^#{Regexp.escape proxy_url}/, proxy[:url])
-        end
+        result
+      end
 
-        http_path = [url]
-        http_path << params if params && params.size>0
-        http_path = http_path.join('?')
+      # construct and display specific response headers
+      def response_headers(hash)
+        result = {}
 
-        response = nil
-        no_body_method = %w(get copy head move options trace)
+        hash.each do |key, value|
+          key = headerize(key)
 
-        done = false
-        tries = 0
-        until done
-          http = ::Net::HTTP.new(http_host, http_port)
+          # Because Set-Cookie header can appear more the once in the response body,
+          # but Rack only accepts a hash of headers, we store it in a line break separated string
+          # for Ruby 1.9 and as an Array for Ruby 1.8
+          # See http://groups.google.com/group/rack-devel/browse_thread/thread/e8759b91a82c5a10/a8dbd4574fe97d69?#a8dbd4574fe97d69
+          if key.downcase == 'set-cookie'
+            cookies = []
 
-          if proxy[:secure]
-            http.use_ssl = true
-            http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-          end
+            case value
+              when Array then value.each { |c| cookies << strip_domain(c) }
+              when Hash  then value.each { |_, c| cookies << strip_domain(c) }
+              else            cookies << strip_domain(value)
+            end
 
-          http.start do |web|
-            if no_body_method.include?(http_method)
-              response = web.send(http_method, http_path, headers)
+            # Remove nil values
+            result['Set-Cookie'] = [result['Set-Cookie'], cookies].compact
+
+            if Thin.ruby_18?
+              result['Set-Cookie'].flatten!
             else
-              http_body = env['rack.input']
-              http_body.rewind # May not be necessary but can't hurt
-
-              req = Net::HTTPGenericRequest.new(http_method.upcase,
-                                                  true, true, http_path, headers)
-              req.body_stream = http_body if length.to_i > 0
-              response = web.request(req)
+              result['Set-Cookie'] = result['Set-Cookie'].join("\n")
             end
           end
 
-          status = response.code # http status code
-          protocol = proxy[:secure] ? 'https' : 'http'
-
-          SC.logger << "~ PROXY: #{http_method.upcase} #{status} #{url} -> #{protocol}://#{http_host}:#{http_port}#{http_path}\n"
-
-          # display and construct specific response headers
-          response_headers = {}
-          ignore_headers = ['transfer-encoding', 'keep-alive', 'connection']
-          response.each do |key, value|
-            next if ignore_headers.include?(key.downcase)
-            # If this is a cookie, strip out the domain.  This technically may
-            # break certain scenarios where services try to set cross-domain
-            # cookies, but those services should not be doing that anyway...
-            value.gsub!(/domain=[^\;]+\;? ?/,'') if key.downcase == 'set-cookie'
-            # Location headers should rewrite the hostname if it is included.
-            value.gsub!(/^http:\/\/#{http_host}(:[0-9]+)?\//, "http://#{http_host}/") if key.downcase == 'location'
-            # content-length is returning char count not bytesize
-            if key.downcase == 'content-length'
-              if response.body.respond_to?(:bytesize)
-                value = response.body.bytesize.to_s
-              elsif response.body.respond_to?(:size)
-                value = response.body.size.to_s
-              else
-                value = '0'
-              end
-            end
-
-            SC.logger << "   #{key}: #{value}\n"
-            response_headers[key] = value
-          end
-
-          if [301, 302, 303, 307].include?(status.to_i) && proxy[:redirect] != false
-            SC.logger << '~ REDIRECTING: '+response_headers['location']+"\n"
-
-            uri = URI.parse(response_headers['location']);
-            http_host = uri.host
-            http_port = uri.port
-            http_path = uri.path
-            http_path += '?'+uri.query if uri.query
-
-            tries += 1
-            if tries > 10
-              raise "Too many redirects!"
-            end
-          else
-            done = true
-          end
+          SC.logger << "   #{key}: #{value}\n"
+          result[key] = value
         end
 
-        # Thin doesn't like null bodies
-        response_body = response.body || ''
+        ::Rack::Utils::HeaderHash.new(result)
+      end
 
-        return [status, ::Rack::Utils::HeaderHash.new(response_headers), [response_body]]
+      # remove HTTP_, dasherize and titleize
+      def headerize(str)
+        parts = str.gsub(/^HTTP_/, '').split('_')
+        parts.map! { |p| p.capitalize }.join('-')
+      end
+
+      # Strip out the domain of passed in cookie.  This technically may
+      # break certain scenarios where services try to set cross-domain
+      # cookies, but those services should not be doing that anyway...
+      def strip_domain(cookie)
+        cookie.to_s.gsub!(/domain=[^\;]+\;? ?/,'')
       end
     end
   end

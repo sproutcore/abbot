@@ -7,6 +7,9 @@ describe SC::Builder::Handlebars do
 
   before do
     std_before :handlebars_test
+
+    # add fake image entry for sc_static tests..
+    @manifest.add_entry 'icons/image.png'
   end
 
   after do
@@ -20,10 +23,13 @@ describe SC::Builder::Handlebars do
   end
 
   it "converts Handlebars to JavaScript" do
-    lines = run_builder 'template.handlebars'
-    lines.each do |line|
-      line.should =~ /SC\.TEMPLATES/
-    end
+    lines = run_builder 'templates/template.handlebars'
+    lines[0].should =~ /SC\.TEMPLATES\["template"\] =/
+  end
+
+  it "handles sc_static" do
+    lines = run_builder 'templates/template.handlebars'
+    lines[0].should include('<img src=\\"/static/handlebars_test/en/current/icons/image.png?0\\" />')
   end
 
 end

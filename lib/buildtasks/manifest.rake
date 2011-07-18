@@ -6,6 +6,8 @@
 # Tasks invoked while building Manifest objects.  You can override these
 # tasks in your buildfiles.
 
+require File.dirname(__FILE__) + '/helpers/acceptable_file_list_factory'
+
 namespace :manifest do
 
   desc "Invoked just before a manifest object is built to setup standard properties"
@@ -52,70 +54,14 @@ namespace :manifest do
 
     source_root = target[:source_root]
 
-    whitelist_filename = SC.env.whitelist || "Whitelist"
-    whitelist_filename = "#{Dir.pwd}/#{whitelist_filename}"
-    
-    whitelist = nil
-
-    # Find and parse the BuildWhitelist json file
-    # Right now, the build whitelist is read for every target, can we optimize this?
-    Dir.glob(whitelist_filename).each do |path|
-      next unless File.file?(path)
-
-      contents = File.read(path)
-      parser = JSON.parser.new(contents)
-      
-      whitelist = parser.parse
-    end
-
-    if whitelist
-      acceptableFilesForTarget = whitelist["#{target[:target_name]}"]
-
-      # Always accept these files
-      defaultAcceptableFiles = [
-        '.manifest',
-        '.htm',
-        '.html',
-        '.rhtml',
-        '.png',
-        '.jpg',
-        '.jpeg',
-        '.gif'
-      ]
-
-      if acceptableFilesForTarget.kind_of?(Array)
-        acceptableFilesForTarget += defaultAcceptableFiles
-
-      # I make an assumption that if the type of acceptableFilesForTarget is String,
-      # then the user wants to match that across any file, so make it an array to accomodate
-      elsif acceptableFilesForTarget.kind_of?(String)
-        acceptableFilesForTarget = [acceptableFilesForTarget] + defaultAcceptableFiles
-
-      else
-        #WhiteList isn't defined, don't include anything
-        acceptableFilesForTarget = defaultAcceptableFiles
-      end
-    else
-      acceptableFilesForTarget = [".*"]
-    end
+    acceptable_file_list = AcceptableFileListFactory.build
 
     number_rejected_entries = 0
 
     Dir.glob("#{source_root}/**/*").each do |path|
       next unless File.file?(path)
       next if target.target_directory?(path)
-
-      valid = false
-
-      acceptableFilesForTarget.each do |acceptableFile|
-        if path =~ Regexp.new(acceptableFile) then
-          valid = true
-          break
-        end
-      end
-
-      if valid
-        # cut source root out to make filename.  make sure path separators are /
+      if acceptable_file_list.acceptable_file?(path)
         filename = path.sub /^#{Regexp.escape source_root}\//, ''
         filename = filename.split(::File::SEPARATOR).join('/')
         manifest.add_entry filename, :original => true # entry:prepare will fill in the rest
@@ -148,6 +94,9 @@ namespace :manifest do
           next
         end
       end
+
+      # allow if it is a handlebars template
+      next if entry[:ext] == "handlebars"
 
       # otherwise, allow if inside lproj
       next if entry.localized? || entry[:filename] =~ /^.+\.lproj\/.+$/
@@ -610,7 +559,17 @@ namespace :manifest do
       # build combined JS entry
       javascript_entries.each do |resource_name, entries|
         resource_name = resource_name.ext('js')
-        pf = (resource_name == 'javascript.js') ? %w(source/lproj/layout.js source/lproj/strings.js source/core.js source/utils.js) : []
+
+        if resource_name == 'javascript.js'
+          pf = ['source/lproj/layout.js', 'source/lproj/strings.js', 'source/core.js', 'source/utils.js']
+          if manifest.target.target_type == :app
+            target_name = manifest.target.target_name.to_s.split('/')[-1]
+            pf.insert(2, "source/#{target_name}.js")
+          end
+        else
+          pf = []
+        end
+
         manifest.add_composite resource_name,
           :build_task      => 'build:combine',
           :source_entries  => entries,

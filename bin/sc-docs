@@ -9,6 +9,11 @@
 
 require "sproutcore"
 
-SC::Tools.invoke :docs
+begin
+  require 'sc_docs/cli'
+  ScDocs::CLI.start
+rescue LoadError
+  puts "sc-docs is no longer bundled with SproutCore. Please install the sc-docs tool instead."
+end
 
 # EOF

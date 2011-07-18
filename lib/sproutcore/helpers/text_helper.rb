@@ -82,13 +82,10 @@ module SC
         # <i>This method is only available if RedCloth[http://whytheluckystiff.net/ruby/redcloth/]
         # is available</i>.
         def textilize(text)
-          if text.blank?
-            ""
-          else
-            textilized = RedCloth.new(text, [ :hard_breaks ])
-            textilized.hard_breaks = true if textilized.respond_to?("hard_breaks=")
-            textilized.to_html
-          end
+          return '' if text.blank?
+          textilized = RedCloth.new(text, [ :hard_breaks ])
+          textilized.hard_breaks = true if textilized.respond_to?("hard_breaks=")
+          textilized.to_html
         end
 
         # Returns the text with all the Textile codes turned into HTML tags,
@@ -97,9 +94,9 @@ module SC
         # is available</i>.
         def textilize_without_paragraph(text)
           textiled = textilize(text)
-          if textiled[0..2] == "<p>" then textiled = textiled[3..-1] end
-          if textiled[-4..-1] == "</p>" then textiled = textiled[0..-5] end
-          return textiled
+          textiled = textiled[3..-1] if textiled[0..2] == '<p>'
+          textiled = textiled[0..-5] if textiled[-4..-1] == '</p>'
+          textiled
         end
       rescue LoadError
         # We can't really help what's not there
@@ -209,7 +206,8 @@ module SC
         if (cycle.nil? || cycle.values != values)
           cycle = set_cycle(name, Cycle.new(*values))
         end
-        return cycle.to_s
+
+        cycle.to_s
       end
 
       # Resets a cycle so that it starts from the first element the next time
@@ -234,7 +232,7 @@ module SC
         def to_s
           value = @values[@index].to_s
           @index = (@index + 1) % @values.size
-          return value
+          value
         end
       end
 
@@ -244,7 +242,7 @@ module SC
         # uses an instance variable of ActionView::Base.
         def get_cycle(name)
           @_cycles = Hash.new unless defined?(@_cycles)
-          return @_cycles[name]
+          @_cycles[name]
         end
 
         def set_cycle(name, cycle_object)

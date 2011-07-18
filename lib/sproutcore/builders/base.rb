@@ -64,9 +64,13 @@ module SC
         writeline(dst_path,joinlines(lines))
       end
 
+      def sc_static_match
+        /(sc_static|static_url|sc_target)\(\s*['"]([^"']*?)['"]\s*\)/
+      end
+
       # Handles occurances of sc_static() or static_url()
       def replace_static_url(line)
-        line.gsub!(/(sc_static|static_url|sc_target)\(\s*['"]([^"']*?)['"]\s*\)/) do | rsrc |
+        line.gsub!(sc_static_match) do | rsrc |
           entry_name = $2
           entry_name = "#{$2}:index.html" if $1 == 'sc_target'
 

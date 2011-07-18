@@ -25,15 +25,14 @@ To get the SproutCore framework, run
 To update the gem:
 
   - Update VERSION.yml
-  - Run `rake release:all` on Mac OS X or Linux
+  - Run `rake release:prepare` on Mac OS X or Linux
       This updates the CHANGELOGS for both framework and abbot,
       updates version numbers and tags them. It also builds and
-      pushes gems. If you want to verify the output before pushing,
-      run as `rake release:all NOPUSH=1`. You can also pass PRETEND=1
-      to make no actual changes. If you ran with NOPUSH you can then
-      run `rake release:push` once you have verified your changes.
+      pushes gems. If you just want to see what it does, pass
+      PRETEND=1 to make no actual changes.
       For best results you should have RVM with MRI Ruby and JRuby installed.
-  - On Windows, update the repos and run `rake release:gems:all`
+  - Once you have verified your changes, run `rake release:deploy`.
+  - On Windows, update the repos and run `rake release:gems:deploy`
   - To create installer packages, run `rake pkg` on Mac OS X and Windows
 
 END
@@ -80,14 +79,10 @@ namespace :release do
     ENV['PRETEND']
   end
 
-  def nopush?
-    ENV['NOPUSH']
-  end
-
   namespace :framework do
 
     task :chdir do
-      chdir "lib/frameworks/sproutcore"
+      chdir File.expand_path('../lib/frameworks/sproutcore', __FILE__)
     end
 
     task :update do
@@ -101,18 +96,35 @@ namespace :release do
     end
 
     task :changelog => :chdir do
-      last_tag = `git describe --tags`.strip
+      last_tag = `git describe --tags --abbrev=0`.strip
       puts "Getting Changes since #{last_tag}"
-      changes = `git log #{last_tag}..HEAD --format='* %s'`
-      puts "#{version}\n#{'-'*version.length}\n#{changes}"
+
+      cmd = "git log #{last_tag}..HEAD --format='* %s'"
+      puts cmd
+
+      changes = `#{cmd}`
+      output = "#{version}\n#{'-'*version.length}\n#{changes}\n"
+
+      unless pretend?
+        File.open('CHANGELOG.md', 'r+') do |file|
+          current = file.readlines
+          current.insert(3, output)
+          file.pos = 0;
+          file.puts current
+        end
+      else
+        puts output.split("\n").map!{|s| "    #{s}"}.join("\n")
+      end
     end
 
     task :update_references => :chdir do
       puts "Updating version references to #{version}"
-      unless pretend?
-        system "sed -i s/@version .*/@version #{version}/ frameworks/runtime/core.js"
-        system "sed -i s/SC.VERSION = .*/SC.VERSION = '#{version}';/ frameworks/runtime/core.js"
-      end
+
+      cmd = "sed -i '' \"s/@version .*/@version #{version}/\" frameworks/runtime/core.js"
+      pretend? ? puts(cmd) : system(cmd)
+
+      cmd = "sed -i '' \"s/SC.VERSION = .*/SC.VERSION = '#{version}';/\" frameworks/runtime/core.js"
+      pretend? ? puts(cmd) : system(cmd)
     end
 
     task :commit => :chdir do
@@ -131,7 +143,7 @@ namespace :release do
 
     task :push => :chdir do
       puts "Pushing Repo"
-      unless pretend? || nopush?
+      unless pretend?
         print "Are you sure you want to push the framework repo to github? (y/N) "
         res = STDIN.gets.chomp
         if res == 'y'
@@ -143,14 +155,15 @@ namespace :release do
       end
     end
 
-    task :all => [:update, :changelog, :update_references, :commit, :tag, :push]
+    task :prepare => [:update, :changelog, :update_references]
+    task :deploy => [:commit, :tag, :push]
 
   end
 
   namespace :abbot do
 
     task :chdir do
-      chdir "."
+      chdir File.dirname(__FILE__)
     end
 
     task :update do
@@ -159,10 +172,25 @@ namespace :release do
     end
 
     task :changelog => :chdir do
-      last_tag = `git describe --tags`.strip
+      last_tag = `git describe --tags --abbrev=0`.strip
       puts "Getting Changes since #{last_tag}"
-      changes = `git log #{last_tag}..HEAD --format='* %s'`
-      puts "#{version}\n#{'-'*version.length}\n#{changes}"
+
+      cmd = "git log #{last_tag}..HEAD --format='* %s'"
+      puts cmd
+
+      changes = `#{cmd}`
+      output = "*SproutCore #{version} (#{Time.now.strftime("%B %d, %Y")})*\n\n#{changes}\n"
+
+      unless pretend?
+        File.open('CHANGELOG', 'r+') do |file|
+          current = file.read
+          file.pos = 0;
+          file.puts output
+          file.puts current
+        end
+      else
+        puts output.split("\n").map!{|s| "    #{s}"}.join("\n")
+      end
     end
 
     task :commit => :chdir do
@@ -181,7 +209,7 @@ namespace :release do
 
     task :push => :chdir do
       puts "Pushing Repo"
-      unless pretend? || nopush?
+      unless pretend?
         print "Are you sure you want to push the abbot repo to github? (y/N) "
         res = STDIN.gets.chomp
         if res == 'y'
@@ -193,7 +221,8 @@ namespace :release do
       end
     end
 
-    task :all => [:update, :changelog, :commit, :tag, :push]
+    task :prepare => [:update, :changelog]
+    task :deploy => [:commit, :tag, :push]
 
   end
 
@@ -213,7 +242,7 @@ namespace :release do
     task :push do
       Dir["sproutcore-#{version}*.gem"].each do |g|
         puts "Pushing #{g}"
-        unless pretend? || nopush?
+        unless pretend?
           print "Are you sure you want to push the gem to RubyGems.org? (y/N) "
           res = STDIN.gets.chomp
           if res == 'y'
@@ -225,11 +254,12 @@ namespace :release do
       end
     end
 
-    task :all => [:build, :push]
+    task :prepare => []
+    task :deploy => [:build, :push]
 
   end
 
-  task :all => ["framework:all", "abbot:all", "gems:all"]
-  task :push => ["framework:push", "abbot:push", "gems:push"]
+  task :prepare => ["framework:prepare", "abbot:prepare", "gems:prepare"]
+  task :deploy => ["framework:deploy", "abbot:deploy", "gems:deploy"]
 
 end

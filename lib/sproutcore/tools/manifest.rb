@@ -16,6 +16,7 @@ module SC
                          :format        => :string,
                          :output        => :string,
                          :all           => false,
+                         ['--languages', '-L']              => :string,
                          ['--build-numbers', '-B'] => :string,
                    
                          # DEPRECATED; DOES NOTHING, THERE FOR BACKWARDS-COMPAT
@@ -42,19 +43,8 @@ module SC
       end
 
       # Get allowed keys
-      only_keys = nil
-      if options[:only]
-        only_keys = (options[:only] || '').to_s.split(',')
-        only_keys.map! { |k| k.to_sym }
-        only_keys = nil if only_keys.size == 0
-      end
-
-      except_keys = nil
-      if options[:except]
-        except_keys = (options[:except] || '').to_s.split(',')
-        except_keys.map! { |k| k.to_sym }
-        except_keys = nil if except_keys.size == 0
-      end
+      only_keys   = Tools.get_allowed_keys(options[:only])
+      except_keys = Tools.get_allowed_keys(options[:except])
 
       # call core method to actually build the manifests...
       manifests = build_manifests(*targets)
@@ -82,6 +72,16 @@ module SC
         $stdout << output
       end
 
+    end
+
+    private
+    def self.get_allowed_keys(keys)
+      if keys
+        result = (keys || '').to_s.split(',')
+        result.map!(&:strip).map!(&:to_sym)
+        result = nil if result.size == 0
+        result
+      end
     end
 
   end

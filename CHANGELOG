@@ -1,3 +1,73 @@
+*SproutCore 1.6.0 (June 09, 2011)*
+
+* Code cleanup +  Stream the headers and body directly across the proxy as they arrive, which will work with streaming APIs like Twitter
+* Merge pull request #53 from publickeating/master
+* Fixed variable typo
+* Rewritten to make the proxy non-blocking.   Probably needs some real-world hardening.
+* Added sc_static support to handlebars and did some test cleanup
+* Should fix broken module building - Fixes #58
+* Fixed sc-docs warning
+* Switch absolute_path to expand_path for Ruby 1.8 compatibility
+* Bumped RSpec Dependency
+
+*SproutCore 1.6.0.rc.2 (May 23, 2011)*
+
+* Allow for absolute build_prefix
+* We don't need to split for windows
+* Fixed language generator - Fixes #44
+* Fixed CLI --target flag
+* Makes code less readable is more like it!
+* We don't need this hack anymore
+* simplified ruby compatibility code in lib/sproutcore.rb
+* Soften dependencies to allow use SproutCore in Rails 3.1
+* Don't hash SCSS paths after all, instead santize
+* Don't need a check, the gem requires haml
+* Compass requires chunky_png
+* cleaned up a few return calls on methods of helpers/text_helper
+* refactored textilize method in helpers/text_helper
+* refactored textilize_without_paragraph method in helpers/text_helper
+* Removed documentation tools, use sc-docs gem instead
+* Fixed issue with default load files that broke modules
+* Fixes to README
+* Fixed the renamed History.txt and README.txt (to *.rdoc) in the Gemspec.
+* Suffix History and Todo with .rdoc
+* Renamed the README so that it displays nice on Github
+* refactored do_misc method on helpers/cssmin
+* Removed Rake release nopush option
+* refactored shorten_colors method on helpers/cssmin
+* refactored remove_spaces method on helpers/cssmin
+* remove #replace_ext
+* When the host or the port has changed, we should really redirect
+* redefine the headers['Host'] every time
+* removing the port from the address breaks any redirect which is not on port 80
+
+*SproutCore 1.6.0.rc.1 (May 16, 2011)*
+
+* More Rakefile improvements
+* Real changelog tasks
+* Added get_allowed_keys to DRY up the retrieval of options
+* DRY up the init task
+* Added in sc-build args that were in documentation but not implemented - Fixes #429
+* Added copyright_block method to centralize template copyright generation
+* Commited missing fixtures for tests
+* Handle SCRIPT_NAME properly when sproutcore server is mounted
+* Fixed test name typos
+* Try to load APP_NAME.js in addition to core.js - Fixes #413
+* Updated haml and compass dependencies
+* Fixed issue where the javascript building got in a fight with the YUI compressor (I think). See http://i.imgur.com/xbxGO.png.
+* Less noisy RSpec
+* Rakefile release task
+* Add handlebars files to the entries
+* fixed bug in the require of generated models
+* Adding touch_enabled flag to avoid having the touch icons included (default is still true)
+* Correct behavior of sc_require in Chance.
+* Made modules SC.Objects instead of just hashes
+* Fix to chance to avoid a Windows error
+* Change jQuery.ready() to SC.ready() in HTML template, which allows SC.RootResponder to attach event listeners before the app runs.
+* Changed the generators so they create more descriptive names. Before, we had lots of files with the same name, which was confusing in editors and in the webkit inspector. This solves that problem.
+* Adding timestamp to sc-build logger, thanks Tony Sung
+
+
 *SproutCore 1.6.0.beta.3 (May 10, 2011)*
 
 * Fixed framework issues that cause sc-build to fail

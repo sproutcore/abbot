@@ -14,17 +14,11 @@ module SC
     def init(project_name, app_name=nil)
 
       # Generate the project
-      if (options[:template])
-        project_gen = SC.builtin_project.generator_for 'html_project',
-          :arguments => ['project', project_name],
-          :dry_run   => options['dry-run'],
-          :force     => options[:force]
-      else
-        project_gen = SC.builtin_project.generator_for 'project',
-          :arguments => ['project', project_name],
-          :dry_run   => options['dry-run'],
-          :force     => options[:force]
-      end
+      project_type = options[:template] ? 'html_project' : 'project'
+      project_gen = SC.builtin_project.generator_for project_type,
+        :arguments => ['project', project_name],
+        :dry_run   => options['dry-run'],
+        :force     => options[:force]
 
       project_gen.prepare!.build!
 
@@ -35,17 +29,11 @@ module SC
       # And get the app generator and run it
       project = SC::Project.load project_root, :parent => SC.builtin_project
 
-      if (options[:template])
-        generator = project.generator_for 'html_app',
-          :arguments => ['app', app_name],
-          :dry_run   => options['dry-run'],
-          :force     => options[:force]
-      else
-        generator = project.generator_for 'app',
-          :arguments => ['app', app_name],
-          :dry_run   => options['dry-run'],
-          :force     => options[:force]
-      end
+      app_type = options[:template] ? 'html_app' : 'app'
+      generator = project.generator_for app_type,
+        :arguments => ['app', app_name],
+        :dry_run   => options['dry-run'],
+        :force     => options[:force]
       generator.prepare!.build!
 
       project_gen.log_file(project_gen.source_root / 'INIT')

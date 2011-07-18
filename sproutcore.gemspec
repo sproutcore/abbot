@@ -16,15 +16,16 @@ Gem::Specification.new do |s|
   s.platform = 'java'        if is_jruby
   s.platform = 'x86-mingw32' if is_mingw
 
-  s.add_dependency 'rack', '~> 1.2.1'
+  s.add_dependency 'rack', '~> 1.2'
   s.add_dependency 'json_pure', "~> 1.4.6"
   s.add_dependency 'extlib', "~> 0.9.15"
-  s.add_dependency 'erubis', "~> 2.6.6"
+  s.add_dependency 'erubis', "~> 2.6"
   s.add_dependency 'thor', '~> 0.14.3'
   s.add_dependency 'sass', '~> 3.1.3'
 
   s.add_dependency 'compass', '~> 0.11.3'
   s.add_dependency 'chunky_png', '~> 1.2.0'
+  s.add_dependency 'em-http-request', '~> 1.0.0.beta'
 
   if is_jruby
     s.add_dependency 'mongrel', '~> 1.1.5'
@@ -37,7 +38,7 @@ Gem::Specification.new do |s|
   end
 
   s.add_development_dependency 'gemcutter', "~> 0.6.0"
-  s.add_development_dependency 'rspec', "~> 2.4.0"
+  s.add_development_dependency 'rspec', "~> 2.5.0"
   s.add_development_dependency 'rake'
 
   # Optional features, used in tests
@@ -50,7 +51,7 @@ Gem::Specification.new do |s|
 
 
   s.rubyforge_project = "sproutcore"
-  s.extra_rdoc_files  = %w[History.txt README.txt]
+  s.extra_rdoc_files  = %w[History.rdoc README.rdoc]
 
   s.files        = `git ls-files`.split("\n")
   s.files       += Dir[".htaccess", "lib/frameworks/sproutcore/**/*"]

@@ -107,32 +107,31 @@ module SC::Helpers
     # 2. Remove spaces around ;:{},
     # 3. Remove tabs
     def remove_spaces(script)
-  	  script = script.gsub(/(\s(\s)+)/, ' ')
-      script = script.gsub(/\s*;\s*/,';')
-      script = script.gsub(/\s*:\s*/,':')
-      script = script.gsub(/\s*\{\s*/,'{')
-      script = script.gsub(/\s*\}\s*/,'}')
-      script = script.gsub(/\s*,\s*/,',')
-      script.gsub("\t",'');
-  	end
-
-  	# Replace color values with their shorter equivalent
-  	#
-  	# 1. Turn rgb(,,)-colors into #-values
-  	# 2. Shorten #AABBCC down to #ABC
-  	# 3. Replace names with their shorter hex-equivalent
-  	#    * white -> #fff
-   	#    * black -> #000
-  	# 4. Replace #-values with their shorter name
-  	#    * #f00 -> red
-  	def shorten_colors(style)
-  	  # rgb(50,101,152) to #326598
+      script.gsub!(/(\s(\s)+)/, ' ')
+      script.gsub!(/\s*;\s*/,';')
+      script.gsub!(/\s*:\s*/,':')
+      script.gsub!(/\s*\{\s*/,'{')
+      script.gsub!(/\s*\}\s*/,'}')
+      script.gsub!(/\s*,\s*/,',')
+      script.gsub!("\t",'');
+      script
+    end
+    
+    # Replace color values with their shorter equivalent
+    #
+    # 1. Turn rgb(,,)-colors into #-values
+    # 2. Shorten #AABBCC down to #ABC
+    # 3. Replace names with their shorter hex-equivalent
+    #    * white -> #fff
+    #    * black -> #000
+    # 4. Replace #-values with their shorter name
+    #    * #f00 -> red
+    def shorten_colors(style)
+      # rgb(50,101,152) to #326598
       style = style.gsub(/rgb\s*\(\s*([0-9,\s]+)\s*\)/) do |match|
         out = '#'
         $1.split(',').each do |num|
-          if num.to_i < 16
-            out += '0'
-          end
+          out += '0' if num.to_i < 16
           out += num.to_i.to_s(16) # convert to hex
         end
         out
@@ -146,54 +145,40 @@ module SC::Helpers
         out
       end
       # shorten several names to numbers
-      style = style.gsub(/:[\s]*white[\s]*;/, ':#fff;')
-      style = style.gsub(/:[\s]*white[\s]*\}/, ':#fff}')
-      style = style.gsub(/:[\s]*black[\s]*;/, ':#000;')
-      style = style.gsub(/:[\s]*black[\s]*\}/, ':#000}')
+      style.gsub!(/:[\s]*white[\s]*;/, ':#fff;')
+      style.gsub!(/:[\s]*white[\s]*\}/, ':#fff}')
+      style.gsub!(/:[\s]*black[\s]*;/, ':#000;')
+      style.gsub!(/:[\s]*black[\s]*\}/, ':#000}')
       # shotern several numbers to names
-      style = style.gsub(/:[\s]*#([fF]00|[fF]{2}0000);/, ':red;')
-      style = style.gsub(/:[\s]*#([fF]00|[fF]{2}0000)\}/, ':red}')
-
-  	  style
+      style.gsub!(/:[\s]*#([fF]00|[fF]{2}0000);/, ':red;')
+      style.gsub!(/:[\s]*#([fF]00|[fF]{2}0000)\}/, ':red}')
+      style
     end
 
     # Do miscellaneous compression methods on the style
     def do_misc(script)
       # Replace 0(pt,px,em,%) with 0 but only when preceded by : or a white-space
-      script = script.gsub(/([\s:]+)(0)(px|em|%|in|cm|mm|pc|pt|ex)/) do |match|
-        match.gsub(/(px|em|%|in|cm|mm|pc|pt|ex)/,'')
-      end
+      script.gsub!(/([\s:]+)(0)(px|em|%|in|cm|mm|pc|pt|ex)/) { |match| match.gsub(/(px|em|%|in|cm|mm|pc|pt|ex)/,'') }
       # Replace 0 0 0 0; with 0.
-      script = script.gsub(':0 0 0 0;', ':0;')
-      script = script.gsub(':0 0 0 0}', ':0}')
-      script = script.gsub(':0 0 0;', ':0;')
-      script = script.gsub(':0 0 0}', ':0}')
-      script = script.gsub(':0 0}', ':0}')
-      script = script.gsub(':0 0;', ':0;')
+      script.gsub!(/:(0\s){0,3}0;/, ':0;')
+      script.gsub!(/:(0\s){0,3}0\}/, ':0}')
       # Replace background-position:0; with background-position:0 0;
-      script = script.gsub('background-position:0;', 'background-position:0 0;');
-      # Replace 0.6 to .6, but only when preceded by : or a white-space
-      script = script.gsub(/[:\s]0+\.(\d+)/) do |match|
-        match.sub('0', '') # only first '0' !!
-      end
+      script.gsub!('background-position:0;', 'background-position:0 0;');
+      # Replace 0.6 to .6, but only the first 0 and only when preceded by : or a white-space
+      script.gsub!(/[:\s]0+\.(\d+)/) { |match| match.sub('0', '') }
       # Replace ;;;; with ;
-      script = script.gsub(/[;]+/, ';')
+      script.gsub!(/[;]+/, ';')
       # Replace ;} with }
-      script = script.gsub(';}', '}')
+      script.gsub!(';}', '}')
       # Replace background-color: with background:
-      script = script.gsub('background-color:', 'background:')
+      script.gsub!('background-color:', 'background:')
       # Replace font-weight:normal; with 400, bold with 700
-      script = script.gsub(/font-weight[\s]*:[\s]*normal[\s]*;/,'font-weight:400;')
-      script = script.gsub(/font-weight[\s]*:[\s]*normal[\s]*\}/,'font-weight:400}')
-      script = script.gsub(/font[\s]*:[\s]*normal[\s;\}]*/) do |match|
-        match.sub('normal', '400')
-      end
-      script = script.gsub(/font-weight[\s]*:[\s]*bold[\s]*;/,'font-weight:700;')
-      script = script.gsub(/font-weight[\s]*:[\s]*bold[\s]*\}/,'font-weight:700}')
-      script = script.gsub(/font[\s]*:[\s]*bold[\s;\}]*/) do |match|
-        match.sub('bold', '700')
-      end
-
+      script.gsub!(/font-weight[\s]*:[\s]*normal[\s]*;/,'font-weight:400;')
+      script.gsub!(/font-weight[\s]*:[\s]*normal[\s]*\}/,'font-weight:400}')
+      script.gsub!(/font[\s]*:[\s]*normal[\s;\}]*/) { |match| match.sub!('normal', '400') }
+      script.gsub!(/font-weight[\s]*:[\s]*bold[\s]*;/,'font-weight:700;')
+      script.gsub!(/font-weight[\s]*:[\s]*bold[\s]*\}/,'font-weight:700}')
+      script.gsub!(/font[\s]*:[\s]*bold[\s;\}]*/) { |match| match.sub!('bold', '700') }
       script
     end
 

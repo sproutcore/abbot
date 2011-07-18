@@ -1,7 +1,4 @@
-# ===========================================================================
-# Project:   <%= namespace %>
-# Copyright: ©<%= Time.now.year %> My Company, Inc.
-# ===========================================================================
+<%= copyright_block(namespace, :ruby) %>
 
 # This is your Buildfile for your app, <%= namespace %>. This tells SproutCore
 # how to build your app. These settings override those in your project

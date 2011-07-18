@@ -11,7 +11,7 @@ namespace :generator do
   # name.
   task :prepare do
     long_languages = %w(english french german italian spanish japanese)
-    if language = GENERATOR.arguments[2]
+    if language = GENERATOR.arguments[1]
       if long_languages.include?(language.downcase)
         GENERATOR.language = language.downcase.capitalize
         GENERATOR.filename = language.downcase + '.lproj'

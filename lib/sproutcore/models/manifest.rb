@@ -261,10 +261,10 @@ module SC
 
       # Normalize to new extension if provided.  else copy ext from entry...
       if ext = opts[:ext]
-        opts[:url] = opts[:url].replace_ext(ext)
-        opts[:staging_path] = opts[:staging_path].replace_ext(ext)
-        opts[:build_path] = opts[:build_path].replace_ext(ext)
-        opts[:filename] = opts[:filename].replace_ext(ext)
+        opts[:url] = opts[:url].ext(ext)
+        opts[:staging_path] = opts[:staging_path].ext(ext)
+        opts[:build_path] = opts[:build_path].ext(ext)
+        opts[:filename] = opts[:filename].ext(ext)
       else
         opts[:ext] = entry[:ext]
       end
