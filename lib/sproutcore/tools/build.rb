@@ -13,15 +13,39 @@ $to_html5_manifest_networks = []
 
 module SC
   class Tools
-
+    
     desc "build [TARGET..]", "Builds one or more targets"
-    method_options(MANIFEST_OPTIONS)
+    
+    # Standard manifest options.  Used by build tool as well.
+    method_option :languages, :type => :string,
+      :desc => "The languages to build."
+      
+    method_option :symlink, :default => false
+    
+    method_option :buildroot, :type => :string,
+      :desc => "The path to build to."
+    method_option :stageroot, :type => :string,
+      :aliases => %w(--target -t),
+      :desc => "The path to stage to."
+    method_option :format, :type => :string
+    method_option :output, :type => :string
+    method_option :all, :type => false
+    method_option :build_numbers, :type => :string, :aliases => ['-B'],
+      :desc => "The identifier(s) for the build."
+    method_option :include_required, :default => false, :aliases => '-r',
+      :desc => "Deprecated. All builds build dependencies."
+      
+    
     method_option :entries, :type => :string
-    method_option :whitelist, :type => :string
-    method_option :allow_commented_js, :type => :boolean
-    # This is defined in MANIFEST_OPTIONS but I add the aliases here only since we use target elsewhere
-    method_option :buildroot, :type => :string, :aliases => %w(--target -t)
+    method_option :whitelist, :type => :string,
+      :desc => "The whitelist to use when building."
+    method_option :allow_commented_js, :type => :boolean,
+      :desc => "If supplied, commented JS will be allowed into the build."
     def build(*targets)
+      if options.help
+        help('build')
+        return
+      end
 
       t1 = Time.now
       SC.logger.info  'Starting build process...'

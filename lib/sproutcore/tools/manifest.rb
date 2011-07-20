@@ -8,27 +8,29 @@
 module SC
   class Tools
 
-    # Standard manifest options.  Used by build tool as well.
-    MANIFEST_OPTIONS = { :languages     => :string,
-                         :symlink       => false,
-                         :buildroot     => :string,
-                         :stageroot     => :string,
-                         :format        => :string,
-                         :output        => :string,
-                         :all           => false,
-                         ['--languages', '-L']              => :string,
-                         ['--build-numbers', '-B'] => :string,
-                   
-                         # DEPRECATED; DOES NOTHING, THERE FOR BACKWARDS-COMPAT
-                         ['--include-required', '-r'] => false
-                         }
-
     desc "manifest [TARGET..]", "Generates a manifest for the specified targets"
-    method_options(MANIFEST_OPTIONS.merge(
-      :format        => :string,
-      :only          => :string,
-      :except        => :string,
-      :hidden        => false ))
+    
+    # Standard manifest options.  Used by build tool as well.
+    method_option :languages, :type => :string,
+      :desc => "The languages to build."
+    method_option :symlink, :default => false
+    method_option :buildroot, :type => :string,
+      :desc => "The path to build to."
+    method_option :stageroot, :type => :string,
+      :desc => "The path to stage to."
+    method_option :format, :type => :string
+    method_option :output, :type => :string
+    method_option :all, :type => false
+    
+    method_option :build_numbers, :type => :string, :aliases => ['-B'],
+      :desc => "The identifier(s) for the build."
+    method_option :include_required, :default => false, :aliases => '-r',
+      :desc => "Deprecated. All builds build dependencies."
+      
+    method_option :format => :string
+    method_option :only => :string
+    method_option :except => :string
+    method_option :hidden => false
     def manifest(*targets)
 
       # Copy some key props to the env

@@ -50,12 +50,11 @@ module SC
     desc "gen generator Namespace[.ClassName] [--target=TARGET_NAME] [--filename=FILE_NAME]",
       "Generates SproutCore components"
 
-    method_options(
-      MANIFEST_OPTIONS.merge(:help       => :string,
+    method_options(:help       => :string,
                              :filename   => :string,
                              :target     => :string,
                              '--dry-run' => false,
-                             :force      => false))
+                             :force      => false)
 
     def gen(*arguments)
       return show_help if arguments.empty?

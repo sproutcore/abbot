@@ -15,10 +15,21 @@ module SC
                     :port       => :string,
                     :host       => :string,
                     :irb        => false,
-                    :filesystem => true,
-                    :allow_from_ips        => :string,
-                    :whitelist  => :string
+                    :filesystem => true
+    
+    method_option :whitelist, :type => :string,
+      :desc => "The whitelist to use when building."
+    
+    method_option :allow_from_ips,
+      :default => "127.0.0.1",
+      :desc => "One or more (comma-separated) masks to accept requests from. " +
+        "For example: 10.*.*.*,127.0.0.1"
     def server
+      if options.help
+        help('server')
+        return
+      end
+      
       prepare_mode!('debug') # set mode again, using debug as default
 
       SC.env[:build_prefix]   = options[:buildroot] if options[:buildroot]

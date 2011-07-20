@@ -32,17 +32,27 @@ module SC
 
     # All sproutcore tools can take some standard options.  These are
     # processed automatically when the tool is loaded
-    class_option "project",           :type => :string
-    class_option "mode",              :type => :string
-    class_option "logfile",           :type => :string
-    class_option "build",             :type => :string, :aliases => "-b"
-    class_option "build-targets",     :type => :string
-    class_option "yui-minification",  :type => :boolean
-    class_option "dont-minify",       :type => :boolean
-    class_option "verbose",           :type => :boolean, :aliases => "-v"
-    class_option "very-verbose",      :type => :boolean, :aliases => "-V"
-    class_option "library",           :type => :string #deprecated
-    class_option "environment",       :type => :string #deprecated
+    class_option "project",      :type => :string
+    class_option "mode",         :type => :string
+    class_option "logfile",      :type => :string
+    class_option "build",        :type => :string, :aliases => "-b"
+    class_option "build-targets",:type => :string,
+      :desc => "Targets to build (excluding their dependencies)"
+    
+    class_option "yui-minification",     :type => :boolean,
+      :desc => "Deprecated. Does nothing."
+    
+    class_option "dont-minify",     :type => :boolean,
+      :desc => "Disables minification for the build."
+    
+    class_option "verbose",      :type => :boolean, :aliases => "-v"
+    class_option "very-verbose", :type => :boolean, :aliases => "-V"
+    
+    class_option "library",      :type => :string, #deprecated
+      :desc => "Deprecated."
+    class_option "environment",  :type => :string, #deprecated
+      :desc => "Deprecated."
+    class_option "help",         :type => :boolean
 
     default_task :banner
 
