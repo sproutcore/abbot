@@ -23,7 +23,7 @@ module Chance
 
         group_slices_into_sprites(opts)
         @sprites.each do |key, sprite|
-          layout_slices_in_sprite sprite
+          layout_slices_in_sprite sprite, opts
         end
       end
 
@@ -79,13 +79,15 @@ module Chance
 
       # Performs the layout operation, laying either up-to-down, or "
       # (for repeat-y slices) left-to-right.
-      def layout_slices_in_sprite(sprite)
+      def layout_slices_in_sprite(sprite, opts)
         # The position is the position in the layout direction. In vertical mode
         # (the usual) it is the Y position.
         pos = 0
         
         # Adds some padding that will be painted with a pattern so that it is apparent that
         # CSS is wrong.
+        # NOTE: though this is only in debug mode, we DO need to make sure it is on a 2px boundary.
+        # This makes sure 2x works properly.
         padding = @options[:pad_sprites_for_debugging] ? 2 : 0
         
         # The position within a row. It starts at 0 even if we have padding,
@@ -195,8 +197,7 @@ module Chance
           elsif slice[:max_offset_y] > 0 and not is_horizontal
             pos += slice[:max_offset_y]
           end
-
-
+          
           slice[:sprite_slice_x] = (is_horizontal ? pos : inset)
           slice[:sprite_slice_y] = (is_horizontal ? inset : pos)
           
@@ -217,6 +218,16 @@ module Chance
           # We pad the row length ONLY if it is a repeat-x, repeat-y, or no-repeat image.
           # If it is 'repeat', we do not pad it, because it should be processed raw.
           row_length = [slice_length + (slice[:repeat] != "repeat" ? padding * 2 : 0), row_length].max
+          
+          # In 2X, make sure we are aligned on a 2px grid.
+          # We correct this AFTER positioning because we always position on an even grid anyway;
+          # we just may leave that even grid if we have an odd-sized image. We do this after positioning
+          # so that the next loop knows if there is space.
+          if opts[:x2]
+            row_length = (row_length.to_f / 2).ceil * 2
+            inset = (inset.to_f / 2).ceil * 2
+          end
+          
         end
         pos += row_length
 
