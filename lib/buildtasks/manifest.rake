@@ -645,8 +645,18 @@ namespace :manifest do
 
       # packed entries only for apps now.
       if target[:target_type] == :app
+        
+        combine_entries = [{
+          :resource => 'stylesheet',
+          :fallback => nil
+        }, {
+          :resource => 'stylesheet@2x',
+          :fallback => 'stylesheet'
+        }]
 
-        %w(stylesheet stylesheet@2x).each {|resource|
+        combine_entries.each {|combine_entry|
+          resource = combine_entry[:resource]
+          fallback = combine_entry[:fallback]
 
           # Handle CSS version.  get all required targets and find their
           # stylesheet.css.  Build packed css from that.
@@ -654,6 +664,11 @@ namespace :manifest do
           entries = targets.map do |target|
             m = target.manifest_for(manifest.variation).build!
             entry = m.entry_for(resource + ".css")
+            
+            if entry.nil? and not fallback.nil?
+              entry = m.entry_for(fallback + ".css")
+            end
+            
             entry
           end
 
