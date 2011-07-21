@@ -13,7 +13,7 @@ class AcceptableFileListFactory
   def self.whitelist
     return @whitelist if @whitelist
     json = nil
-    Dir.glob("#{Dir.pwd}/Whitelist").each do |path|
+    Dir.glob("#{Dir.pwd}/#{SC.env[:whitelist_name]}").each do |path|
       next unless File.file?(path)
 
       contents = File.read(path)
@@ -26,7 +26,7 @@ class AcceptableFileListFactory
   def self.blacklist
     return @blacklist if @blacklist
     json = nil
-    Dir.glob("#{Dir.pwd}/Blacklist").each do |path|
+    Dir.glob("#{Dir.pwd}/#{SC.env[:blacklist_name]}").each do |path|
       next unless File.file?(path)
 
       contents = File.read(path)

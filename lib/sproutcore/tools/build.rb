@@ -38,7 +38,9 @@ module SC
     
     method_option :entries, :type => :string
     method_option :whitelist, :type => :string,
-      :desc => "The whitelist to use when building."
+      :desc => "The whitelist to use when building. By default, Whitelist (if present)"
+    method_option :blacklist, :type => :string,
+      :desc => "The blacklist to use when building. By default, Blacklist (if present)"
     method_option :allow_commented_js, :type => :boolean,
       :desc => "If supplied, commented JS will be allowed into the build."
     def build(*targets)
@@ -50,7 +52,8 @@ module SC
       t1 = Time.now
       SC.logger.info  'Starting build process...'
       # Copy some key props to the env
-      SC.env.whitelist      = options.whitelist
+      SC.env.whitelist_name = options.whitelist
+      SC.env.blacklist_name = options.blacklist
       SC.env.build_prefix   = options.buildroot if options.buildroot
       SC.env.staging_prefix = options.stageroot if options.stageroot
       SC.env.use_symlink    = options.symlink

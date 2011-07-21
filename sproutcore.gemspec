@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'erubis', "~> 2.6"
   s.add_dependency 'thor', '~> 0.14.3'
   s.add_dependency 'sass', '~> 3.1.3'
+  s.add_dependency 'haml', '~> 3.1.2'
 
   s.add_dependency 'compass', '~> 0.11.3'
   s.add_dependency 'chunky_png', '~> 1.2.0'

@@ -47,7 +47,12 @@ module SproutCore
   # where you will find the build mode among other things set by sc-build.
   #
   def self.env
-    @env ||= HashStruct.new(:build_mode => :debug, :buildfile_names => %w(Buildfile sc-config sc-config.rb))
+    @env ||= HashStruct.new(
+      :build_mode => :debug,
+      :buildfile_names => %w(Buildfile sc-config sc-config.rb),
+      :whitelist_name => "Whitelist",
+      :blacklist_name => "Blacklist"
+    )
   end
   def self.env=(hash); @env = HashStruct.new(hash); end
 
