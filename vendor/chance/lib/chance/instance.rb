@@ -331,6 +331,42 @@ module Chance
     # 
     # COMBINING CSS
     #
+    
+    # Determines the "Chance Header" to add at the beginning of the file. The
+    # Chance Header can set, for instance, the $theme variable.
+    #
+    # The Chance Header is loaded from the nearest _theme.css file in this folder
+    # or a containing folder (the file list specifically ignores such files; they are
+    # only used for this purpose)
+    #
+    # For backwards-compatibility, the fallback if no _theme.css file is present
+    # is to return code setting $theme to the now-deprecated @options[:theme] 
+    # passed to Chance
+    def chance_header_for_file(file)
+      # 'file' is the name of a file, so we actually need to start at dirname(file)
+      dir = File.dirname(file)
+      
+      # This should not be slow, as this is just a hash lookup
+      while dir.length > 0 and not dir == "."
+        header_file = @mapped_files[File.join(dir, "_theme.css")]
+        if not header_file.nil?
+          return Chance.get_file(header_file)
+        end
+        
+        dir = File.dirname(dir)
+      end
+      
+      # Make sure to look globally
+      header_file = @mapped_files["_theme.css"]
+      return Chance.get_file(header_file) if not header_file.nil?
+      
+      {
+        # Never changes (without a restart, at least)
+        :mtime => 0,
+        :content => "$theme: '" + @options[:theme] + "';\n"
+      }
+    end
+    
     #
     # _include_file is the recursive method in the depth-first-search
     # that creates the ordered list of files.
@@ -342,6 +378,9 @@ module Chance
     #
     def _include_file(file)
       return if not file =~ /\.css$/
+      
+      # skip _theme.css files
+      return if file =~ /_theme\.css$/
 
       file = Chance.get_file(file)
 
@@ -384,8 +423,10 @@ module Chance
         # NOTE: WE MUST CALL CHANCE PARSER NOW, because it generates our slicses.
         # We can't be picky and just call it if something has changed. Thankfully,
         # parser is fast. Unlike SCSS.
+        header_file = chance_header_for_file(relative_paths[file[:path]])
+        
         content = "@_chance_file " + relative_paths[file[:path]] + ";\n"
-        content += "$theme: '" + @options[:theme] + "';"
+        content += header_file[:content]
         content += file[:content]
 
         parser = Chance::Parser.new(content, @options)
@@ -402,7 +443,8 @@ module Chance
 
         FileUtils.mkdir_p(File.dirname(tmp_path))
         
-        if not file[:mtime] or not file[:wtime] or file[:wtime] < file[:mtime]
+        if (not file[:mtime] or not file[:wtime] or file[:wtime] < file[:mtime] or
+            not header_file[:mtime] or file[:wtime] < header_file[:mtime])
           f = File.new(tmp_path, "w")
           f.write(parser.css)
           f.close
