@@ -6,7 +6,7 @@
 # Tasks invoked while building Manifest objects.  You can override these
 # tasks in your buildfiles.
 
-require File.dirname(__FILE__) + '/helpers/acceptable_file_list_factory'
+require File.dirname(__FILE__) + '/helpers/file_rule_list'
 
 namespace :manifest do
 
@@ -54,14 +54,27 @@ namespace :manifest do
 
     source_root = target[:source_root]
 
-    acceptable_file_list = AcceptableFileListFactory.build
+    file_rule_list = SproutCore::FileRuleList.new
+    
+    Dir.glob("#{Dir.pwd}/#{SC.env[:whitelist_name]}").each do |path|
+      file_rule_list.read_json(path, :allow) if File.file? path
+    end
+    
+    Dir.glob("#{Dir.pwd}/#{SC.env[:blacklist_name]}").each do |path|
+      file_rule_list.read_json(path, :deny) if File.file? path
+    end
+    
+    Dir.glob("#{Dir.pwd}/#{SC.env[:accept_name]}").each do |path|
+      file_rule_list.read(path) if File.file? path
+    end
 
     number_rejected_entries = 0
 
     Dir.glob("#{source_root}/**/*").each do |path|
       next unless File.file?(path)
       next if target.target_directory?(path)
-      if acceptable_file_list.acceptable_file?(path)
+      
+      if file_rule_list.include?(target[:target_name], path)
         filename = path.sub /^#{Regexp.escape source_root}\//, ''
         filename = filename.split(::File::SEPARATOR).join('/')
         manifest.add_entry filename, :original => true # entry:prepare will fill in the rest

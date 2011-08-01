@@ -41,6 +41,8 @@ module SC
       :desc => "The whitelist to use when building. By default, Whitelist (if present)"
     method_option :blacklist, :type => :string,
       :desc => "The blacklist to use when building. By default, Blacklist (if present)"
+    method_option :accept, :type => :string,
+      :desc => "The SproutCore Accept file to determine which files to include. By default, Accept (if present)"
     method_option :allow_commented_js, :type => :boolean,
       :desc => "If supplied, commented JS will be allowed into the build."
     def build(*targets)
@@ -54,6 +56,7 @@ module SC
       # Copy some key props to the env
       SC.env.whitelist_name = options.whitelist
       SC.env.blacklist_name = options.blacklist
+      SC.env.accept_name    = options.accept
       SC.env.build_prefix   = options.buildroot if options.buildroot
       SC.env.staging_prefix = options.stageroot if options.stageroot
       SC.env.use_symlink    = options.symlink

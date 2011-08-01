@@ -21,6 +21,8 @@ module SC
       :desc => "The whitelist to use when building. By default, Whitelist (if present)"
     method_option :blacklist, :type => :string,
       :desc => "The blacklist to use when building. By default, Blacklist (if present)"
+    method_option :accept, :type => :string,
+      :desc => "The SproutCore Accept file to determine which files to include. By default, Accept (if present)"
 
     
     method_option :allow_from_ips,
@@ -39,6 +41,7 @@ module SC
       SC.env[:staging_prefix] = options[:stageroot] if options[:stageroot]
       SC.env[:whitelist_name] = options.whitelist
       SC.env[:blacklist_name] = options.blacklist
+      SC.env[:accept_name]    = options.accept
 
       # get project and start service.
       project = requires_project!
