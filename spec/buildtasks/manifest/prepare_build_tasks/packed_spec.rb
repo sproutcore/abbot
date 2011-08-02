@@ -40,8 +40,8 @@ describe "manifest:prepare_build_tasks:packed" do
     @manifest.entry_for('javascript-packed.js').should_not be_nil
     @manifest.entry_for('stylesheet-packed.css').should_not be_nil
 
-    # In this version, there should _not_ be an @2x entry.
-    @manifest.entry_for('stylesheet@2x-packed.css').should be_nil
+    # there must always be a 2x-packed entry
+    @manifest.entry_for('stylesheet@2x-packed.css').should_not be_nil
   end
 
   it "should remove non-packed JS entries from apps" do
@@ -144,9 +144,9 @@ describe "manifest:prepare_build_tasks:packed" do
      it "should generate a stylesheet-packed.css entry" do
        @entry.should_not be_nil
 
-       # should be _no_ @2x entry for this version (see packed_2x_spec)
-       # because the @2x version is only included as-needed.
-       @entry_2x.should be_nil
+       # There should always be a 2x packed entry, because default JS
+       # looks for 2x when running in 2x mode, and has no fallback.
+       @entry_2x.should_not be_nil
      end
 
      it "should include stylesheet.css entries from all required targets" do

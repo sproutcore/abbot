@@ -135,11 +135,6 @@ describe "manifest:prepare_build_tasks:packed" do
        @entry.source_entries.each do |entry|
          entry.filename.should == 'stylesheet.css'
        end
-
-       @entry_2x.source_entries.size.should > 0
-       @entry_2x.source_entries.each do |entry|
-         entry.filename.should == 'stylesheet@2x.css'
-       end
      end
 
      it "should include ordered_entries ordered by required target order" do
@@ -154,16 +149,6 @@ describe "manifest:prepare_build_tasks:packed" do
        end
 
        @entry.ordered_entries.each do |entry|
-         entry.target.should == targets.shift
-       end
-
-       targets = @target.expand_required_targets(:theme => true) + [@target]
-       variation = @entry.manifest.variation
-       targets.reject! do |t|
-         t.manifest_for(variation).build!.entry_for('stylesheet@2x.css').nil?
-       end
-
-       @entry_2x.ordered_entries.each do |entry|
          entry.target.should == targets.shift
        end
 
