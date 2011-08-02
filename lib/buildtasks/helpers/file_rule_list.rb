@@ -19,6 +19,8 @@ module SproutCore
   #     list.read(path)
   #
   class FileRuleList
+    attr_accessor :allow_by_default, :ignore_list
+    
     ALWAYS_ACCEPTED_FILE_TYPES= [
       '.manifest',
       '.htm',
@@ -31,25 +33,26 @@ module SproutCore
     ]
     
     def initialize
-      @has_content = false
+      @allow_by_default = false
+      @ignore_list = true
       @file_rule_lists = {}
     end
     
     def add_rule(target, rule)
-      @has_content = true
+      @ignore_list = false
       
       @file_rule_lists[target] ||= []
       @file_rule_lists[target] << rule
     end
     
     def include?(target, file)
-      return true if not @has_content
+      return true if @ignore_list
       return true if ALWAYS_ACCEPTED_FILE_TYPES.include?(File.extname file)
       
       list = @file_rule_lists[target.to_s]
       return false if list.nil?
       
-      approved = false
+      approved = @allow_by_default
       list.each {|rule|
         _approved = rule.include? file
         approved = _approved if not _approved.nil?
@@ -62,7 +65,7 @@ module SproutCore
     # Read methods
     #
     def read_json(path, mode)
-      @has_content = true
+      @ignore_list = false
       
       if mode != :allow and mode != :deny
         raise "read_json must be given either mode :allow or mode :deny"
@@ -82,7 +85,7 @@ module SproutCore
     end
     
     def read(path)
-      @has_content = true
+      @ignore_list = false
       
       mode = :allow
       target = nil
