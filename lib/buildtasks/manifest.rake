@@ -61,7 +61,10 @@ namespace :manifest do
     end
     
     Dir.glob("#{Dir.pwd}/#{SC.env[:blacklist_name]}").each do |path|
-      file_rule_list.read_json(path, :deny) if File.file? path
+      if File.file? path
+        file_rule_list.allow_by_default = true
+        file_rule_list.read_json(path, :deny)
+      end
     end
     
     Dir.glob("#{Dir.pwd}/#{SC.env[:accept_name]}").each do |path|
