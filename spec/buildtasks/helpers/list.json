@@ -1,0 +1,11 @@
+{
+  "/target1/abc": [
+    "file1.js",
+    "file2.js"
+  ],
+  
+  "/target1/def": [
+    "file3.js",
+    "file4.js"
+  ]
+}

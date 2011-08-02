@@ -1,0 +1,22 @@
+TARGET /target1/abc
+file[0-9].js
+
+DENY
+# This will deny the files we don't want, and one we do
+file[2-9].js
+
+# This will add one back
+allow file4.js
+
+# this will remove it again
+file4.js
+
+# And finally, add back the one we want.
+ALLOW
+file2.js
+
+
+TARGET /target1/def
+allow all
+
+deny file2.js
