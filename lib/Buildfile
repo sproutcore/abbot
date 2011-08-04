@@ -121,10 +121,26 @@ mode :all do
     :html5_manifest => false,
     # Which networks/URLs to allow if HTML5 application caching is turned on
     :html5_manifest_networks => [],
-    
-    # whether to include touch icons in the index.html and other touch related
+
+    # Default favicon.  You can set your own or set it to nil to not use one.
+    # If one is set, the path will be evaluated via sc_static() in the
+    # index.rhtml file.
+    :favicon => 'favicon.ico',
+
+    # Whether to include touch icons in the index.html and other touch related
     # properties
-    :touch_enabled => true
+    :touch_enabled => true,
+
+    # If touch graphics are enabled (see above), then these are the paths which
+    # will be used for the various graphics.  The paths will be evaluated via
+    # sc_static() in the index.rhtml file.
+    #
+    # Note:  If you specify both a precomposed icon and a "regular" icon, the
+    #        precomposed version will be used.
+    :icon                    => 'sproutcore-logo.png',
+    :precomposed_icon        => nil,
+    :startup_image_portrait  => 'sproutcore-startup-portrait.png',
+    :startup_image_landscape => 'sproutcore-startup-landscape.png'
     
 end
 
