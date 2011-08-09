@@ -51,10 +51,7 @@ module Chance
     INCLUDE_SLICES_DIRECTIVE = /@include\s+slices\s*/
     INCLUDE_SLICE_DIRECTIVE = /@include\s+slice\s*/
     CHANCE_FILE_DIRECTIVE = /@_chance_file /
-    
-    # This is used for an optimization. We skip until we see any of the
-    # characters in here.
-    NORMAL_SCAN_UNTIL = /[^{}@$\/]+/
+    NORMAL_SCAN_UNTIL = /[^{}@$]+/
 
 
     def initialize(string, opts = {})
