@@ -390,7 +390,13 @@ module Chance
       requires = file[:requires]
       file[:included] = @@generation
 
-      requires.each {|r| _include_file(@mapped_files[r]) } unless requires.nil?
+      if not requires.nil?
+        requires.each {|r|
+          # Add the .css extension if needed. it is optional for sc_require
+          r = r + ".css" if not r =~ /\.css$/
+          _include_file(@mapped_files[r])
+        }
+      end
 
 
 
@@ -408,8 +414,15 @@ module Chance
       @@generation = @@generation + 1
       files = @mapped_files.values
       @file_list = []
+      
+      # We have to sort alphabetically first...
+      tmp_file_list = []
+      @mapped_files.each {|p, f| tmp_file_list.push([p, f]) }
+      tmp_file_list.sort_by {|a| a[0] }
 
-      @mapped_files.each {|p, f|
+      tmp_file_list.each {|paths|
+        p, f = paths
+        
         # Save the mtime for caching
         mtime = Chance.update_file_if_needed(f)
         @file_mtimes[p] = mtime
