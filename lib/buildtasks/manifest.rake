@@ -206,7 +206,7 @@ namespace :manifest do
           :build_task     => "build:test",
           :entry_type     => :test,
           :ext            => 'html',
-          :source_entries => entries,
+          :source_entries => SC::Helpers::EntrySorter.sort(entries),
           :hide_entries   => false
       end
 
