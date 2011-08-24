@@ -418,7 +418,7 @@ module Chance
       # We have to sort alphabetically first...
       tmp_file_list = []
       @mapped_files.each {|p, f| tmp_file_list.push([p, f]) }
-      tmp_file_list.sort_by {|a| a[0] }
+      tmp_file_list.sort_by! {|a| a[0] }
 
       tmp_file_list.each {|paths|
         p, f = paths
