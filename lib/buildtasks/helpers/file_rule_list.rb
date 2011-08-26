@@ -50,7 +50,7 @@ module SproutCore
       return true if ALWAYS_ACCEPTED_FILE_TYPES.include?(File.extname file)
       
       list = @file_rule_lists[target.to_s]
-      return false if list.nil?
+      return @allow_by_default if list.nil?
       
       approved = @allow_by_default
       list.each {|rule|
