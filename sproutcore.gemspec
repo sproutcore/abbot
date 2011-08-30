@@ -3,7 +3,6 @@ require "sproutcore/version"
 
 os = Gem::Platform.local.os
 is_jruby = (os == "java")
-is_mingw = (os == "mingw32")
 
 Gem::Specification.new do |s|
   s.name = 'sproutcore'
@@ -14,7 +13,6 @@ Gem::Specification.new do |s|
   s.summary = "SproutCore is a platform for building native look-and-feel applications on the web"
 
   s.platform = 'java'        if is_jruby
-  s.platform = 'x86-mingw32' if is_mingw
 
   s.add_dependency 'rack', '~> 1.2'
   s.add_dependency 'json_pure', "~> 1.4.6"
@@ -32,10 +30,6 @@ Gem::Specification.new do |s|
     s.add_dependency 'mongrel', '~> 1.1.5'
   else
     s.add_dependency 'thin', '~> 1.2.11'
-  end
-
-  if is_mingw
-    s.add_dependency 'eventmachine', '~> 1.0.0.beta'
   end
 
   s.add_development_dependency 'gemcutter', "~> 0.6.0"
