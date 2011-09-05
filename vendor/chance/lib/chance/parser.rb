@@ -561,7 +561,7 @@ module Chance
 
       skip_top_left = skip.include? 'top-left'
       skip_top = skip.include? 'top'
-      skip_top_right = skip.include? 'skip-top-right'
+      skip_top_right = skip.include? 'top-right'
 
       skip_left = skip.include? 'left'
       skip_middle = skip.include? 'middle'
