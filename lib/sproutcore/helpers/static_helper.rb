@@ -13,6 +13,48 @@ module SC
   module Helpers
 
     module StaticHelper
+      
+      # This method will return the urls of all the stylesheets
+      # required by the named bundle.
+      
+      # This method will return teh URLs of all the images required
+      # by the named target. If no named target is provided then images
+      # from all targets will be returned.
+      #
+      # You can filter the images that are returned using the following
+      # options:
+      #
+      #  :language  => The language to render. Defaults to the current language
+      #  :sprited   => Only those images that have been sprited by Chance
+      #  :x2        => Only those images that are two-times resolution (@2x)
+      #
+      def image_urls_for_client(target_name=nil, opts=nil) 
+        opts = {} if opts.nil?
+        t = target_name ? target.target_for(target_name) : target
+        v = opts[:language] ? { :language => opts[:language] } : manifest.variation
+        targets = expand_required_targets(t)
+        targets << t
+        
+        urls = []
+        
+        targets.each do |t|
+          cur_manifest = t.manifest_for(v).build!
+          cur_manifest.entries.each do |entry|
+            if (entry[:entry_type] === :image)
+              url = entry.cacheable_url
+              url = nil if (opts[:sprited] and (url =~ /stylesheet-[-\w@]*\.png/).nil?)
+              if opts[:x2]
+                url = nil if (url =~ /@2x/).nil?
+              else 
+                url = nil if not (url =~ /@2x/).nil?
+              end
+              urls << url if (not url.nil?)
+            end
+          end
+        end
+        
+        urls
+      end
 
       # This method will return the HTML to link to all the stylesheets
       # required by the named bundle.  If you pass no options, the current
