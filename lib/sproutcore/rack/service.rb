@@ -93,7 +93,8 @@ module SC
         server.run app, opts
       end
 
-      def initialize(*projects, opts)
+      def initialize(*projects)
+        opts = projects.pop
         @projects = projects.flatten
 
         # Get apps for each project & cascade if needed
