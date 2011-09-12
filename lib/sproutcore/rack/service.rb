@@ -59,7 +59,7 @@ module SC
         self.filesystem = opts[:Filesystem]
 
         projects = opts.delete(:projects) || [opts.delete(:project)].compact
-        app = self.new(*projects, opts)
+        app = self.new(*(projects+[opts]))
 
         opts[:Host] ||= opts[:host] # allow either case.
         opts[:Port] ||= opts[:port] || '4020'
