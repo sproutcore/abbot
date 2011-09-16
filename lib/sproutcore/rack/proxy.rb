@@ -18,7 +18,7 @@ begin
   require 'eventmachine'
   require 'em-http'
   require 'thin'
-  
+
   SC::PROXY_ENABLED = true
 rescue LoadError => e
   SC::PROXY_ENABLED = false
@@ -26,7 +26,7 @@ end
 
 if SC::PROXY_ENABLED
   # There are cases where we cannot load the proxy and don't need to (build environment)
-  
+
   module SC
 
     module Rack
@@ -131,7 +131,12 @@ if SC::PROXY_ENABLED
           request_options = {}
           request_options[:head] = headers
           request_options[:body] = req_body if !!req_body
-          request_options[:timeout] = proxy[:timeout] if proxy[:timeout]
+          if proxy[:inactivity_timeout] # allow the more verbose setting to take precedence
+            request_options[:inactivity_timeout] = proxy[:inactivity_timeout]
+          elsif proxy[:timeout] # check the legacy and simpler setting
+            request_options[:inactivity_timeout] = proxy[:timeout]
+          end
+          request_options[:connection_timeout] = proxy[:connection_timeout] if proxy[:connection_timeout]
           request_options[:redirects] = 10 if proxy[:redirect] != false
           request_options[:decoding] = false  # don't decode gzipped content
 
