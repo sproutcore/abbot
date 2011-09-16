@@ -136,7 +136,7 @@ if SC::PROXY_ENABLED
           elsif proxy[:timeout] # check the legacy and simpler setting
             request_options[:inactivity_timeout] = proxy[:timeout]
           end
-          request_options[:connection_timeout] = proxy[:connection_timeout] if proxy[:connection_timeout]
+          request_options[:connect_timeout] = proxy[:connect_timeout] if proxy[:connect_timeout]
           request_options[:redirects] = 10 if proxy[:redirect] != false
           request_options[:decoding] = false  # don't decode gzipped content
 
