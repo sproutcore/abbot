@@ -31,7 +31,7 @@ module SC
       end
 
       begin
-        content = readlines(entry.source_path)
+        content = read(entry.source_path)
         load_paths = [entry.source_path[0..entry.source_path.rindex('/')]]
         css = ::Sass::Engine.new(content, :syntax => @@sass_syntax, :load_paths => load_paths).render
         lines = []

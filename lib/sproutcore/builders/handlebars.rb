@@ -12,17 +12,9 @@ module SC
 
   class Builder::Handlebars < Builder::Base
 
-    def readlines(src_path)
-      if File.exist?(src_path) && !File.directory?(src_path)
-        File.read(src_path)
-      else
-        ""
-      end
-    end
-
     def build(dst_path)
       template_name = entry.rootname[/^.*\/([^\/]*)$/, 1]
-      template_code = readlines(entry[:source_path])
+      template_code = read(entry[:source_path])
       replace_static_url(template_code)
       writelines dst_path, "SC.TEMPLATES[#{template_name.inspect}] = SC.Handlebars.compile(#{template_code.to_json});"
     end

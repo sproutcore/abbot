@@ -15,15 +15,6 @@ module SC
   # does NOT product a combined JavaScript for production.  See the
   # Builder::CombinedJavaScript for more.
   class Builder::JavaScript < Builder::Base
-
-    def readlines(src_path)
-      if File.exist?(src_path) && !File.directory?(src_path)
-        File.read(src_path)
-      else
-        ""
-      end
-    end
-
     def build(dst_path)
       lines = ""
       target_name = entry.target[:target_name].to_s.sub(/^\//,'')
@@ -42,7 +33,7 @@ SC.LAZY_INSTANTIATION['#{target_name}'].push(
 "
       end
 
-      code = rewrite_inline_code(readlines(entry[:source_path]))
+      code = rewrite_inline_code(read(entry[:source_path]))
       code = handle_debug_code(code)
       lines << code
 

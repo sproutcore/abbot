@@ -34,6 +34,16 @@ module SC
       def self.build(entry, dst_path)
         new(entry).build(dst_path)
       end
+      
+      # Reads the content of the source file. If the source file does not exist,
+      # returns an empty array.
+      def read(src_path)
+        if File.exist?(src_path) && !File.directory?(src_path)
+          File.read(src_path)
+        else
+          ""
+        end        
+      end
 
       # Reads the lines from the source file.  If the source file does not
       # exist, returns empty array.

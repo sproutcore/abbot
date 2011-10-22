@@ -21,7 +21,7 @@ module SC
       end
 
       begin
-        content = readlines(entry.source_path)
+        content = read(entry.source_path)
         css = ::Less::Engine.new(content).to_css
         lines = []
         css.each_line { |l| lines << rewrite_inline_code(l) }

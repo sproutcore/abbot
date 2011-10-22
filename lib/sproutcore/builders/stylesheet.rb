@@ -18,16 +18,8 @@ module SC
   #
   class Builder::Stylesheet < Builder::Base
 
-    def readlines(src_path)
-      if File.exist?(src_path) && !File.directory?(src_path)
-        File.read(src_path)
-      else
-        ""
-      end
-    end
-
     def build(dst_path)
-      code = rewrite_inline_code(readlines(entry[:source_path]))
+      code = rewrite_inline_code(read(entry[:source_path]))
       writelines dst_path, code
     end
 
