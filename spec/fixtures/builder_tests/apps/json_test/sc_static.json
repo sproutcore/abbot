@@ -1,0 +1,2 @@
+1  foo: static_url( "image" ),
+2  bar: sc_static('image'),

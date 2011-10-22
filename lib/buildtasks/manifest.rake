@@ -180,7 +180,7 @@ namespace :manifest do
   namespace :prepare_build_tasks do
 
     desc "main entrypoint for preparing all build tasks.  This should invoke all needed tasks"
-    task :all => %w(css handlebars javascript module_info sass less combine string_wrap minify string_wrap html strings tests packed split)
+    task :all => %w(css json handlebars javascript module_info sass less combine string_wrap minify string_wrap html strings tests packed split)
 
     desc "executes prerequisites needed before one of the subtasks can be invoked.  All subtasks that have this as a prereq"
     task :setup => %w(manifest:catalog manifest:hide_buildfiles manifest:localize)
@@ -262,6 +262,24 @@ namespace :manifest do
           :entry_type => :javascript
         
         entry.discover_build_directives!
+      end
+    end
+    
+    desc "scans for json files, processing SC directives like sc_static"
+    task :json => :setup do |task, env|
+      manifest = env[:manifest]
+      target = env[:target]
+      config   = CONFIG
+
+      # select all original entries with with ext of css
+      entries = manifest.entries.select do |e|
+        e.original? && e[:ext] == 'json'
+      end
+
+      # add transform & tag with build directives.
+      entries.each do |entry|
+        entry = manifest.add_transform entry,
+          :build_task => 'build:json'
       end
     end
 

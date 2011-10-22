@@ -58,6 +58,11 @@ namespace :build do
     SC::Builder::JavaScript.build env[:entry], env[:dst_path]
   end
   
+  desc "builds a single json file"
+  build_task :json do |task, env|
+    SC::Builder::JSON.build env[:entry], env[:dst_path]
+  end
+  
   desc "builds an html file, possibly executing render tasks"
   build_task :html do |task, env|
     SC::Builder::Html.build env[:entry], env[:dst_path]
