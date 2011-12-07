@@ -66,11 +66,6 @@ end
 
 ### RELEASE TASKS ###
 
-rvm_data = `rvm list` rescue nil
-rvm_versions = rvm_data ? rvm_data.split("\n")[3..-1].map{|l| l[3..-1].split(" ")[0] } : []
-rvm_mri = rvm_versions.select{|v| v =~ /^ruby-/ }[-1]
-rvm_jruby = rvm_versions.select{|v| v =~ /^jruby-/ }[-1]
-
 version = SproutCore::VERSION
 
 namespace :release do
@@ -85,6 +80,7 @@ namespace :release do
       chdir File.expand_path('../lib/frameworks/sproutcore', __FILE__)
     end
 
+    desc "Update framework"
     task :update do
       branch = `git describe --contains --all HEAD`
       puts "Checking out framework branch: #{branch}"
@@ -95,6 +91,7 @@ namespace :release do
       end
     end
 
+    desc "Update framework changelog with latest changes"
     task :changelog => :chdir do
       last_tag = `git describe --tags --abbrev=0`.strip
       puts "Getting Changes since #{last_tag}"
@@ -117,6 +114,7 @@ namespace :release do
       end
     end
 
+    desc "Update framework version references"
     task :update_references => :chdir do
       puts "Updating version references to #{version}"
 
@@ -127,6 +125,7 @@ namespace :release do
       pretend? ? puts(cmd) : system(cmd)
     end
 
+    desc "Commit framework version bump"
     task :commit => :chdir do
       puts "Commiting Version Bump"
       unless pretend?
@@ -136,11 +135,13 @@ namespace :release do
       end
     end
 
+    desc "Tag new framework version"
     task :tag => :chdir do
       puts "Tagging REL-#{version}"
       system "git tag REL-#{version}" unless pretend?
     end
 
+    desc "Push framework to git"
     task :push => :chdir do
       puts "Pushing Repo"
       unless pretend?
@@ -155,7 +156,10 @@ namespace :release do
       end
     end
 
+    desc "Prepare for new framework release"
     task :prepare => [:update, :changelog, :update_references]
+
+    desc "Commit framework updates and push"
     task :deploy => [:commit, :tag, :push]
 
   end
@@ -166,11 +170,13 @@ namespace :release do
       chdir File.dirname(__FILE__)
     end
 
+    desc "Update repo"
     task :update do
       puts "Checking updating repo"
       system "git pull" unless pretend?
     end
 
+    desc "Update Changelog"
     task :changelog => :chdir do
       last_tag = `git describe --tags --abbrev=0`.strip
       puts "Getting Changes since #{last_tag}"
@@ -193,6 +199,7 @@ namespace :release do
       end
     end
 
+    desc "Commit version bump"
     task :commit => :chdir do
       puts "Commiting Version Bump"
       unless pretend?
@@ -202,11 +209,13 @@ namespace :release do
       end
     end
 
+    desc "Tag new version"
     task :tag => :chdir do
       puts "Tagging REL-#{version}"
       system "git tag REL-#{version}" unless pretend?
     end
 
+    desc "Push new commit to git"
     task :push => :chdir do
       puts "Pushing Repo"
       unless pretend?
@@ -221,24 +230,23 @@ namespace :release do
       end
     end
 
+    desc "Prepare for a new release"
     task :prepare => [:update, :changelog]
+
+    desc "Commit the new release"
     task :deploy => [:commit, :tag, :push]
 
   end
 
   namespace :gems do
 
+    desc "Build a new sproutcore gem"
     task :build do
-      versions = [rvm_mri, rvm_jruby].compact
-      unless versions.empty?
-        puts "Building for #{versions.join(", ")}"
-        system "rvm #{versions.join(',')} exec gem build sproutcore.gemspec" unless pretend?
-      else
-        puts "Building for current version"
-        system "gem build sproutcore.gemspec" unless pretend?
-      end
+      puts "Building for current version"
+      system "gem build sproutcore.gemspec" unless pretend?
     end
 
+    desc "Push new sproutcore gems"
     task :push do
       Dir["sproutcore-#{version}*.gem"].each do |g|
         puts "Pushing #{g}"
@@ -255,11 +263,16 @@ namespace :release do
     end
 
     task :prepare => []
+
+    desc "Build and push new sproutcore gems"
     task :deploy => [:build, :push]
 
   end
 
+  desc "Prepare for a new gem release"
   task :prepare => ["framework:prepare", "abbot:prepare", "gems:prepare"]
+
+  desc "Push new release to github and rubygems.org"
   task :deploy => ["framework:deploy", "abbot:deploy", "gems:deploy"]
 
 end

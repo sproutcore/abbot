@@ -59,7 +59,7 @@ module SC
         self.filesystem = opts[:Filesystem]
 
         projects = opts.delete(:projects) || [opts.delete(:project)].compact
-        app = self.new(*projects, opts)
+        app = self.new(*(projects+[opts]))
 
         opts[:Host] ||= opts[:host] # allow either case.
         opts[:Port] ||= opts[:port] || '4020'
@@ -93,7 +93,8 @@ module SC
         server.run app, opts
       end
 
-      def initialize(*projects, opts)
+      def initialize(*projects)
+        opts = projects.pop
         @projects = projects.flatten
 
         # Get apps for each project & cascade if needed
