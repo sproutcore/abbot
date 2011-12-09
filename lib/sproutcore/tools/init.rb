@@ -14,13 +14,10 @@ module SC
     def init(project_name, app_name=nil)
       
       if project_type = options[:template]
-        puts "template"
         project_type = options[:template] ? 'html_project' : 'project' 
       elsif project_type = options[:states] 
-        puts "states"
         project_type = options[:states] ? 'project' : 'project'
-      else project_type = options[:dry_run] 
-        puts "normal"  
+      else project_type = options[:dry_run]
         project_type = options[:dry_run] ? 'project' : 'project' 
       end
         
@@ -41,13 +38,10 @@ module SC
       project = SC::Project.load project_root, :parent => SC.builtin_project
    
       if project_type = options[:template]
-        puts "template_app"
         app_type = options[:template] ? 'html_app' : 'app'
-      elsif project_type = options[:states] 
-        puts "states_app"
+      elsif project_type = options[:states]
         app_type = options[:states] ? 'states_app' : 'app'
-      else project_type = options[:dry_run] 
-        puts "nomal_app"
+      else project_type = options[:dry_run]
         app_type = options[:dry_run] ? 'app' : 'app'
       end
    
