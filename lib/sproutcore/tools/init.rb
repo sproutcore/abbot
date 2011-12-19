@@ -10,13 +10,13 @@ module SC
 
     desc "init PROJECT [APP]",
       "Generates a SproutCore project with an initial application"
-    method_options('--dry-run' => false, :force => false, '--template' => false, '--states' => false)
+    method_options('--dry-run' => false, :force => false, '--template' => false, '--statechart' => false)
     def init(project_name, app_name=nil)
       
       if project_type = options[:template]
         project_type = options[:template] ? 'html_project' : 'project' 
-      elsif project_type = options[:states] 
-        project_type = options[:states] ? 'project' : 'project'
+      elsif project_type = options[:statechart] 
+        project_type = options[:statechart] ? 'project' : 'project'
       else project_type = options[:dry_run]
         project_type = options[:dry_run] ? 'project' : 'project' 
       end
@@ -39,8 +39,8 @@ module SC
    
       if project_type = options[:template]
         app_type = options[:template] ? 'html_app' : 'app'
-      elsif project_type = options[:states]
-        app_type = options[:states] ? 'states_app' : 'app'
+      elsif project_type = options[:statechart]
+        app_type = options[:statechart] ? 'statechart_app' : 'app'
       else project_type = options[:dry_run]
         app_type = options[:dry_run] ? 'app' : 'app'
       end
