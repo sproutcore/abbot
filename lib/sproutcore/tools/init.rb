@@ -16,7 +16,7 @@ module SC
       if project_type = options[:template]
         project_type = options[:template] ? 'html_project' : 'project' 
       elsif project_type = options[:statechart] 
-        project_type = options[:statechart] ? 'project' : 'project'
+        project_type = options[:statechart] ? 'statechart_project' : 'project'
       else project_type = options[:dry_run]
         project_type = options[:dry_run] ? 'project' : 'project' 
       end
