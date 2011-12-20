@@ -1,0 +1,7 @@
+Your new SproutCore project with StateCharts is ready!
+
+To get started, you can find your initial application in the "apps" directory.
+
+Within the apps/appname directory you will have a statechart.js file and a states directory with the ready_state.js file.  
+
+The statechart.js file sets the initial state of your app to ready.  And as your app grows.  You will create new states within the statechart.js file.  In your states folder you will describe the states declared in the statechart.js.
