@@ -15,7 +15,8 @@ module SC
   class Builder::JSON < Builder::Base
 
     def build(dst_path)
-      lines = replace_static_url(read(entry[:source_path]))
+      lines = read(entry[:source_path])
+      replace_static_url(lines)
       writelines dst_path, lines
     end
 
