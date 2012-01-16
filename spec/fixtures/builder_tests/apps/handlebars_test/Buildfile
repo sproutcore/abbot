@@ -1,1 +1,1 @@
-config :handlebars_test, :required => 'sproutcore/core_foundation'
+config :handlebars_test, :required => 'sproutcore/template_view'
