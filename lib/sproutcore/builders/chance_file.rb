@@ -36,7 +36,12 @@ module SC
 
       # Don't write empty files... but keep in mind that hte 
       if src.length > 0
-        writeline dst_path, src
+        if chance_file.end_with?("png")
+          # Writing it as binary to avoid newline problems on Windows
+          writelinebinary dst_path, src
+        else
+          writeline dst_path, src
+        end
       end
     end
 
