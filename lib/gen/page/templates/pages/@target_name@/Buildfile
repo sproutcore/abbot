@@ -1,13 +1,13 @@
 <%= copyright_block("#{namespace} Buildfile", :ruby) %>
 
-# You can use to buildfile to add a custom page title, set environment 
+# You can use to buildfile to add a custom page title, set environment
 # variables, and require any specific JavaScript or other libraries you want
-# to use.  
+# to use.
 #
-# The default configuration just sets the page title and also requires 
-# SproutCore-Mini (a smaller version of SproutCore)
+# The default configuration just sets the page title and also requires
+# a smaller subset of SproutCore (runtime and datastore).
 #
-config :<%= target_name %>, 
-  :required => ['sproutcore/mini'],
+config :<%= target_name %>,
+  :required => ['sproutcore/runtime', 'sproutcore/datastore'],
   :title    => '<%= target_name.split('_').map { |x| x.capitalize }.join(" ") %>'
-  
+
