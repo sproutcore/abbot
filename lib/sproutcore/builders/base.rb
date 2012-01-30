@@ -68,7 +68,15 @@ module SC
           f.write line
         end
       end
-
+      
+      # writes the passed lines to the named file as binary
+      def writelinebinary(dst_path, line)
+        FileUtils.mkdir_p(File.dirname(dst_path))
+        File.open(dst_path, 'wb') do |f|
+          f.write line
+        end
+      end
+      
       # writes the passed lines to the named file
       def writelines(dst_path, lines)
         writeline(dst_path,joinlines(lines))
