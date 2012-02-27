@@ -1,5 +1,0 @@
-<%= copyright_block(namespace, :ruby) %>
-
-# Add initial buildfile information here
-config :all, :required => "sproutcore/template_view", :theme => "sproutcore/empty_theme"
-
