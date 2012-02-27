@@ -2,12 +2,12 @@ language - Create a new language for a SproutCore application.
 
 USAGE:
 
-  sc-gen language LanguageName [--target=TARGET_NAME]
+  sc-gen language AppName LanguageName [--target=TARGET_NAME]
 
 DISCUSSION:
 
-This generator will create a new language for a particular application. Please make sure you are in the specific application directory first, or specify one with the target parameter.  You should pass as the first parameter the LanguageName you want to create.  For example:
+This generator will create a new language for a particular application.  For example:
 
-sc-gen language Norwegian
+sc-gen language MyApp Norwegian
 
-defines a new language in your current application in the directory norwegian.lproj .
+defines a new language in the MyApp application in the directory norwegian.lproj .
