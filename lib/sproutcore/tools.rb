@@ -38,20 +38,13 @@ module SC
     class_option "build",        :type => :string, :aliases => "-b"
     class_option "build-targets",:type => :string,
       :desc => "Targets to build (excluding their dependencies)"
-    
-    class_option "yui-minification",     :type => :boolean,
-      :desc => "Deprecated. Does nothing."
-    
+
     class_option "dont-minify",     :type => :boolean,
       :desc => "Disables minification for the build."
-    
+
     class_option "verbose",      :type => :boolean, :aliases => "-v"
     class_option "very-verbose", :type => :boolean, :aliases => "-V"
-    
-    class_option "library",      :type => :string, #deprecated
-      :desc => "Deprecated."
-    class_option "environment",  :type => :string, #deprecated
-      :desc => "Deprecated."
+
     class_option "help",         :type => :boolean
 
     default_task :banner
@@ -140,7 +133,7 @@ module SC
         build_mode = (options[:mode] || options[:environment] || preferred_mode).to_s.downcase.to_sym
         SC.build_mode = build_mode
       end
-      
+
       def prepare_app!
         if options[:'build-targets']
           SC.env[:build_targets] = options[:'build-targets'].split(',')
@@ -148,7 +141,7 @@ module SC
           SC.env[:build_targets] = ''
         end
       end
-      
+
       def dont_minify!
         SC.env[:dont_minify] = options[:'dont-minify']
       end
@@ -247,7 +240,7 @@ module SC
 
         # Filter out any empty target names.  Sometimes this happens when
         # processing arguments.
-        
+
         targets.reject! { |x| x.nil? || x.size == 0}
 
         # If targets are specified, find the targets project or parents...
@@ -279,8 +272,8 @@ module SC
 
         appnames = SC.env[:build_targets]
 
-        # if it has the appname argument only build the target with the appname        
-        if appnames.size > 0 
+        # if it has the appname argument only build the target with the appname
+        if appnames.size > 0
           tar = []
           targets.each do |target|
             appnames.each do |appname|
@@ -346,36 +339,36 @@ module SC
           SC.logger.info "Using build numbers: #{numbers.map { |k,v| "#{k}: #{v}" }.join(',')}"
         end
       end
-      
+
       def each_manifest_for_targets(*targets)
         # setup build numbers
         find_build_numbers(*targets)
 
         requires_project! # get project
-        
+
         targets = find_targets(*targets) # get targets
 
         # log output
         SC.logger.info "Building targets: #{targets.map { |t| t.target_name } * ","}"
-        
+
         languages = find_languages(*targets) # get languages
         SC.logger.info "Building languages: #{ languages * "," }"
-        
+
         index = 1
         count = targets.length * languages.length
         SC.logger.info "Total target/language combinations to build: #{count}"
-        
+
         targets.each {|target|
           languages.each {|l|
             manifest = target.manifest_for :language => l
             SC.logger.info "Creating manifest #{index} of #{count} for: #{manifest.target.target_name}:#{manifest.language}"
-            
+
             yield manifest
-            
+
             index += 1
           }
         }
-        
+
       end
 
       # Core method to process command line options and then build a manifest.
@@ -384,11 +377,11 @@ module SC
         # Build'em
         each_manifest_for_targets(*targets) do |manifest|
           manifest.build!
-          
+
           yield manifest
         end
       end
-      
+
       # Loops over all of the manifest's entries and builds all essential entries.
       # Entries such as javascript.js are considered non-essential because they will
       # not actually be used in a fully built app (except for modules).

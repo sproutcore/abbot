@@ -10,12 +10,10 @@ module SC
 
     desc "init PROJECT [APP]",
       "Generates a SproutCore project with an initial application"
-    method_options('--dry-run' => false, :force => false, '--template' => false, '--statechart' => false)
+    method_options('--dry-run' => false, :force => false, '--statechart' => false)
     def init(project_name, app_name=nil)
 
-      if project_type = options[:template]
-        project_type = options[:template] ? 'html_project' : 'project'
-      elsif project_type = options[:statechart]
+      if project_type = options[:statechart]
         project_type = options[:statechart] ? 'statechart_project' : 'project'
       else project_type = options[:"dry-run"]
         project_type = options[:"dry-run"] ? 'project' : 'project'
@@ -36,9 +34,7 @@ module SC
       # And get the app generator and run it
       project = SC::Project.load project_root, :parent => SC.builtin_project
 
-      if project_type = options[:template]
-        app_type = options[:template] ? 'html_app' : 'app'
-      elsif project_type = options[:statechart]
+      if project_type = options[:statechart]
         app_type = options[:statechart] ? 'statechart_app' : 'app'
       else project_type = options[:"dry-run"]
         app_type = options[:"dry-run"] ? 'app' : 'app'
