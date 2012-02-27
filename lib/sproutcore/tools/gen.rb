@@ -68,7 +68,7 @@ module SC
         :arguments   => arguments,
         :filename    => options[:filename],
         :target_name => options[:target],
-        :dry_run     => options['dry-run'],
+        :dry_run     => options[:"dry-run"],
         :force       => options[:force]
 
       # if no generator could be found, or if we just asked to show help,
