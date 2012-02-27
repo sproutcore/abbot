@@ -66,6 +66,18 @@ if SC::PROXY_ENABLED
       end
 
 
+      # clears host field from request header if it's redirected request
+      class RedirectHostHeaderKiller
+
+        def response(r)
+          if r.redirect?
+            puts r.req.headers
+            r.req.headers.delete('Host')
+          end
+        end
+
+      end
+
 
       # Rack application proxies requests as needed for the given project.
       class Proxy
@@ -147,6 +159,7 @@ if SC::PROXY_ENABLED
             headers = {}
             method = env['REQUEST_METHOD'].upcase
             status = 0
+            conn.use RedirectHostHeaderKiller
 
             case method
               when 'GET'
