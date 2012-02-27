@@ -2,12 +2,20 @@ statechart_app - Create a new SproutCore application target using statecharts.
 
 USAGE:
 
-  sc-gen app AppName [--filename=FILENAME] [--target=TARGET_NAME]
+  sc-gen statechart_app AppName [--filename=FILENAME] [--target=TARGET_NAME]
 
 DISCUSSION:
 
-This generator will create a new SproutCore application with statecharts by default for a particular project.  You should pass as the first parameter your AppName you want to create followed by the --statechart switch.  For example:
+This generator will create a new SproutCore application with statecharts by
+default for a particular project.  You should pass as the first parameter your
+AppName you want to create.  For example:
 
-sc-gen app Todos --statechart
+  sc-gen statechart_app Todos
 
-This defines a new application called Todos in the file apps/todos/.  Within the apps/Todos/resources directory you will have a statechart.js file and a states directory with the ready_state.js file.  The statechart.js file sets the initial state of your app to ready.  As your app grows.  You will create new states within the statechart.js file.  In your states folder you will describe the states declared in the statechart.js.
+This defines a new application called Todos in the file apps/todos/ using
+statecharts.  Within the apps/Todos/resources directory you will have a
+statechart.js file and a states directory with the ready_state.js file.  The
+statechart.js file sets the initial state of your app to ready.
+
+As your app grows.  You will create new states within the statechart.js file.
+In your states folder you will describe the states declared in the statechart.js.

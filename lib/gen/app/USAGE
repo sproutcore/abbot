@@ -2,12 +2,25 @@ app - Create a new SproutCore application target.
 
 USAGE:
 
-  sc-gen app AppName [--filename=FILENAME] [--target=TARGET_NAME]
+  sc-gen app AppName [--filename=FILENAME] [--target=TARGET_NAME] [--statechart]
 
 DISCUSSION:
 
-This generator will create a new SproutCore application for a particular project.  You should pass as the first parameter your AppName you want to create.  For example:
+This generator will create a new SproutCore application for a particular
+project.  You should pass as the first parameter your AppName you want to
+create.  For example:
 
-sc-gen app Todos
+  sc-gen app Todos
 
-defines a new application called Todos in the file apps/todos/ .
+This defines a new application called Todos in the file apps/todos/ .  Or you
+can include a basic statechart for example:
+
+  sc-gen app Todos --statechart
+
+This defines a new application called Todos in the file apps/todos/ using
+statecharts.  Within the apps/Todos/resources directory you will have a
+statechart.js file and a states directory with the ready_state.js file.  The
+statechart.js file sets the initial state of your app to ready.
+
+As your app grows.  You will create new states within the statechart.js file.
+In your states folder you will describe the states declared in the statechart.js.
