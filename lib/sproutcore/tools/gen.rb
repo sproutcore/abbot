@@ -54,13 +54,21 @@ module SC
                              :filename   => :string,
                              :target     => :string,
                              '--dry-run' => false,
-                             :force      => false)
+                             :force      => false,
+                             :statechart => false)
 
     def gen(*arguments)
       return show_help if arguments.empty?
 
       # backwards compatibility case: client is a synonym for 'app'
       name = arguments[0]=='client' ? 'app' : arguments[0]
+
+      # The --statechart switch uses a different app or project generator
+      if name == 'app' && options[:statechart]
+        name = 'statechart_app'
+      elsif name == 'project' && options[:statechart]
+        name = 'statechart_project'
+      end
 
       # Load generator
       generator_project = self.project || SC.builtin_project
@@ -69,7 +77,8 @@ module SC
         :filename    => options[:filename],
         :target_name => options[:target],
         :dry_run     => options[:"dry-run"],
-        :force       => options[:force]
+        :force       => options[:force],
+        :statechart  => options[:statechart]
 
       # if no generator could be found, or if we just asked to show help,
       # just return the help...
