@@ -66,8 +66,6 @@ module SC
       # The --statechart switch uses a different app or project generator
       if name == 'app' && options[:statechart]
         name = 'statechart_app'
-      elsif name == 'project' && options[:statechart]
-        name = 'statechart_project'
       end
 
       # Load generator
