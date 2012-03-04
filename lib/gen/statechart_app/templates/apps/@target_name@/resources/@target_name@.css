@@ -1,0 +1,8 @@
+$theme.myview {
+  // add your customizations here
+  // Learn how to style your app: http://sproutcore.com/guides/chance.html
+  .sc-label-view {
+    font-size: 18px;
+  }
+}
+
