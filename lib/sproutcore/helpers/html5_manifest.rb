@@ -29,7 +29,7 @@ module SC::Helpers
         @files << "\n"
       end
 
-      manifest_path = dst_path.sub('index.html', '') + 'app.manifest'
+      manifest_path = dst_path.sub('index.html', '') + 'manifest.appcache'
       writelines manifest_path, @files
     end
 

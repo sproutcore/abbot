@@ -117,7 +117,7 @@ mode :all do
     # A hash of additional MIME types, i.e. { '.m4a' => 'audio/mp4a-latm' }
     :mime_types => {},
     
-    # Whether to generate an app.manifest file for HTML5 application caching
+    # Whether to generate an manifest.appcache file for HTML5 application caching
     :html5_manifest => false,
     # Which networks/URLs to allow if HTML5 application caching is turned on
     :html5_manifest_networks => [],
