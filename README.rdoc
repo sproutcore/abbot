@@ -6,38 +6,38 @@
 
 == DESCRIPTION:
 
-SproutCore is a platform for building native look-and-feel applications on 
-the web.  This Ruby library includes a copy of the SproutCore JavaScript 
+SproutCore is a platform for building native look-and-feel applications on
+the web.  This Ruby library includes a copy of the SproutCore JavaScript
 framework as well as a Ruby-based build system called Abbot.
 
-Abbot is a build system for creating static web content.  You can supply Abbot with a collection of JavaScript, HTML, CSS and image files and it will 
-combine the files into a bundle that are optimized for efficient, cached 
+Abbot is a build system for creating static web content.  You can supply Abbot with a collection of JavaScript, HTML, CSS and image files and it will
+combine the files into a bundle that are optimized for efficient, cached
 deliver directly from your server or using a CDN.
 
-Some of the benefits of using Abbot versus assembling your own content 
+Some of the benefits of using Abbot versus assembling your own content
 include:
 
- * Easy maintenance.  Organize your source content in a way that is useful for 
+ * Easy maintenance.  Organize your source content in a way that is useful for
    you without impacting performance on loaded apps.
- 
+
  * Automatically versioned URLs. Serve content with long expiration dates
    while Abbot handles the cache invalidation for you.
- 
+
  * Dependency management.  Divide your code into frameworks; load 3rd party
    libraries.  Abbot will make sure everything loads in the correct order.
-   
+
  * Packing.  Combines JavaScript and CSS into single files to minimize the
    number of resources you download for each page.
-  
-Although Abbot is intended primarily for building Web applications that 
+
+Although Abbot is intended primarily for building Web applications that
 use the SproutCore JavaScript framework, you can also use it to efficiently build any kind of static web content, even if SproutCore is not involved.
 
-Abbot can be used both directly from the command line or as a ruby library. 
-  
+Abbot can be used both directly from the command line or as a ruby library.
+
 == USING ABBOT WITH SPROUTCORE:
 
 This gem includes both the Abbot build tools and a copy of the SproutCore
-JavaScript framework.  You can use built-in commands to create, develop, 
+JavaScript framework.  You can use built-in commands to create, develop,
 build, and deploy SproutCore-based applications.
 
 == USING ABBOT FROM SOURCE:
@@ -68,32 +68,32 @@ These steps will allow the use of a development release of abbot rather than an 
 == KNOWN LIMITATIONS:
 
 * Currently does not support sites using relative-links.  You must specify
-  the absolute path you expect built targets to be hosted as.  
+  the absolute path you expect built targets to be hosted as.
 
 == SYNOPSIS:
 
 To create a new project:
 
   sc-init my_app
-  
+
 To test said project:
 
   cd my_app
   sc-server
   open http://localhost:4020/my_app (in web browser)
-  
+
 Write code, refresh, debug.  Once you are ready to deploy, build your static
 output using:
 
   cd my_app
   sc-build my_app -rc
-  
+
 Copy the resulting files found in my_app/tmp/build to your server and you are
 deployed!
 
 == REQUIREMENTS:
 
-* Ruby 1.8.6 or later.  Ruby 1.9 is currently untested
+* Ruby 1.8.6 or later.
 * extlib 0.9.9 or later
 * rack 0.9.1 or later
 * erubis 2.6.2 or later
@@ -105,7 +105,7 @@ sudo gem install sproutcore
 
 == LICENSE:
 
-Copyright (c) 2009 Apple Inc.  
+Copyright (c) 2009 Apple Inc.
 Portions copyright (c) 2006-2011 Strobe Inc. and contributors
 
 Permission is hereby granted, free of charge, to any person obtaining
