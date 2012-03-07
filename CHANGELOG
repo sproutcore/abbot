@@ -1,3 +1,47 @@
+*SproutCore 1.8.0 (March 06, 2012)*
+
+* Bumped the gem version to 1.8.0
+* Bumped SC to REL-1.8.0
+* Merge pull request #84 from pulletsforever/dwk/manifest.appcache
+* Merge pull request #74 from dkduck/redirect-fix
+* Figuring out how to use the language generator properly was hard to decipher, so I made the first argument the target app and the second argument the language.  If no target app is given, it falls back to the default behaviour, which requires a target.
+* Fixed documentation of app and statechart_app generators.
+* Removed the statechart_project generator.  It was identical to the project generator.
+* Bumped version to 1.8.0 and bumped SC framework to latest.
+* Add --statechart switch support when using sc-gen app or sc-gen project (not that it has an effect with sc-gen project, but someday it may).
+* Removed templates for html_app.
+* Removed deprecated options and removed --template which doesn't create a skeleton useful for a 1.8 project.
+* Fixed --dry-run option to work for sc-init and sc-gen.
+* Updated app.manifest to be manifest.appcache per http://html5.org/r/5812
+* Merge pull request #81 from sproutcore/team/workmanw/windows-spriting-fix
+* Bumped SC version.
+* The :mini framework (which was empty) has been removed from SproutCore for 1.8.
+* Added check before writing chance stuff to a file. If it's writing a png file it will be written as binary. This fixes spriting on Windows, previously newlines were converted to CRLF on Windows.
+* Merge pull request #79 from sproutcore/team/workmanw/sc-init-template-buildfile-fix
+* Updated abbot's Buildfile templates to reflect the changes made to sproutcore/master regarding moving the template system out of 'core_foundation' and into it's own framework 'template_view'.
+* This only returned the lines that matched and removed those that didn't.
+* Merge public branch
+* Merge pull request #76 from ChadEubanks/master
+* fixed a typo in description.
+* updated init.rb to call a statechart_project upon creation of an app using the --statechart switch and included a description of the inital files created in the statechart_project INIT file.
+* fixed indentation of the statechart.js file.
+* moved statechart.js to root of app directory, set up the statechart with just an initial ready state, and revised the property readyState to have proper casing.
+* updated statecharts switch to be --statechart and revised the generated code for statechart_app.
+* Modified abbot to have a state switch on sc-init.  This builds a new sproutcore project with statecharts by default.
+* Modified abbot to have a state switch on sc-init.  This builds a new sproutcore project with statecharts by default.
+* updated sc-init to include statecharts out of the box.
+* Merging public branch
+* Bumping js library submodule
+* Preprocess JSON files for static_urrl
+* Instead of overriding "readlines" everywhere, add a new "read" method and use that instead...
+* fixes a bug with automatically following redirects to external hosts
+* Typo.  The proper setting is : connect_timeout
+* em-http changed the single :timeout setting to separate :inactivity_timeout and :connection_timeout settings, so this exposes these timeouts to the proxy config.  Note, this still works with current Buildfiles since proxy[:timeout] is mapped over to :inactivity_timeout of em-http.
+* More complete fix for #69, thanks rykov!
+* Ruby 1.8 only allows splats for the last argument - Fixes #69
+* Updated StaticHelper to include the image_urls_for_client function
+* Typo prevented skipping of `top-right`
+
 *SproutCore 1.7.1.beta (August 30, 2011)*
 
 MINOR FEATURES
