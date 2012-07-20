@@ -19,8 +19,8 @@ module Chance
           
           key = "#{file[:path]}:#{left},#{top},#{width},#{height}"
           @canvas_cache[key] = {
-            mtime: file[:mtime],
-            canvas: canvas
+            :mtime => file[:mtime],
+            :canvas => canvas
           }
         end
         
