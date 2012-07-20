@@ -97,7 +97,7 @@ module SproutCore
         next if line == ""
         next if line =~ /^#/
         
-        target_match = /^TARGET\s+(?<target>[^\s]+)\s*$/.match line
+        target_match = /^TARGET\s+(:?<target>[^\s]+)\s*$/.match line
         if target_match
           target = target_match[:target]
           mode = :allow
@@ -108,7 +108,7 @@ module SproutCore
           raise "Expected TARGET (target name) in Accept list at #{path}, line #{line_number}"
         end
         
-        mode_match = /^(?<mode>ALLOW|DENY)(\s+(?<what>.*))?\s*$/i.match line
+        mode_match = /^(:?<mode>ALLOW|DENY)(\s+(:?<what>.*))?\s*$/i.match line
         if mode_match
           _mode = mode_match[:mode].downcase
           _mode = (_mode == "allow" ? :allow : :deny)
@@ -126,7 +126,7 @@ module SproutCore
           next
         end
         
-        match = /(?<expression>.*)$/.match(line)
+        match = /(:?<expression>.*)$/.match(line)
         raise "Invalid rule: #{line}" if match.nil?
 
         rule = SproutCore::FileRule.new(match[:expression], mode)

@@ -107,7 +107,7 @@ module SC
 
         
         required.each {|t| 
-          m = t.manifest_for (manifest.variation)
+          m = t.manifest_for(manifest.variation)
           
           
           # And, yes, the same as above. We're just building entries for all required targets.
