@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.name = 'sproutcore'
   s.version = SproutCore::VERSION
   s.authors = 'Strobe, Inc., Apple Inc. and contributors'
-  s.email = 'contact@sproutcore.com'
+  s.email = 'community@sproutcore.com'
   s.homepage = 'http://www.sproutcore.com'
   s.summary = "SproutCore is a platform for building native look-and-feel applications on the web"
 
@@ -24,6 +24,11 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'compass', '~> 0.11.3'
   s.add_dependency 'chunky_png', '~> 1.2.0'
+
+  # We need to add two eventmachine dependencies so that thin (EM >= 0.12.6) and em-http (EM >= 1.0.0.beta.3) don't cause bundler to throw a dependency exception.
+  s.add_dependency 'eventmachine', '>= 0.12.6'
+  s.add_dependency 'eventmachine', '>= 1.0.0.beta.3'
+
   s.add_dependency 'em-http-request', '~> 1.0'
 
   if is_jruby
