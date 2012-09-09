@@ -326,12 +326,12 @@ module SC
       # Discovers build numbers requested for the build and sets them in the
       # in the env if needed.
       def find_build_numbers(*targets)
-        if options['build-numbers']
+        if options.build_numbers
           numbers = {}
-          options['build-numbers'].split(',').each do |pair|
+          options.build_numbers.split(',').each do |pair|
             pair = pair.split(':')
             if pair.length < 2
-              fatal! "Could not parse build numbers! #{options['build-numbers']}"
+              fatal! "Could not parse build numbers! #{options.build_numbers}"
             end
             numbers["/#{pair[0]}"] = pair[1]
           end
