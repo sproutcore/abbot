@@ -72,10 +72,9 @@ module SC
 
         #Missing:
         #need a way to rename/move files and folders
-
         case action
         when nil #sends the contents of the file
-          send_file(path)
+          send_file(path, env)
         when 'list' #returns folder structure
           list_files(path)
         when 'save' #doesn't do anything useful
@@ -139,10 +138,10 @@ module SC
         end
       end
 
-      def send_file(original_path)
+      def send_file(original_path, env)
         with_sanitized_path(original_path) do |sanitized_path|
           with_readable_path(sanitized_path) do |readable_path|
-            send_file_response(readable_path)
+            send_file_response(readable_path, env)
           end
         end
       end
@@ -236,7 +235,7 @@ module SC
         yield tempfile.path
       end
 
-      def send_file_response(path)
+      def send_file_response(path, env)
         if size = File.size?(path)
           # use Rack::File so streaming works and for max compatibility with
           # other handlers
@@ -244,6 +243,7 @@ module SC
           # the server supports it
           body = ::Rack::File::new(root_dir)
           body.path = path
+          body.serving(env)
           body
         else
           # file does not provide size info via stat, so we have to read it
