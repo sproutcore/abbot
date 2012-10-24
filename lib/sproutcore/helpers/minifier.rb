@@ -90,7 +90,6 @@ module SC::Helpers
 
       if html_paths.length > 0
         command = %{java -jar "#{SC.html_jar}" "#{html_paths.join '" "'}" 2>&1}
-        puts "Executing #{command}"
         output = `#{command}`
 
         SC.logger.info output
@@ -106,7 +105,6 @@ module SC::Helpers
       if js_paths.length > 0
         js_paths.each {|p|
           command = %{java -Xmx512m -XX:MaxPermSize=256m -jar "#{SC.js_jar}" -o "#{p}" "#{p}" 2>&1}
-          puts "Executing #{command}"
           output = `#{command}`
 
           SC.logger.info output
