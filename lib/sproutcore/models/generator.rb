@@ -439,7 +439,7 @@ module SC
     def snake_case(str='')
       str = str.gsub(/-/, '_')
       str = str.gsub(/([^A-Z_])([A-Z][^A-Z]?)/,'\1_\2') # most cases
-      str = str.gsub(/([^_])([A-Z][^A-Z])/,'\1_\2') # HeadlineCNNNews
+      str = str.gsub(/([^_])([A-Z][^A-Z_])/,'\1_\2') # HeadlineCNNNews
       str.downcase
     end
 
