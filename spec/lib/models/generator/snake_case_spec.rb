@@ -9,6 +9,7 @@ describe SC::Generator, 'snake_case' do
     { :input => "innerHTML", :output => "inner_html" },
     { :input => "Foo_Bar", :output => "foo_bar" },
     { :input => "Foo-Bar", :output => "foo_bar" },
+    { :input => "LOGGED_IN", :output => "logged_in" },
   ]
 
   test_hashes.each do |test_hash|
