@@ -336,7 +336,9 @@ module Chance
           if slice[:x2]
             width = sprite[:width] / slice[:proportion]
             height = sprite[:height] / slice[:proportion]
-            output += ";  -webkit-background-size: #{width}px #{height}px"
+            output += ";  -webkit-background-size: #{width}px #{height}px\n"
+            output += ";  -moz-background-size: #{width}px #{height}px\n"
+            output += ";  background-size: #{width}px #{height}px\n"
           end
 
           output
