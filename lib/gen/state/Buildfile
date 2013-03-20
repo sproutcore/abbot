@@ -8,11 +8,12 @@ namespace :generator do
 
   # - Verify required properties are present
   # - Accept second argument as base class
+  # - If file name ends in "_state", strip it off
 
   task :prepare do
     GENERATOR.requires! :target_project, :target, :namespace, :class_name
-    GENERATOR.class_name = GENERATOR.class_name.upcase
     GENERATOR.base_class_name ||= GENERATOR.arguments[2]
+    GENERATOR.filename = GENERATOR.filename.sub(/_state$/,'')
   end
-  
+
 end

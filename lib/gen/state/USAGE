@@ -1,0 +1,15 @@
+state - Create a new State class to use in your statecharts.
+
+USAGE:
+
+  sc-gen state AppName.StateName [--filename=FILENAME] [--target=TARGET_NAME]
+
+DISCUSSION:
+
+This generator will create a new SproutCore State template file in your
+app.  You should pass as the first parameter your AppName.StateName combination you want to create.  For example:
+
+sc-gen responder Todos.LoadingState
+
+defines a new class called Todos.LoadingState in the file apps/todos/states/loading_state.js.
+
