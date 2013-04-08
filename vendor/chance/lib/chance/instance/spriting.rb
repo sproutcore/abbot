@@ -15,10 +15,10 @@ module Chance
     # out within the sprites, and generating the final sprite images.
     module Spriting
       # Performs the spriting process on all of the @slices, creating sprite
-      # images in the class's @sprites property and updating the individual slices 
+      # images in the class's @sprites property and updating the individual slices
       # with a :sprite property containing the identifier of the sprite, and offset
       # properties for the offsets within the image.
-      def generate_sprite_definitions(opts)        
+      def generate_sprite_definitions(opts)
         @sprites = {}
 
         group_slices_into_sprites(opts)
@@ -71,7 +71,7 @@ module Chance
       # by this name may not exist yet.
       def sprite_name_for_slice(slice, opts)
         if slice[:repeat] == "repeat"
-          return slice[:path] + (opts[:x2] ? "@2x" : "")
+          return slice[:path][0..(-1 - File.extname(slice[:path]).length)] + (opts[:x2] ? "@2x" : "") + File.extname(slice[:path])
         end
 
         return slice[:repeat] + (opts[:x2] ? "@2x" : "") + File.extname(slice[:path])
@@ -83,17 +83,17 @@ module Chance
         # The position is the position in the layout direction. In vertical mode
         # (the usual) it is the Y position.
         pos = 0
-        
+
         # Adds some padding that will be painted with a pattern so that it is apparent that
         # CSS is wrong.
         # NOTE: though this is only in debug mode, we DO need to make sure it is on a 2px boundary.
         # This makes sure 2x works properly.
         padding = @options[:pad_sprites_for_debugging] ? 2 : 0
-        
+
         # The position within a row. It starts at 0 even if we have padding,
         # because we always just add padding when we set the individual x/y pos.
         inset = 0
-        
+
         # The length of the row. Length, when layout out vertically (the usual), is the height
         row_length = 0
 
@@ -107,19 +107,19 @@ module Chance
         smallest_size = nil
 
         is_horizontal = sprite[:use_horizontal_layout]
-        
+
         # Figure out slice width/heights. We cannot rely on slicing to do this for us
         # because some images may be being passed through as-is.
         sprite[:slices].each {|slice|
           # We must find a canvas either on the slice (if it was actually sliced),
           # or on the slice's file. Otherwise, we're in big shit.
           canvas = slice[:canvas] || slice[:file][:canvas]
-        
+
           # TODO: MAKE A BETTER ERROR.
           unless canvas
             throw "Could not sprite image " + slice[:path] + "; if it is not a PNG, make sure you have rmagick installed"
           end
-          
+
           # RMagick has a different API than ChunkyPNG; we have to detect
           # which one we are using, and use the correct API accordingly.
           if canvas.respond_to?('columns')
@@ -129,10 +129,10 @@ module Chance
             slice_width = canvas.width
             slice_height = canvas.height
           end
-          
+
           slice_length = is_horizontal ? slice_width : slice_height
           slice_size = is_horizontal ? slice_height : slice_width
-          
+
           # When repeating, we must use the least common multiple so that
           # we can ensure the repeat pattern works even with multiple repeat
           # sizes. However, we should take into account how much extra we are
@@ -145,11 +145,11 @@ module Chance
           else
             size = [size, slice_size + padding * 2].max
           end
-          
+
           slice[:slice_width] = slice_width.to_i
           slice[:slice_height] = slice_height.to_i
         }
-        
+
         # Sort slices from widest/tallest (dependent on is_horizontal) or is_vertical
         # NOTE: This means we are technically sorting reversed
         sprite[:slices].sort! {|a, b|
@@ -165,19 +165,19 @@ module Chance
           # We must find a canvas either on the slice (if it was actually sliced),
           # or on the slice's file. Otherwise, we're in big shit.
           canvas = slice[:canvas] || slice[:file][:canvas]
-          
+
           slice_width = slice[:slice_width]
           slice_height = slice[:slice_height]
-          
+
           slice_length = is_horizontal ? slice_width : slice_height
           slice_size = is_horizontal ? slice_height : slice_width
-          
+
           if slice[:repeat] != "no-repeat" or inset + slice_size + padding * 2 > size or not @options[:optimize_sprites]
             pos += row_length
             inset = 0
             row_length = 0
           end
-            
+
 
           # We have extras for manual tweaking of offsetx/y. We have to make sure there
           # is padding for this (on either side)
@@ -197,28 +197,28 @@ module Chance
           elsif slice[:max_offset_y] > 0 and not is_horizontal
             pos += slice[:max_offset_y]
           end
-          
+
           slice[:sprite_slice_x] = (is_horizontal ? pos : inset)
           slice[:sprite_slice_y] = (is_horizontal ? inset : pos)
-          
+
           # add padding for x, only if it a) doesn't repeat or b) repeats vertically because it has horizontal layout
           if slice[:repeat] == "no-repeat" or slice[:repeat] == "repeat-y"
             slice[:sprite_slice_x] += padding
           end
-          
+
           if slice[:repeat] == "no-repeat" or slice[:repeat] == "repeat-x"
             slice[:sprite_slice_y] += padding
           end
-          
+
           slice[:sprite_slice_width] = slice_width
           slice[:sprite_slice_height] = slice_height
 
           inset += slice_size + padding * 2
-          
+
           # We pad the row length ONLY if it is a repeat-x, repeat-y, or no-repeat image.
-          # If it is 'repeat', we do not pad it, because it should be processed raw.
+          # If it is "repeat", we do not pad it, because it should be processed raw.
           row_length = [slice_length + (slice[:repeat] != "repeat" ? padding * 2 : 0), row_length].max
-          
+
           # In 2X, make sure we are aligned on a 2px grid.
           # We correct this AFTER positioning because we always position on an even grid anyway;
           # we just may leave that even grid if we have an odd-sized image. We do this after positioning
@@ -227,7 +227,7 @@ module Chance
             row_length = (row_length.to_f / 2).ceil * 2
             inset = (inset.to_f / 2).ceil * 2
           end
-          
+
         end
         pos += row_length
 
@@ -244,12 +244,12 @@ module Chance
       end
 
 
-      # Generates the image for the specified sprite, putting it in the sprite's 
+      # Generates the image for the specified sprite, putting it in the sprite's
       # :image property.
       def generate_sprite(sprite)
         canvas = canvas_for_sprite(sprite)
         sprite[:canvas] = canvas
-        
+
         # If we are padding sprites, we should paint the background something really
         # obvious & obnoxious. Say, magenta. That's obnoxious. A nice light purple wouldn't
         # be bad, but magenta... that will stick out like a sore thumb (I hope)
@@ -382,12 +382,12 @@ module Chance
         generate_sprite(sprite) if not sprite[:has_generated]
 
         ret = sprite[:canvas].to_blob
-        
+
         if Chance.clear_files_immediately
           sprite[:canvas] = nil
           sprite[:has_generated] = false
         end
-        
+
         ret
       end
 
