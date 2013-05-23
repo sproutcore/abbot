@@ -13,10 +13,10 @@ module SC
   module Helpers
 
     module StaticHelper
-      
+
       # This method will return the urls of all the stylesheets
       # required by the named bundle.
-      
+
       # This method will return teh URLs of all the images required
       # by the named target. If no named target is provided then images
       # from all targets will be returned.
@@ -28,15 +28,15 @@ module SC
       #  :sprited   => Only those images that have been sprited by Chance
       #  :x2        => Only those images that are two-times resolution (@2x)
       #
-      def image_urls_for_client(target_name=nil, opts=nil) 
+      def image_urls_for_client(target_name=nil, opts=nil)
         opts = {} if opts.nil?
         t = target_name ? target.target_for(target_name) : target
         v = opts[:language] ? { :language => opts[:language] } : manifest.variation
         targets = expand_required_targets(t)
         targets << t
-        
+
         urls = []
-        
+
         targets.each do |t|
           cur_manifest = t.manifest_for(v).build!
           cur_manifest.entries.each do |entry|
@@ -45,14 +45,14 @@ module SC
               url = nil if (opts[:sprited] and (url =~ /stylesheet-[-\w@]*\.png/).nil?)
               if opts[:x2]
                 url = nil if (url =~ /@2x/).nil?
-              else 
+              else
                 url = nil if not (url =~ /@2x/).nil?
               end
               urls << url if (not url.nil?)
             end
           end
         end
-        
+
         urls
       end
 
@@ -69,17 +69,17 @@ module SC
       def stylesheets_for_client(target_name = nil, opts = nil)
 
         urls = stylesheet_urls_for_client(target_name, opts)
-        
+
         # normalize params
         if target_name.kind_of?(Hash) && opts.nil?
           opts = target_name
           target_name = nil
         end
         opts = {} if opts.nil?
-        
+
         # process options
         include_method = opts[:include_method] ||= :link
-        
+
         # Convert to HTML and return
         urls = urls.map do |url|
           if include_method == :import
@@ -96,18 +96,18 @@ module SC
           urls.join("\n")
         end
       end
-      
+
       # This method will return the urls of all the stylesheets
       # required by the named bundle.
       def stylesheet_urls_for_client(target_name = nil, opts = nil)
-        
+
         # normalize params
         if target_name.kind_of?(Hash) && opts.nil?
           opts = target_name
           target_name = nil
         end
         opts = {} if opts.nil?
-        
+
         # process options
         include_method = opts[:include_method] ||= :link
         t = target_name ? target.target_for(target_name) : target
@@ -137,13 +137,17 @@ module SC
           else
             urls += cur_entry[:ordered_entries].map { |e| e.cacheable_url }
           end
-          
+        end
+
+        targets = expand_required_targets(t)
+        targets << t
+        targets.each do |cur_target|
           # add any stylesheet libs from the target
           urls += (cur_target.config[:stylesheet_libs] || [])
         end
-        
+
         urls
-        
+
       end
 
       # This method will return the HTML to link to all the javascripts
@@ -161,10 +165,10 @@ module SC
         urls = urls.map do |url|
           %(  <script type="text/javascript" src="#{url}"></script>)
         end
-                
+
         urls.join("\n")
       end
-      
+
       # This method will return an array of all the javascripts
       # required by the client.
       #
@@ -185,7 +189,7 @@ module SC
         # collect urls from entries
         urls = []
         combine_javascript = t.config[:combine_javascript]
-      
+
         combined_entries(t, opts, 'javascript.js', 'javascript-packed.js') do |cur_target, cur_entry|
           # include either the entry URL or URL of ordered entries
           # depending on setup
@@ -194,13 +198,17 @@ module SC
           elsif cur_entry[:ordered_entries]
             urls += cur_entry[:ordered_entries].map { |e| e.cacheable_url }
           end
+        end
 
+        targets = expand_required_targets(t)
+        targets << t
+        targets.each do |cur_target|
           # add any stylesheet libs from the target
           urls += (cur_target.config[:javascript_libs] || [])
         end
-        
+
         urls
-        
+
       end
 
       # Detects and includes any bootstrap code
@@ -225,7 +233,7 @@ module SC
             ret << inline_javascript(resource_name)
           end
         end
-        
+
         return ret * "\n"
       end
 
@@ -431,7 +439,7 @@ module SC
         if t.config[:use_packed] && packed_entry_name # must pass to activate
           packed = []
           unpacked = []
-          packed << t 
+          packed << t
         else
           packed = []
           unpacked = targets + [t]
@@ -444,11 +452,11 @@ module SC
 
           # get the stylesheet or js entry for it...
           entry = cur_manifest.entry_for packed_entry_name
-          
+
           if entry.nil?
             # If it didn't find it, it may have been hidden by the IE hack for splitting CSS.
             # In this case, we have to find it, but searching for any hidden file won't work
-            # because there could be more than one. So, we search based on 
+            # because there could be more than one. So, we search based on
             entry = cur_manifest.entry_for packed_entry_name, { :hidden => true, :is_split => true  }
           end
 
@@ -458,7 +466,7 @@ module SC
           # a reason to check for composite entries, either. So, the composite
           # check has been removed.
           next if entry.nil? # no stylesheet or js
-          
+
           # HACK FOR IE. Yes, IE hacks are now in Ruby as well! Isn't that grand!
           # Basically, IE does not allow more than 4096 selectors. The problem: it has
           # a max of 4096 selectors per file!!!
@@ -472,7 +480,7 @@ module SC
           # We didn't always have to build the CSS entries before serving HTML but... now we do.
           # Because IE sucks.
           entry.build!
-          
+
           # The builder adds a :split_entries. :split_entries were added, we need to split
           # CSS files.
           if entry[:split_entries]
