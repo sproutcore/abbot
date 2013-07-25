@@ -256,7 +256,7 @@ module Chance
         # slices (the details will be postprocessed out).
         # After that, all of the individual files (using the import CSS generated
         # in Step 1)
-        css = "@import \"#{image_css_path}\";\n" + import_css
+        css = "@charset \"UTF-8\";\n@import \"#{image_css_path}\";\n" + import_css
 
         # Step 3: Apply Sass Engine
         engine = Sass::Engine.new(css, Compass.sass_engine_options.merge({
@@ -431,6 +431,7 @@ module Chance
       }
 
       relative_paths = @mapped_files.invert
+      css = "@charset=\"UTF-8\";\n"
 
       @file_list.map {|file|
         # NOTE: WE MUST CALL CHANCE PARSER NOW, because it generates our slicses.
