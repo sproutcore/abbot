@@ -9,6 +9,7 @@ Gem::Specification.new do |s|
   s.version = SproutCore::VERSION
   s.authors = 'Strobe, Inc., Apple Inc. and contributors'
   s.email = 'community@sproutcore.com'
+  s.license = 'MIT'
   s.homepage = 'http://www.sproutcore.com'
   s.summary = "SproutCore is a platform for building native look-and-feel applications on the web"
 
