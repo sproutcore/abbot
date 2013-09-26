@@ -96,15 +96,16 @@ namespace :manifest do
     manifest = env[:manifest]
 
     # these directories are to be excluded unless CONFIG.load_"dirname" = true
-    dirnames = %w(debug tests fixtures protocols).reject do |k|
+    exclude_dirnames = %w(debug tests fixtures protocols).reject do |k|
       CONFIG[:"load_#{k}"]
     end
+    exclude_dirnames.concat [*CONFIG[:exclude]]
 
     # loop through entries and hide those that do not below...
     manifest.entries.each do |entry|
 
       # if in /dirname or /foo.lproj/dirname -- hide it!
-      dirnames.each do |dirname|
+      exclude_dirnames.each do |dirname|
         if entry[:filename] =~ /^(([^\/]+)\.lproj\/)?#{dirname}\/.+$/
           entry.hide!
           next

@@ -17,11 +17,17 @@ module SC
                     :irb        => false,
                     :filesystem => true
     
-    method_option :whitelist, :type => :string,
+    method_option :whitelist,
+      :type => :string,
+      :default => "Whitelist",
       :desc => "The whitelist to use when building. By default, Whitelist (if present)"
-    method_option :blacklist, :type => :string,
+    method_option :blacklist,
+      :type => :string,
+      :default => "Blacklist",
       :desc => "The blacklist to use when building. By default, Blacklist (if present)"
-    method_option :accept, :type => :string,
+    method_option :accept,
+      :type => :string,
+      :default => "Accept",
       :desc => "The SproutCore Accept file to determine which files to include. By default, Accept (if present)"
 
     
