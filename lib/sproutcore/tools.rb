@@ -24,7 +24,7 @@ module SC
   # tool itself when it runs.
   #
   class Tools < ::Thor
-    check_unknown_options!
+    check_unknown_options! :except => :phantom
 
     def self.invoke(task_name)
       start([task_name.to_s] + ARGV)
@@ -465,4 +465,5 @@ require "sproutcore/tools/gen"
 require "sproutcore/tools/init"
 require "sproutcore/tools/manifest"
 require "sproutcore/tools/server"
+require "sproutcore/tools/phantom"
 
