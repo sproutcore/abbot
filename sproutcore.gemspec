@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'json_pure', "~> 1.4"
   s.add_dependency 'extlib', "~> 0.9"
   s.add_dependency 'erubis', "~> 2.6"
-  s.add_dependency 'thor', '~> 0.14'
+  s.add_dependency 'thor', '~> 0.18'
   s.add_dependency 'sass', '~> 3.1'
   s.add_dependency 'haml', '~> 3.1'
 
