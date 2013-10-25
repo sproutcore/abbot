@@ -58,6 +58,9 @@ mode :all do
     :combine_javascript => true,
     :combine_stylesheets => true,
     
+    # Use @charset "UTF-8" by default
+    :css_charset => "UTF-8",
+
     # We do NOT want to pad sprites for debugging in production. This both increases filesize
     # and makes the background of the sprite an embarrassing pink.
     :pad_sprites_for_debugging => false,

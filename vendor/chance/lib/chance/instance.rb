@@ -64,6 +64,7 @@ module Chance
     def initialize(options = {})
       @options = options
       @options[:theme] = "" if @options[:theme].nil?
+      @options[:css_charset] = "UTF-8" if @options[:css_charset].nil?
       @options[:pad_sprites_for_debugging] = true if @options[:pad_sprites_for_debugging].nil?
       @options[:optimize_sprites] = true if @options[:optimize_sprites].nil?
       
@@ -256,7 +257,9 @@ module Chance
         # slices (the details will be postprocessed out).
         # After that, all of the individual files (using the import CSS generated
         # in Step 1)
-        css = "@import \"#{image_css_path}\";\n" + import_css
+        # We insert the charset here or else Sass will not determine it correctly via the @imports.
+        css_charset = @options[:css_charset]
+        css = "@charset \"#{css_charset}\";\n@import \"#{image_css_path}\";\n" + import_css
 
         # Step 3: Apply Sass Engine
         engine = Sass::Engine.new(css, Compass.sass_engine_options.merge({
@@ -433,7 +436,7 @@ module Chance
       relative_paths = @mapped_files.invert
 
       @file_list.map {|file|
-        # NOTE: WE MUST CALL CHANCE PARSER NOW, because it generates our slicses.
+        # NOTE: WE MUST CALL CHANCE PARSER NOW, because it generates our slices.
         # We can't be picky and just call it if something has changed. Thankfully,
         # parser is fast. Unlike SCSS.
         header_file = chance_header_for_file(relative_paths[file[:path]])

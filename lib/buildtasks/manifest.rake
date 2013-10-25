@@ -467,6 +467,9 @@ namespace :manifest do
           # whether it should minify
           :minify => minify,
           
+          # charset for CSS files
+          :css_charset => CONFIG[:css_charset],
+
           # whether it should optimize sprites. This is opt-in, and comes from the buildfile.
           :optimize_sprites => CONFIG[:optimize_sprites],
           
