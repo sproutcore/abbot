@@ -36,6 +36,7 @@ Gem::Specification.new do |s|
     s.add_dependency 'mongrel', '~> 1.1'
   else
     s.add_dependency 'thin', '~> 1.2'
+    s.add_dependency 'listen', '~> 2.0'
   end
 
   s.add_development_dependency 'gemcutter', "~> 0.6"

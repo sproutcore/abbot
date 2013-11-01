@@ -216,38 +216,55 @@ module SC
           @project_file_count = files.size
           @project_mtime = files.map { |x| File.mtime(x).to_i }.max
 
-          Thread.new do
-            while @should_monitor
-
-              # only need to start scanning again 2 seconds after the last
-              # request was serviced.
-              reload_delay = (Time.now - @last_reload_time)
-              if reload_delay > 2
-                files = Dir.glob(@project_root / '**' / '*')
-                # follow 1-level of symlinks
-                files += Dir.glob(@project_root / '**' / '*' / '**' / '*')
-                tmp_path = /^#{Regexp.escape(@project_root / 'tmp')}/
-                files.reject! { |f| f =~ tmp_path }
-                files.reject! { |f| File.directory?(f) }
-
-                cur_file_count = files.size
-                cur_mtime = files.map { |x| File.mtime(x).to_i }.max
-
-                if (@project_file_count != cur_file_count) || (@project_mtime != cur_mtime)
-                  SC.logger.info "Detected project change.  Will rebuild manifest"
-                  @project_did_change = true
-                  @project_file_count = cur_file_count
-                  @project_mtime = cur_mtime
-                end
+          begin
+            require 'listen'
+            @listener = Listen.to(@project_root, ignore: tmp_path) do |modified, added, removed|
+              check_for_updates
+            end
+            @listener.start
+          rescue LoadError => e
+            puts $:.inspect
+            puts e.message
+            SC.logger.warn "The 'listen' gem was not found in your gem repository.  Falling back to polling for filesystem changes, which is much more CPU intensive.  Run 'gem install listen' to fix this."
+            Thread.new do
+              while @should_monitor
+                check_for_updates
+                sleep 2
               end
-
-              sleep(2)
             end
           end
         end
       end
 
+      def check_for_updates
+        # only need to start scanning again 2 seconds after the last
+        # request was serviced.
+        reload_delay = (Time.now - @last_reload_time)
+        if reload_delay > 2
+          files = Dir.glob(@project_root / '**' / '*')
+          # follow 1-level of symlinks
+          files += Dir.glob(@project_root / '**' / '*' / '**' / '*')
+          tmp_path = /^#{Regexp.escape(@project_root / 'tmp')}/
+          files.reject! { |f| f =~ tmp_path }
+          files.reject! { |f| File.directory?(f) }
+
+          cur_file_count = files.size
+          cur_mtime = files.map { |x| File.mtime(x).to_i }.max
+
+          if (@project_file_count != cur_file_count) || (@project_mtime != cur_mtime)
+            SC.logger.info "Detected project change.  Will rebuild manifest"
+            @project_did_change = true
+            @project_file_count = cur_file_count
+            @project_mtime = cur_mtime
+          end
+        end
+      end
+
       def stop_monitor!
+        if @listener
+          @listener.stop
+          @listener = nil
+        end
         @should_monitor = false
       end
 
