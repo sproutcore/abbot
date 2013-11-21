@@ -219,16 +219,19 @@ module SC
           begin
             require 'listen'
             @listener = Listen.to(@project_root, ignore: tmp_path) do |modified, added, removed|
-              check_for_updates
+              SC.logger.info "Detected project change.  Will rebuild manifest."
+              @project_did_change = true
             end
             @listener.start
           rescue LoadError => e
             puts $:.inspect
             puts e.message
-            SC.logger.warn "The 'listen' gem was not found in your gem repository.  Falling back to polling for filesystem changes, which is much more CPU intensive.  Run 'gem install listen' to fix this."
+            SC.logger.warn "The 'listen' gem was not found in your gem repository.  Falling back to polling for filesystem changes, which is much more CPU intensive.  You should run 'gem install listen' to fix this."
             Thread.new do
               while @should_monitor
                 check_for_updates
+
+                # Add a slight delay.
                 sleep 2
               end
             end
