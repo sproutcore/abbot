@@ -1,3 +1,16 @@
+SproutCore 1.10.2
+-----------------
+
+* Uses a file system change listener rather than polling.
+
+SproutCore 1.10.0
+-----------------
+
+* Added a :css_charset option to set the value of `@charset` inserted at the top of compiled stylesheets. NOTE: this does not solve the problem of concatenated stylesheets.
+* Added a new :exclude option that can be used to tell Abbot to exclude directories from a build.
+* Added default values to :whitelist/:blacklist/:accept help strings.
+* Added sc-phantom command for running PhantomJS.
+
 *SproutCore 1.8.0 (March 06, 2012)*
 
 * Bumped the gem version to 1.8.0
