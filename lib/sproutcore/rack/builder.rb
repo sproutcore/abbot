@@ -182,7 +182,6 @@ module SC
       # Reloads the project if reloading is enabled.  At maximum this will
       # reload the project every 5 seconds.
       def reload_project!
-
         monitor_project!
 
         # don't reload if no project or is disabled
@@ -205,21 +204,18 @@ module SC
           @should_monitor = true
           @project_root = @project.project_root
 
-          # collect initial info on project
-          files = Dir.glob(@project_root / '**' / '*')
-          # follow 1-level of symlinks
-          files += Dir.glob(@project_root / '**' / '*' / '**' / '*')
-          tmp_path = /^#{Regexp.escape(@project_root / 'tmp')}/
-          files.reject! { |f| f =~ tmp_path }
-          files.reject! { |f| File.directory?(f) }
-
-          @project_file_count = files.size
-          @project_mtime = files.map { |x| File.mtime(x).to_i }.max
+          # Set to an array of regular expressions matching ignored paths.
+          # Listen already ignores several directories at the root of the project (including tmp).
+          # Ignore all .git directories. Listen only ignores the project root .git directory by default.
+          ignored_paths = [/.*\/.git\//]
 
           begin
             require 'listen'
-            @listener = Listen.to(@project_root, ignore: tmp_path) do |modified, added, removed|
+            @listener = Listen.to(@project_root, ignore: ignored_paths) do |modified, added, removed|
               SC.logger.info "Detected project change.  Will rebuild manifest."
+              SC.logger.debug "  modified absolute path: #{modified}"
+              SC.logger.debug "  added absolute path: #{added}"
+              SC.logger.debug "  removed absolute path: #{removed}"
               @project_did_change = true
             end
             @listener.start
@@ -227,6 +223,18 @@ module SC
             puts $:.inspect
             puts e.message
             SC.logger.warn "The 'listen' gem was not found in your gem repository.  Falling back to polling for filesystem changes, which is much more CPU intensive.  You should run 'gem install listen' to fix this."
+
+            # collect initial info on project
+            files = Dir.glob(@project_root / '**' / '*')
+            # follow 1-level of symlinks
+            files += Dir.glob(@project_root / '**' / '*' / '**' / '*')
+
+            files.reject! { |f| f =~ tmp_path }
+            files.reject! { |f| File.directory?(f) }
+
+            @project_file_count = files.size
+            @project_mtime = files.map { |x| File.mtime(x).to_i }.max
+
             Thread.new do
               while @should_monitor
                 check_for_updates
