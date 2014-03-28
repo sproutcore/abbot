@@ -416,7 +416,7 @@ module SC
             end
 
             dst = Pathname.new(entry.build_path).relative_path_from(target_build_root)
-            info "  #{entry.filename} -> #{dst}"
+            debug "  #{entry.filename} -> #{dst}"
             entry.build!
           end
         end

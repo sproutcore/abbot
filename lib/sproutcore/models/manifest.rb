@@ -92,7 +92,7 @@ module SC
         # Information indicating where the built app can be found. This is useful
         # when manually uploading builds, to ensure we have the newest build.
         if target[:target_type] == :app
-          SC.logger << "Built #{target[:target_name]} to #{target[:build_root]}/#{target[:build_number]}\n"
+          SC.logger.info "Built #{target[:target_name]} to #{target[:build_root]}/#{target[:build_number]}"
         end
       end
       return self
