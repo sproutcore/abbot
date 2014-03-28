@@ -144,7 +144,7 @@ module SproutCore
   def self.js_jar
     @js_jar ||= begin
       yui_root = File.expand_path("../../vendor/sproutcore", __FILE__)
-      File.join(yui_root, 'lib/yuicompressor-2.4.6.jar')
+      File.join(yui_root, 'lib/yuicompressor-2.4.8.jar')
     end
   end
 
