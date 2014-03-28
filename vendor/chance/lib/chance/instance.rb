@@ -58,7 +58,7 @@ module Chance
     }
 
     @@uid = 0
-    
+
     @@generation = 0
 
     def initialize(options = {})
@@ -67,10 +67,10 @@ module Chance
       @options[:css_charset] = "UTF-8" if @options[:css_charset].nil?
       @options[:pad_sprites_for_debugging] = true if @options[:pad_sprites_for_debugging].nil?
       @options[:optimize_sprites] = true if @options[:optimize_sprites].nil?
-      
+
       @@uid += 1
       @uid = @@uid
-      
+
       @options[:instance_id] = @uid if @options[:instance_id].nil?
 
       if @options[:theme].length > 0 and @options[:theme][0] != "."
@@ -80,7 +80,7 @@ module Chance
       # The mapped files are a map from file names in the Chance Instance to
       # their identifiers in Chance itself.
       @mapped_files = { }
-      
+
       # The file mtimes are a collection of mtimes for all the files we have. Each time we
       # read a file we record the mtime, and then we compare on check_all_files
       @file_mtimes = { }
@@ -96,7 +96,7 @@ module Chance
 
       # Tracks whether _render has been called.
       @has_rendered = false
-      
+
       # A generation number for the current render. This allows the slicing and spriting
       # to be invalidated smartly.
       @render_cycle = 0
@@ -114,7 +114,7 @@ module Chance
         # Don't do anything if there is nothing to do.
         return
       end
-      
+
       path = path.to_s
       file = Chance.has_file(identifier)
 
@@ -133,14 +133,14 @@ module Chance
         # Don't do anything if there is nothing to do
         return
       end
-      
+
       path = path.to_s
       @mapped_files.delete path
 
       # Invalidate our render because things have changed.
       clean
     end
-    
+
     # unmaps all files
     def unmap_all
       @mapped_files = {}
@@ -155,7 +155,7 @@ module Chance
           needs_clean = true
         end
       }
-      
+
       clean if needs_clean
     end
 
@@ -169,7 +169,7 @@ module Chance
       return Chance.get_file(@mapped_files[path])
     end
 
-    def output_for(file)
+    def output_for(file, dst_path)
       return @files[file] if not @files[file].nil?
 
       # small hack: we are going to determine whether it is x2 by whether it has
@@ -180,7 +180,7 @@ module Chance
       if opts
         send opts[:method], opts
       elsif sprite_names({ :x2 => x2 }).include? file
-        return sprite_data({:name => file, :x2 => x2 })
+        return sprite_data({:name => file, :x2 => x2 }, dst_path)
       else
         raise "Chance does not generate a file named '#{file}'" if opts.nil?
       end
@@ -228,7 +228,7 @@ module Chance
 
       # Update the render cycle to invalidate sprites, slices, etc.
       @render_cycle = @render_cycle + 1
-      
+
       @files = {}
       begin
         # SCSS code executing needs to know what the current instance of Chance is,
@@ -236,21 +236,21 @@ module Chance
         Chance._current_instance = self
 
         # Step 1: preprocess CSS, determining order and parsing the slices out.
-        # The output of this process is a "virtual" file that imports all of the 
+        # The output of this process is a "virtual" file that imports all of the
         # SCSS files used by this Chance instance. This also sets up the @slices hash.
         import_css = _preprocess
-        
+
         # Because we encapsulate with instance_id, we should not have collisions even IF another chance
         # instance were running at the same time (which it couldn't; if it were, there'd be MANY other issues)
         image_css_path = File.join('./tmp/chance/image_css', @options[:instance_id].to_s, '_image_css.scss')
         FileUtils.mkdir_p(File.dirname(image_css_path))
-        
+
         file = File.new(image_css_path, "w")
         file.write(_css_for_slices)
         file.close
-        
+
         image_css_path = File.join('./tmp/chance/image_css', @options[:instance_id].to_s, 'image_css')
-        
+
 
         # STEP 2: Preparing input CSS
         # The main CSS file we pass to the Sass Engine will have placeholder CSS for the
@@ -317,10 +317,10 @@ module Chance
       else
         ret = postprocess_css_dataurl(opts)
       end
-      
+
       ret = _strip_slice_class_names(ret)
     end
-    
+
     #
     # Strips dummy slice class names that were added by Chance so that SCSS could do its magic,
     # but which are no longer needed.
@@ -331,10 +331,10 @@ module Chance
     end
 
 
-    # 
+    #
     # COMBINING CSS
     #
-    
+
     # Determines the "Chance Header" to add at the beginning of the file. The
     # Chance Header can set, for instance, the $theme variable.
     #
@@ -343,33 +343,33 @@ module Chance
     # only used for this purpose)
     #
     # For backwards-compatibility, the fallback if no _theme.css file is present
-    # is to return code setting $theme to the now-deprecated @options[:theme] 
+    # is to return code setting $theme to the now-deprecated @options[:theme]
     # passed to Chance
     def chance_header_for_file(file)
       # 'file' is the name of a file, so we actually need to start at dirname(file)
       dir = File.dirname(file)
-      
+
       # This should not be slow, as this is just a hash lookup
       while dir.length > 0 and not dir == "."
         header_file = @mapped_files[File.join(dir, "_theme.css")]
         if not header_file.nil?
           return Chance.get_file(header_file)
         end
-        
+
         dir = File.dirname(dir)
       end
-      
+
       # Make sure to look globally
       header_file = @mapped_files["_theme.css"]
       return Chance.get_file(header_file) if not header_file.nil?
-      
+
       {
         # Never changes (without a restart, at least)
         :mtime => 0,
         :content => "$theme: '" + @options[:theme] + "';\n"
       }
     end
-    
+
     #
     # _include_file is the recursive method in the depth-first-search
     # that creates the ordered list of files.
@@ -381,7 +381,7 @@ module Chance
     #
     def _include_file(file)
       return if not file =~ /\.css$/
-      
+
       # skip _theme.css files
       return if file =~ /_theme\.css$/
 
@@ -417,7 +417,7 @@ module Chance
       @@generation = @@generation + 1
       files = @mapped_files.values
       @file_list = []
-      
+
       # We have to sort alphabetically first...
       tmp_file_list = []
       @mapped_files.each {|p, f| tmp_file_list.push([p, f]) }
@@ -425,11 +425,11 @@ module Chance
 
       tmp_file_list.each {|paths|
         p, f = paths
-        
+
         # Save the mtime for caching
         mtime = Chance.update_file_if_needed(f)
         @file_mtimes[p] = mtime
-        
+
         _include_file(f)
       }
 
@@ -440,7 +440,7 @@ module Chance
         # We can't be picky and just call it if something has changed. Thankfully,
         # parser is fast. Unlike SCSS.
         header_file = chance_header_for_file(relative_paths[file[:path]])
-        
+
         content = "@_chance_file " + relative_paths[file[:path]] + ";\n"
         content += header_file[:content]
         content += file[:content]
@@ -448,7 +448,7 @@ module Chance
         parser = Chance::Parser.new(content, @options)
         parser.parse
         file[:parsed_css] = parser.css
-        
+
         # We used to use an md5 hash here, but this hides the original file name
         # from SCSS, which makes the file name + line number comments useless.
         #
@@ -458,7 +458,7 @@ module Chance
         tmp_path = "./tmp/chance/#{path_safe}.scss"
 
         FileUtils.mkdir_p(File.dirname(tmp_path))
-        
+
         if (not file[:mtime] or not file[:wtime] or file[:wtime] < file[:mtime] or
             not header_file[:mtime] or file[:wtime] < header_file[:mtime])
           f = File.new(tmp_path, "w")

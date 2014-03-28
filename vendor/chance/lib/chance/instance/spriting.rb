@@ -102,9 +102,10 @@ module Chance
         #
         # Usually, this is computed as a simple max of itself and the width of any
         # given slice. However, when repeating, the least common multiple is used,
-        # and the smallest item is stored as well.
+        # and the smallest items are stored as well.
         size = 1
-        smallest_size = nil
+        largest_size = nil
+        used_area = 0
 
         is_horizontal = sprite[:use_horizontal_layout]
 
@@ -130,21 +131,21 @@ module Chance
             slice_height = canvas.height
           end
 
-          slice_length = is_horizontal ? slice_width : slice_height
+          # slice_length = is_horizontal ? slice_width : slice_height
           slice_size = is_horizontal ? slice_height : slice_width
 
           # When repeating, we must use the least common multiple so that
           # we can ensure the repeat pattern works even with multiple repeat
           # sizes. However, we should take into account how much extra we are
-          # adding by tracking the smallest size item as well.
+          # adding by tracking the largest size item as well.
           if slice[:repeat] != "no-repeat"
-            smallest_size = slice_size if smallest_size.nil?
-            smallest_size = [slice_size, smallest_size].min
-
             size = size.lcm slice_size
           else
             size = [size, slice_size + padding * 2].max
           end
+
+          largest_size = size if largest_size.nil?
+          largest_size = [size, largest_size].max
 
           slice[:slice_width] = slice_width.to_i
           slice[:slice_height] = slice_height.to_i
@@ -177,7 +178,6 @@ module Chance
             inset = 0
             row_length = 0
           end
-
 
           # We have extras for manual tweaking of offsetx/y. We have to make sure there
           # is padding for this (on either side)
@@ -228,14 +228,15 @@ module Chance
             inset = (inset.to_f / 2).ceil * 2
           end
 
+          used_area += slice_size * slice_length
         end
         pos += row_length
 
-        # TODO: USE A CONSTANT FOR THIS WARNING
-        smallest_size = size if smallest_size == nil
-        if size - smallest_size > 10
-          puts "WARNING: Used more than 10 extra rows or columns to accommodate repeating slices."
-          puts "Wasted up to " + (pos * size-smallest_size).to_s + " pixels"
+        total_area = pos * largest_size
+
+        if total_area > 300000 # an arbritrarily large sprite size at which we could begin to worry about the efficiency
+          efficiency = (used_area / total_area.to_f) * 100
+          sprite[:efficiency] = efficiency
         end
 
         sprite[:width] = is_horizontal ? pos : size
@@ -246,7 +247,7 @@ module Chance
 
       # Generates the image for the specified sprite, putting it in the sprite's
       # :image property.
-      def generate_sprite(sprite)
+      def generate_sprite(sprite, dst_path)
         canvas = canvas_for_sprite(sprite)
         sprite[:canvas] = canvas
 
@@ -274,6 +275,10 @@ module Chance
           end
 
           compose_slice_on_canvas(canvas, slice, x, y, width, height)
+        end
+
+        if sprite[:efficiency] != nil and sprite[:efficiency] < 50.0
+          SC.logger.warn "Inefficient sprite: '#{dst_path}'.\n The content to wasted space ratio for the sprite is only #{sprite[:efficiency].round(0)}%. This sprite could be optimized by removing overly large slices within it.\n"
         end
       end
 
@@ -364,7 +369,7 @@ module Chance
 
       end
 
-      def sprite_data(opts)
+      def sprite_data(opts, dst_path)
         _render
         slice_images(opts)
         generate_sprite_definitions(opts)
@@ -379,7 +384,7 @@ module Chance
         end
 
 
-        generate_sprite(sprite) if not sprite[:has_generated]
+        generate_sprite(sprite, dst_path) if not sprite[:has_generated]
 
         ret = sprite[:canvas].to_blob
 

@@ -8,7 +8,7 @@ module SC
 
     def build(dst_path)
       instances = entry[:chance_instances] || [entry[:chance_instance]]
-      
+
       # Ensure all entries are staged. When Abbot updates, it may skip regenerating
       # the manifest and just run us, in which case, the previous staged version
       # will be out-of-date.
@@ -23,7 +23,7 @@ module SC
 
 
         src = ""
-        src = chance.output_for chance_file unless chance.nil?
+        src = chance.output_for(chance_file, dst_path) unless chance.nil?
         src = "" if src.nil?
 
         if (chance_file.end_with?("css") or chance_file.end_with?("js")) and src.length > 0
@@ -34,7 +34,7 @@ module SC
         src
       }.join("")
 
-      # Don't write empty files... but keep in mind that hte 
+      # Don't write empty files... but keep in mind that hte
       if src.length > 0
         if chance_file.end_with?("png")
           # Writing it as binary to avoid newline problems on Windows
