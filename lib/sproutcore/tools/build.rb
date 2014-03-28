@@ -13,15 +13,15 @@ $to_html5_manifest_networks = []
 
 module SC
   class Tools
-    
+
     desc "build [TARGET..]", "Builds one or more targets"
-    
+
     # Standard manifest options.  Used by build tool as well.
     method_option :languages, :type => :string,
       :desc => "The languages to build."
-      
+
     method_option :symlink, :default => false
-    
+
     method_option :buildroot, :type => :string,
       :desc => "The path to build to."
     method_option :stageroot, :type => :string,
@@ -34,8 +34,8 @@ module SC
       :desc => "The identifier(s) for the build."
     method_option :include_required, :default => false, :aliases => '-r',
       :desc => "Deprecated. All builds build dependencies."
-      
-    
+
+
     method_option :entries, :type => :string
     method_option :whitelist, :type => :string,
       :desc => "The whitelist to use when building. By default, Whitelist (if present)"
@@ -66,17 +66,17 @@ module SC
       if options[:entries]
         entry_filters = options[:entries].split(',')
       end
-      
-      # We want Chance to clear files like sprites immediately after they're asked for, 
+
+      # We want Chance to clear files like sprites immediately after they're asked for,
       # because we'll only need them once during a build.
       Chance.clear_files_immediately
-      
+
       # Get the manifests to build
       manifests = build_manifests(*targets) do |manifest|
         # This is our own logic to prevent processing a manifest twice
         next if manifest[:built_by_builder]
         manifest[:built_by_builder] = true
-        
+
         # get entries.  If "entries" option was specified, use to filter
         # filename.  Must match end of filename.
         entries = manifest.entries
@@ -93,34 +93,34 @@ module SC
 
         # if there are entries to build, log and build
         build_entries_for_manifest manifest, options.allow_commented_js
-        
+
         # Build dependencies
         target = manifest.target
         required = target.expand_required_targets :theme => true,
           :debug => target.config.load_debug,
           :tests => target.config.load_tests,
- 
+
           # Modules are not 'required' technically, as they may be loaded
           # lazily. However, we want to know all targets that should be built,
           # so we'll include modules as well.
           :modules => true
 
-        
-        required.each {|t| 
+
+        required.each {|t|
           m = t.manifest_for(manifest.variation)
-          
-          
+
+
           # And, yes, the same as above. We're just building entries for all required targets.
           # We're also going to mark them as fully-built so they don't get built again.
           next if m[:built_by_builder]
           m[:built_by_builder] = true
           m.build!
-          
+
           build_entries_for_manifest m, options.allow_commented_js
-          
-          
+
+
         }
-        
+
         # Clean up
         manifest.reset!
         Chance::ChanceFactory.clear_instances
@@ -142,9 +142,9 @@ module SC
       seconds = t2-t1
       minutes = seconds/60
       seconds = seconds%60
-      puts 'Build time '+minutes.floor.to_s+ ' minutes '+seconds.floor.to_s+' secs'
+      puts 'Build time: '+minutes.floor.to_s+ ' minutes '+seconds.floor.to_s+' secs'
     end
-    
+
   end
 
 end

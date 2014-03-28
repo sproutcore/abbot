@@ -88,12 +88,18 @@ module SC
             :config => self.target.config,
             :project => self.target.project
         end
+
+        # Information indicating where the built app can be found. This is useful
+        # when manually uploading builds, to ensure we have the newest build.
+        if target[:target_type] == :app
+          SC.logger << "Built #{target[:target_name]} to #{target[:build_root]}/#{target[:build_number]}\n"
+        end
       end
       return self
     end
 
     def built?; @is_built; end
-    
+
     #
     # Resets this manifest, and all same-variation manifests the target depends on.
     # This is useful when building: it clears the entries and frees up memory so
@@ -102,20 +108,20 @@ module SC
     def reset!
       return if @is_resetting
       @is_resetting = true
-      
+
       targets = target.expand_required_targets({ :theme => true }) + [target]
       entries = targets.map do |t|
         t.manifest_for(variation).reset!
       end
-      
+
       targets = target.modules({ :debug => false, :test => false, :theme => true }).each do |t|
         t.manifest_for(variation).reset!
       end
-      
+
       reset_entries!
-      
+
       @is_resetting = false
-      
+
       return self
     end
 

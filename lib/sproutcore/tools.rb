@@ -349,10 +349,10 @@ module SC
         targets = find_targets(*targets) # get targets
 
         # log output
-        SC.logger.info "Building targets: #{targets.map { |t| t.target_name } * ","}"
+        SC.logger << "Building targets: #{targets.map { |t| t.target_name } * ","}\n"
 
         languages = find_languages(*targets) # get languages
-        SC.logger.info "Building languages: #{ languages * "," }"
+        SC.logger << "Building languages: #{ languages * "," }\n"
 
         index = 1
         count = targets.length * languages.length
