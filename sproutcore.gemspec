@@ -27,8 +27,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'chunky_png', '~> 1.2'
 
   # We need to add two eventmachine dependencies so that `thin` (eventmachine >= 0.12.6) and `em-http-request` (eventmachine ~> 1.0.0.beta.4) don't cause bundler to throw a dependency exception.
-  s.add_dependency 'eventmachine', '>= 0.12.6'
-  s.add_dependency 'eventmachine', '~> 1.0'
+  s.add_dependency 'eventmachine', '~> 1.0', '>= 0.12.6'
 
   s.add_dependency 'em-http-request', '~> 1.0'
 
