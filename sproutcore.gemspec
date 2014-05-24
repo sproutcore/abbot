@@ -32,7 +32,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'em-http-request', '~> 1.0'
 
   if is_jruby
-    s.add_dependency 'mongrel', '~> 1.1'
+    s.add_dependency 'mizuno', '~> 0.6'
   else
     s.add_dependency 'thin', '~> 1.2'
     s.add_dependency 'listen', '~> 2.7'

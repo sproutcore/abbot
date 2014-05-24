@@ -51,7 +51,8 @@ module SC
           begin
             server = ::Rack::Handler::Thin
           rescue LoadError => e
-            server = ::Rack::Handler::Mongrel
+            require 'mizuno/server'
+            server = ::Mizuno::Server
           end
         end
         
