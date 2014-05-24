@@ -35,8 +35,8 @@ Gem::Specification.new do |s|
     s.add_dependency 'mizuno', '~> 0.6'
   else
     s.add_dependency 'thin', '~> 1.2'
-    s.add_dependency 'listen', '~> 2.7'
   end
+  s.add_dependency 'listen', '~> 2.7'
 
   s.add_development_dependency 'gemcutter', "~> 0.6"
   s.add_development_dependency 'rspec', "~> 2.5"
