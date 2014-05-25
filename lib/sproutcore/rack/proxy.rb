@@ -14,18 +14,8 @@ rescue LoadError => e
   SC::HTTPS_ENABLED = false
 end
 
-begin
-  require 'eventmachine'
-  require 'em-http'
-  require 'thin'
-
-  SC::PROXY_ENABLED = true
-rescue LoadError => e
-  SC::PROXY_ENABLED = false
-end
-
-if SC::PROXY_ENABLED
-  # There are cases where we cannot load the proxy and don't need to (build environment)
+require 'eventmachine'
+require 'em-http'
 
   module SC
 
@@ -305,8 +295,6 @@ if SC::PROXY_ENABLED
 
             # Because Set-Cookie header can appear more the once in the response body,
             # but Rack only accepts a hash of headers, we store it in a line break separated string
-            # for Ruby 1.9 and as an Array for Ruby 1.8
-            # See http://groups.google.com/group/rack-devel/browse_thread/thread/e8759b91a82c5a10/a8dbd4574fe97d69?#a8dbd4574fe97d69
             if key.downcase == 'set-cookie'
               cookies = []
 
@@ -319,11 +307,7 @@ if SC::PROXY_ENABLED
               # Remove nil values
               result['Set-Cookie'] = [result['Set-Cookie'], cookies].compact
 
-              if Thin.ruby_18?
-                result['Set-Cookie'].flatten!
-              else
-                result['Set-Cookie'] = result['Set-Cookie'].join("\n")
-              end
+              result['Set-Cookie'] = result['Set-Cookie'].join("\n")
             end
 
             SC.logger << "   #{key}: #{value}\n"
@@ -348,5 +332,3 @@ if SC::PROXY_ENABLED
       end
     end
   end
-
-end
