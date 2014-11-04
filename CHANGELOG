@@ -1,7 +1,18 @@
+SproutCore 1.10.3
+-----------------
+
+* Makes logging each individual path a debug level mode and moves the build path message to info level.
+* Adds a bit of default messaging to the build process.
+* Bumps the listen gem minimum requirement as earlier versions seem to result in not being able to kill sc-server.
+* Updates YUICompressor to version 2.4.8.
+* Moves some unneeded code into the polling listener block and adds all matched .git directories as an ignored path. This prevents excessive CPU usage when dealing with submodules and frameworks checked out within a project.
+
+
 SproutCore 1.10.2
 -----------------
 
 * Uses a file system change listener rather than polling.
+
 
 SproutCore 1.10.0
 -----------------
