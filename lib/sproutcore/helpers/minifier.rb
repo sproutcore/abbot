@@ -104,6 +104,7 @@ module SC::Helpers
 
       if js_paths.length > 0
         js_paths.each {|p|
+          p = Pathname.new(p).relative_path_from(Pathname.new(Dir.getwd))
           command = %{java -Xmx512m -XX:MaxPermSize=256m -jar "#{SC.js_jar}" -o "#{p}" "#{p}" 2>&1}
           output = `#{command}`
 
