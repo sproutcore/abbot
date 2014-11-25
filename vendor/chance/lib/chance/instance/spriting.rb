@@ -278,7 +278,7 @@ module Chance
         end
 
         if sprite[:efficiency] != nil and sprite[:efficiency] < 50.0
-          SC.logger.warn "Inefficient sprite: '#{dst_path}'.\n The content to wasted space ratio for the sprite is only #{sprite[:efficiency].round(0)}%. This sprite could be optimized by removing overly large slices within it.\n"
+          # SC.logger.warn "Inefficient sprite: '#{dst_path}'.\n The content to wasted space ratio for the sprite is only #{sprite[:efficiency].round(0)}%. This sprite could be optimized by removing overly large slices within it.\n"
         end
       end
 
