@@ -1,3 +1,10 @@
+SproutCore 1.11.0.rc1
+-----------------
+
+* Fixes abbot issue #109 - YUI compressor now uses relatives paths
+* Removes workaround for old version of em-http-request.
+* Improves the Chance spriting warning to be more descriptive, including which file has a lot of wasted space and the current way to improve efficiency. Ideally, Chance would use the wasted space itself, but that is a difficult problem to solve.
+
 SproutCore 1.10.2
 -----------------
 
