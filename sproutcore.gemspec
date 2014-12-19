@@ -7,7 +7,7 @@ is_jruby = (os == "java")
 Gem::Specification.new do |s|
   s.name = 'sproutcore'
   s.version = SproutCore::VERSION
-  s.authors = 'Strobe, Inc., Apple Inc. and contributors'
+  s.authors = '7x7 Software, Inc., Apple Inc. and contributors'
   s.email = 'community@sproutcore.com'
   s.license = 'MIT'
   s.homepage = 'http://www.sproutcore.com'
@@ -21,9 +21,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'erubis', "~> 2.6"
   s.add_dependency 'thor', '~> 0.18'
   s.add_dependency 'sass', '~> 3.1'
-  s.add_dependency 'haml', '~> 3.1'
+  s.add_dependency 'haml', '~> 4.0'
 
-  s.add_dependency 'compass', '~> 0.11'
+  s.add_dependency 'compass', '~> 1.0'
   s.add_dependency 'chunky_png', '~> 1.2'
 
   s.add_dependency 'eventmachine', '~> 1.0'

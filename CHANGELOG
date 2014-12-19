@@ -1,3 +1,13 @@
+SproutCore 1.11.0.rc3
+-----------------
+
+* Updated the dependency requirements for compass, haml & sass to avoid exceptions running on Ruby 2.
+
+SproutCore 1.11.0.rc2
+-----------------
+
+* No changes.
+
 SproutCore 1.11.0.rc1
 -----------------
 
