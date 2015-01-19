@@ -16,7 +16,7 @@ module SC
       end
 
       def compile(input)
-        ::Haml::Engine.new(input).send(:precompiled_with_ambles, [])
+        ::Haml::Engine.new(input).compiler.send(:precompiled_with_ambles, [])
       end
 
       def concat(string, binding)
