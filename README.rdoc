@@ -1,3 +1,6 @@
+= Deprecated - please use the NodeJS buildtools
+
+
 = sproutcore - abbot
 
     by Charles Jolley and contributors
