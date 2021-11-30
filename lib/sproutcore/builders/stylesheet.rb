@@ -36,6 +36,32 @@ module SC
 
     def static_url(url=''); "url('#{url}')" ; end
 
+    def sc_static_match
+      /(sc_static|static_url|sc_target)\(\s*['"]([^?#"']*)\??(#?[^"']*?)['"]\s*\)/
+    end
+
+    # Handles occurances of sc_static() or static_url()
+    def replace_static_url(line)
+      line.gsub!(sc_static_match) do | rsrc |
+        entry_name = $2
+        entry_hash = $3 || ''
+        entry_name = "#{$2}:index.html" if $1 == 'sc_target'
+
+        static_entry = entry.manifest.find_entry($2)
+
+        if !static_entry
+          SC.logger.warn "#{$2} was not found. Line: #{rsrc}"
+          url = ''
+        elsif $1 == 'sc_target'
+          url = static_entry[:friendly_url] || static_entry.cacheable_url
+        else
+          url = static_entry.cacheable_url + $3
+        end
+
+        static_url(url)
+      end
+    end
+
   end
 
 end
